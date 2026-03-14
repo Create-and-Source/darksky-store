@@ -6,16 +6,16 @@ export const ADMIN_CSS = `
 .admin {
   display: flex;
   min-height: 100vh;
-  background: #F8F7F4;
-  color: #1E293B;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #FAFAF8;
+  color: #1A1A2E;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ── SIDEBAR ── */
 .admin-sidebar {
   width: 260px;
-  background: #1E293B;
+  background: #1A1A2E;
   border-right: none;
   display: flex;
   flex-direction: column;
@@ -43,7 +43,7 @@ export const ADMIN_CSS = `
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #d4af37, #a08520);
+  background: linear-gradient(135deg, #C5A55A, #9A7E3A);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,15 +52,15 @@ export const ADMIN_CSS = `
   flex-shrink: 0;
 }
 .admin-sidebar-title {
-  font: 500 15px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font: 500 15px/1.2 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #FFFFFF;
 }
 .admin-sidebar-title small {
   display: block;
-  font: 600 9px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font: 600 9px/1 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #d4af37;
+  color: #C5A55A;
   margin-bottom: 3px;
 }
 
@@ -74,21 +74,21 @@ export const ADMIN_CSS = `
   margin-bottom: 8px;
 }
 .admin-nav-label {
-  font: 600 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  letter-spacing: 2px;
+  font: 500 10px/1 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #64748B;
+  color: #7C7B76;
   padding: 12px 12px 8px;
 }
 .admin-nav-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 12px;
-  height: 48px;
-  border-radius: 6px;
-  font: 400 15px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #94A3B8;
+  padding: 10px 12px;
+  height: 42px;
+  border-radius: 8px;
+  font: 400 14px/1 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #B5B3AD;
   cursor: pointer;
   transition: all 0.2s;
   text-decoration: none;
@@ -100,28 +100,34 @@ export const ADMIN_CSS = `
   box-sizing: border-box;
 }
 .admin-nav-item:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.06);
   color: #FFFFFF;
 }
 .admin-nav-item.active {
-  background: rgba(212,175,55,0.15);
-  color: #D4AF37;
-  border-left-color: #D4AF37;
+  background: rgba(250,250,248,0.95);
+  color: #1A1A2E;
+  border-left-color: #C5A55A;
+  font-weight: 500;
 }
 .admin-nav-item svg {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  opacity: 0.7;
+  opacity: 0.5;
+}
+.admin-nav-item:hover svg {
+  opacity: 0.8;
 }
 .admin-nav-item.active svg {
   opacity: 1;
+  color: #C5A55A;
+  stroke: #C5A55A;
 }
 .admin-nav-badge {
   margin-left: auto;
-  background: rgba(212,175,55,0.12);
-  color: #d4af37;
-  font: 600 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: rgba(197,165,90,0.15);
+  color: #C5A55A;
+  font: 600 11px/1 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   padding: 3px 8px;
   border-radius: 10px;
 }
@@ -172,7 +178,7 @@ export const ADMIN_CSS = `
   padding: 0 32px;
   height: 64px;
   background: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E8E5DF;
 }
 .admin-topbar-left {
   display: flex;
@@ -180,12 +186,12 @@ export const ADMIN_CSS = `
   gap: 16px;
 }
 .admin-topbar-title {
-  font: 500 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #1E293B;
+  font: 500 15px/1 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1A1A2E;
 }
 .admin-topbar-user {
-  font: 400 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #64748B;
+  font: 400 14px/1 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #7C7B76;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -194,12 +200,12 @@ export const ADMIN_CSS = `
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: rgba(212,175,55,0.12);
-  color: #d4af37;
+  background: rgba(197,165,90,0.12);
+  color: #C5A55A;
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 600 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font: 600 14px/1 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 .admin-hamburger {
   display: none;
