@@ -6,6 +6,27 @@ import { PRODUCTS } from '../data/products';
 
 const MARQUEE_ITEMS = ['Astronomy Apparel', 'Space Gifts', 'Kids Collection', 'Observatory Merch', 'Dark Sky Membership', 'Stargazing Accessories', 'Limited Editions', 'Night Sky Prints'];
 
+const TESTIMONIALS = [
+  {
+    text: "The quality is incredible. My Milky Way hoodie gets compliments every time I wear it. Love knowing my purchase supports dark sky preservation.",
+    author: "Sarah M.",
+    location: "Tucson, AZ",
+    initials: "SM",
+  },
+  {
+    text: "Bought gifts for the whole family. The kids' telescope kit was a huge hit, and the star chart poster is now the centerpiece of our living room.",
+    author: "James K.",
+    location: "Sedona, AZ",
+    initials: "JK",
+  },
+  {
+    text: "As a member, the exclusive access and discounts make it so worthwhile. The limited edition prints are museum quality. Truly special pieces.",
+    author: "Elena R.",
+    location: "Phoenix, AZ",
+    initials: "ER",
+  },
+];
+
 function useReveal(ref) {
   useEffect(() => {
     const el = ref.current;
@@ -42,7 +63,7 @@ export default function Home({ onAddToCart }) {
 
   return (
     <div>
-      {/* ── HERO ── */}
+      {/* -- HERO -- */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stars">
           <Stars count={260} className="stars-canvas" />
@@ -81,21 +102,21 @@ export default function Home({ onAddToCart }) {
         </div>
       </section>
 
-      {/* ── MARQUEE ── */}
+      {/* -- MARQUEE -- */}
       <div className="marquee-wrap">
         <div className="marquee-track">
           {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
             <span key={i} className="marquee-item">
-              {item} <span className="marquee-dot">✦</span>
+              {item} <span className="marquee-dot">&#10022;</span>
             </span>
           ))}
         </div>
       </div>
 
-      {/* ── FEATURED COLLECTION ── */}
+      {/* -- FEATURED COLLECTION -- */}
       <section className="section" style={{ background: 'var(--bg)' }}>
         <RevealSection className="section-header">
-          <div className="label section-label">01 — Collection</div>
+          <div className="label section-label">01 -- Collection</div>
           <h2 className="section-title">Curated for the <em>Curious</em></h2>
         </RevealSection>
         <div className="grid">
@@ -109,12 +130,26 @@ export default function Home({ onAddToCart }) {
             />
           ))}
         </div>
-        <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <button className="btn-ghost" onClick={() => navigate('/shop')}>View All 67 Products</button>
+        <div style={{ textAlign: 'center', marginTop: 56 }}>
+          <button className="btn-ghost" onClick={() => navigate('/shop')}>View All Products</button>
         </div>
       </section>
 
-      {/* ── MISSION BAND ── */}
+      {/* -- NEWSLETTER SIGNUP -- */}
+      <div className="newsletter-section">
+        <RevealSection>
+          <h3 className="newsletter-title">Stay Under the <em>Stars</em></h3>
+          <p className="newsletter-sub">
+            Get early access to new arrivals, exclusive offers, and stories from the dark sky frontier.
+          </p>
+          <form className="newsletter-form" onSubmit={e => e.preventDefault()}>
+            <input type="email" className="newsletter-input" placeholder="Your email address" />
+            <button type="submit" className="newsletter-btn">Subscribe</button>
+          </form>
+        </RevealSection>
+      </div>
+
+      {/* -- MISSION BAND -- */}
       <div className="mission">
         <blockquote className="mission-quote">
           "Spend time under the stars.<br/><em>Take the night sky home.</em>"
@@ -122,10 +157,10 @@ export default function Home({ onAddToCart }) {
         <div className="mission-attr">// International Dark Sky Discovery Center, Sonoran Desert</div>
       </div>
 
-      {/* ── NEW ARRIVALS ── */}
+      {/* -- NEW ARRIVALS -- */}
       <section className="section" style={{ background: 'var(--bg2)' }}>
         <RevealSection className="section-header">
-          <div className="label section-label">02 — New Arrivals</div>
+          <div className="label section-label">02 -- New Arrivals</div>
           <h2 className="section-title">Just <em>Landed</em></h2>
         </RevealSection>
         <div className="grid grid-4">
@@ -135,13 +170,13 @@ export default function Home({ onAddToCart }) {
         </div>
       </section>
 
-      {/* ── CATEGORIES ── */}
+      {/* -- CATEGORIES -- */}
       <section className="section" style={{ background: 'var(--bg)' }}>
         <RevealSection className="section-header">
-          <div className="label section-label">03 — Shop by Category</div>
+          <div className="label section-label">03 -- Shop by Category</div>
           <h2 className="section-title">Find Your <em>Constellation</em></h2>
         </RevealSection>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
+        <div className="cat-cards-5">
           {['Apparel', 'Kids', 'Gifts', 'Outerwear', 'Tanks'].map((cat, i) => {
             const catProducts = PRODUCTS.filter(p => p.category === cat && p.images[0]);
             const heroImg = catProducts[0]?.images[0];
@@ -149,87 +184,23 @@ export default function Home({ onAddToCart }) {
             return (
               <button
                 key={cat}
+                className="cat-card"
                 onClick={() => navigate(`/shop?cat=${cat}`)}
-                style={{
-                  background: '#0e0e24',
-                  border: '1px solid #1e1e42',
-                  borderRadius: 6,
-                  padding: 0,
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'border-color .25s, transform .25s, box-shadow .25s',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'var(--gold)';
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,169,74,0.3)';
-                  e.currentTarget.querySelector('.cat-img-wrap').style.background = '#e8e4dc';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = '#1e1e42';
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = 'none';
-                  e.currentTarget.querySelector('.cat-img-wrap').style.background = '#dedad2';
-                }}
               >
-                {/* Image zone — warm white background so products pop */}
-                <div
-                  className="cat-img-wrap"
-                  style={{
-                    background: '#dedad2',
-                    height: 180,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    transition: 'background .25s',
-                  }}
-                >
+                <div className="cat-card-img">
+                  <div className="cat-card-overlay" />
                   {heroImg ? (
-                    <img
-                      src={heroImg}
-                      alt={cat}
-                      style={{
-                        width: '85%',
-                        height: '85%',
-                        objectFit: 'contain',
-                        display: 'block',
-                        filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.25))',
-                      }}
-                    />
+                    <img src={heroImg} alt={cat} />
                   ) : (
-                    <span style={{ fontSize: 48, opacity: 0.3 }}>✦</span>
+                    <span style={{ fontSize: 48, opacity: 0.3, color: 'var(--gold)' }}>&#10022;</span>
                   )}
                 </div>
-
-                {/* Text zone — dark */}
-                <div style={{ padding: '20px 20px 22px', flex: 1 }}>
-                  <div className="label" style={{ marginBottom: 10, fontSize: 9 }}>{`0${i+1} — ${cat.toUpperCase()}`}</div>
-                  <div style={{
-                    fontFamily: 'Playfair Display, serif',
-                    fontSize: 26,
-                    fontWeight: 500,
-                    color: 'var(--text)',
-                    marginBottom: 10,
-                    lineHeight: 1.1,
-                  }}>{cat}</div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}>
-                    <span style={{
-                      font: '500 13px DM Sans',
-                      color: 'rgba(240,237,230,0.7)',
-                    }}>{count} products</span>
-                    <span style={{
-                      font: '500 11px JetBrains Mono',
-                      letterSpacing: '0.1em',
-                      color: 'var(--gold)',
-                    }}>Shop →</span>
+                <div className="cat-card-info">
+                  <div className="cat-card-label">{`0${i+1} -- ${cat.toUpperCase()}`}</div>
+                  <div className="cat-card-name">{cat}</div>
+                  <div className="cat-card-meta">
+                    <span className="cat-card-count">{count} products</span>
+                    <span className="cat-card-link">Shop &#8594;</span>
                   </div>
                 </div>
               </button>
@@ -238,10 +209,72 @@ export default function Home({ onAddToCart }) {
         </div>
       </section>
 
-      {/* ── MEMBERSHIP TEASER ── */}
-      <section className="section" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(201,169,74,0.08) 0%, transparent 60%), var(--bg2)', textAlign: 'center' }}>
+      {/* -- TESTIMONIALS -- */}
+      <section className="section" style={{ background: 'var(--bg2)' }}>
+        <RevealSection className="section-header">
+          <div className="label section-label">04 -- Community</div>
+          <h2 className="section-title">What Our Community <em>Says</em></h2>
+        </RevealSection>
+        <div className="testimonials-grid">
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} className="testimonial-card">
+              <div className="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              <p className="testimonial-text">"{t.text}"</p>
+              <div className="testimonial-author">
+                <div className="testimonial-avatar">{t.initials}</div>
+                <div>
+                  <div className="testimonial-name">{t.author}</div>
+                  <div className="testimonial-loc">{t.location}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* -- TRUST BADGES -- */}
+      <div className="trust-row" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'var(--bg)' }}>
+        <div className="trust-item">
+          <div className="trust-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+          <span>Free Shipping $50+</span>
+        </div>
+        <div className="trust-item">
+          <div className="trust-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+          </div>
+          <span>Secure Checkout</span>
+        </div>
+        <div className="trust-item">
+          <div className="trust-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </div>
+          <span>Premium Quality</span>
+        </div>
+        <div className="trust-item">
+          <div className="trust-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10 15 15 0 014-10z"/>
+              <path d="M2 12h20"/>
+            </svg>
+          </div>
+          <span>Dark Sky Mission</span>
+        </div>
+      </div>
+
+      {/* -- MEMBERSHIP TEASER -- */}
+      <section className="section" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.08) 0%, transparent 60%), var(--bg)', textAlign: 'center' }}>
         <RevealSection>
-          <div className="label section-label" style={{ marginBottom: 24 }}>04 — Membership</div>
+          <div className="label section-label" style={{ marginBottom: 24 }}>05 -- Membership</div>
           <h2 className="section-title" style={{ marginBottom: 20 }}>Join the <em>Observatory</em></h2>
           <p style={{ font: '300 16px/1.8 DM Sans, sans-serif', color: 'var(--muted)', maxWidth: 480, margin: '0 auto 36px' }}>
             Members enjoy exclusive discounts, early access to limited releases, and invitations to private stargazing events under the Sonoran sky.

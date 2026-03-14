@@ -1,8 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { INVENTORY, LOCATIONS } from '../data/mockData';
+import { getInventory, receiveStock, subscribe } from '../data/store';
 import { useToast } from '../AdminLayout';
+import HelpBubble from '../components/HelpBubble';
+
+const LOCATIONS = [
+  { id: 'warehouse', name: 'C&S Warehouse' },
+  { id: 'giftshop', name: 'Dark Sky Gift Shop' },
+];
 
 export default function Receive() {
+  const [, setTick] = useState(0);
   const [step, setStep] = useState(1);
   const [location, setLocation] = useState('');
   const [items, setItems] = useState([]);
@@ -11,16 +18,25 @@ export default function Receive() {
   const [reference, setReference] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [completedItems, setCompletedItems] = useState([]);
+  const [completedLocation, setCompletedLocation] = useState('');
+  const [completedReference, setCompletedReference] = useState('');
   const searchRef = useRef(null);
   const toast = useToast();
+
+  useEffect(() => {
+    return subscribe(() => setTick(t => t + 1));
+  }, []);
 
   // Auto-focus search (barcode scanner)
   useEffect(() => {
     if (step === 2 && searchRef.current) searchRef.current.focus();
   }, [step]);
 
+  const inventory = getInventory();
+
   const searchResults = search.length >= 2
-    ? INVENTORY.filter(i => i.name.toLowerCase().includes(search.toLowerCase()) || i.sku.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
+    ? inventory.filter(i => i.name.toLowerCase().includes(search.toLowerCase()) || i.sku.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
     : [];
 
   const addItem = (inv) => {
@@ -40,11 +56,17 @@ export default function Receive() {
 
   const handleSubmit = () => {
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      setDone(true);
-      toast(`Received ${items.reduce((s, i) => s + i.receiveQty, 0)} items at ${LOCATIONS.find(l => l.id === location)?.name}`);
-    }, 1200);
+    const receiveItems = items.map(i => ({ id: i.id, qty: i.receiveQty }));
+    const noteText = [reference, notes].filter(Boolean).join(' - ');
+    receiveStock(receiveItems, location, noteText);
+    // Save completed data before resetting
+    setCompletedItems([...items]);
+    setCompletedLocation(location);
+    setCompletedReference(reference);
+    setSubmitting(false);
+    setDone(true);
+    const locName = LOCATIONS.find(l => l.id === location)?.name;
+    toast(`Received ${items.reduce((s, i) => s + i.receiveQty, 0)} items at ${locName}`);
   };
 
   const reset = () => {
@@ -55,6 +77,9 @@ export default function Receive() {
     setNotes('');
     setReference('');
     setDone(false);
+    setCompletedItems([]);
+    setCompletedLocation('');
+    setCompletedReference('');
   };
 
   const stepLabels = ['Location', 'Add Products', 'Quantities', 'Details', 'Confirm'];
@@ -67,20 +92,20 @@ export default function Receive() {
   };
 
   if (done) {
-    const locName = LOCATIONS.find(l => l.id === location)?.name;
+    const locName = LOCATIONS.find(l => l.id === completedLocation)?.name;
     return (
       <div className="admin-confirm">
-        <div className="admin-confirm-icon">✓</div>
+        <div className="admin-confirm-icon">&#10003;</div>
         <h2 className="admin-confirm-title">Stock Received Successfully</h2>
         <p className="admin-confirm-sub">
-          {items.reduce((s, i) => s + i.receiveQty, 0)} items received at {locName}
-          {reference && <><br />Reference: {reference}</>}
+          {completedItems.reduce((s, i) => s + i.receiveQty, 0)} items received at {locName}
+          {completedReference && <><br />Reference: {completedReference}</>}
         </p>
         <div className="admin-table-wrap" style={{ textAlign: 'left', maxWidth: 500, margin: '0 auto 24px' }}>
           <table className="admin-table">
             <thead><tr><th>Product</th><th>Variant</th><th>Qty</th></tr></thead>
             <tbody>
-              {items.map(i => (
+              {completedItems.map(i => (
                 <tr key={i.id}>
                   <td className="text-white">{i.name}</td>
                   <td>{i.variant}</td>
@@ -101,7 +126,10 @@ export default function Receive() {
     <>
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Receive Stock</h1>
+          <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            Receive Stock
+            <HelpBubble text="Use this when a shipment arrives. Search for what came in, enter how many, and confirm." />
+          </h1>
           <p className="admin-page-subtitle">Record incoming shipments</p>
         </div>
       </div>
@@ -114,7 +142,7 @@ export default function Receive() {
           return (
             <span key={n} style={{ display: 'contents' }}>
               <div className={`admin-step ${cls}`}>
-                <span className="admin-step-num">{n < step ? '✓' : n}</span>
+                <span className="admin-step-num">{n < step ? '\u2713' : n}</span>
                 {label}
               </div>
               {n < 5 && <div className="admin-step-line" />}
@@ -127,7 +155,10 @@ export default function Receive() {
         {/* Step 1: Location */}
         {step === 1 && (
           <>
-            <div className="admin-panel-title">Select Receiving Location</div>
+            <div className="admin-panel-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              Select Receiving Location
+              <HelpBubble text="Pick where the shipment arrived — your warehouse or the gift shop." />
+            </div>
             <div className="admin-grid-2" style={{ gap: 12 }}>
               {LOCATIONS.map(loc => (
                 <button
@@ -146,7 +177,10 @@ export default function Receive() {
         {/* Step 2: Scan/Search */}
         {step === 2 && (
           <>
-            <div className="admin-panel-title">Scan or Search Products</div>
+            <div className="admin-panel-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              Scan or Search Products
+              <HelpBubble text="Start typing a product name to find it. Click to add it to your receive list." />
+            </div>
             <input
               ref={searchRef}
               className="admin-input admin-input-lg"
@@ -156,7 +190,7 @@ export default function Receive() {
               autoFocus
             />
             {searchResults.length > 0 && (
-              <div style={{ marginTop: 8, border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, overflow: 'hidden' }}>
+              <div style={{ marginTop: 8, border: '1px solid #E2E8F0', borderRadius: 8, overflow: 'hidden' }}>
                 {searchResults.map(r => (
                   <button
                     key={r.id}
@@ -165,18 +199,18 @@ export default function Receive() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 12,
                       width: '100%', padding: '12px 14px', background: 'transparent',
-                      border: 'none', borderBottom: '1px solid rgba(255,255,255,0.03)',
-                      color: items.find(i => i.id === r.id) ? '#5a5550' : '#e8e4df',
+                      border: 'none', borderBottom: '1px solid #FAFAF8',
+                      color: items.find(i => i.id === r.id) ? '#94A3B8' : '#1E293B',
                       cursor: items.find(i => i.id === r.id) ? 'default' : 'pointer',
-                      font: '400 13px DM Sans', textAlign: 'left',
+                      font: '400 15px -apple-system, BlinkMacSystemFont, sans-serif', textAlign: 'left',
                       transition: 'background 0.15s',
                     }}
-                    onMouseEnter={e => { if (!items.find(i => i.id === r.id)) e.target.style.background = 'rgba(212,175,55,0.04)'; }}
+                    onMouseEnter={e => { if (!items.find(i => i.id === r.id)) e.target.style.background = '#FAFAF8'; }}
                     onMouseLeave={e => { e.target.style.background = 'transparent'; }}
                   >
-                    <span style={{ flex: 1 }}>{r.name} — {r.variant}</span>
-                    <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#5a5550' }}>{r.sku}</span>
-                    {items.find(i => i.id === r.id) && <span style={{ color: '#4ade80', fontSize: 11 }}>Added</span>}
+                    <span style={{ flex: 1 }}>{r.name} &mdash; {r.variant}</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 14, color: '#94A3B8' }}>{r.sku}</span>
+                    {items.find(i => i.id === r.id) && <span style={{ color: '#10B981', fontSize: 14 }}>Added</span>}
                   </button>
                 ))}
               </div>
@@ -188,9 +222,9 @@ export default function Receive() {
                   <div key={i.id} className="admin-receive-item">
                     <div className="admin-receive-item-info">
                       <div className="admin-receive-item-name">{i.name}</div>
-                      <div className="admin-receive-item-sku">{i.variant} · {i.sku}</div>
+                      <div className="admin-receive-item-sku">{i.variant} &middot; {i.sku}</div>
                     </div>
-                    <button className="admin-receive-remove" onClick={() => removeItem(i.id)}>✕</button>
+                    <button className="admin-receive-remove" onClick={() => removeItem(i.id)}>&#10005;</button>
                   </div>
                 ))}
               </div>
@@ -201,15 +235,18 @@ export default function Receive() {
         {/* Step 3: Quantities */}
         {step === 3 && (
           <>
-            <div className="admin-panel-title">Enter Quantities</div>
+            <div className="admin-panel-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              Enter Quantities
+              <HelpBubble text="Enter how many of this item you received in the shipment." />
+            </div>
             {items.map(i => (
               <div key={i.id} className="admin-receive-item">
                 <div className="admin-receive-item-info">
                   <div className="admin-receive-item-name">{i.name}</div>
-                  <div className="admin-receive-item-sku">{i.variant} · {i.sku}</div>
+                  <div className="admin-receive-item-sku">{i.variant} &middot; {i.sku}</div>
                 </div>
                 <div className="admin-receive-qty">
-                  <button className="admin-receive-qty-btn" onClick={() => updateQty(i.id, i.receiveQty - 1)}>−</button>
+                  <button className="admin-receive-qty-btn" onClick={() => updateQty(i.id, i.receiveQty - 1)}>&#8722;</button>
                   <input
                     className="admin-receive-qty-input"
                     type="number"
@@ -229,11 +266,17 @@ export default function Receive() {
           <>
             <div className="admin-panel-title">Add Details</div>
             <div style={{ marginBottom: 16 }}>
-              <label className="admin-label">Reference (PO Number or Supplier)</label>
+              <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                Reference (PO Number or Supplier)
+                <HelpBubble text="Add the PO number or any notes about this shipment for your records." />
+              </label>
               <input className="admin-input" placeholder="e.g. PO-0045 or Printify" value={reference} onChange={e => setReference(e.target.value)} />
             </div>
             <div>
-              <label className="admin-label">Notes</label>
+              <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                Notes
+                <HelpBubble text="Add the PO number or any notes about this shipment for your records." />
+              </label>
               <textarea className="admin-textarea" placeholder="Any notes about this shipment..." value={notes} onChange={e => setNotes(e.target.value)} />
             </div>
           </>
@@ -245,12 +288,18 @@ export default function Receive() {
             <div className="admin-panel-title">Review & Submit</div>
             <div style={{ marginBottom: 16 }}>
               <div className="admin-label">Location</div>
-              <p style={{ color: '#e8e4df', fontSize: 14 }}>{LOCATIONS.find(l => l.id === location)?.name}</p>
+              <p style={{ color: '#1E293B', fontSize: 15 }}>{LOCATIONS.find(l => l.id === location)?.name}</p>
             </div>
             {reference && (
               <div style={{ marginBottom: 16 }}>
                 <div className="admin-label">Reference</div>
-                <p style={{ color: '#e8e4df', fontSize: 14 }}>{reference}</p>
+                <p style={{ color: '#1E293B', fontSize: 15 }}>{reference}</p>
+              </div>
+            )}
+            {notes && (
+              <div style={{ marginBottom: 16 }}>
+                <div className="admin-label">Notes</div>
+                <p style={{ color: '#64748B', fontSize: 15 }}>{notes}</p>
               </div>
             )}
             <div className="admin-label" style={{ marginBottom: 8 }}>Items ({items.reduce((s, i) => s + i.receiveQty, 0)} total)</div>
@@ -260,7 +309,7 @@ export default function Receive() {
                   <div className="admin-receive-item-name">{i.name}</div>
                   <div className="admin-receive-item-sku">{i.variant}</div>
                 </div>
-                <span style={{ color: '#d4af37', fontWeight: 600, fontSize: 15 }}>×{i.receiveQty}</span>
+                <span style={{ color: '#d4af37', fontWeight: 600, fontSize: 15 }}>&times;{i.receiveQty}</span>
               </div>
             ))}
           </>
@@ -278,8 +327,9 @@ export default function Receive() {
               Continue
             </button>
           ) : (
-            <button className="admin-btn admin-btn-gold admin-btn-lg" disabled={submitting} onClick={handleSubmit}>
+            <button className="admin-btn admin-btn-gold admin-btn-lg" disabled={submitting} onClick={handleSubmit} style={{ display: 'inline-flex', alignItems: 'center' }}>
               {submitting ? <><span className="admin-spinner" /> Receiving...</> : 'Receive Stock'}
+              {!submitting && <HelpBubble text="This saves everything and updates your stock counts automatically." />}
             </button>
           )}
         </div>

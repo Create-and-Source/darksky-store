@@ -1,99 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { getEvents, addReservation, formatPrice } from '../admin/data/store';
 
-const EVENTS = [
-  {
-    id: 'evt-001',
-    title: 'New Moon Star Party',
-    category: 'Star Parties',
-    date: '2026-03-29',
-    time: '8:00 PM',
-    price: '$15/person',
-    spotsLeft: 45,
-    totalSpots: 80,
-    featured: true,
-    description: 'Experience the darkest skies of the month during our signature New Moon Star Party. Our astronomers will guide you through the constellations with high-powered telescopes, laser pointers, and star charts. Hot cocoa and blankets provided. This is the stargazing experience the Sonoran Desert was made for.',
-    shortDesc: 'Guided stargazing under the darkest skies of the month. Telescopes, star charts, and hot cocoa provided.',
-    location: 'Observatory Deck',
-    includes: ['Telescope access', 'Star charts', 'Hot cocoa & snacks', 'Red-light headlamp'],
-  },
-  {
-    id: 'evt-002',
-    title: 'Planetarium Show: Journey to Mars',
-    category: 'Planetarium Shows',
-    date: '2026-04-05',
-    time: '2:00 PM & 7:00 PM',
-    price: '$12 adults / $8 kids',
-    spotsLeft: 62,
-    totalSpots: 90,
-    featured: false,
-    description: 'Travel 140 million miles in 45 minutes. Our state-of-the-art planetarium takes you on a breathtaking flyover of Olympus Mons, through the canyons of Valles Marineris, and into the thin Martian atmosphere.',
-    shortDesc: 'A 45-minute immersive journey through the Martian landscape in our state-of-the-art planetarium.',
-    location: 'Planetarium Theater',
-    includes: ['45-minute show', 'Q&A with astronomer'],
-  },
-  {
-    id: 'evt-003',
-    title: 'Astrophotography Workshop',
-    category: 'Workshops',
-    date: '2026-04-12',
-    time: '6:00 PM',
-    price: '$35/person',
-    spotsLeft: 8,
-    totalSpots: 20,
-    featured: false,
-    description: 'Learn to capture the Milky Way, star trails, and deep-sky objects with your own camera. Includes hands-on telescope time and post-processing techniques. All skill levels welcome — bring a DSLR or mirrorless camera with a tripod.',
-    shortDesc: 'Capture the Milky Way with hands-on instruction. Includes telescope time. All skill levels.',
-    location: 'Observatory Deck & Lab',
-    includes: ['3-hour session', 'Telescope time', 'Editing tutorial', 'Digital handouts'],
-  },
-  {
-    id: 'evt-004',
-    title: 'Meteor Shower Watch Party',
-    category: 'Special Events',
-    date: '2026-04-22',
-    time: '9:00 PM',
-    price: 'Free for members / $10 general',
-    spotsLeft: 120,
-    totalSpots: 200,
-    featured: false,
-    description: 'The Lyrids meteor shower peaks tonight. Join us on the observation field with blankets, binoculars, and warm drinks as we count shooting stars together. Our astronomers will share the science behind these ancient dust trails.',
-    shortDesc: 'Watch the Lyrids meteor shower from our dark sky observation field. Blankets and binoculars provided.',
-    location: 'Observation Field',
-    includes: ['Blankets & chairs', 'Binoculars', 'Warm drinks', 'Meteor counting guide'],
-  },
-  {
-    id: 'evt-005',
-    title: 'Kids Space Camp Saturday',
-    category: 'Workshops',
-    date: '2026-04-19',
-    time: '10:00 AM',
-    price: '$25/child',
-    spotsLeft: 12,
-    totalSpots: 24,
-    featured: false,
-    description: 'A hands-on morning of space exploration for young astronomers ages 6–12. Build model rockets, explore the solar system in VR, paint constellations, and meet a real astronomer. Snacks and a take-home space kit included.',
-    shortDesc: 'Hands-on space exploration for ages 6–12. Build rockets, explore VR, paint constellations.',
-    location: 'Discovery Lab',
-    includes: ['Rocket building', 'VR solar system', 'Snacks', 'Take-home space kit'],
-  },
-  {
-    id: 'evt-006',
-    title: 'Full Moon Desert Night Hike',
-    category: 'Special Events',
-    date: '2026-05-04',
-    time: '7:30 PM',
-    price: '$20/person',
-    spotsLeft: 28,
-    totalSpots: 40,
-    featured: false,
-    description: 'Hike through the moonlit Sonoran Desert on a guided 3-mile loop trail. No flashlights needed — the full moon lights the way. Learn about nocturnal wildlife, desert ecology, and how moonlight affects the natural world.',
-    shortDesc: 'A moonlit 3-mile desert hike — no flashlights needed. Nocturnal wildlife and desert ecology.',
-    location: 'Trailhead at Visitor Center',
-    includes: ['Guided 3-mile hike', 'Wildlife spotting', 'Water bottle', 'Trail snacks'],
-  },
-];
-
-const CATEGORIES = ['All', 'Star Parties', 'Planetarium Shows', 'Workshops', 'Special Events'];
+const CATEGORIES = ['All', 'Star Party', 'Planetarium', 'Workshop', 'Special Event'];
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -123,10 +31,12 @@ function useReveal() {
   return ref;
 }
 
-function EventCard({ event, onSelect }) {
+function EventCard({ event, onSelect, onReserve }) {
   const dt = fmtDate(event.date);
-  const spotsLow = event.spotsLeft <= 15;
+  const spotsLeft = (event.capacity || 0) - (event.ticketsSold || 0);
+  const spotsLow = spotsLeft <= 10;
   const ref = useReveal();
+  const priceDisplay = event.price === 0 ? 'Free' : formatPrice(event.price);
 
   return (
     <div ref={ref} className="reveal" onClick={() => onSelect(event)} style={{
@@ -140,6 +50,17 @@ function EventCard({ event, onSelect }) {
     onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,169,74,0.35)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
     onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none'; }}
     >
+      {/* Member free badge */}
+      {event.memberFree && (
+        <div style={{
+          position: 'absolute', top: 12, right: 12,
+          padding: '4px 10px', background: 'rgba(74,222,128,0.1)',
+          border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80',
+          font: '600 8px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase',
+          zIndex: 2,
+        }}>Free for Members</div>
+      )}
+
       {/* Date stripe */}
       <div style={{
         padding: '20px 24px',
@@ -177,17 +98,17 @@ function EventCard({ event, onSelect }) {
           color: 'var(--text)', marginBottom: 8, lineHeight: 1.25,
         }}>{event.title}</h3>
         <p style={{ font: '300 13px/1.65 DM Sans', color: 'var(--muted)', marginBottom: 20 }}>
-          {event.shortDesc}
+          {event.description && event.description.slice(0, 120)}{event.description && event.description.length > 120 ? '...' : ''}
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
           <div>
-            <div style={{ font: '600 15px/1 DM Sans', color: 'var(--gold)', marginBottom: 4 }}>{event.price}</div>
+            <div style={{ font: '600 15px/1 DM Sans', color: 'var(--gold)', marginBottom: 4 }}>{priceDisplay}</div>
             <div style={{
               font: '400 11px/1 DM Sans',
               color: spotsLow ? '#facc15' : 'var(--muted)',
             }}>
-              {spotsLow ? `Only ${event.spotsLeft} spots left` : `${event.spotsLeft} spots remaining`}
+              {spotsLow ? `Only ${spotsLeft} spots left` : `${spotsLeft} spots remaining`}
             </div>
           </div>
           <button style={{
@@ -198,7 +119,7 @@ function EventCard({ event, onSelect }) {
           }}
           onMouseEnter={e => { e.target.style.background = 'var(--gold)'; e.target.style.color = '#04040c'; }}
           onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = 'var(--gold)'; }}
-          onClick={e => { e.stopPropagation(); onSelect(event); }}
+          onClick={e => { e.stopPropagation(); onReserve(event); }}
           >Reserve Spot</button>
         </div>
       </div>
@@ -206,11 +127,13 @@ function EventCard({ event, onSelect }) {
   );
 }
 
-function EventDetail({ event, onClose }) {
+function EventDetail({ event, onClose, onReserve }) {
   if (!event) return null;
   const dt = fmtDate(event.date);
-  const spotsLow = event.spotsLeft <= 15;
-  const pct = Math.round((1 - event.spotsLeft / event.totalSpots) * 100);
+  const spotsLeft = (event.capacity || 0) - (event.ticketsSold || 0);
+  const spotsLow = spotsLeft <= 10;
+  const pct = Math.round((1 - spotsLeft / (event.capacity || 1)) * 100);
+  const priceDisplay = event.price === 0 ? 'Free' : formatPrice(event.price);
 
   return (
     <>
@@ -233,10 +156,20 @@ function EventDetail({ event, onClose }) {
           <button onClick={onClose} style={{
             background: 'none', border: 'none', color: '#5a5550',
             cursor: 'pointer', fontSize: 22, padding: 4,
-          }}>✕</button>
+          }}>&#10005;</button>
         </div>
 
         <div style={{ padding: 24 }}>
+          {/* Member free badge */}
+          {event.memberFree && (
+            <div style={{
+              display: 'inline-block', padding: '5px 14px',
+              background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)',
+              color: '#4ade80', font: '600 9px JetBrains Mono', letterSpacing: '0.12em',
+              textTransform: 'uppercase', marginBottom: 16,
+            }}>Free for Members</div>
+          )}
+
           {/* Date badge */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 12,
@@ -250,7 +183,7 @@ function EventDetail({ event, onClose }) {
             <div style={{ width: 1, height: 32, background: 'rgba(201,169,74,0.2)' }} />
             <div>
               <div style={{ font: '500 10px/1 JetBrains Mono', letterSpacing: '0.12em', color: 'var(--gold)', marginBottom: 3 }}>{dt.day}</div>
-              <div style={{ font: '400 14px/1 DM Sans', color: 'var(--text)' }}>{event.time}</div>
+              <div style={{ font: '400 14px/1 DM Sans', color: 'var(--text)' }}>{event.time}{event.endTime ? ` - ${event.endTime}` : ''}</div>
             </div>
           </div>
 
@@ -279,7 +212,7 @@ function EventDetail({ event, onClose }) {
           {/* Price */}
           <div style={{ marginBottom: 20 }}>
             <div style={{ font: '500 10px/1 JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#5a5550', marginBottom: 6 }}>Price</div>
-            <p style={{ font: '600 18px/1 DM Sans', color: 'var(--gold)' }}>{event.price}</p>
+            <p style={{ font: '600 18px/1 DM Sans', color: 'var(--gold)' }}>{priceDisplay}</p>
           </div>
 
           {/* Spots bar */}
@@ -287,7 +220,7 @@ function EventDetail({ event, onClose }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ font: '500 10px/1 JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#5a5550' }}>Availability</span>
               <span style={{ font: '400 12px/1 DM Sans', color: spotsLow ? '#facc15' : 'var(--muted)' }}>
-                {event.spotsLeft} of {event.totalSpots} spots left
+                {spotsLeft} of {event.capacity} spots left
               </span>
             </div>
             <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
@@ -299,31 +232,17 @@ function EventDetail({ event, onClose }) {
             </div>
           </div>
 
-          {/* Includes */}
-          {event.includes && (
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ font: '500 10px/1 JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#5a5550', marginBottom: 12 }}>What's Included</div>
-              {event.includes.map(item => (
-                <div key={item} style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '8px 0', font: '300 13px/1.4 DM Sans', color: 'var(--muted)',
-                }}>
-                  <span style={{ color: 'var(--gold)', fontSize: 10 }}>✦</span>
-                  {item}
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* CTA */}
-          <button style={{
-            width: '100%', padding: 18, background: 'var(--gold)', color: '#04040c',
-            font: '600 12px/1 JetBrains Mono', letterSpacing: '0.18em', textTransform: 'uppercase',
-            border: 'none', cursor: 'pointer', transition: 'all 0.35s',
-            borderRadius: 'var(--r, 3px)', marginBottom: 12,
-          }}
-          onMouseEnter={e => { e.target.style.background = 'var(--gold-l, #e0c060)'; e.target.style.boxShadow = '0 8px 32px rgba(201,169,74,0.3)'; }}
-          onMouseLeave={e => { e.target.style.background = 'var(--gold)'; e.target.style.boxShadow = 'none'; }}
+          <button
+            onClick={() => onReserve(event)}
+            style={{
+              width: '100%', padding: 18, background: 'var(--gold)', color: '#04040c',
+              font: '600 12px/1 JetBrains Mono', letterSpacing: '0.18em', textTransform: 'uppercase',
+              border: 'none', cursor: 'pointer', transition: 'all 0.35s',
+              borderRadius: 'var(--r, 3px)', marginBottom: 12,
+            }}
+            onMouseEnter={e => { e.target.style.background = 'var(--gold-l, #e0c060)'; e.target.style.boxShadow = '0 8px 32px rgba(201,169,74,0.3)'; }}
+            onMouseLeave={e => { e.target.style.background = 'var(--gold)'; e.target.style.boxShadow = 'none'; }}
           >Get Tickets</button>
           <p style={{ font: '300 11px/1.5 DM Sans', color: '#5a5550', textAlign: 'center' }}>
             Members receive priority booking and discounts
@@ -339,19 +258,247 @@ function EventDetail({ event, onClose }) {
   );
 }
 
+function TicketModal({ event, onClose }) {
+  const [qty, setQty] = useState(1);
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [reserving, setReserving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  if (!event) return null;
+
+  const spotsLeft = (event.capacity || 0) - (event.ticketsSold || 0);
+  const priceDisplay = event.price === 0 ? 'Free' : formatPrice(event.price);
+  const totalPrice = event.price * qty;
+
+  const handleReserve = () => {
+    if (!email || !/\S+@\S+\.\S+/.test(email)) { setError('Please enter a valid email'); return; }
+    if (!name.trim()) { setError('Please enter your name'); return; }
+    if (qty > spotsLeft) { setError(`Only ${spotsLeft} spots available`); return; }
+    setError('');
+    setReserving(true);
+    setTimeout(() => {
+      addReservation({ eventId: event.id, email, qty, name: name.trim() });
+      setReserving(false);
+      setSuccess(true);
+    }, 800);
+  };
+
+  return (
+    <>
+      <div onClick={onClose} style={{
+        position: 'fixed', inset: 0, background: 'rgba(4,4,12,0.8)',
+        zIndex: 300, animation: 'fadeIn 0.2s',
+      }} />
+      <div style={{
+        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+        width: 440, maxWidth: '90vw', background: '#0a0a18',
+        border: '1px solid rgba(201,169,74,0.2)', zIndex: 301,
+        animation: 'confPop 0.3s cubic-bezier(.16,1,.3,1)',
+      }}>
+        {/* Header */}
+        <div style={{
+          padding: '20px 24px', borderBottom: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <span style={{ font: '500 16px Playfair Display, serif', color: 'var(--text)' }}>
+            {success ? 'Reservation Confirmed' : 'Reserve Tickets'}
+          </span>
+          <button onClick={onClose} style={{
+            background: 'none', border: 'none', color: '#5a5550',
+            cursor: 'pointer', fontSize: 20, padding: 4,
+          }}>&#10005;</button>
+        </div>
+
+        <div style={{ padding: 24 }}>
+          {success ? (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%',
+                background: 'rgba(74,222,128,0.1)', color: '#4ade80',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 28, margin: '0 auto 16px',
+              }}>&#10003;</div>
+              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, marginBottom: 8 }}>
+                You're in!
+              </h3>
+              <p style={{ font: '300 14px/1.7 DM Sans', color: 'var(--muted)', marginBottom: 4 }}>
+                {qty} ticket{qty > 1 ? 's' : ''} reserved for
+              </p>
+              <p style={{ font: '500 16px DM Sans', color: 'var(--gold)', marginBottom: 16 }}>
+                {event.title}
+              </p>
+              <p style={{ font: '300 13px DM Sans', color: 'var(--muted)' }}>
+                Confirmation sent to {email}
+              </p>
+              <button onClick={onClose} className="btn-primary" style={{ marginTop: 24 }}>Done</button>
+            </div>
+          ) : (
+            <>
+              {/* Event info */}
+              <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, fontWeight: 400, color: 'var(--text)', marginBottom: 6 }}>
+                  {event.title}
+                </h3>
+                <div style={{ font: '300 13px DM Sans', color: 'var(--muted)' }}>
+                  {fmtDate(event.date).full} &middot; {event.time} &middot; {event.location}
+                </div>
+                <div style={{ font: '600 14px DM Sans', color: 'var(--gold)', marginTop: 8 }}>
+                  {priceDisplay}{event.price > 0 ? ' / person' : ''}
+                </div>
+                {event.memberFree && (
+                  <div style={{ font: '400 11px DM Sans', color: '#4ade80', marginTop: 4 }}>
+                    Free for members
+                  </div>
+                )}
+              </div>
+
+              {/* Name */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>
+                  Your Name
+                </label>
+                <input
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Full name"
+                  style={{
+                    width: '100%', padding: '12px 14px',
+                    background: 'rgba(13,13,34,0.7)', border: '1px solid var(--border2, rgba(255,255,255,0.06))',
+                    borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none',
+                  }}
+                />
+              </div>
+
+              {/* Email */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  style={{
+                    width: '100%', padding: '12px 14px',
+                    background: 'rgba(13,13,34,0.7)', border: '1px solid var(--border2, rgba(255,255,255,0.06))',
+                    borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none',
+                  }}
+                />
+              </div>
+
+              {/* Quantity */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>
+                  Quantity
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <button
+                    onClick={() => setQty(q => Math.max(1, q - 1))}
+                    style={{
+                      width: 40, height: 40, background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid var(--border)', color: 'var(--text)',
+                      cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >-</button>
+                  <span style={{ font: '600 18px DM Sans', color: 'var(--text)', minWidth: 32, textAlign: 'center' }}>{qty}</span>
+                  <button
+                    onClick={() => setQty(q => Math.min(spotsLeft, q + 1))}
+                    style={{
+                      width: 40, height: 40, background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid var(--border)', color: 'var(--text)',
+                      cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >+</button>
+                  <span style={{ font: '300 12px DM Sans', color: 'var(--muted)' }}>
+                    {spotsLeft} spots available
+                  </span>
+                </div>
+              </div>
+
+              {/* Total */}
+              {event.price > 0 && (
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between', padding: '12px 0',
+                  borderTop: '1px solid var(--border)', marginBottom: 16,
+                }}>
+                  <span style={{ font: '400 14px DM Sans', color: 'var(--muted)' }}>Total</span>
+                  <span style={{ font: '600 18px DM Sans', color: 'var(--gold)' }}>{formatPrice(totalPrice)}</span>
+                </div>
+              )}
+
+              {error && (
+                <div style={{ font: '400 12px DM Sans', color: '#ef4444', marginBottom: 12 }}>{error}</div>
+              )}
+
+              <button
+                onClick={handleReserve}
+                disabled={reserving}
+                style={{
+                  width: '100%', padding: 16, background: reserving ? 'rgba(201,169,74,0.3)' : 'var(--gold)',
+                  color: '#04040c', border: 'none', borderRadius: 'var(--r, 3px)',
+                  font: '600 12px JetBrains Mono', letterSpacing: '0.18em', textTransform: 'uppercase',
+                  cursor: reserving ? 'not-allowed' : 'pointer', transition: 'all 0.35s',
+                }}
+              >
+                {reserving ? 'Reserving...' : 'Reserve'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes confPop {
+          0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+          100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+      `}</style>
+    </>
+  );
+}
+
 export default function Events() {
   const [category, setCategory] = useState('All');
   const [selected, setSelected] = useState(null);
+  const [ticketEvent, setTicketEvent] = useState(null);
+  const [events, setEvents] = useState([]);
   const heroRef = useReveal();
 
-  const featured = EVENTS.find(e => e.featured);
-  const filtered = EVENTS.filter(e => {
+  useEffect(() => {
+    const allEvents = getEvents().filter(e => e.status === 'Published');
+    setEvents(allEvents);
+  }, []);
+
+  // Refresh events when ticket modal closes (to reflect updated ticketsSold)
+  const refreshEvents = () => {
+    const allEvents = getEvents().filter(e => e.status === 'Published');
+    setEvents(allEvents);
+  };
+
+  const handleReserve = (event) => {
+    setSelected(null);
+    setTicketEvent(event);
+  };
+
+  const handleTicketClose = () => {
+    setTicketEvent(null);
+    refreshEvents();
+  };
+
+  const featured = events.find(e => e.featured);
+  const filtered = events.filter(e => {
     if (category === 'All') return true;
     return e.category === category;
   });
   const upcoming = filtered.filter(e => !e.featured || category !== 'All');
 
   const featuredDt = featured ? fmtDate(featured.date) : null;
+  const featuredSpotsLeft = featured ? (featured.capacity || 0) - (featured.ticketsSold || 0) : 0;
+  const featuredPrice = featured ? (featured.price === 0 ? 'Free' : formatPrice(featured.price)) : '';
 
   return (
     <div>
@@ -373,7 +520,7 @@ export default function Events() {
             font: '300 17px/1.8 DM Sans', color: 'var(--muted)',
             maxWidth: 520, margin: '0 auto',
           }}>
-            Star parties, planetarium shows, workshops, and celestial events — all under some of the darkest skies in North America.
+            Star parties, planetarium shows, workshops, and celestial events -- all under some of the darkest skies in North America.
           </p>
         </div>
 
@@ -434,7 +581,7 @@ export default function Events() {
                 background: 'rgba(201,169,74,0.04)',
               }}>
                 <div style={{ font: '600 10px/1 JetBrains Mono', letterSpacing: '0.2em', color: 'var(--gold)', marginBottom: 6 }}>
-                  {featuredDt.day} · {featuredDt.month}
+                  {featuredDt.day} &middot; {featuredDt.month}
                 </div>
                 <div style={{ font: '400 64px/1 Playfair Display, serif', color: 'var(--text)', fontStyle: 'italic' }}>
                   {featuredDt.date}
@@ -446,13 +593,22 @@ export default function Events() {
 
             {/* Right: Info */}
             <div style={{ padding: '48px 44px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }} className="evt-featured-right">
-              <span style={{
-                display: 'inline-block', width: 'fit-content',
-                font: '600 9px/1 JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase',
-                padding: '5px 12px', background: 'rgba(201,169,74,0.1)',
-                border: '1px solid rgba(201,169,74,0.25)', color: 'var(--gold)',
-                marginBottom: 16,
-              }}>Featured</span>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+                <span style={{
+                  display: 'inline-block', width: 'fit-content',
+                  font: '600 9px/1 JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase',
+                  padding: '5px 12px', background: 'rgba(201,169,74,0.1)',
+                  border: '1px solid rgba(201,169,74,0.25)', color: 'var(--gold)',
+                }}>Featured</span>
+                {featured.memberFree && (
+                  <span style={{
+                    display: 'inline-block', width: 'fit-content',
+                    font: '600 9px/1 JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase',
+                    padding: '5px 12px', background: 'rgba(74,222,128,0.1)',
+                    border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80',
+                  }}>Free for Members</span>
+                )}
+              </div>
               <h2 style={{
                 fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 3vw, 40px)',
                 fontWeight: 400, lineHeight: 1.15, marginBottom: 16, color: 'var(--text)',
@@ -462,14 +618,14 @@ export default function Events() {
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ font: '600 20px/1 DM Sans', color: 'var(--gold)' }}>{featured.price}</div>
+                  <div style={{ font: '600 20px/1 DM Sans', color: 'var(--gold)' }}>{featuredPrice}</div>
                   <div style={{ font: '400 11px/1 DM Sans', color: '#5a5550', marginTop: 4 }}>
-                    {featured.spotsLeft} spots remaining
+                    {featuredSpotsLeft} spots remaining
                   </div>
                 </div>
                 <button
                   className="btn-primary"
-                  onClick={e => { e.stopPropagation(); setSelected(featured); }}
+                  onClick={e => { e.stopPropagation(); handleReserve(featured); }}
                 >Get Tickets</button>
               </div>
             </div>
@@ -480,7 +636,7 @@ export default function Events() {
       {/* Category Filter */}
       <div className="cat-tabs" style={{ top: 68 }}>
         {CATEGORIES.map(cat => {
-          const count = cat === 'All' ? EVENTS.length : EVENTS.filter(e => e.category === cat).length;
+          const count = cat === 'All' ? events.length : events.filter(e => e.category === cat).length;
           return (
             <button
               key={cat}
@@ -505,7 +661,7 @@ export default function Events() {
         }} className="evt-grid">
           {upcoming.map(event => (
             <div key={event.id} style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-              <EventCard event={event} onSelect={setSelected} />
+              <EventCard event={event} onSelect={setSelected} onReserve={handleReserve} />
             </div>
           ))}
         </div>
@@ -541,7 +697,10 @@ export default function Events() {
       </div>
 
       {/* Detail Drawer */}
-      {selected && <EventDetail event={selected} onClose={() => setSelected(null)} />}
+      {selected && <EventDetail event={selected} onClose={() => setSelected(null)} onReserve={handleReserve} />}
+
+      {/* Ticket Modal */}
+      {ticketEvent && <TicketModal event={ticketEvent} onClose={handleTicketClose} />}
 
       {/* Responsive overrides */}
       <style>{`

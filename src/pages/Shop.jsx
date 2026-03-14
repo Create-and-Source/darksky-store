@@ -5,34 +5,65 @@ import { PRODUCTS } from '../data/products';
 
 const CATS = ['All', 'Apparel', 'Kids', 'Gifts', 'Outerwear', 'Tanks'];
 
+const SORT_OPTIONS = [
+  { value: 'default', label: 'Featured' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'alpha', label: 'A-Z' },
+];
+
 export default function Shop({ onAddToCart }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCat = searchParams.get('cat') || 'All';
+  const initialSort = searchParams.get('sort') || 'default';
   const [activeCat, setActiveCat] = useState(initialCat);
+  const [sortBy, setSortBy] = useState(initialSort);
   const [search, setSearch] = useState('');
   const [visible, setVisible] = useState(24);
 
   useEffect(() => {
     const cat = searchParams.get('cat') || 'All';
+    const sort = searchParams.get('sort') || 'default';
     setActiveCat(cat);
+    setSortBy(sort);
     setVisible(24);
   }, [searchParams]);
 
   const filtered = useMemo(() => {
-    let out = PRODUCTS;
+    let out = [...PRODUCTS];
     if (activeCat !== 'All') out = out.filter(p => p.category === activeCat);
     if (search.trim()) {
       const q = search.toLowerCase();
       out = out.filter(p => p.title.toLowerCase().includes(q) || p.tags.some(t => t.toLowerCase().includes(q)));
     }
+    // Sort
+    switch (sortBy) {
+      case 'price-asc': out.sort((a, b) => a.price - b.price); break;
+      case 'price-desc': out.sort((a, b) => b.price - a.price); break;
+      case 'newest': out.reverse(); break;
+      case 'alpha': out.sort((a, b) => a.title.localeCompare(b.title)); break;
+      default: break;
+    }
     return out;
-  }, [activeCat, search]);
+  }, [activeCat, search, sortBy]);
 
   const selectCat = (cat) => {
     setActiveCat(cat);
     setVisible(24);
-    if (cat === 'All') setSearchParams({});
-    else setSearchParams({ cat });
+    const params = {};
+    if (cat !== 'All') params.cat = cat;
+    if (sortBy !== 'default') params.sort = sortBy;
+    setSearchParams(params);
+  };
+
+  const handleSort = (val) => {
+    setSortBy(val);
+    setVisible(24);
+    const params = {};
+    if (activeCat !== 'All') params.cat = activeCat;
+    if (val !== 'default') params.sort = val;
+    setSearchParams(params);
   };
 
   const catCount = (cat) => cat === 'All' ? PRODUCTS.length : PRODUCTS.filter(p => p.category === cat).length;
@@ -46,18 +77,22 @@ export default function Shop({ onAddToCart }) {
           <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 400, lineHeight: 1 }}>
             {activeCat === 'All' ? <><em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>All</em> Products</> : <>{activeCat}</>}
           </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ font: '400 12px DM Sans', color: 'var(--muted)' }}>{filtered.length} items</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <select
+              className="shop-sort"
+              value={sortBy}
+              onChange={e => handleSort(e.target.value)}
+            >
+              {SORT_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
             <input
               type="search"
+              className="shop-search"
               placeholder="Search the cosmos..."
               value={search}
               onChange={e => { setSearch(e.target.value); setVisible(24); }}
-              style={{
-                background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
-                borderRadius: 3, padding: '9px 16px', font: '400 13px DM Sans',
-                color: 'var(--text)', outline: 'none', width: 220,
-              }}
             />
           </div>
         </div>
@@ -77,11 +112,18 @@ export default function Shop({ onAddToCart }) {
         ))}
       </div>
 
+      {/* Results Count */}
+      <div className="shop-results-count">
+        Showing {Math.min(visible, filtered.length)} of {filtered.length} {filtered.length === 1 ? 'product' : 'products'}
+      </div>
+
       {/* Product Grid */}
-      <div style={{ padding: '48px 64px 80px' }}>
+      <div style={{ padding: '32px 64px 100px' }}>
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--muted)', fontFamily: 'Playfair Display, serif', fontSize: 24, fontStyle: 'italic' }}>
-            No products found in this quadrant.
+          <div className="shop-empty">
+            <div className="shop-empty-icon">&#10022;</div>
+            <h3>No products found in this quadrant</h3>
+            <p>Try adjusting your search or explore a different category to discover dark sky treasures.</p>
           </div>
         ) : (
           <>
@@ -91,12 +133,12 @@ export default function Shop({ onAddToCart }) {
               ))}
             </div>
             {visible < filtered.length && (
-              <div style={{ textAlign: 'center', marginTop: 48 }}>
+              <div style={{ textAlign: 'center', marginTop: 56 }}>
                 <button
                   className="btn-ghost"
                   onClick={() => setVisible(v => v + 24)}
                 >
-                  Load More — {filtered.length - visible} remaining
+                  Load More -- {filtered.length - visible} remaining
                 </button>
               </div>
             )}

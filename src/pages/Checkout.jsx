@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { addOrder } from '../admin/data/store';
 
 const fmt = (cents) => `$${(cents / 100).toFixed(2)}`;
 const TAX_RATE = 0.086;
@@ -17,30 +18,116 @@ export default function Checkout({ cart, onOrderComplete }) {
     address1: '', address2: '', city: '', state: '', zip: '',
   });
   const [placing, setPlacing] = useState(false);
-  const [order, setOrder] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [attempted, setAttempted] = useState(false);
 
-  const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
+  const set = (field) => (e) => {
+    setForm(f => ({ ...f, [field]: e.target.value }));
+    if (attempted) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const tax = Math.round(subtotal * TAX_RATE);
   const shipping = 0;
   const total = subtotal + tax + shipping;
 
-  const isValid = form.email && form.firstName && form.lastName &&
+  const validate = () => {
+    const errs = {};
+    if (!form.email) errs.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Enter a valid email address';
+    if (!form.firstName) errs.firstName = 'First name is required';
+    if (!form.lastName) errs.lastName = 'Last name is required';
+    if (!form.address1) errs.address1 = 'Address is required';
+    if (!form.city) errs.city = 'City is required';
+    if (!form.state) errs.state = 'State is required';
+    if (!form.zip) errs.zip = 'ZIP code is required';
+    else if (form.zip.length < 5) errs.zip = 'Enter a valid ZIP code';
+    return errs;
+  };
+
+  const isValid = form.email && /\S+@\S+\.\S+/.test(form.email) && form.firstName && form.lastName &&
     form.address1 && form.city && form.state && form.zip.length >= 5;
 
   const placeOrder = () => {
+    setAttempted(true);
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
     setPlacing(true);
     setTimeout(() => {
-      const orderId = `ORD-${Math.floor(2500 + Math.random() * 500)}`;
-      setOrder({ id: orderId, total, items: cart.length });
+      const orderData = {
+        customer: {
+          email: form.email,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          phone: form.phone,
+        },
+        shipping: {
+          address1: form.address1,
+          address2: form.address2,
+          city: form.city,
+          state: form.state,
+          zip: form.zip,
+        },
+        items: cart.map(item => ({
+          name: item.title,
+          sku: item.sku || '',
+          qty: item.qty,
+          price: item.price,
+          image: item.images?.[0] || '',
+          category: item.category || '',
+        })),
+        subtotal,
+        tax,
+        shippingCost: 0,
+        total,
+      };
+
+      const newOrder = addOrder(orderData);
+
+      // Store order details for confirmation page
+      localStorage.setItem('ds_last_order', JSON.stringify({
+        id: newOrder.id,
+        total,
+        subtotal,
+        tax,
+        shipping: 0,
+        items: cart.map(item => ({
+          title: item.title,
+          qty: item.qty,
+          price: item.price,
+          image: item.images?.[0] || '',
+          category: item.category || '',
+        })),
+        customer: {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email,
+        },
+        shippingAddress: {
+          address1: form.address1,
+          address2: form.address2,
+          city: form.city,
+          state: form.state,
+          zip: form.zip,
+        },
+      }));
+
       if (onOrderComplete) onOrderComplete();
       setPlacing(false);
+      navigate('/order-confirmation');
     }, 1800);
   };
 
-  // Redirect if cart is empty and no order placed
-  if (cart.length === 0 && !order) {
+  // Redirect if cart is empty
+  if (cart.length === 0) {
     return (
       <div style={{ padding: '120px 64px', textAlign: 'center' }}>
         <div className="label" style={{ marginBottom: 20 }}>// Checkout</div>
@@ -53,64 +140,23 @@ export default function Checkout({ cart, onOrderComplete }) {
     );
   }
 
-  // Confirmation
-  if (order) {
-    return (
-      <div style={{ padding: '120px 64px', textAlign: 'center', maxWidth: 600, margin: '0 auto' }}>
-        <div style={{
-          width: 72, height: 72, borderRadius: '50%',
-          background: 'rgba(74,222,128,0.1)', color: '#4ade80',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 32, margin: '0 auto 24px',
-        }}>✓</div>
-        <div className="label" style={{ marginBottom: 16 }}>// Order Confirmed</div>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 42, fontWeight: 400, marginBottom: 12 }}>
-          Thank <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>you</em>
-        </h1>
-        <p style={{ font: '300 16px/1.7 DM Sans', color: 'var(--muted)', marginBottom: 32 }}>
-          Your order has been placed successfully. You'll receive a confirmation email shortly.
-        </p>
-        <div style={{
-          background: 'var(--bg2)', border: '1px solid var(--border)',
-          padding: 32, borderRadius: 3, marginBottom: 32, textAlign: 'left',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div>
-              <div className="label" style={{ marginBottom: 6 }}>Order Number</div>
-              <span style={{ font: '600 18px DM Sans', color: 'var(--gold)' }}>{order.id}</span>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div className="label" style={{ marginBottom: 6 }}>Total</div>
-              <span style={{ font: '600 18px DM Sans', color: 'var(--text)' }}>{fmt(order.total)}</span>
-            </div>
-          </div>
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 16 }}>
-            <div className="label" style={{ marginBottom: 6 }}>Shipping To</div>
-            <p style={{ font: '300 14px DM Sans', color: 'var(--muted)' }}>
-              {form.firstName} {form.lastName}<br />
-              {form.address1}{form.address2 ? `, ${form.address2}` : ''}<br />
-              {form.city}, {form.state} {form.zip}
-            </p>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button className="btn-primary" onClick={() => navigate('/shop')}>Continue Shopping</button>
-          <button className="btn-ghost" onClick={() => navigate('/')}>Return Home</button>
-        </div>
-      </div>
-    );
-  }
-
   const inputStyle = {
     width: '100%', padding: '14px 16px',
     background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))',
     borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)',
     outline: 'none', transition: 'border-color 0.2s',
   };
+  const inputErrorStyle = {
+    ...inputStyle,
+    borderColor: 'rgba(239,68,68,0.6)',
+  };
   const labelStyle = {
     display: 'block', font: '500 10px JetBrains Mono',
     letterSpacing: '0.15em', textTransform: 'uppercase',
     color: 'var(--muted)', marginBottom: 8,
+  };
+  const errorTextStyle = {
+    font: '400 11px DM Sans', color: '#ef4444', marginTop: 4,
   };
   const sectionTitle = (text) => (
     <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 400, marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>{text}</h3>
@@ -130,15 +176,18 @@ export default function Checkout({ cart, onOrderComplete }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 32 }} className="checkout-form-grid">
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={labelStyle}>Email</label>
-            <input style={inputStyle} type="email" placeholder="you@example.com" value={form.email} onChange={set('email')} />
+            <input style={errors.email ? inputErrorStyle : inputStyle} type="email" placeholder="you@example.com" value={form.email} onChange={set('email')} />
+            {errors.email && <div style={errorTextStyle}>{errors.email}</div>}
           </div>
           <div>
             <label style={labelStyle}>First Name</label>
-            <input style={inputStyle} placeholder="First name" value={form.firstName} onChange={set('firstName')} />
+            <input style={errors.firstName ? inputErrorStyle : inputStyle} placeholder="First name" value={form.firstName} onChange={set('firstName')} />
+            {errors.firstName && <div style={errorTextStyle}>{errors.firstName}</div>}
           </div>
           <div>
             <label style={labelStyle}>Last Name</label>
-            <input style={inputStyle} placeholder="Last name" value={form.lastName} onChange={set('lastName')} />
+            <input style={errors.lastName ? inputErrorStyle : inputStyle} placeholder="Last name" value={form.lastName} onChange={set('lastName')} />
+            {errors.lastName && <div style={errorTextStyle}>{errors.lastName}</div>}
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={labelStyle}>Phone <span style={{ opacity: 0.5 }}>(optional)</span></label>
@@ -151,7 +200,8 @@ export default function Checkout({ cart, onOrderComplete }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 32 }} className="checkout-form-grid">
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={labelStyle}>Address Line 1</label>
-            <input style={inputStyle} placeholder="Street address" value={form.address1} onChange={set('address1')} />
+            <input style={errors.address1 ? inputErrorStyle : inputStyle} placeholder="Street address" value={form.address1} onChange={set('address1')} />
+            {errors.address1 && <div style={errorTextStyle}>{errors.address1}</div>}
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={labelStyle}>Address Line 2 <span style={{ opacity: 0.5 }}>(optional)</span></label>
@@ -159,22 +209,25 @@ export default function Checkout({ cart, onOrderComplete }) {
           </div>
           <div>
             <label style={labelStyle}>City</label>
-            <input style={inputStyle} placeholder="City" value={form.city} onChange={set('city')} />
+            <input style={errors.city ? inputErrorStyle : inputStyle} placeholder="City" value={form.city} onChange={set('city')} />
+            {errors.city && <div style={errorTextStyle}>{errors.city}</div>}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
               <label style={labelStyle}>State</label>
               <select
-                style={{ ...inputStyle, cursor: 'pointer', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%236b6880\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: 32 }}
+                style={{ ...(errors.state ? inputErrorStyle : inputStyle), cursor: 'pointer', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%236b6880\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: 32 }}
                 value={form.state} onChange={set('state')}
               >
-                <option value="">—</option>
+                <option value="">--</option>
                 {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
+              {errors.state && <div style={errorTextStyle}>{errors.state}</div>}
             </div>
             <div>
               <label style={labelStyle}>ZIP</label>
-              <input style={inputStyle} placeholder="00000" value={form.zip} onChange={set('zip')} maxLength={10} />
+              <input style={errors.zip ? inputErrorStyle : inputStyle} placeholder="00000" value={form.zip} onChange={set('zip')} maxLength={10} />
+              {errors.zip && <div style={errorTextStyle}>{errors.zip}</div>}
             </div>
           </div>
         </div>
@@ -193,7 +246,7 @@ export default function Checkout({ cart, onOrderComplete }) {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ font: '400 14px DM Sans', color: 'var(--muted)' }}>
-                •••• •••• •••• ••••
+                .... .... .... ....
               </span>
               <span style={{ font: '400 12px DM Sans', color: 'var(--muted)' }}>
                 MM / YY &nbsp; CVC
@@ -206,7 +259,7 @@ export default function Checkout({ cart, onOrderComplete }) {
               <path d="M7 11V7a5 5 0 0110 0v4"/>
             </svg>
             <span style={{ font: '400 12px DM Sans', color: 'var(--gold)' }}>
-              Card payment powered by Square — coming soon
+              Card payment powered by Square -- coming soon
             </span>
           </div>
         </div>
@@ -215,17 +268,17 @@ export default function Checkout({ cart, onOrderComplete }) {
         <div className="checkout-mobile-submit" style={{ display: 'none' }}>
           <button
             onClick={placeOrder}
-            disabled={!isValid || placing}
+            disabled={placing}
             style={{
               width: '100%', padding: 18,
-              background: isValid && !placing ? 'var(--gold)' : 'rgba(201,169,74,0.3)',
+              background: !placing ? 'var(--gold)' : 'rgba(201,169,74,0.3)',
               color: '#04040c', border: 'none', borderRadius: 'var(--r, 3px)',
               font: '600 12px JetBrains Mono', letterSpacing: '0.18em', textTransform: 'uppercase',
-              cursor: isValid && !placing ? 'pointer' : 'not-allowed',
+              cursor: !placing ? 'pointer' : 'not-allowed',
               transition: 'all 0.35s', marginBottom: 48,
             }}
           >
-            {placing ? 'Processing...' : `Place Order — ${fmt(total)}`}
+            {placing ? 'Processing...' : `Place Order -- ${fmt(total)}`}
           </button>
         </div>
       </div>
@@ -257,7 +310,7 @@ export default function Checkout({ cart, onOrderComplete }) {
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>{item.title}</div>
                 <div style={{ font: '300 11px DM Sans', color: 'var(--muted)' }}>
-                  {item.category} · Qty: {item.qty}
+                  {item.category} &middot; Qty: {item.qty}
                 </div>
               </div>
               <div style={{ font: '600 14px DM Sans', color: 'var(--gold)', flexShrink: 0 }}>
@@ -288,26 +341,26 @@ export default function Checkout({ cart, onOrderComplete }) {
         <button
           className="cart-checkout checkout-desktop-submit"
           onClick={placeOrder}
-          disabled={!isValid || placing}
+          disabled={placing}
           style={{
-            opacity: isValid && !placing ? 1 : 0.4,
-            cursor: isValid && !placing ? 'pointer' : 'not-allowed',
+            opacity: !placing ? 1 : 0.4,
+            cursor: !placing ? 'pointer' : 'not-allowed',
           }}
         >
           {placing ? 'Processing...' : 'Place Order'}
         </button>
 
-        {!isValid && (
+        {!isValid && !placing && (
           <p style={{ font: '300 11px DM Sans', color: 'var(--muted)', textAlign: 'center', marginTop: 8 }}>
             Fill in all required fields to continue
           </p>
         )}
 
-        <button className="cart-continue" onClick={() => navigate('/cart')}>← Back to Cart</button>
+        <button className="cart-continue" onClick={() => navigate('/cart')}>&#8592; Back to Cart</button>
 
         <div style={{ marginTop: 24, display: 'flex', gap: 20, justifyContent: 'center' }}>
-          {['✦ Secure Checkout', '✦ Free Shipping'].map(t => (
-            <span key={t} style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.1em', color: 'var(--muted)', textTransform: 'uppercase' }}>{t}</span>
+          {['Secure Checkout', 'Free Shipping'].map(t => (
+            <span key={t} style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.1em', color: 'var(--muted)', textTransform: 'uppercase' }}>✦ {t}</span>
           ))}
         </div>
       </div>

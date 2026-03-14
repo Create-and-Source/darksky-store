@@ -1,156 +1,223 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from '../AdminLayout';
+import Wizard from '../components/Wizard';
+import HelpBubble, { LabelWithHelp } from '../components/HelpBubble';
+import {
+  getEmails, addEmail, getMembers, getOrders, getEvents, getReservations, subscribe,
+} from '../data/store';
 
-/* ── MOCK DATA ── */
-const SENT_EMAILS = [
-  { id: 'EM-012', subject: 'New Moon Star Party — This Saturday!', audience: 'All Customers', sent: '2026-03-10', recipients: 847, opened: 412, clicked: 89, status: 'Sent' },
-  { id: 'EM-011', subject: 'Spring Collection Just Dropped', audience: 'All Customers', sent: '2026-03-05', recipients: 847, opened: 356, clicked: 124, status: 'Sent' },
-  { id: 'EM-010', subject: 'March Member Newsletter', audience: 'Members Only', sent: '2026-03-01', recipients: 312, opened: 198, clicked: 67, status: 'Sent' },
-  { id: 'EM-009', subject: 'Astrophotography Workshop — 8 Spots Left', audience: 'Star Party Attendees', sent: '2026-02-25', recipients: 234, opened: 145, clicked: 52, status: 'Sent' },
-  { id: 'EM-008', subject: 'Valentine\'s Gift Guide from Dark Sky', audience: 'All Customers', sent: '2026-02-10', recipients: 831, opened: 298, clicked: 76, status: 'Sent' },
-  { id: 'EM-007', subject: 'February Member Newsletter', audience: 'Members Only', sent: '2026-02-01', recipients: 305, opened: 187, clicked: 54, status: 'Sent' },
-  { id: 'EM-006', subject: '20% Off Everything — Presidents\' Day Weekend', audience: 'All Customers', sent: '2026-02-14', recipients: 831, opened: 445, clicked: 198, status: 'Sent' },
-];
-
-const SUBSCRIBERS = [
-  { email: 'sarah.m@email.com', name: 'Sarah Mitchell', type: 'Customer', subscribed: '2025-11-15', orders: 3 },
-  { email: 'jrod@email.com', name: 'James Rodriguez', type: 'Customer', subscribed: '2025-12-02', orders: 1 },
-  { email: 'echen@email.com', name: 'Emily Chen', type: 'Member', subscribed: '2025-09-20', orders: 5 },
-  { email: 'dkim@email.com', name: 'David Kim', type: 'Customer', subscribed: '2026-01-08', orders: 2 },
-  { email: 'lpark@email.com', name: 'Lisa Park', type: 'Member', subscribed: '2025-10-12', orders: 4 },
-  { email: 'mtorres@email.com', name: 'Michael Torres', type: 'Customer', subscribed: '2026-02-15', orders: 1 },
-  { email: 'afoster@email.com', name: 'Amanda Foster', type: 'Member', subscribed: '2025-08-30', orders: 7 },
-  { email: 'rchang@email.com', name: 'Robert Chang', type: 'Customer', subscribed: '2026-01-22', orders: 2 },
-  { email: 'mjohn@email.com', name: 'Mark Johnson', type: 'Customer', subscribed: '2026-03-01', orders: 1 },
-  { email: 'rgreen@email.com', name: 'Rachel Green', type: 'Member', subscribed: '2025-07-15', orders: 6 },
-  { email: 'tnguyen@email.com', name: 'Tom Nguyen', type: 'Customer', subscribed: '2026-02-28', orders: 1 },
-  { email: 'slee@email.com', name: 'Sophia Lee', type: 'Member', subscribed: '2025-11-01', orders: 3 },
-  { email: 'club@flagstaffastro.org', name: 'Flagstaff Astronomy Club', type: 'Customer', subscribed: '2025-06-10', orders: 0 },
-  { email: 'drpatel@prescottusd.org', name: 'Dr. Patel', type: 'Customer', subscribed: '2026-01-15', orders: 0 },
-  { email: 'nancy@idarksky.org', name: 'Nancy (Staff)', type: 'Member', subscribed: '2025-01-01', orders: 0 },
-];
-
-const TEMPLATES = [
-  {
-    id: 'new-product',
-    name: 'New Product Announcement',
-    icon: '🏷️',
-    subject: 'Just In: [Product Name] — Now Available',
-    body: 'Hi there,\n\nWe\'re excited to introduce our newest addition to the Dark Sky collection:\n\n[Product Name]\n[One sentence about what makes it special]\n\nPrice: $XX.XX\n\nThis [product type] was designed to [key benefit]. Whether you\'re [use case 1] or [use case 2], it\'s the perfect addition to your collection.\n\nShop now at our online store or visit the gift shop in person.\n\nClear skies,\nThe Dark Sky Team',
+const TEMPLATES = {
+  newsletter: {
+    name: 'Newsletter',
+    icon: '\u2B50',
+    desc: 'Weekly updates and product highlights',
+    subject: 'March Newsletter -- Dark Sky Discovery Center',
+    body: 'Dear Dark Sky Community,\n\nHere is what is happening this month at the Discovery Center:\n\nUPCOMING EVENTS\n- [Event 1] -- [Date]\n- [Event 2] -- [Date]\n\nNEW IN THE GIFT SHOP\n[Brief description of new products or arrivals]\n\nDARK SKY UPDATE\n[News about dark sky preservation or center updates]\n\nThank you for being part of our community.\n\nClear skies,\nThe Dark Sky Team',
   },
-  {
-    id: 'event',
-    name: 'Upcoming Event',
-    icon: '🌙',
-    subject: '[Event Name] — [Day of Week], [Date]',
-    body: 'Hi there,\n\nJoin us for an unforgettable evening under the stars!\n\n[Event Name]\nDate: [Day], [Month] [Date]\nTime: [Start Time] – [End Time]\nLocation: [Location]\nPrice: $XX/person (free for members)\n\n[2-3 sentences describing the event and what guests will experience]\n\nWhat\'s included:\n• [Item 1]\n• [Item 2]\n• [Item 3]\n\nSpots are limited — reserve yours today.\n\n[Link to reserve]\n\nSee you under the stars,\nThe Dark Sky Team',
+  event: {
+    name: 'Event Announcement',
+    icon: '\uD83D\uDCC5',
+    desc: 'Promote an upcoming event',
+    subject: '[Event Name] -- This Saturday!',
+    body: 'Hi there,\n\nJoin us for an unforgettable evening under the stars!\n\n[Event Name]\nDate: [Day], [Month] [Date]\nTime: [Start Time] - [End Time]\nLocation: [Location]\nPrice: $XX/person (free for members)\n\n[2-3 sentences describing the event]\n\nSpots are limited -- reserve yours today.\n\nSee you under the stars,\nThe Dark Sky Team',
   },
-  {
-    id: 'newsletter',
-    name: 'Member Newsletter',
-    icon: '✦',
-    subject: '[Month] Member Newsletter — Dark Sky Discovery Center',
-    body: 'Dear Dark Sky Members,\n\nHere\'s what\'s happening this month at the Discovery Center:\n\nUPCOMING EVENTS\n• [Event 1] — [Date]\n• [Event 2] — [Date]\n• [Event 3] — [Date]\n\nNEW IN THE GIFT SHOP\n[Brief description of new products or arrivals]\n\nMEMBER SPOTLIGHT\n[Short story or feature about a member or community highlight]\n\nDARK SKY UPDATE\n[News about dark sky preservation, light pollution, or center updates]\n\nAs always, thank you for being part of our community. Your membership directly supports dark sky education and preservation.\n\nClear skies,\nThe Dark Sky Team',
+  sale: {
+    name: 'Sale/Promotion',
+    icon: '\uD83C\uDFF7\uFE0F',
+    desc: 'Announce a sale or discount',
+    subject: '[XX]% Off Everything -- This Weekend Only',
+    body: 'Hi there,\n\nWe are running a special sale!\n\nSave [XX]% on [what is on sale] now through [end date].\n\nUse code [CODE] at checkout, or mention it in the gift shop.\n\nSome favorites on sale:\n- [Product 1] -- $XX (was $XX)\n- [Product 2] -- $XX (was $XX)\n- [Product 3] -- $XX (was $XX)\n\nHappy stargazing,\nThe Dark Sky Team',
   },
-  {
-    id: 'sale',
-    name: 'Sale / Promotion',
-    icon: '⭐',
-    subject: '[XX]% Off [Category/Everything] — [Duration]',
-    body: 'Hi there,\n\n[Exciting opening line about the sale]\n\nSave [XX]% on [what\'s on sale] now through [end date].\n\nUse code [CODE] at checkout, or mention it in the gift shop.\n\nSome favorites on sale:\n• [Product 1] — $XX (was $XX)\n• [Product 2] — $XX (was $XX)\n• [Product 3] — $XX (was $XX)\n\n[One line about why now is a great time to shop — seasonal, limited stock, etc.]\n\nShop the sale: [link]\n\nHappy stargazing,\nThe Dark Sky Team',
+  welcome: {
+    name: 'Membership Welcome',
+    icon: '\u2764\uFE0F',
+    desc: 'Welcome new members',
+    subject: 'Welcome to the Dark Sky Community!',
+    body: 'Welcome to the Dark Sky Discovery Center family!\n\nThank you for becoming a member. Your support directly funds dark sky education, light pollution advocacy, and STEM programming.\n\nHere is what you get as a member:\n- Free admission to select events\n- 10% off all gift shop purchases\n- Monthly member newsletter\n- Early access to new events\n\nWe are so glad to have you. See you under the stars!\n\nThe Dark Sky Team',
   },
-];
+  blank: {
+    name: 'Start from Scratch',
+    icon: '\uD83D\uDCC4',
+    desc: 'Empty template',
+    subject: '',
+    body: '',
+  },
+};
 
 const AUDIENCES = [
-  { id: 'all', label: 'All Customers', count: 847, desc: 'Every subscriber on your list' },
-  { id: 'members', label: 'Members Only', count: 312, desc: 'Active membership holders' },
-  { id: 'starparty', label: 'Star Party Attendees', count: 234, desc: 'Anyone who\'s attended a star party' },
-  { id: 'recent', label: 'Recent Purchasers', count: 156, desc: 'Customers who bought in the last 30 days' },
-  { id: 'custom', label: 'Custom List', count: null, desc: 'Paste specific email addresses' },
+  { id: 'all', name: 'Everyone', icon: '\uD83D\uDC65', desc: 'All subscribers on your list' },
+  { id: 'members', name: 'Members Only', icon: '\u2B50', desc: 'Active membership holders' },
+  { id: 'attendees', name: 'Event Attendees', icon: '\uD83C\uDFAB', desc: 'People who registered for events' },
+  { id: 'recent', name: 'Recent Customers', icon: '\uD83D\uDED2', desc: 'Purchased in the last 30 days' },
 ];
 
-/* ── TOOLBAR BUTTON ── */
+const fmtDate = (d) => {
+  if (!d) return '';
+  const dt = new Date(d);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${months[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}`;
+};
+
+const inputStyle = {
+  width: '100%', padding: '14px 16px', height: 48, background: '#FFFFFF',
+  border: '1px solid #E2E8F0', borderRadius: 12,
+  font: '400 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', outline: 'none',
+  transition: 'border-color 0.2s', boxSizing: 'border-box',
+};
+
+const labelStyle = {
+  display: 'flex', alignItems: 'center',
+  font: '500 13px -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '1px',
+  textTransform: 'uppercase', color: '#94A3B8', marginBottom: 8,
+};
+
+const cardSelectorStyle = (selected) => ({
+  padding: '18px 20px', textAlign: 'left', cursor: 'pointer',
+  background: '#FFFFFF',
+  border: `2px solid ${selected ? '#D4AF37' : '#E2E8F0'}`,
+  borderRadius: 12, transition: 'all 0.2s',
+  boxShadow: selected ? '0 0 0 3px rgba(212,175,55,0.15)' : '0 1px 3px rgba(0,0,0,0.04)',
+  width: '100%',
+});
+
 function ToolBtn({ label, icon, onClick }) {
   return (
-    <button onClick={onClick} title={label} style={{
+    <button onClick={onClick} title={label} type="button" style={{
       width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: 'transparent', border: '1px solid transparent', borderRadius: 4,
-      color: '#908a84', cursor: 'pointer', fontSize: 14, transition: 'all 0.15s',
-      WebkitTapHighlightColor: 'transparent',
+      color: '#64748B', cursor: 'pointer', fontSize: 14, transition: 'all 0.15s',
     }}
-    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,175,55,0.08)'; e.currentTarget.style.color = '#d4af37'; }}
-    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#908a84'; }}
+    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,175,55,0.08)'; e.currentTarget.style.color = '#D4AF37'; }}
+    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B'; }}
     >{icon}</button>
   );
 }
 
-/* ── MAIN ── */
 export default function Emails() {
-  const [tab, setTab] = useState('dashboard');
-  const [composing, setComposing] = useState(false);
+  const [, setTick] = useState(0);
+  const [tab, setTab] = useState('compose');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [audience, setAudience] = useState('all');
-  const [customEmails, setCustomEmails] = useState('');
-  const [scheduling, setScheduling] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState('');
-  const [scheduleTime, setScheduleTime] = useState('09:00');
+  const [template, setTemplate] = useState(null);
   const [sending, setSending] = useState(false);
   const [subSearch, setSubSearch] = useState('');
   const [subFilter, setSubFilter] = useState('All');
+  const [confirmModal, setConfirmModal] = useState(false);
   const bodyRef = useRef(null);
   const toast = useToast();
 
-  const totalSubs = 847;
-  const emailsSentMonth = 3;
-  const avgOpenRate = Math.round(SENT_EMAILS.reduce((s, e) => s + (e.opened / e.recipients), 0) / SENT_EMAILS.length * 100);
+  useEffect(() => {
+    const unsub = subscribe(() => setTick(t => t + 1));
+    return unsub;
+  }, []);
 
-  // Rich text
-  const execCmd = (cmd, val) => {
-    document.execCommand(cmd, false, val || null);
-    bodyRef.current?.focus();
+  const emails = getEmails();
+  const members = getMembers();
+  const orders = getOrders();
+  const events = getEvents();
+  const allReservations = getReservations();
+
+  // Build subscriber list
+  const subscriberMap = {};
+  members.forEach(m => {
+    subscriberMap[m.email] = { name: m.name, email: m.email, source: 'Member', since: m.joinDate };
+  });
+  orders.forEach(o => {
+    if (o.email && !subscriberMap[o.email]) {
+      subscriberMap[o.email] = { name: o.customer || o.email, email: o.email, source: 'Customer', since: o.date };
+    }
+  });
+  const allSubscribers = Object.values(subscriberMap);
+
+  const getAudienceCount = (aud) => {
+    const a = aud || audience;
+    if (a === 'all') return allSubscribers.length;
+    if (a === 'members') return members.length;
+    if (a === 'attendees') {
+      const attendeeEmails = new Set();
+      allReservations.forEach(r => { if (r.email) attendeeEmails.add(r.email); });
+      return attendeeEmails.size;
+    }
+    if (a === 'recent') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const cutoff = thirtyDaysAgo.toISOString().slice(0, 10);
+      const recent = new Set();
+      orders.forEach(o => { if (o.date >= cutoff && o.email) recent.add(o.email); });
+      return recent.size;
+    }
+    return 0;
   };
+
+  const audienceLabel = {
+    all: 'Everyone',
+    members: 'Members Only',
+    attendees: 'Event Attendees',
+    recent: 'Recent Customers',
+  }[audience] || 'Everyone';
+
+  // Rich text helpers
+  const wrapText = (marker) => {
+    const ta = bodyRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = body.slice(start, end);
+    const newBody = body.slice(0, start) + marker + selected + marker + body.slice(end);
+    setBody(newBody);
+    setTimeout(() => {
+      ta.focus();
+      ta.selectionStart = start + marker.length;
+      ta.selectionEnd = end + marker.length;
+    }, 0);
+  };
+
   const insertLink = () => {
     const url = prompt('Enter URL:');
-    if (url) execCmd('createLink', url);
+    if (!url) return;
+    const ta = bodyRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const linkText = body.slice(start, end) || 'link text';
+    const newBody = body.slice(0, start) + `[${linkText}](${url})` + body.slice(end);
+    setBody(newBody);
   };
 
-  // Template
-  const applyTemplate = (tpl) => {
-    setSubject(tpl.subject);
-    setBody(tpl.body);
-    toast(`"${tpl.name}" template loaded — edit the placeholder text`);
-  };
-
-  // Send
-  const handleSend = (isTest) => {
+  const handleSend = () => {
     setSending(true);
     setTimeout(() => {
+      addEmail({
+        subject,
+        body,
+        audience: audienceLabel,
+        status: 'Sent',
+        recipientCount: getAudienceCount(),
+      });
       setSending(false);
-      if (isTest) {
-        toast('Test email sent to your inbox');
-      } else if (scheduling && scheduleDate) {
-        toast(`Email scheduled for ${scheduleDate} at ${scheduleTime}`);
-        resetCompose();
-      } else {
-        toast(`Email sent to ${AUDIENCES.find(a => a.id === audience)?.label || 'recipients'}`);
-        resetCompose();
-      }
-    }, 1200);
+      setConfirmModal(false);
+      setSubject('');
+      setBody('');
+      setTemplate(null);
+      toast(`Email sent to ${audienceLabel} (${getAudienceCount()} recipients)`);
+      setTab('sent');
+    }, 1000);
   };
 
-  const resetCompose = () => {
-    setComposing(false);
-    setSubject('');
-    setBody('');
-    setAudience('all');
-    setCustomEmails('');
-    setScheduling(false);
+  const handleSendTest = () => {
+    const email = prompt('Enter your email address for the test:');
+    if (email) {
+      toast(`Test email sent to ${email}`);
+    }
   };
+
+  const canSend = subject.trim() && body.trim();
+  const sentEmails = emails.filter(e => e.status === 'Sent');
 
   // Subscribers filter
-  const filteredSubs = SUBSCRIBERS.filter(s => {
-    if (subFilter !== 'All' && s.type !== subFilter) return false;
+  const filteredSubs = allSubscribers.filter(s => {
+    if (subFilter !== 'All' && s.source !== subFilter) return false;
     if (subSearch) {
       const q = subSearch.toLowerCase();
       return s.email.toLowerCase().includes(q) || s.name.toLowerCase().includes(q);
@@ -159,321 +226,262 @@ export default function Emails() {
   });
 
   const tabs = [
-    { id: 'dashboard', label: 'Overview' },
+    { id: 'compose', label: 'Compose' },
+    { id: 'sent', label: 'Sent' },
     { id: 'subscribers', label: 'Subscribers' },
   ];
 
-  const canSend = subject.trim() && body.trim() && (audience !== 'custom' || customEmails.trim());
-
-  // ═══ COMPOSE VIEW ═══
-  if (composing) {
-    return (
-      <>
-        <button onClick={() => setComposing(false)} style={{
-          display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20,
-          background: 'none', border: 'none', color: '#908a84', cursor: 'pointer', font: '400 13px DM Sans',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
-          Back to emails
-        </button>
-
-        <div className="admin-page-header">
-          <div>
-            <h1 className="admin-page-title">Compose Email</h1>
-            <p className="admin-page-subtitle">Write your email below — keep it simple and personal</p>
+  // ---- WIZARD STEPS for Compose ----
+  const wizardSteps = [
+    {
+      label: 'Audience',
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            Who's this for?
+          </h2>
+          <LabelWithHelp help="Choose who receives this email." style={labelStyle}>
+            Audience
+          </LabelWithHelp>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+            {AUDIENCES.map(a => (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => setAudience(a.id)}
+                style={cardSelectorStyle(audience === a.id)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <span style={{ fontSize: 24 }}>{a.icon}</span>
+                  <span style={{ font: '600 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B' }}>{a.name}</span>
+                </div>
+                <div style={{ font: '400 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 4 }}>{a.desc}</div>
+                <div style={{ font: '600 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37' }}>
+                  {getAudienceCount(a.id)} {getAudienceCount(a.id) === 1 ? 'person' : 'people'}
+                </div>
+              </button>
+            ))}
           </div>
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 24, alignItems: 'start' }} className="email-compose-layout">
-          {/* Main compose area */}
-          <div>
-            {/* Audience */}
-            <div className="admin-panel">
-              <label style={{ display: 'block', font: '500 11px DM Sans', letterSpacing: '1px', textTransform: 'uppercase', color: '#5a5550', marginBottom: 12 }}>
-                Send To
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8 }}>
-                {AUDIENCES.map(a => (
-                  <button
-                    key={a.id}
-                    onClick={() => setAudience(a.id)}
-                    style={{
-                      padding: '14px 16px', textAlign: 'left',
-                      background: audience === a.id ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)',
-                      border: `1px solid ${audience === a.id ? 'rgba(212,175,55,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                      borderRadius: 6, cursor: 'pointer', transition: 'all 0.15s',
-                      WebkitTapHighlightColor: 'transparent',
-                    }}
-                  >
-                    <div style={{ font: '500 13px DM Sans', color: audience === a.id ? '#d4af37' : '#e8e4df', marginBottom: 2 }}>
-                      {a.label}
-                    </div>
-                    <div style={{ font: '300 11px DM Sans', color: '#5a5550' }}>
-                      {a.count !== null ? `${a.count} recipients` : 'Enter emails below'}
-                    </div>
-                  </button>
-                ))}
-              </div>
-              {audience === 'custom' && (
-                <textarea
-                  style={{
-                    width: '100%', marginTop: 12, padding: '12px 14px', minHeight: 80,
-                    background: '#0a0a1a', border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: 6, font: '400 13px DM Sans', color: '#e8e4df',
-                    outline: 'none', resize: 'vertical',
-                  }}
-                  placeholder="Paste email addresses, one per line or comma-separated..."
-                  value={customEmails}
-                  onChange={e => setCustomEmails(e.target.value)}
-                />
-              )}
-            </div>
-
-            {/* Subject */}
-            <div className="admin-panel">
-              <label style={{ display: 'block', font: '500 11px DM Sans', letterSpacing: '1px', textTransform: 'uppercase', color: '#5a5550', marginBottom: 8 }}>
-                Subject Line
-              </label>
-              <input
-                style={{
-                  width: '100%', padding: '16px 18px', background: '#0a0a1a',
-                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6,
-                  font: '500 17px DM Sans', color: '#e8e4df', outline: 'none',
+      ),
+    },
+    {
+      label: 'Template',
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            Pick a starting point
+          </h2>
+          <LabelWithHelp help="Templates save time. Pick one and customize it." style={labelStyle}>
+            Template
+          </LabelWithHelp>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+            {Object.entries(TEMPLATES).map(([key, tpl]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  setTemplate(key);
+                  setSubject(tpl.subject);
+                  setBody(tpl.body);
                 }}
-                placeholder="What's this email about?"
-                value={subject}
-                onChange={e => setSubject(e.target.value)}
-              />
-              <p style={{ font: '300 11px DM Sans', color: '#5a5550', marginTop: 4 }}>
-                Keep it under 50 characters for the best open rates
-              </p>
-            </div>
-
-            {/* Body */}
-            <div className="admin-panel">
-              <label style={{ display: 'block', font: '500 11px DM Sans', letterSpacing: '1px', textTransform: 'uppercase', color: '#5a5550', marginBottom: 8 }}>
-                Email Body
-              </label>
-              <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, overflow: 'hidden' }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 2, padding: '6px 8px',
-                  background: 'rgba(4,4,12,0.5)', borderBottom: '1px solid rgba(255,255,255,0.06)',
-                  flexWrap: 'wrap',
-                }}>
-                  <ToolBtn label="Bold" icon={<strong>B</strong>} onClick={() => execCmd('bold')} />
-                  <ToolBtn label="Italic" icon={<em>I</em>} onClick={() => execCmd('italic')} />
-                  <ToolBtn label="Link" icon="🔗" onClick={insertLink} />
-                  <ToolBtn label="Bullet List" icon="•" onClick={() => execCmd('insertUnorderedList')} />
-                  <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.06)', margin: '0 4px' }} />
-                  <ToolBtn label="Heading" icon="H" onClick={() => execCmd('formatBlock', 'h3')} />
-                  <div style={{ flex: 1 }} />
-                  <span style={{ font: '300 10px DM Sans', color: '#5a5550' }}>
-                    Write naturally — select text to format
-                  </span>
-                </div>
-                <div
-                  ref={bodyRef}
-                  contentEditable
-                  suppressContentEditableWarning
-                  onInput={e => setBody(e.currentTarget.innerText)}
-                  style={{
-                    minHeight: 280, padding: '20px 20px', background: '#0a0a1a',
-                    font: '300 14px/1.8 DM Sans', color: '#e8e4df',
-                    outline: 'none', whiteSpace: 'pre-wrap',
-                  }}
-                  dangerouslySetInnerHTML={{ __html: body.replace(/\n/g, '<br>') }}
-                />
-              </div>
-            </div>
-
-            {/* Schedule / Send */}
-            <div className="admin-panel">
-              {/* Schedule toggle */}
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: scheduling ? 16 : 0,
-              }}>
-                <div>
-                  <div style={{ font: '500 13px DM Sans', color: '#e8e4df', marginBottom: 2 }}>Schedule for Later</div>
-                  <div style={{ font: '300 11px DM Sans', color: '#5a5550' }}>
-                    {scheduling ? 'Choose when to send' : 'Or send immediately'}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setScheduling(s => !s)}
-                  style={{
-                    width: 52, height: 28, borderRadius: 14, border: 'none', cursor: 'pointer',
-                    background: scheduling ? '#d4af37' : 'rgba(255,255,255,0.1)',
-                    position: 'relative', transition: 'background 0.25s', flexShrink: 0,
-                  }}
-                >
-                  <div style={{
-                    width: 22, height: 22, borderRadius: '50%', background: '#fff',
-                    position: 'absolute', top: 3,
-                    left: scheduling ? 27 : 3,
-                    transition: 'left 0.25s cubic-bezier(.16,1,.3,1)',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
-                  }} />
-                </button>
-              </div>
-
-              {scheduling && (
-                <div style={{ display: 'flex', gap: 12 }} className="email-schedule-row">
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', font: '500 11px DM Sans', letterSpacing: '1px', textTransform: 'uppercase', color: '#5a5550', marginBottom: 6 }}>Date</label>
-                    <input
-                      type="date"
-                      value={scheduleDate}
-                      onChange={e => setScheduleDate(e.target.value)}
-                      style={{
-                        width: '100%', padding: '12px 14px', background: '#0a0a1a',
-                        border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6,
-                        font: '400 13px DM Sans', color: '#e8e4df', outline: 'none',
-                      }}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', font: '500 11px DM Sans', letterSpacing: '1px', textTransform: 'uppercase', color: '#5a5550', marginBottom: 6 }}>Time</label>
-                    <input
-                      type="time"
-                      value={scheduleTime}
-                      onChange={e => setScheduleTime(e.target.value)}
-                      style={{
-                        width: '100%', padding: '12px 14px', background: '#0a0a1a',
-                        border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6,
-                        font: '400 13px DM Sans', color: '#e8e4df', outline: 'none',
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Action buttons */}
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
-              <button
-                className="admin-btn admin-btn-gold admin-btn-lg"
-                disabled={!canSend || sending}
-                onClick={() => handleSend(false)}
-                style={{ minWidth: 160 }}
+                style={cardSelectorStyle(template === key)}
               >
-                {sending ? <><span className="admin-spinner" style={{ marginRight: 8 }} /> Sending...</> : (scheduling ? 'Schedule Email' : 'Send Now')}
+                <div style={{ fontSize: 28, marginBottom: 8 }}>{tpl.icon}</div>
+                <div style={{ font: '600 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 4 }}>{tpl.name}</div>
+                <div style={{ font: '400 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>{tpl.desc}</div>
               </button>
-              <button
-                className="admin-btn admin-btn-outline admin-btn-lg"
-                disabled={!canSend || sending}
-                onClick={() => handleSend(true)}
-              >
-                Send Test to Myself
-              </button>
-              <button className="admin-btn admin-btn-ghost admin-btn-lg" onClick={() => setComposing(false)}>
-                Discard
-              </button>
-            </div>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: 'Write',
+      validate: () => {
+        if (!subject.trim()) { toast('Please enter a subject line'); return false; }
+        if (!body.trim()) { toast('Please write your email body'); return false; }
+        return true;
+      },
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            Write your message
+          </h2>
+
+          <div style={{ marginBottom: 24 }}>
+            <LabelWithHelp help="This is the first thing people see. Keep it short and interesting." style={labelStyle}>
+              Subject Line
+            </LabelWithHelp>
+            <input
+              style={{ ...inputStyle, fontSize: 18, padding: '16px 18px', height: 56 }}
+              placeholder="What's this email about?"
+              value={subject}
+              onChange={e => setSubject(e.target.value)}
+            />
           </div>
 
-          {/* Sidebar: Templates */}
-          <div className="email-templates-sidebar">
-            <div className="admin-panel" style={{ position: 'sticky', top: 80 }}>
-              <div style={{ font: '500 11px DM Sans', letterSpacing: '1px', textTransform: 'uppercase', color: '#5a5550', marginBottom: 14 }}>
-                Start from a Template
+          <div>
+            <LabelWithHelp help="Write the content of your email. Use the toolbar to format text." style={labelStyle}>
+              Email Body
+            </LabelWithHelp>
+            <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 2, padding: '8px 10px',
+                background: '#F8F7F4', borderBottom: '1px solid #E2E8F0',
+              }}>
+                <ToolBtn label="Bold" icon={<strong>B</strong>} onClick={() => wrapText('**')} />
+                <ToolBtn label="Italic" icon={<em>I</em>} onClick={() => wrapText('_')} />
+                <ToolBtn label="Link" icon={
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                } onClick={insertLink} />
+                <div style={{ flex: 1 }} />
+                <span style={{ font: '400 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>Select text, then format</span>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {TEMPLATES.map(tpl => (
-                  <button
-                    key={tpl.id}
-                    onClick={() => applyTemplate(tpl)}
-                    style={{
-                      padding: '14px 14px', textAlign: 'left',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      borderRadius: 6, cursor: 'pointer', transition: 'all 0.15s',
-                      WebkitTapHighlightColor: 'transparent',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)'; e.currentTarget.style.background = 'rgba(212,175,55,0.04)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ fontSize: 18 }}>{tpl.icon}</span>
-                      <div>
-                        <div style={{ font: '500 13px DM Sans', color: '#e8e4df', marginBottom: 1 }}>{tpl.name}</div>
-                        <div style={{ font: '300 10px DM Sans', color: '#5a5550' }}>Click to load template</div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <p style={{ font: '300 10px DM Sans', color: '#5a5550', marginTop: 12 }}>
-                Templates fill in placeholder text — just edit the [brackets] with your content.
-              </p>
+              <textarea
+                ref={bodyRef}
+                style={{
+                  width: '100%', minHeight: 280, padding: '20px', background: '#FFFFFF',
+                  font: '400 15px/1.8 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B',
+                  outline: 'none', border: 'none', resize: 'vertical', boxSizing: 'border-box',
+                }}
+                placeholder="Write your email here..."
+                value={body}
+                onChange={e => setBody(e.target.value)}
+              />
             </div>
           </div>
         </div>
+      ),
+    },
+    {
+      label: 'Preview',
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            Preview and Send
+            <HelpBubble text="Always send a test email first to make sure it looks right." />
+          </h2>
 
-        <style>{`
-          @media (max-width: 860px) {
-            .email-compose-layout { grid-template-columns: 1fr !important; }
-            .email-templates-sidebar { order: -1; }
-            .email-schedule-row { flex-direction: column; }
-          }
-        `}</style>
-      </>
-    );
-  }
+          {/* Email preview */}
+          <div style={{
+            background: '#F1F5F9', borderRadius: 12, padding: 24, marginBottom: 24,
+          }}>
+            <div style={{
+              background: '#FFFFFF', borderRadius: 8, overflow: 'hidden',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+              maxWidth: 560, margin: '0 auto',
+            }}>
+              {/* Email header */}
+              <div style={{
+                background: '#0F172A', padding: '24px 28px', textAlign: 'center',
+              }}>
+                <div style={{ font: '700 18px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37', marginBottom: 4 }}>
+                  Dark Sky Discovery Center
+                </div>
+                <div style={{ font: '400 12px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>
+                  Gift Shop & Observatory
+                </div>
+              </div>
 
-  // ═══ MAIN VIEW ═══
+              {/* Email body */}
+              <div style={{ padding: '28px 28px' }}>
+                <h2 style={{ font: '600 20px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 16 }}>
+                  {subject || '(No subject)'}
+                </h2>
+                <div style={{ font: '400 14px/1.8 -apple-system, BlinkMacSystemFont, sans-serif', color: '#475569', whiteSpace: 'pre-wrap' }}>
+                  {body || '(No content)'}
+                </div>
+              </div>
+
+              {/* Email footer */}
+              <div style={{
+                background: '#F8F7F4', padding: '20px 28px', textAlign: 'center',
+                borderTop: '1px solid #E2E8F0',
+              }}>
+                <div style={{ font: '400 12px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 4 }}>
+                  Dark Sky Discovery Center | 123 Observatory Road
+                </div>
+                <div style={{ font: '400 11px -apple-system, BlinkMacSystemFont, sans-serif', color: '#CBD5E1' }}>
+                  You received this because you subscribed to our updates.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div style={{
+            background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12,
+            padding: 24, display: 'flex', flexDirection: 'column', gap: 16,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ font: '500 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B' }}>Recipients</div>
+                <div style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>
+                  {audienceLabel} -- {getAudienceCount()} {getAudienceCount() === 1 ? 'person' : 'people'}
+                </div>
+              </div>
+              <button
+                className="admin-btn admin-btn-outline"
+                style={{ height: 40 }}
+                onClick={handleSendTest}
+              >
+                Send Test to Me
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <>
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Email</h1>
+          <h1 className="admin-page-title" style={{ display: 'flex', alignItems: 'center' }}>
+            Email
+            <HelpBubble text="Send updates, promotions, and newsletters to your subscribers." />
+          </h1>
           <p className="admin-page-subtitle">Send updates, promotions, and newsletters</p>
-        </div>
-        <button className="admin-btn admin-btn-gold admin-btn-lg" onClick={() => setComposing(true)}>
-          + Compose Email
-        </button>
-      </div>
-
-      {/* Stats */}
-      <div className="admin-stats" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-        <div className="admin-stat">
-          <div className="admin-stat-label">Total Subscribers</div>
-          <div className="admin-stat-value">{totalSubs}</div>
-          <div className="admin-stat-sub"><span className="up">+23</span> this month</div>
-        </div>
-        <div className="admin-stat">
-          <div className="admin-stat-label">Emails Sent (March)</div>
-          <div className="admin-stat-value">{emailsSentMonth}</div>
-          <div className="admin-stat-sub">campaigns this month</div>
-        </div>
-        <div className="admin-stat">
-          <div className="admin-stat-label">Avg. Open Rate</div>
-          <div className="admin-stat-value gold">{avgOpenRate}%</div>
-          <div className="admin-stat-sub">industry avg: 21%</div>
         </div>
       </div>
 
       {/* Tabs */}
       <div style={{
         display: 'flex', gap: 0, marginBottom: 24,
-        border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, overflow: 'hidden', width: 'fit-content',
+        border: '1px solid #E2E8F0', borderRadius: 8, overflow: 'hidden', width: 'fit-content',
       }}>
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
-            padding: '10px 20px', font: '500 12.5px DM Sans',
+            padding: '10px 20px', font: "500 14px -apple-system, BlinkMacSystemFont, sans-serif",
             background: tab === t.id ? 'rgba(212,175,55,0.1)' : 'transparent',
-            color: tab === t.id ? '#d4af37' : '#5a5550',
-            border: 'none', borderRight: '1px solid rgba(255,255,255,0.08)',
+            color: tab === t.id ? '#D4AF37' : '#64748B',
+            border: 'none', borderRight: '1px solid #E2E8F0',
             cursor: 'pointer', transition: 'all 0.15s',
-          }}>{t.label}</button>
+          }}>{t.label}{t.id === 'sent' && sentEmails.length > 0 ? ` (${sentEmails.length})` : ''}</button>
         ))}
       </div>
 
-      {/* ═══ DASHBOARD TAB ═══ */}
-      {tab === 'dashboard' && (
+      {/* COMPOSE TAB */}
+      {tab === 'compose' && (
+        <div style={{ maxWidth: 800 }}>
+          <Wizard
+            steps={wizardSteps}
+            onComplete={() => setConfirmModal(true)}
+            completeBtnText={`Send to ${getAudienceCount()} people`}
+          />
+        </div>
+      )}
+
+      {/* SENT TAB */}
+      {tab === 'sent' && (
         <div className="admin-table-wrap">
           <div className="admin-table-header">
-            <span className="admin-table-title">Sent Emails</span>
+            <span className="admin-table-title" style={{ display: 'flex', alignItems: 'center' }}>
+              Sent Emails
+              <HelpBubble text="History of all emails you have sent." />
+            </span>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table className="admin-table">
@@ -481,32 +489,33 @@ export default function Emails() {
                 <tr>
                   <th>Subject</th>
                   <th>Audience</th>
-                  <th>Sent</th>
-                  <th>Recipients</th>
-                  <th>Opened</th>
-                  <th>Open Rate</th>
-                  <th>Clicked</th>
+                  <th>Sent Date</th>
+                  <th>Opens</th>
+                  <th>Clicks</th>
                 </tr>
               </thead>
               <tbody>
-                {SENT_EMAILS.map(em => {
-                  const rate = Math.round((em.opened / em.recipients) * 100);
+                {sentEmails.length === 0 ? (
+                  <tr><td colSpan="5" style={{ textAlign: 'center', padding: 40, color: '#94A3B8' }}>No emails sent yet. Compose your first email to get started.</td></tr>
+                ) : sentEmails.map(em => {
+                  const mockOpenRate = Math.round(20 + Math.random() * 45);
+                  const mockClickRate = Math.round(5 + Math.random() * 20);
                   return (
                     <tr key={em.id}>
-                      <td className="text-white" style={{ fontWeight: 500, maxWidth: 280 }}>{em.subject}</td>
+                      <td style={{ fontWeight: 500, color: '#1E293B', maxWidth: 300 }}>{em.subject}</td>
                       <td><span className="badge badge-gold">{em.audience}</span></td>
-                      <td>{em.sent}</td>
-                      <td>{em.recipients}</td>
-                      <td>{em.opened}</td>
+                      <td>{fmtDate(em.sentDate)}</td>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ width: 48, height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
-                            <div style={{ width: `${rate}%`, height: '100%', background: rate > 40 ? '#4ade80' : '#d4af37', borderRadius: 2 }} />
+                          <div style={{ width: 48, height: 4, background: '#E2E8F0', borderRadius: 2, overflow: 'hidden' }}>
+                            <div style={{ width: `${mockOpenRate}%`, height: '100%', background: mockOpenRate > 40 ? '#10B981' : '#D4AF37', borderRadius: 2 }} />
                           </div>
-                          <span style={{ color: rate > 40 ? '#4ade80' : '#d4af37', fontSize: 12, fontWeight: 500 }}>{rate}%</span>
+                          <span style={{ color: mockOpenRate > 40 ? '#10B981' : '#D4AF37', fontSize: 14, fontWeight: 500 }}>{mockOpenRate}%</span>
                         </div>
                       </td>
-                      <td>{em.clicked}</td>
+                      <td>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: '#64748B' }}>{mockClickRate}%</span>
+                      </td>
                     </tr>
                   );
                 })}
@@ -516,25 +525,31 @@ export default function Emails() {
         </div>
       )}
 
-      {/* ═══ SUBSCRIBERS TAB ═══ */}
+      {/* SUBSCRIBERS TAB */}
       {tab === 'subscribers' && (
         <div className="admin-table-wrap">
           <div className="admin-filters">
             <div className="admin-filter-search">
               <input
-                className="admin-input"
+                style={inputStyle}
                 placeholder="Search by name or email..."
                 value={subSearch}
                 onChange={e => setSubSearch(e.target.value)}
               />
             </div>
             <div className="admin-filter-tabs">
-              {['All', 'Customer', 'Member'].map(f => (
+              {['All', 'Member', 'Customer'].map(f => (
                 <button key={f} className={`admin-filter-tab ${subFilter === f ? 'active' : ''}`} onClick={() => setSubFilter(f)}>
                   {f}
                 </button>
               ))}
             </div>
+          </div>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center' }}>
+            <span style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37' }}>
+              {allSubscribers.length} total subscribers
+            </span>
+            <HelpBubble text="Combined list of members and customers from orders." />
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table className="admin-table">
@@ -542,31 +557,66 @@ export default function Emails() {
                 <tr>
                   <th>Name</th>
                   <th>Email</th>
-                  <th>Type</th>
-                  <th>Subscribed</th>
-                  <th>Orders</th>
+                  <th>Source</th>
+                  <th>Since</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredSubs.map(s => (
+                {filteredSubs.length === 0 ? (
+                  <tr><td colSpan="4" style={{ textAlign: 'center', padding: 32, color: '#94A3B8' }}>No subscribers match</td></tr>
+                ) : filteredSubs.map(s => (
                   <tr key={s.email}>
-                    <td className="text-white">{s.name}</td>
-                    <td style={{ fontSize: 12 }}>{s.email}</td>
+                    <td style={{ color: '#1E293B', fontWeight: 500 }}>{s.name}</td>
+                    <td style={{ fontSize: 14, color: '#64748B' }}>{s.email}</td>
                     <td>
-                      <span className={`badge ${s.type === 'Member' ? 'badge-gold' : 'badge-gray'}`}>{s.type}</span>
+                      <span className={`badge ${s.source === 'Member' ? 'badge-gold' : 'badge-gray'}`}>{s.source}</span>
                     </td>
-                    <td>{s.subscribed}</td>
-                    <td>{s.orders}</td>
+                    <td>{fmtDate(s.since)}</td>
                   </tr>
                 ))}
-                {filteredSubs.length === 0 && (
-                  <tr><td colSpan="5" style={{ textAlign: 'center', padding: 32, color: '#5a5550' }}>No subscribers match</td></tr>
-                )}
               </tbody>
             </table>
           </div>
         </div>
       )}
+
+      {/* Confirm Send Modal */}
+      {confirmModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300,
+        }} onClick={() => setConfirmModal(false)}>
+          <div style={{
+            background: '#FFFFFF', border: '1px solid #E2E8F0',
+            borderRadius: 12, padding: 36, maxWidth: 440, width: '90%', textAlign: 'center',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(212,175,55,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 22 }}>
+              {'\u2709\uFE0F'}
+            </div>
+            <h3 style={{ font: "500 18px/1.3 -apple-system, BlinkMacSystemFont, sans-serif", color: '#1E293B', marginBottom: 8 }}>Send Email?</h3>
+            <p style={{ font: "400 15px/1.6 -apple-system, BlinkMacSystemFont, sans-serif", color: '#64748B', marginBottom: 8 }}>
+              <strong style={{ color: '#1E293B' }}>{subject}</strong>
+            </p>
+            <p style={{ font: "400 15px/1.6 -apple-system, BlinkMacSystemFont, sans-serif", color: '#64748B', marginBottom: 24 }}>
+              This will send to <strong style={{ color: '#D4AF37' }}>{audienceLabel}</strong> ({getAudienceCount()} recipients).
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <button className="admin-btn admin-btn-ghost admin-btn-lg" onClick={() => setConfirmModal(false)} style={{ height: 48 }}>Cancel</button>
+              <button className="admin-btn admin-btn-gold admin-btn-lg" disabled={sending} onClick={handleSend} style={{ height: 48, minWidth: 140 }}>
+                {sending ? 'Sending...' : 'Send Now'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @media (max-width: 860px) {
+          .email-compose-layout { grid-template-columns: 1fr !important; }
+          .email-templates-sidebar { order: -1; }
+        }
+      `}</style>
     </>
   );
 }

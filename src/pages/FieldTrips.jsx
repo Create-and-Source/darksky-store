@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { addInquiry } from '../admin/data/store';
 
-/* ── REVEAL HOOK ── */
+/* -- REVEAL HOOK -- */
 function useReveal() {
   const ref = useRef(null);
   useEffect(() => {
@@ -16,7 +17,7 @@ function useReveal() {
   return ref;
 }
 
-/* ── FAQ ACCORDION ── */
+/* -- FAQ ACCORDION -- */
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
@@ -45,12 +46,12 @@ function FAQItem({ q, a }) {
   );
 }
 
-/* ── DATA ── */
+/* -- DATA -- */
 const INCLUDES = [
   {
     icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>,
     title: 'Planetarium Show',
-    desc: 'A 30-minute immersive show in our full-dome theater. Curriculum-aligned content available for all grade levels — solar system, constellations, space exploration, and more.',
+    desc: 'A 30-minute immersive show in our full-dome theater. Curriculum-aligned content available for all grade levels -- solar system, constellations, space exploration, and more.',
   },
   {
     icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>,
@@ -75,7 +76,7 @@ const PROGRAMS = [
     duration: '2 Hours',
     price: '$12',
     unit: 'per student',
-    groupSize: '10–60 students',
+    groupSize: '10-60 students',
     featured: false,
     items: [
       'Planetarium show (30 min)',
@@ -90,7 +91,7 @@ const PROGRAMS = [
     duration: '4 Hours',
     price: '$20',
     unit: 'per student',
-    groupSize: '10–120 students',
+    groupSize: '10-120 students',
     featured: true,
     badge: 'Most Popular',
     items: [
@@ -108,7 +109,7 @@ const PROGRAMS = [
     duration: 'Coming Soon',
     price: 'TBD',
     unit: '',
-    groupSize: '20–40 students',
+    groupSize: '20-40 students',
     featured: false,
     comingSoon: true,
     items: [
@@ -129,7 +130,7 @@ const TESTIMONIALS = [
     school: '4th Grade, Coconino Elementary',
   },
   {
-    quote: 'As a science teacher, I\'m always looking for field trips that go beyond entertainment. Dark Sky delivered real learning — my students came back with genuine questions about astronomy that drove our next unit.',
+    quote: 'As a science teacher, I\'m always looking for field trips that go beyond entertainment. Dark Sky delivered real learning -- my students came back with genuine questions about astronomy that drove our next unit.',
     author: 'Mr. Chen',
     school: '7th Grade Science, Flagstaff Middle School',
   },
@@ -141,23 +142,23 @@ const TESTIMONIALS = [
 ];
 
 const FAQS = [
-  { q: 'How far in advance should we book?', a: 'We recommend booking at least 4–6 weeks in advance, especially for spring dates which fill quickly. Fall availability is generally more open. We can sometimes accommodate shorter notice requests — contact us and we\'ll do our best.' },
+  { q: 'How far in advance should we book?', a: 'We recommend booking at least 4-6 weeks in advance, especially for spring dates which fill quickly. Fall availability is generally more open. We can sometimes accommodate shorter notice requests -- contact us and we\'ll do our best.' },
   { q: 'What is the chaperone-to-student ratio?', a: 'We require a minimum of 1 adult chaperone per 10 students. Chaperones are admitted free of charge. Additional chaperones beyond the minimum are also free. Teachers and aides are always free.' },
   { q: 'Is lunch available?', a: 'For full-day programs, we have a covered outdoor lunch area where students can eat packed lunches. We also partner with a local catering service for pre-ordered boxed lunches ($8/student). Lunch orders must be placed at least 1 week before your visit.' },
   { q: 'Is the facility wheelchair accessible?', a: 'Yes. All indoor exhibits, the planetarium, and restrooms are fully ADA accessible. Outdoor activity areas include paved paths. We can provide sensory-friendly accommodations, sign language interpreters, or large-print materials with advance notice.' },
-  { q: 'Where do buses park?', a: 'We have a dedicated bus parking lot that accommodates up to 6 full-size school buses. Bus drivers receive a complimentary coffee and pastry voucher for our café. The parking lot is a 1-minute walk from the main entrance.' },
+  { q: 'Where do buses park?', a: 'We have a dedicated bus parking lot that accommodates up to 6 full-size school buses. Bus drivers receive a complimentary coffee and pastry voucher for our cafe. The parking lot is a 1-minute walk from the main entrance.' },
   { q: 'Do you align with state science standards?', a: 'Absolutely. All programs are aligned with Arizona Science Standards and the Next Generation Science Standards (NGSS). We provide teachers with a standards alignment document upon booking so you can integrate the visit into your curriculum.' },
 ];
 
 const GRADE_LEVELS = [
-  'K–2nd Grade',
-  '3rd–5th Grade',
-  '6th–8th Grade',
-  '9th–12th Grade',
+  'K-2nd Grade',
+  '3rd-5th Grade',
+  '6th-8th Grade',
+  '9th-12th Grade',
   'Mixed / Multi-grade',
 ];
 
-/* ── COMPONENT ── */
+/* -- COMPONENT -- */
 export default function FieldTrips() {
   const [form, setForm] = useState({
     school: '', contact: '', email: '', phone: '',
@@ -165,22 +166,66 @@ export default function FieldTrips() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [attempted, setAttempted] = useState(false);
+  const [successToast, setSuccessToast] = useState(false);
 
   const heroRef = useReveal();
   const includesRef = useReveal();
   const testimonialsRef = useReveal();
 
-  const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
+  const set = (field) => (e) => {
+    setForm(f => ({ ...f, [field]: e.target.value }));
+    if (attempted) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const validate = () => {
+    const errs = {};
+    if (!form.school.trim()) errs.school = 'School name is required';
+    if (!form.contact.trim()) errs.contact = 'Contact person is required';
+    if (!form.email) errs.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Enter a valid email';
+    if (!form.grade) errs.grade = 'Grade level is required';
+    if (!form.students) errs.students = 'Number of students is required';
+    else if (parseInt(form.students) < 10) errs.students = 'Minimum 10 students';
+    if (!form.program) errs.program = 'Please select a program';
+    return errs;
+  };
 
   const isValid = form.school && form.contact && form.email && form.grade && form.students && form.program;
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setAttempted(true);
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
     setSubmitting(true);
     setTimeout(() => {
+      addInquiry({
+        type: 'field-trip',
+        school: form.school,
+        contact: form.contact,
+        email: form.email,
+        phone: form.phone,
+        grade: form.grade,
+        students: form.students,
+        preferredDate: form.date,
+        program: form.program,
+        notes: form.notes,
+      });
       setSubmitting(false);
       setSubmitted(true);
-    }, 1500);
+      setSuccessToast(true);
+      setTimeout(() => setSuccessToast(false), 4000);
+    }, 1000);
   };
 
   const inputStyle = {
@@ -188,6 +233,10 @@ export default function FieldTrips() {
     background: 'rgba(13,13,34,0.7)', border: '1px solid var(--border2, rgba(255,255,255,0.06))',
     borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)',
     outline: 'none', transition: 'border-color 0.2s',
+  };
+  const inputErrorStyle = {
+    ...inputStyle,
+    borderColor: 'rgba(239,68,68,0.6)',
   };
   const labelStyle = {
     display: 'block', font: '500 10px JetBrains Mono',
@@ -199,9 +248,31 @@ export default function FieldTrips() {
     backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%236b6880\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E")',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center', paddingRight: 36,
   };
+  const selectErrorStyle = {
+    ...selectStyle,
+    borderColor: 'rgba(239,68,68,0.6)',
+  };
+  const errorTextStyle = {
+    font: '400 11px DM Sans', color: '#ef4444', marginTop: 4,
+  };
 
   return (
     <div>
+      {/* Success Toast */}
+      {successToast && (
+        <div style={{
+          position: 'fixed', top: 80, left: '50%', transform: 'translateX(-50%)',
+          padding: '14px 28px', background: 'rgba(74,222,128,0.15)',
+          border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80',
+          font: '500 13px DM Sans', zIndex: 500,
+          animation: 'ftToast 0.3s ease-out',
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: 16 }}>&#10003;</span>
+          Inquiry submitted successfully!
+        </div>
+      )}
+
       {/* Hero */}
       <div style={{
         position: 'relative', padding: '120px 64px 100px', textAlign: 'center',
@@ -225,9 +296,9 @@ export default function FieldTrips() {
           <div style={{ display: 'flex', gap: 48, justifyContent: 'center', flexWrap: 'wrap' }}>
             {[
               ['2,400+', 'Students / Year'],
-              ['K–12', 'Grade Levels'],
+              ['K-12', 'Grade Levels'],
               ['NGSS', 'Standards Aligned'],
-              ['4.9★', 'Teacher Rating'],
+              ['4.9\u2605', 'Teacher Rating'],
             ].map(([num, label]) => (
               <div key={label} style={{ textAlign: 'center' }}>
                 <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, color: 'var(--gold)', fontStyle: 'italic', marginBottom: 4 }}>{num}</div>
@@ -249,7 +320,7 @@ export default function FieldTrips() {
         <div ref={includesRef} className="reveal" style={{
           display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
           borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)',
-        }} className2="ft-includes">
+        }}>
           {INCLUDES.map(item => (
             <div key={item.title} style={{
               padding: '40px 32px',
@@ -345,7 +416,7 @@ export default function FieldTrips() {
         <div ref={testimonialsRef} className="reveal" style={{
           display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0,
           borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)',
-        }} className2="ft-testimonials">
+        }}>
           {TESTIMONIALS.map((t, i) => (
             <div key={i} style={{
               padding: '40px 32px',
@@ -390,7 +461,7 @@ export default function FieldTrips() {
                 background: 'rgba(74,222,128,0.1)', color: '#4ade80',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 28, margin: '0 auto 20px',
-              }}>✓</div>
+              }}>&#10003;</div>
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 400, marginBottom: 12 }}>
                 Inquiry Submitted
               </h3>
@@ -399,7 +470,7 @@ export default function FieldTrips() {
               </p>
               <button
                 className="btn-ghost"
-                onClick={() => { setSubmitted(false); setForm({ school: '', contact: '', email: '', phone: '', grade: '', students: '', date: '', program: '', notes: '' }); }}
+                onClick={() => { setSubmitted(false); setAttempted(false); setErrors({}); setForm({ school: '', contact: '', email: '', phone: '', grade: '', students: '', date: '', program: '', notes: '' }); }}
               >Submit Another Inquiry</button>
             </div>
           ) : (
@@ -414,15 +485,18 @@ export default function FieldTrips() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="ft-form-grid">
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label style={labelStyle}>School Name *</label>
-                    <input style={inputStyle} placeholder="e.g. Flagstaff Elementary" value={form.school} onChange={set('school')} required />
+                    <input style={errors.school ? inputErrorStyle : inputStyle} placeholder="e.g. Flagstaff Elementary" value={form.school} onChange={set('school')} />
+                    {errors.school && <div style={errorTextStyle}>{errors.school}</div>}
                   </div>
                   <div>
                     <label style={labelStyle}>Contact Person *</label>
-                    <input style={inputStyle} placeholder="Teacher or coordinator name" value={form.contact} onChange={set('contact')} required />
+                    <input style={errors.contact ? inputErrorStyle : inputStyle} placeholder="Teacher or coordinator name" value={form.contact} onChange={set('contact')} />
+                    {errors.contact && <div style={errorTextStyle}>{errors.contact}</div>}
                   </div>
                   <div>
                     <label style={labelStyle}>Email *</label>
-                    <input style={inputStyle} type="email" placeholder="you@school.edu" value={form.email} onChange={set('email')} required />
+                    <input style={errors.email ? inputErrorStyle : inputStyle} type="email" placeholder="you@school.edu" value={form.email} onChange={set('email')} />
+                    {errors.email && <div style={errorTextStyle}>{errors.email}</div>}
                   </div>
                   <div>
                     <label style={labelStyle}>Phone</label>
@@ -430,10 +504,11 @@ export default function FieldTrips() {
                   </div>
                   <div>
                     <label style={labelStyle}>Grade Level *</label>
-                    <select style={selectStyle} value={form.grade} onChange={set('grade')} required>
+                    <select style={errors.grade ? selectErrorStyle : selectStyle} value={form.grade} onChange={set('grade')}>
                       <option value="">Select grade level</option>
                       {GRADE_LEVELS.map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
+                    {errors.grade && <div style={errorTextStyle}>{errors.grade}</div>}
                   </div>
                 </div>
               </div>
@@ -448,7 +523,8 @@ export default function FieldTrips() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="ft-form-grid">
                   <div>
                     <label style={labelStyle}>Number of Students *</label>
-                    <input style={inputStyle} type="number" min="10" max="120" placeholder="e.g. 45" value={form.students} onChange={set('students')} required />
+                    <input style={errors.students ? inputErrorStyle : inputStyle} type="number" min="10" max="120" placeholder="e.g. 45" value={form.students} onChange={set('students')} />
+                    {errors.students && <div style={errorTextStyle}>{errors.students}</div>}
                   </div>
                   <div>
                     <label style={labelStyle}>Preferred Date</label>
@@ -456,12 +532,13 @@ export default function FieldTrips() {
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label style={labelStyle}>Program *</label>
-                    <select style={selectStyle} value={form.program} onChange={set('program')} required>
+                    <select style={errors.program ? selectErrorStyle : selectStyle} value={form.program} onChange={set('program')}>
                       <option value="">Select a program</option>
-                      <option value="half-day">Half Day — 2 Hours ($12/student)</option>
-                      <option value="full-day">Full Day — 4 Hours ($20/student)</option>
-                      <option value="overnight">Overnight Camp — Contact for Details</option>
+                      <option value="half-day">Half Day -- 2 Hours ($12/student)</option>
+                      <option value="full-day">Full Day -- 4 Hours ($20/student)</option>
+                      <option value="overnight">Overnight Camp -- Contact for Details</option>
                     </select>
+                    {errors.program && <div style={errorTextStyle}>{errors.program}</div>}
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label style={labelStyle}>Special Needs or Notes</label>
@@ -477,16 +554,24 @@ export default function FieldTrips() {
 
               <button
                 type="submit"
-                disabled={!isValid || submitting}
+                disabled={submitting}
                 style={{
                   width: '100%', padding: 18,
-                  background: isValid && !submitting ? 'var(--gold)' : 'rgba(201,169,74,0.3)',
+                  background: !submitting ? 'var(--gold)' : 'rgba(201,169,74,0.3)',
                   color: '#04040c', border: 'none', borderRadius: 'var(--r, 3px)',
                   font: '600 12px/1 JetBrains Mono', letterSpacing: '0.18em', textTransform: 'uppercase',
-                  cursor: isValid && !submitting ? 'pointer' : 'not-allowed',
+                  cursor: !submitting ? 'pointer' : 'not-allowed',
                   transition: 'all 0.35s',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                 }}
               >
+                {submitting && (
+                  <span style={{
+                    width: 16, height: 16, border: '2px solid rgba(4,4,12,0.3)',
+                    borderTopColor: '#04040c', borderRadius: '50%',
+                    display: 'inline-block', animation: 'ftSpin 0.6s linear infinite',
+                  }} />
+                )}
                 {submitting ? 'Submitting...' : 'Submit Booking Inquiry'}
               </button>
               <p style={{ font: '300 11px/1.6 DM Sans', color: 'var(--muted)', textAlign: 'center', marginTop: 12 }}>
@@ -525,6 +610,11 @@ export default function FieldTrips() {
 
       {/* Responsive */}
       <style>{`
+        @keyframes ftSpin { to { transform: rotate(360deg); } }
+        @keyframes ftToast {
+          from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+          to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
         .ft-hero { padding: 120px 64px 100px; }
         @media (max-width: 1024px) {
           .ft-include-card, .ft-include-card + .ft-include-card { break-inside: avoid; }

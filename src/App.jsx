@@ -11,6 +11,9 @@ import Membership from './pages/Membership';
 import Events from './pages/Events';
 import FieldTrips from './pages/FieldTrips';
 import Checkout from './pages/Checkout';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import OrderConfirmation from './pages/OrderConfirmation';
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
 import Inventory from './admin/pages/Inventory';
@@ -22,13 +25,35 @@ import Content from './admin/pages/Content';
 import EventsAdmin from './admin/pages/EventsAdmin';
 import Emails from './admin/pages/Emails';
 import Reports from './admin/pages/Reports';
-
-let cartIdCounter = 0;
+import QuickBooks from './admin/pages/QuickBooks';
+import {
+  initStore,
+  getCart,
+  addToCart as storeAddToCart,
+  updateCartQty,
+  removeFromCart,
+  clearCart,
+  subscribe,
+} from './admin/data/store';
 
 export default function App() {
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Initialize store on mount
+  useEffect(() => {
+    initStore();
+    setCart(getCart());
+  }, []);
+
+  // Subscribe to store changes for cart reactivity
+  useEffect(() => {
+    const unsub = subscribe(() => {
+      setCart(getCart());
+    });
+    return unsub;
+  }, []);
 
   // Inject global CSS
   useEffect(() => {
@@ -42,20 +67,15 @@ export default function App() {
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
 
   const addToCart = (product) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === product.id);
-      if (existing) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
-      return [...prev, { ...product, qty: 1, cartId: ++cartIdCounter }];
-    });
+    storeAddToCart(product);
   };
 
   const updateQty = (cartId, qty) => {
-    if (qty < 1) { removeItem(cartId); return; }
-    setCart(prev => prev.map(i => i.cartId === cartId ? { ...i, qty } : i));
+    updateCartQty(cartId, qty);
   };
 
   const removeItem = (cartId) => {
-    setCart(prev => prev.filter(i => i.cartId !== cartId));
+    removeFromCart(cartId);
   };
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
@@ -74,6 +94,7 @@ export default function App() {
         <Route path="emails" element={<Emails />} />
         <Route path="content" element={<Content />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="quickbooks" element={<QuickBooks />} />
       </Route>
     </Routes>
   ) : (
@@ -86,10 +107,13 @@ export default function App() {
           <Route path="/shop" element={<Shop onAddToCart={addToCart} />} />
           <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />
           <Route path="/cart" element={<Cart cart={cart} onUpdate={updateQty} onRemove={removeItem} />} />
-          <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={() => setCart([])} />} />
+          <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={() => clearCart()} />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
           <Route path="/membership" element={<Membership />} />
           <Route path="/events" element={<Events />} />
           <Route path="/field-trips" element={<FieldTrips />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="*" element={
             <div style={{ padding: '120px 64px', textAlign: 'center' }}>
               <div className="label" style={{ marginBottom: 24 }}>// 404</div>

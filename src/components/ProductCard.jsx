@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const fmt = (cents) => cents ? `$${(cents / 100).toFixed(2)}` : '$—';
+const fmt = (cents) => cents ? `$${(cents / 100).toFixed(2)}` : '$--';
 
 export default function ProductCard({ product, onAddToCart, delay = 0, badge }) {
   const ref = useRef(null);
@@ -35,13 +35,20 @@ export default function ProductCard({ product, onAddToCart, delay = 0, badge }) 
         {product.images[0] ? (
           <img src={product.images[0]} alt={product.title} loading="lazy" />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: 32 }}>✦</div>
+          <div style={{
+            width: '100%', height: '100%',
+            background: '#E8E4DC',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--gold)', fontSize: 40, opacity: 0.4
+          }}>
+            &#10022;
+          </div>
         )}
-        <button className="pc-qa" onClick={handleAdd}>Add to Cart</button>
+        <button className="pc-qa" onClick={handleAdd}>Quick Add</button>
       </div>
       <div className="pc-info">
-        <div className="pc-name">{product.title}</div>
         <div className="pc-cat">{product.category}</div>
+        <div className="pc-name">{product.title}</div>
         <div className="pc-bottom">
           <span className="pc-price">{fmt(product.price)}</span>
         </div>

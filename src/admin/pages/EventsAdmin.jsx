@@ -1,280 +1,427 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '../AdminLayout';
+import Wizard from '../components/Wizard';
+import HelpBubble, { LabelWithHelp } from '../components/HelpBubble';
+import { undoable } from '../components/UndoSystem';
+import {
+  getEvents, addEvent, updateEvent, deleteEvent,
+  getReservations, subscribe, formatPrice,
+} from '../data/store';
 
-const EVENT_TYPES = ['Star Party', 'Planetarium Show', 'Workshop', 'Special Event', 'Kids Program', 'Field Trip'];
-const LOCATIONS = ['Observatory Deck', 'Planetarium Theater', 'Discovery Lab', 'Outdoor Amphitheater', 'Observation Field', 'Trailhead at Visitor Center'];
-
-const fmt = (cents) => cents === 0 ? 'Free' : `$${(cents / 100).toFixed(2)}`;
-
-const INITIAL_EVENTS = [
-  { id: 'EVT-001', name: 'New Moon Star Party', type: 'Star Party', date: '2026-03-29', startTime: '20:00', endTime: '23:00', description: 'Experience the darkest skies of the month during our signature New Moon Star Party. Our astronomers will guide you through the constellations with high-powered telescopes, laser pointers, and star charts. Hot cocoa and blankets provided.', location: 'Observatory Deck', capacity: 80, ticketsSold: 35, price: 1500, memberPrice: 0, kidPrice: 800, freeForMembers: true, status: 'Published', image: null, createdBy: 'Nancy', createdDate: '2026-03-01' },
-  { id: 'EVT-002', name: 'Planetarium Show: Journey to Mars', type: 'Planetarium Show', date: '2026-04-05', startTime: '14:00', endTime: '15:00', description: 'Travel 140 million miles in 45 minutes. Our state-of-the-art planetarium takes you on a breathtaking flyover of Olympus Mons, through the canyons of Valles Marineris, and into the thin Martian atmosphere.', location: 'Planetarium Theater', capacity: 90, ticketsSold: 28, price: 1200, memberPrice: 0, kidPrice: 800, freeForMembers: true, status: 'Published', image: null, createdBy: 'Nancy', createdDate: '2026-03-05' },
-  { id: 'EVT-003', name: 'Astrophotography Workshop', type: 'Workshop', date: '2026-04-12', startTime: '18:00', endTime: '21:00', description: 'Learn to capture the Milky Way, star trails, and deep-sky objects with your own camera. Includes hands-on telescope time and post-processing techniques.', location: 'Observatory Deck', capacity: 20, ticketsSold: 12, price: 3500, memberPrice: 2800, kidPrice: 0, freeForMembers: false, status: 'Published', image: null, createdBy: 'Tovah', createdDate: '2026-03-08' },
-  { id: 'EVT-004', name: 'Meteor Shower Watch Party', type: 'Special Event', date: '2026-04-22', startTime: '21:00', endTime: '01:00', description: 'The Lyrids meteor shower peaks tonight. Join us on the observation field with blankets, binoculars, and warm drinks as we count shooting stars together.', location: 'Observation Field', capacity: 200, ticketsSold: 80, price: 1000, memberPrice: 0, kidPrice: 500, freeForMembers: true, status: 'Published', image: null, createdBy: 'Nancy', createdDate: '2026-03-10' },
-  { id: 'EVT-005', name: 'Kids Space Camp Saturday', type: 'Kids Program', date: '2026-04-19', startTime: '10:00', endTime: '13:00', description: 'A hands-on morning of space exploration for young astronomers ages 6–12. Build model rockets, explore the solar system in VR, paint constellations.', location: 'Discovery Lab', capacity: 24, ticketsSold: 12, price: 2500, memberPrice: 2000, kidPrice: 2500, freeForMembers: false, status: 'Published', image: null, createdBy: 'Josie', createdDate: '2026-03-06' },
-  { id: 'EVT-006', name: 'Full Moon Desert Night Hike', type: 'Special Event', date: '2026-05-04', startTime: '19:30', endTime: '21:30', description: 'Hike through the moonlit Sonoran Desert on a guided 3-mile loop trail. No flashlights needed — the full moon lights the way.', location: 'Trailhead at Visitor Center', capacity: 40, ticketsSold: 12, price: 2000, memberPrice: 1500, kidPrice: 1000, freeForMembers: false, status: 'Draft', image: null, createdBy: 'Tovah', createdDate: '2026-03-12' },
-  { id: 'EVT-007', name: 'February New Moon Star Party', type: 'Star Party', date: '2026-02-28', startTime: '19:30', endTime: '22:30', description: 'Monthly new moon star party. Telescopes and star charts provided.', location: 'Observatory Deck', capacity: 80, ticketsSold: 72, price: 1500, memberPrice: 0, kidPrice: 800, freeForMembers: true, status: 'Past', image: null, createdBy: 'Nancy', createdDate: '2026-02-01' },
+const EVENT_TYPES = [
+  { id: 'Star Party', icon: '\u2B50', desc: 'Outdoor stargazing under dark skies' },
+  { id: 'Planetarium Show', icon: '\uD83C\uDF0C', desc: 'Indoor dome theater presentations' },
+  { id: 'Workshop', icon: '\uD83D\uDD2D', desc: 'Hands-on learning experiences' },
+  { id: 'Special Event', icon: '\uD83C\uDF1F', desc: 'Unique one-time happenings' },
+  { id: 'Kids Program', icon: '\uD83D\uDE80', desc: 'Activities designed for young explorers' },
 ];
 
-const INITIAL_TICKETS = {
-  'EVT-001': [
-    { id: 'TK-101', name: 'Sarah Mitchell', email: 'sarah.m@email.com', qty: 2, purchaseDate: '2026-03-15', checkedIn: false, amount: 0 },
-    { id: 'TK-102', name: 'James Rodriguez', email: 'jrod@email.com', qty: 4, purchaseDate: '2026-03-16', checkedIn: false, amount: 3200 },
-    { id: 'TK-103', name: 'Emily Chen', email: 'echen@email.com', qty: 2, purchaseDate: '2026-03-17', checkedIn: false, amount: 0 },
-    { id: 'TK-104', name: 'David Kim', email: 'dkim@email.com', qty: 3, purchaseDate: '2026-03-18', checkedIn: false, amount: 2400 },
-    { id: 'TK-105', name: 'Lisa Park', email: 'lpark@email.com', qty: 1, purchaseDate: '2026-03-19', checkedIn: false, amount: 0 },
-    { id: 'TK-106', name: 'Michael Torres', email: 'mtorres@email.com', qty: 5, purchaseDate: '2026-03-20', checkedIn: false, amount: 4000 },
-    { id: 'TK-107', name: 'Amanda Foster', email: 'afoster@email.com', qty: 2, purchaseDate: '2026-03-20', checkedIn: false, amount: 1600 },
-    { id: 'TK-108', name: 'Robert Chang', email: 'rchang@email.com', qty: 4, purchaseDate: '2026-03-21', checkedIn: false, amount: 3200 },
-    { id: 'TK-109', name: 'Flagstaff Astronomy Club', email: 'club@flagstaffastro.org', qty: 12, purchaseDate: '2026-03-22', checkedIn: false, amount: 0 },
-  ],
-  'EVT-003': [
-    { id: 'TK-201', name: 'Mark Johnson', email: 'mjohn@email.com', qty: 1, purchaseDate: '2026-03-10', checkedIn: false, amount: 3500 },
-    { id: 'TK-202', name: 'Rachel Green', email: 'rgreen@email.com', qty: 1, purchaseDate: '2026-03-11', checkedIn: false, amount: 2800 },
-    { id: 'TK-203', name: 'Tom Nguyen', email: 'tnguyen@email.com', qty: 2, purchaseDate: '2026-03-12', checkedIn: false, amount: 7000 },
-    { id: 'TK-204', name: 'Sophia Lee', email: 'slee@email.com', qty: 1, purchaseDate: '2026-03-14', checkedIn: false, amount: 2800 },
-  ],
-};
+const LOCATION_OPTIONS = [
+  { id: 'Observatory Deck', icon: '\uD83C\uDFDB\uFE0F', desc: 'Open-air viewing platform' },
+  { id: 'Planetarium Theater', icon: '\uD83C\uDFA6', desc: 'Domed immersive theater' },
+  { id: 'Education Center', icon: '\uD83D\uDCDA', desc: 'Indoor classroom space' },
+  { id: 'Outdoor Area', icon: '\uD83C\uDF32', desc: 'Open field and trails' },
+];
+
+const fmt = (cents) => cents === 0 ? 'Free' : formatPrice(cents);
 
 const BLANK_FORM = {
-  name: '', type: 'Star Party', date: '', startTime: '20:00', endTime: '23:00',
-  description: '', location: 'Observatory Deck', capacity: 80,
-  price: 1500, memberPrice: 0, kidPrice: 800, freeForMembers: true, image: null,
-};
-
-const statusBadge = (status) => {
-  const cls = { Draft: 'badge-gray', Published: 'badge-green', 'Sold Out': 'badge-gold', Past: 'badge-purple' };
-  return <span className={`badge ${cls[status] || 'badge-gray'}`}>{status}</span>;
-};
-
-const fmtTime = (t) => {
-  if (!t) return '';
-  const [h, m] = t.split(':').map(Number);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  return `${h === 0 ? 12 : h > 12 ? h - 12 : h}:${String(m).padStart(2, '0')} ${ampm}`;
+  title: '', category: 'Star Party', date: '', time: '', endTime: '',
+  description: '', location: 'Observatory Deck', capacity: 30,
+  price: '', memberFree: false, featured: false,
 };
 
 const fmtDate = (d) => {
   if (!d) return '';
   const dt = new Date(d + 'T12:00:00');
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${days[dt.getDay()]}, ${months[dt.getMonth()]} ${dt.getDate()}`;
+  return `${months[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}`;
 };
 
+const fmtTime12 = (t) => {
+  if (!t) return '';
+  const parts = t.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (parts && parts[3]) return t;
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  return `${h === 0 ? 12 : h > 12 ? h - 12 : h}:${String(m).padStart(2, '0')} ${ampm}`;
+};
+
+const addHours = (timeStr, hours) => {
+  if (!timeStr) return '';
+  const [h, m] = timeStr.split(':').map(Number);
+  const newH = (h + hours) % 24;
+  return `${String(newH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
+const inputStyle = {
+  width: '100%', padding: '14px 16px', height: 48, background: '#FFFFFF',
+  border: '1px solid #E2E8F0', borderRadius: 12,
+  font: '400 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', outline: 'none',
+  transition: 'border-color 0.2s', boxSizing: 'border-box',
+};
+
+const labelStyle = {
+  display: 'flex', alignItems: 'center',
+  font: '500 13px -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '1px',
+  textTransform: 'uppercase', color: '#94A3B8', marginBottom: 8,
+};
+
+const cardSelectorStyle = (selected) => ({
+  padding: '16px 18px', textAlign: 'left', cursor: 'pointer',
+  background: '#FFFFFF',
+  border: `2px solid ${selected ? '#D4AF37' : '#E2E8F0'}`,
+  borderRadius: 12, transition: 'all 0.2s',
+  boxShadow: selected ? '0 0 0 3px rgba(212,175,55,0.15)' : '0 1px 3px rgba(0,0,0,0.04)',
+});
+
+const toggleStyle = (active) => ({
+  width: 52, height: 28, borderRadius: 14, border: 'none', cursor: 'pointer',
+  background: active ? '#D4AF37' : '#E2E8F0',
+  position: 'relative', transition: 'background 0.25s', flexShrink: 0,
+});
+
+const toggleKnob = (active) => ({
+  width: 22, height: 22, borderRadius: '50%', background: '#fff',
+  position: 'absolute', top: 3,
+  left: active ? 27 : 3,
+  transition: 'left 0.25s cubic-bezier(.16,1,.3,1)',
+  boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
+});
+
 export default function EventsAdmin() {
-  const [events, setEvents] = useState(INITIAL_EVENTS);
-  const [tickets, setTickets] = useState(INITIAL_TICKETS);
-  const [view, setView] = useState('list'); // list | form | tickets
+  const [, setTick] = useState(0);
+  const [view, setView] = useState('list');
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(BLANK_FORM);
   const [ticketEvent, setTicketEvent] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [filterTab, setFilterTab] = useState('Upcoming');
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [checkedIn, setCheckedIn] = useState({});
   const toast = useToast();
 
+  useEffect(() => {
+    const unsub = subscribe(() => setTick(t => t + 1));
+    return unsub;
+  }, []);
+
+  const events = getEvents();
+  const reservations = getReservations();
+
   const set = (field) => (e) => {
-    const val = e.target.type === 'number' ? parseInt(e.target.value) || 0 : e.target.value;
-    setForm(f => ({ ...f, [field]: val }));
+    const val = e.target.type === 'number' ? (e.target.value === '' ? '' : parseFloat(e.target.value)) : e.target.value;
+    setForm(f => {
+      const updated = { ...f, [field]: val };
+      if (field === 'time' && !f.endTime && val) {
+        updated.endTime = addHours(val, 2);
+      }
+      return updated;
+    });
   };
 
-  // Open create
   const openCreate = () => {
     setEditingId(null);
     setForm(BLANK_FORM);
-    setView('form');
+    setView('wizard');
   };
 
-  // Open edit
   const openEdit = (evt) => {
     setEditingId(evt.id);
     setForm({
-      name: evt.name, type: evt.type, date: evt.date, startTime: evt.startTime, endTime: evt.endTime,
-      description: evt.description, location: evt.location, capacity: evt.capacity,
-      price: evt.price, memberPrice: evt.memberPrice, kidPrice: evt.kidPrice,
-      freeForMembers: evt.freeForMembers, image: evt.image,
+      title: evt.title,
+      category: evt.category,
+      date: evt.date,
+      time: evt.time || '',
+      endTime: evt.endTime || '',
+      description: evt.description || '',
+      location: evt.location || 'Observatory Deck',
+      capacity: evt.capacity || 30,
+      price: evt.price != null ? (evt.price / 100).toFixed(2) : '',
+      memberFree: evt.memberFree || false,
+      featured: evt.featured || false,
     });
-    setView('form');
+    setView('wizard');
   };
 
-  // Duplicate
   const duplicateEvent = (evt) => {
     setEditingId(null);
     setForm({
-      name: evt.name + ' (Copy)', type: evt.type, date: '', startTime: evt.startTime, endTime: evt.endTime,
-      description: evt.description, location: evt.location, capacity: evt.capacity,
-      price: evt.price, memberPrice: evt.memberPrice, kidPrice: evt.kidPrice,
-      freeForMembers: evt.freeForMembers, image: evt.image,
+      title: 'Copy of ' + evt.title,
+      category: evt.category,
+      date: '',
+      time: evt.time || '',
+      endTime: evt.endTime || '',
+      description: evt.description || '',
+      location: evt.location || 'Observatory Deck',
+      capacity: evt.capacity || 30,
+      price: evt.price != null ? (evt.price / 100).toFixed(2) : '',
+      memberFree: evt.memberFree || false,
+      featured: evt.featured || false,
     });
-    setView('form');
-    toast('Event duplicated — set a new date and publish');
+    setView('wizard');
+    toast('Event duplicated -- set a new date and publish');
   };
 
-  // Save
   const saveEvent = (publish) => {
+    if (!form.title.trim()) return;
     setSaving(true);
+    const priceCents = Math.round((parseFloat(form.price) || 0) * 100);
+    const status = publish ? 'Published' : 'Draft';
+
     setTimeout(() => {
-      const status = publish ? 'Published' : 'Draft';
       if (editingId) {
-        setEvents(prev => prev.map(e => e.id === editingId ? { ...e, ...form, status: publish ? 'Published' : e.status } : e));
+        updateEvent(editingId, {
+          title: form.title,
+          category: form.category,
+          date: form.date,
+          time: form.time,
+          endTime: form.endTime,
+          description: form.description,
+          location: form.location,
+          capacity: parseInt(form.capacity) || 30,
+          price: priceCents,
+          memberFree: form.memberFree,
+          featured: form.featured,
+          status: publish ? 'Published' : undefined,
+        });
         toast(`Event updated${publish ? ' and published' : ''}`);
       } else {
-        const newEvt = {
-          id: `EVT-${String(events.length + 1).padStart(3, '0')}`,
-          ...form, ticketsSold: 0, status, createdBy: 'Tovah',
-          createdDate: new Date().toISOString().slice(0, 10),
-        };
-        setEvents(prev => [newEvt, ...prev]);
+        addEvent({
+          title: form.title,
+          category: form.category,
+          date: form.date,
+          time: form.time,
+          endTime: form.endTime,
+          description: form.description,
+          location: form.location,
+          capacity: parseInt(form.capacity) || 30,
+          price: priceCents,
+          memberFree: form.memberFree,
+          featured: form.featured,
+          ticketsSold: 0,
+          status,
+        });
         toast(`Event ${publish ? 'published' : 'saved as draft'}`);
       }
       setSaving(false);
       setView('list');
-    }, 800);
+    }, 600);
   };
 
-  // Status changes
-  const unpublishEvent = (id) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, status: 'Draft' } : e));
-    toast('Event unpublished');
+  const handleDelete = (id) => {
+    undoable('Event deleted', 'ds_events', () => deleteEvent(id));
+    toast('Event deleted. You can undo from the notification.');
+    setDeleteModal(null);
     setView('list');
   };
 
-  const cancelEvent = (id) => {
-    if (!confirm('Are you sure you want to cancel this event? Ticket holders will need to be notified.')) return;
-    setEvents(prev => prev.filter(e => e.id !== id));
-    toast('Event cancelled', 'error');
-    setView('list');
+  const handleCheckIn = (resId) => {
+    setCheckedIn(prev => ({ ...prev, [resId]: true }));
+    toast('Guest checked in');
   };
 
-  // Tickets
   const openTickets = (evt) => {
     setTicketEvent(evt);
     setView('tickets');
   };
 
-  const toggleCheckIn = (evtId, tkId) => {
-    setTickets(prev => ({
-      ...prev,
-      [evtId]: (prev[evtId] || []).map(t => t.id === tkId ? { ...t, checkedIn: !t.checkedIn } : t),
-    }));
-  };
+  const today = new Date().toISOString().slice(0, 10);
+  const filtered = events.filter(e => {
+    if (filterTab === 'Upcoming') return e.status === 'Published' && e.date >= today;
+    if (filterTab === 'Past') return e.date < today && e.status === 'Published';
+    if (filterTab === 'Drafts') return e.status === 'Draft';
+    return true;
+  });
 
-  const filtered = events.filter(e => statusFilter === 'All' || e.status === statusFilter);
+  // ---- DELETE MODAL ----
+  const deleteModalEl = deleteModal && (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300,
+    }} onClick={() => setDeleteModal(null)}>
+      <div style={{
+        background: '#FFFFFF', border: '1px solid #E2E8F0',
+        borderRadius: 12, padding: 36, maxWidth: 420, width: '90%', textAlign: 'center',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#EF4444', fontSize: 22 }}>
+          !
+        </div>
+        <h3 style={{ font: "500 18px/1.3 -apple-system, BlinkMacSystemFont, sans-serif", color: '#1E293B', marginBottom: 8 }}>Delete Event?</h3>
+        <p style={{ font: '400 15px/1.6 -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B', marginBottom: 24 }}>
+          This will remove the event and all associated data. You can undo this action.
+        </p>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+          <button className="admin-btn admin-btn-ghost admin-btn-lg" onClick={() => setDeleteModal(null)}>Cancel</button>
+          <button className="admin-btn admin-btn-lg" style={{ background: '#EF4444', color: '#fff' }} onClick={() => handleDelete(deleteModal)}>Delete Event</button>
+        </div>
+      </div>
+    </div>
+  );
 
-  const isValid = form.name && form.date && form.startTime && form.description && form.capacity > 0;
-
-  // ═══ FORM STYLES ═══
-  const inputStyle = {
-    width: '100%', padding: '14px 16px', background: '#0a0a1a',
-    border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6,
-    font: '400 14px DM Sans', color: '#e8e4df', outline: 'none',
-    transition: 'border-color 0.2s', WebkitTapHighlightColor: 'transparent',
-  };
-  const selectStyle = {
-    ...inputStyle, cursor: 'pointer', appearance: 'none',
-    backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%23908a84\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E")',
-    backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center', paddingRight: 36,
-  };
-  const labelStyle = {
-    display: 'block', font: '500 11px DM Sans', letterSpacing: '1px',
-    textTransform: 'uppercase', color: '#5a5550', marginBottom: 8,
-  };
-
-  // ═══ LIST VIEW ═══
+  // ---- LIST VIEW ----
   if (view === 'list') {
     return (
       <>
         <div className="admin-page-header">
-          <div>
-            <h1 className="admin-page-title">Events</h1>
-            <p className="admin-page-subtitle">{events.length} events total</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+            <div>
+              <h1 className="admin-page-title" style={{ display: 'flex', alignItems: 'center' }}>
+                Events
+                <HelpBubble text="All your events -- upcoming, drafts, and past. Click any event to edit it." />
+              </h1>
+              <p className="admin-page-subtitle">{events.length} event{events.length !== 1 ? 's' : ''} total</p>
+            </div>
           </div>
-          <button className="admin-btn admin-btn-gold admin-btn-lg" onClick={openCreate}>
-            + Create Event
+          <button className="admin-btn admin-btn-gold admin-btn-lg" onClick={openCreate} style={{ height: 48 }}>
+            + New Event
           </button>
         </div>
 
-        <div className="admin-table-wrap">
-          <div className="admin-filters">
-            <div className="admin-filter-tabs">
-              {['All', 'Published', 'Draft', 'Past'].map(s => (
-                <button key={s} className={`admin-filter-tab ${statusFilter === s ? 'active' : ''}`} onClick={() => setStatusFilter(s)}>
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Event</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Price</th>
-                  <th>Sold</th>
-                  <th>Capacity</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(evt => (
-                  <tr key={evt.id}>
-                    <td>
-                      <div className="text-white" style={{ fontWeight: 500 }}>{evt.name}</div>
-                      <div style={{ fontSize: 11, color: '#5a5550', marginTop: 2 }}>{evt.type} · {evt.location}</div>
-                    </td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{fmtDate(evt.date)}</td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{fmtTime(evt.startTime)}</td>
-                    <td className="text-gold">{fmt(evt.price)}</td>
-                    <td>
-                      <span className={evt.ticketsSold >= evt.capacity ? 'text-gold' : ''}>
-                        {evt.ticketsSold}
-                      </span>
-                    </td>
-                    <td>{evt.capacity}</td>
-                    <td>{statusBadge(evt.status)}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <button className="admin-btn admin-btn-outline admin-btn-sm" onClick={() => openEdit(evt)}>Edit</button>
-                        <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => openTickets(evt)}>Tickets</button>
-                        <button
-                          className="admin-btn admin-btn-ghost admin-btn-sm"
-                          title="Duplicate this event"
-                          onClick={() => duplicateEvent(evt)}
-                          style={{ padding: '7px 10px' }}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr><td colSpan="8" style={{ textAlign: 'center', padding: 40, color: '#5a5550' }}>No events match this filter</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        {/* Filter tabs */}
+        <div style={{ display: 'flex', gap: 0, marginBottom: 24, border: '1px solid #E2E8F0', borderRadius: 8, overflow: 'hidden', width: 'fit-content' }}>
+          {['Upcoming', 'Past', 'Drafts'].map(tab => (
+            <button key={tab} onClick={() => setFilterTab(tab)} style={{
+              padding: '10px 20px', font: "500 14px -apple-system, BlinkMacSystemFont, sans-serif",
+              background: filterTab === tab ? 'rgba(212,175,55,0.1)' : 'transparent',
+              color: filterTab === tab ? '#D4AF37' : '#64748B',
+              border: 'none', borderRight: '1px solid #E2E8F0',
+              cursor: 'pointer', transition: 'all 0.15s',
+            }}>{tab}</button>
+          ))}
         </div>
+
+        {/* Event cards */}
+        {filtered.length === 0 ? (
+          <div style={{
+            background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12,
+            padding: '60px 40px', textAlign: 'center',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>{'\uD83C\uDF1F'}</div>
+            <div style={{ font: '500 18px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 8 }}>
+              {events.length === 0 ? 'No events yet' : 'No events match this filter'}
+            </div>
+            <p style={{ font: '400 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 24 }}>
+              {events.length === 0 ? 'Create your first event to start selling tickets!' : 'Try a different filter to see your events.'}
+            </p>
+            {events.length === 0 && (
+              <button className="admin-btn admin-btn-gold admin-btn-lg" onClick={openCreate} style={{ height: 48 }}>
+                + Create First Event
+              </button>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
+            {filtered.map(evt => {
+              const sold = evt.ticketsSold || 0;
+              const cap = evt.capacity || 30;
+              const pct = Math.min(100, Math.round((sold / cap) * 100));
+              return (
+                <div key={evt.id} style={{
+                  background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12,
+                  padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  transition: 'box-shadow 0.2s',
+                }}>
+                  {/* Header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        {evt.featured && <span style={{ color: '#D4AF37', fontSize: 14 }}>{'\u2B50'}</span>}
+                        <h3 style={{ font: '600 16px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {evt.title}
+                        </h3>
+                      </div>
+                      <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', margin: 0 }}>
+                        {evt.category}
+                      </p>
+                    </div>
+                    <span className={`badge ${evt.status === 'Published' ? 'badge-green' : 'badge-gray'}`}>
+                      {evt.status}
+                    </span>
+                  </div>
+
+                  {/* Details */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', marginBottom: 16 }}>
+                    <div>
+                      <div style={{ font: '400 12px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 2 }}>Date</div>
+                      <div style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B' }}>{fmtDate(evt.date)}</div>
+                    </div>
+                    <div>
+                      <div style={{ font: '400 12px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 2 }}>Time</div>
+                      <div style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B' }}>
+                        {fmtTime12(evt.time)}{evt.endTime ? ` - ${fmtTime12(evt.endTime)}` : ''}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ font: '400 12px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 2 }}>Location</div>
+                      <div style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B' }}>{evt.location}</div>
+                    </div>
+                    <div>
+                      <div style={{ font: '400 12px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 2 }}>Price</div>
+                      <div style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37' }}>
+                        {evt.memberFree ? 'Free (members)' : fmt(evt.price)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ticket progress */}
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <span style={{ font: '400 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B' }}>
+                        {sold} / {cap} tickets sold
+                      </span>
+                      <span style={{ font: '500 13px -apple-system, BlinkMacSystemFont, sans-serif', color: pct >= 90 ? '#EF4444' : pct >= 70 ? '#D4AF37' : '#10B981' }}>
+                        {pct}%
+                      </span>
+                    </div>
+                    <div style={{ width: '100%', height: 6, background: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${pct}%`, height: '100%', borderRadius: 3,
+                        background: pct >= 90 ? '#EF4444' : pct >= 70 ? '#D4AF37' : '#10B981',
+                        transition: 'width 0.3s',
+                      }} />
+                    </div>
+                  </div>
+
+                  {/* Quick actions */}
+                  <div style={{ display: 'flex', gap: 8, borderTop: '1px solid #E2E8F0', paddingTop: 16 }}>
+                    <button className="admin-btn admin-btn-outline admin-btn-sm" onClick={() => openEdit(evt)} style={{ height: 36 }}>Edit</button>
+                    <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => duplicateEvent(evt)} style={{ height: 36 }}>Duplicate</button>
+                    <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => openTickets(evt)} style={{ height: 36 }}>View Tickets</button>
+                    <div style={{ flex: 1 }} />
+                    <button
+                      className="admin-btn admin-btn-ghost admin-btn-sm"
+                      title="Delete event"
+                      onClick={() => setDeleteModal(evt.id)}
+                      style={{ height: 36, padding: '0 10px', color: '#EF4444' }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {deleteModalEl}
       </>
     );
   }
 
-  // ═══ TICKETS VIEW ═══
+  // ---- TICKETS VIEW (Drawer-style) ----
   if (view === 'tickets' && ticketEvent) {
-    const evtTickets = tickets[ticketEvent.id] || [];
-    const totalRevenue = evtTickets.reduce((s, t) => s + t.amount, 0);
-    const totalQty = evtTickets.reduce((s, t) => s + t.qty, 0);
-    const checkedInCount = evtTickets.filter(t => t.checkedIn).length;
+    const evtReservations = reservations.filter(r => r.eventId === ticketEvent.id);
+    const totalQty = evtReservations.reduce((s, r) => s + (r.qty || 1), 0);
+    const checkedInCount = evtReservations.filter(r => r.checkedIn || checkedIn[r.id]).length;
 
     return (
       <>
         <button onClick={() => setView('list')} style={{
           display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20,
-          background: 'none', border: 'none', color: '#908a84', cursor: 'pointer',
-          font: '400 13px DM Sans',
+          background: 'none', border: 'none', color: '#64748B', cursor: 'pointer',
+          font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif',
         }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
           Back to events
@@ -282,81 +429,69 @@ export default function EventsAdmin() {
 
         <div className="admin-page-header">
           <div>
-            <h1 className="admin-page-title">{ticketEvent.name}</h1>
-            <p className="admin-page-subtitle">{fmtDate(ticketEvent.date)} · {fmtTime(ticketEvent.startTime)} · {ticketEvent.location}</p>
+            <h1 className="admin-page-title">{ticketEvent.title}</h1>
+            <p className="admin-page-subtitle">{fmtDate(ticketEvent.date)} {fmtTime12(ticketEvent.time)} {ticketEvent.location}</p>
           </div>
-          <button className="admin-btn admin-btn-outline" onClick={() => openEdit(ticketEvent)}>Edit Event</button>
+          <button className="admin-btn admin-btn-outline" onClick={() => openEdit(ticketEvent)} style={{ height: 48 }}>Edit Event</button>
         </div>
 
-        <div className="admin-stats" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+        <div className="admin-stats" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
           <div className="admin-stat">
             <div className="admin-stat-label">Tickets Sold</div>
-            <div className="admin-stat-value">{ticketEvent.ticketsSold}</div>
+            <div className="admin-stat-value">{ticketEvent.ticketsSold || 0}</div>
             <div className="admin-stat-sub">of {ticketEvent.capacity} capacity</div>
           </div>
           <div className="admin-stat">
-            <div className="admin-stat-label">Bookings</div>
-            <div className="admin-stat-value">{evtTickets.length}</div>
+            <div className="admin-stat-label">Reservations</div>
+            <div className="admin-stat-value">{evtReservations.length}</div>
             <div className="admin-stat-sub">{totalQty} total guests</div>
-          </div>
-          <div className="admin-stat">
-            <div className="admin-stat-label">Revenue</div>
-            <div className="admin-stat-value gold">{fmt(totalRevenue)}</div>
-            <div className="admin-stat-sub">{evtTickets.filter(t => t.amount === 0).length} free (members)</div>
           </div>
           <div className="admin-stat">
             <div className="admin-stat-label">Checked In</div>
             <div className="admin-stat-value">{checkedInCount}</div>
-            <div className="admin-stat-sub">of {evtTickets.length} bookings</div>
+            <div className="admin-stat-sub">of {evtReservations.length} reservations</div>
           </div>
         </div>
 
         <div className="admin-table-wrap">
           <div className="admin-table-header">
-            <span className="admin-table-title">Ticket Holders</span>
-            <span style={{ font: '400 12px DM Sans', color: '#5a5550' }}>Tap check-in to mark arrival</span>
+            <span className="admin-table-title">Reservations</span>
           </div>
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Check-in</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Qty</th>
-                <th>Amount</th>
-                <th>Purchased</th>
+                <th>Date Reserved</th>
+                <th>Check-in</th>
               </tr>
             </thead>
             <tbody>
-              {evtTickets.length === 0 ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', padding: 40, color: '#5a5550' }}>No tickets sold yet</td></tr>
-              ) : evtTickets.map(tk => (
-                <tr key={tk.id}>
-                  <td>
-                    <button
-                      onClick={() => toggleCheckIn(ticketEvent.id, tk.id)}
-                      style={{
-                        width: 40, height: 40, borderRadius: 6,
-                        background: tk.checkedIn ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.03)',
-                        border: `1px solid ${tk.checkedIn ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                        color: tk.checkedIn ? '#4ade80' : '#5a5550',
-                        cursor: 'pointer', fontSize: 16,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.15s', WebkitTapHighlightColor: 'transparent',
-                      }}
-                    >{tk.checkedIn ? '✓' : ''}</button>
-                  </td>
-                  <td className="text-white" style={{ fontWeight: tk.checkedIn ? 400 : 500, opacity: tk.checkedIn ? 0.6 : 1 }}>
-                    {tk.name}
-                  </td>
-                  <td style={{ fontSize: 12, opacity: tk.checkedIn ? 0.5 : 1 }}>{tk.email}</td>
-                  <td>{tk.qty}</td>
-                  <td className={tk.amount > 0 ? 'text-gold' : ''}>
-                    {tk.amount === 0 ? <span className="badge badge-green" style={{ fontSize: 9 }}>Member</span> : fmt(tk.amount)}
-                  </td>
-                  <td>{tk.purchaseDate}</td>
-                </tr>
-              ))}
+              {evtReservations.length === 0 ? (
+                <tr><td colSpan="5" style={{ textAlign: 'center', padding: 40, color: '#94A3B8' }}>No reservations yet for this event</td></tr>
+              ) : evtReservations.map(r => {
+                const isChecked = r.checkedIn || checkedIn[r.id];
+                return (
+                  <tr key={r.id}>
+                    <td style={{ fontWeight: 500, color: '#1E293B' }}>{r.name || 'Guest'}</td>
+                    <td style={{ fontSize: 14, color: '#64748B' }}>{r.email || '--'}</td>
+                    <td>{r.qty || 1}</td>
+                    <td>{r.date ? new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}</td>
+                    <td>
+                      {isChecked ? (
+                        <span className="badge badge-green">Checked In</span>
+                      ) : (
+                        <button
+                          className="admin-btn admin-btn-outline admin-btn-sm"
+                          style={{ height: 32 }}
+                          onClick={() => handleCheckIn(r.id)}
+                        >Check In</button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -364,13 +499,320 @@ export default function EventsAdmin() {
     );
   }
 
-  // ═══ FORM VIEW (Create / Edit) ═══
+  // ---- WIZARD VIEW ----
+  const wizardSteps = [
+    {
+      label: 'Name',
+      validate: () => {
+        if (!form.title.trim()) { toast('Please enter an event name'); return false; }
+        return true;
+      },
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            What's your event called?
+          </h2>
+
+          <div style={{ marginBottom: 28 }}>
+            <LabelWithHelp help="This is the event name customers see on the website and their tickets." style={labelStyle}>
+              Event Name
+            </LabelWithHelp>
+            <input
+              style={{ ...inputStyle, fontSize: 20, padding: '16px 18px', height: 56 }}
+              placeholder="e.g. Friday Night Star Party"
+              value={form.title}
+              onChange={set('title')}
+            />
+          </div>
+
+          <div>
+            <LabelWithHelp help="Pick the type that best matches. This helps show it in the right section." style={labelStyle}>
+              Event Type
+            </LabelWithHelp>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+              {EVENT_TYPES.map(t => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, category: t.id }))}
+                  style={cardSelectorStyle(form.category === t.id)}
+                >
+                  <div style={{ fontSize: 24, marginBottom: 6 }}>{t.icon}</div>
+                  <div style={{ font: '600 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 2 }}>{t.id}</div>
+                  <div style={{ font: '400 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>{t.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: 'When',
+      validate: () => {
+        if (!form.date) { toast('Please pick a date'); return false; }
+        return true;
+      },
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            When is it happening?
+          </h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }} className="evt-form-grid-3">
+            <div>
+              <LabelWithHelp help="Pick the date of your event. Customers can only buy tickets for future dates." style={labelStyle}>
+                Date
+              </LabelWithHelp>
+              <input style={{ ...inputStyle, fontSize: 16 }} type="date" value={form.date} onChange={set('date')} />
+              {form.date && <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37', marginTop: 6 }}>{fmtDate(form.date)}</p>}
+            </div>
+            <div>
+              <LabelWithHelp help="What time does the event start?" style={labelStyle}>
+                Start Time
+              </LabelWithHelp>
+              <input style={{ ...inputStyle, fontSize: 16 }} type="time" value={form.time} onChange={set('time')} />
+              {form.time && <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B', marginTop: 6 }}>{fmtTime12(form.time)}</p>}
+            </div>
+            <div>
+              <LabelWithHelp help="When does the event end? Auto-suggested 2 hours after start." style={labelStyle}>
+                End Time
+              </LabelWithHelp>
+              <input style={{ ...inputStyle, fontSize: 16 }} type="time" value={form.endTime} onChange={set('endTime')} />
+              {form.endTime && <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B', marginTop: 6 }}>{fmtTime12(form.endTime)}</p>}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: 'Where',
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            Where and how many?
+          </h2>
+
+          <div style={{ marginBottom: 28 }}>
+            <LabelWithHelp help="Where is the event held?" style={labelStyle}>
+              Location
+            </LabelWithHelp>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+              {LOCATION_OPTIONS.map(loc => (
+                <button
+                  key={loc.id}
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, location: loc.id }))}
+                  style={cardSelectorStyle(form.location === loc.id)}
+                >
+                  <div style={{ fontSize: 24, marginBottom: 6 }}>{loc.icon}</div>
+                  <div style={{ font: '600 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 2 }}>{loc.id}</div>
+                  <div style={{ font: '400 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>{loc.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <LabelWithHelp help="Maximum number of people. We stop selling tickets when it's full." style={labelStyle}>
+              Capacity
+            </LabelWithHelp>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <input
+                style={{ ...inputStyle, width: 140, textAlign: 'center', fontSize: 20, fontWeight: 600 }}
+                type="number" min="1" max="500"
+                value={form.capacity}
+                onChange={set('capacity')}
+              />
+              <span style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>maximum guests</span>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: 'Price',
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            How much?
+          </h2>
+
+          <div style={{ marginBottom: 28 }}>
+            <LabelWithHelp help="What customers pay per ticket. Tax is added at checkout." style={labelStyle}>
+              Price (dollars)
+            </LabelWithHelp>
+            <div style={{ position: 'relative', maxWidth: 220 }}>
+              <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', font: '400 18px -apple-system, BlinkMacSystemFont, sans-serif' }}>$</span>
+              <input
+                style={{ ...inputStyle, paddingLeft: 32, fontSize: 20, fontWeight: 600 }}
+                type="number" min="0" step="0.01"
+                placeholder="0.00"
+                value={form.price}
+                onChange={set('price')}
+              />
+            </div>
+            <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginTop: 6 }}>Enter 0 for free events</p>
+          </div>
+
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '20px 24px', background: '#FFFFFF', border: '1px solid #E2E8F0',
+            borderRadius: 12,
+          }}>
+            <div>
+              <LabelWithHelp help="When on, members get in free. Great membership perk!" style={{ font: '500 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 2, display: 'flex', alignItems: 'center' }}>
+                Free for Members?
+              </LabelWithHelp>
+              <div style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>
+                {form.memberFree ? 'Members attend this event at no charge' : 'Members pay the regular price'}
+              </div>
+            </div>
+            <button onClick={() => setForm(f => ({ ...f, memberFree: !f.memberFree }))} style={toggleStyle(form.memberFree)} type="button">
+              <div style={toggleKnob(form.memberFree)} />
+            </button>
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: 'Details',
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            Tell people about it
+          </h2>
+
+          <div style={{ marginBottom: 28 }}>
+            <LabelWithHelp help="Write 2-3 sentences about what attendees will experience." style={labelStyle}>
+              Description
+            </LabelWithHelp>
+            <textarea
+              style={{ ...inputStyle, minHeight: 160, resize: 'vertical', lineHeight: 1.7, height: 'auto' }}
+              placeholder="Describe what guests will experience..."
+              value={form.description}
+              onChange={set('description')}
+            />
+          </div>
+
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '20px 24px', background: '#FFFFFF', border: '1px solid #E2E8F0',
+            borderRadius: 12,
+          }}>
+            <div>
+              <LabelWithHelp help="Featured events appear prominently on the homepage." style={{ font: '500 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 2, display: 'flex', alignItems: 'center' }}>
+                Featured Event
+              </LabelWithHelp>
+              <div style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>
+                {form.featured ? 'This event is highlighted on the homepage' : 'Standard listing'}
+              </div>
+            </div>
+            <button onClick={() => setForm(f => ({ ...f, featured: !f.featured }))} style={toggleStyle(form.featured)} type="button">
+              <div style={toggleKnob(form.featured)} />
+            </button>
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: 'Review',
+      content: (
+        <div>
+          <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
+            Review and Publish
+          </h2>
+
+          {/* Dark-themed preview card */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={labelStyle}>Website Preview</div>
+            <div style={{
+              background: '#0F172A', borderRadius: 12, padding: 28, color: '#FFFFFF',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                <div>
+                  {form.featured && <span style={{ font: '500 11px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>Featured Event</span>}
+                  <h3 style={{ font: '700 20px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#FFFFFF', margin: 0, marginBottom: 4 }}>
+                    {form.title || 'Event Name'}
+                  </h3>
+                  <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', margin: 0 }}>{form.category}</p>
+                </div>
+                <div style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 8, padding: '8px 14px', textAlign: 'center' }}>
+                  <div style={{ font: '700 20px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37' }}>
+                    {form.price ? `$${parseFloat(form.price).toFixed(2)}` : 'Free'}
+                  </div>
+                  <div style={{ font: '400 11px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>per ticket</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
+                <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '10px 14px' }}>
+                  <div style={{ font: '400 11px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B', marginBottom: 2 }}>Date</div>
+                  <div style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#E2E8F0' }}>{fmtDate(form.date) || 'TBD'}</div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '10px 14px' }}>
+                  <div style={{ font: '400 11px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B', marginBottom: 2 }}>Time</div>
+                  <div style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#E2E8F0' }}>
+                    {fmtTime12(form.time) || 'TBD'}{form.endTime ? ` - ${fmtTime12(form.endTime)}` : ''}
+                  </div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '10px 14px' }}>
+                  <div style={{ font: '400 11px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B', marginBottom: 2 }}>Location</div>
+                  <div style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#E2E8F0' }}>{form.location}</div>
+                </div>
+              </div>
+
+              {form.description && (
+                <p style={{ font: '400 14px/1.7 -apple-system, BlinkMacSystemFont, sans-serif', color: '#CBD5E1', margin: '0 0 16px' }}>
+                  {form.description}
+                </p>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ font: '400 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B' }}>
+                  {form.capacity} spots available {form.memberFree ? ' | Free for members' : ''}
+                </span>
+                <div style={{ background: '#D4AF37', borderRadius: 8, padding: '10px 20px', font: '600 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#0F172A' }}>
+                  Get Tickets
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 24 }}>
+            <h4 style={{ font: '600 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 16 }}>Event Summary</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px 16px', font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif' }}>
+              <span style={{ color: '#94A3B8' }}>Name</span>
+              <span style={{ color: '#1E293B', fontWeight: 500 }}>{form.title || '--'}</span>
+              <span style={{ color: '#94A3B8' }}>Type</span>
+              <span style={{ color: '#1E293B' }}>{form.category}</span>
+              <span style={{ color: '#94A3B8' }}>Date</span>
+              <span style={{ color: '#1E293B' }}>{fmtDate(form.date) || '--'}</span>
+              <span style={{ color: '#94A3B8' }}>Time</span>
+              <span style={{ color: '#1E293B' }}>{fmtTime12(form.time) || '--'}{form.endTime ? ` - ${fmtTime12(form.endTime)}` : ''}</span>
+              <span style={{ color: '#94A3B8' }}>Location</span>
+              <span style={{ color: '#1E293B' }}>{form.location}</span>
+              <span style={{ color: '#94A3B8' }}>Capacity</span>
+              <span style={{ color: '#1E293B' }}>{form.capacity} people</span>
+              <span style={{ color: '#94A3B8' }}>Price</span>
+              <span style={{ color: '#D4AF37', fontWeight: 500 }}>{form.price ? `$${parseFloat(form.price).toFixed(2)}` : 'Free'}{form.memberFree ? ' (free for members)' : ''}</span>
+              <span style={{ color: '#94A3B8' }}>Featured</span>
+              <span style={{ color: '#1E293B' }}>{form.featured ? 'Yes' : 'No'}</span>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <>
       <button onClick={() => setView('list')} style={{
         display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20,
-        background: 'none', border: 'none', color: '#908a84', cursor: 'pointer',
-        font: '400 13px DM Sans',
+        background: 'none', border: 'none', color: '#64748B', cursor: 'pointer',
+        font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif',
       }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
         Back to events
@@ -379,248 +821,30 @@ export default function EventsAdmin() {
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title">{editingId ? 'Edit Event' : 'Create New Event'}</h1>
-          <p className="admin-page-subtitle">{editingId ? 'Update event details below' : 'Fill out the details to create a new event'}</p>
+          <p className="admin-page-subtitle">{editingId ? 'Update event details below' : 'Follow the steps to create a new event'}</p>
         </div>
+        {editingId && (
+          <button className="admin-btn admin-btn-lg" style={{ background: '#EF4444', color: '#fff', height: 48 }} onClick={() => setDeleteModal(editingId)}>
+            Delete Event
+          </button>
+        )}
       </div>
 
       <div style={{ maxWidth: 800 }}>
-        {/* Event Name */}
-        <div className="admin-panel">
-          <div style={{ marginBottom: 20 }}>
-            <label style={labelStyle}>Event Name *</label>
-            <input
-              style={{ ...inputStyle, fontSize: 18, fontFamily: 'Playfair Display, serif', padding: '16px 18px' }}
-              placeholder="e.g. New Moon Star Party"
-              value={form.name}
-              onChange={set('name')}
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="evt-form-grid">
-            <div>
-              <label style={labelStyle}>Event Type *</label>
-              <select style={selectStyle} value={form.type} onChange={set('type')}>
-                {EVENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={labelStyle}>Location *</label>
-              <select style={selectStyle} value={form.location} onChange={set('location')}>
-                {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Date & Time */}
-        <div className="admin-panel">
-          <h3 style={{ font: '500 14px DM Sans', color: '#e8e4df', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid rgba(212,175,55,0.06)' }}>
-            Date & Time
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }} className="evt-form-grid-3">
-            <div>
-              <label style={labelStyle}>Date *</label>
-              <input style={inputStyle} type="date" value={form.date} onChange={set('date')} />
-              {form.date && (
-                <p style={{ font: '400 12px DM Sans', color: '#d4af37', marginTop: 6 }}>
-                  {fmtDate(form.date)}
-                </p>
-              )}
-            </div>
-            <div>
-              <label style={labelStyle}>Start Time *</label>
-              <input style={inputStyle} type="time" value={form.startTime} onChange={set('startTime')} />
-              {form.startTime && (
-                <p style={{ font: '400 12px DM Sans', color: '#908a84', marginTop: 6 }}>{fmtTime(form.startTime)}</p>
-              )}
-            </div>
-            <div>
-              <label style={labelStyle}>End Time</label>
-              <input style={inputStyle} type="time" value={form.endTime} onChange={set('endTime')} />
-              {form.endTime && (
-                <p style={{ font: '400 12px DM Sans', color: '#908a84', marginTop: 6 }}>{fmtTime(form.endTime)}</p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Description */}
-        <div className="admin-panel">
-          <div style={{ marginBottom: 20 }}>
-            <label style={labelStyle}>Description *</label>
-            <textarea
-              style={{ ...inputStyle, minHeight: 140, resize: 'vertical', lineHeight: 1.7 }}
-              placeholder="Describe what guests will experience. Include what's provided, what to bring, and any age restrictions..."
-              value={form.description}
-              onChange={set('description')}
-            />
-            <p style={{ font: '300 11px DM Sans', color: '#5a5550', marginTop: 4 }}>
-              This text appears on the public events page. Write it for your audience — be inviting!
-            </p>
-          </div>
-
-          <div>
-            <label style={labelStyle}>Capacity *</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <input
-                style={{ ...inputStyle, width: 120, textAlign: 'center', fontSize: 18, fontWeight: 600 }}
-                type="number" min="1" max="500"
-                value={form.capacity}
-                onChange={set('capacity')}
-              />
-              <span style={{ font: '400 13px DM Sans', color: '#5a5550' }}>maximum guests</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing */}
-        <div className="admin-panel">
-          <h3 style={{ font: '500 14px DM Sans', color: '#e8e4df', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid rgba(212,175,55,0.06)' }}>
-            Pricing
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 20 }} className="evt-form-grid-3">
-            <div>
-              <label style={labelStyle}>General Admission</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#5a5550', font: '400 14px DM Sans' }}>$</span>
-                <input
-                  style={{ ...inputStyle, paddingLeft: 28, fontSize: 16, fontWeight: 600 }}
-                  type="number" min="0" step="1"
-                  value={(form.price / 100).toFixed(2)}
-                  onChange={e => setForm(f => ({ ...f, price: Math.round(parseFloat(e.target.value || 0) * 100) }))}
-                />
-              </div>
-              <p style={{ font: '300 11px DM Sans', color: '#5a5550', marginTop: 4 }}>Per person</p>
-            </div>
-            <div>
-              <label style={labelStyle}>Member Price</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#5a5550', font: '400 14px DM Sans' }}>$</span>
-                <input
-                  style={{ ...inputStyle, paddingLeft: 28, opacity: form.freeForMembers ? 0.3 : 1 }}
-                  type="number" min="0" step="1"
-                  value={(form.memberPrice / 100).toFixed(2)}
-                  onChange={e => setForm(f => ({ ...f, memberPrice: Math.round(parseFloat(e.target.value || 0) * 100) }))}
-                  disabled={form.freeForMembers}
-                />
-              </div>
-              <p style={{ font: '300 11px DM Sans', color: '#5a5550', marginTop: 4 }}>
-                {form.freeForMembers ? 'Overridden by free toggle' : 'Discounted rate'}
-              </p>
-            </div>
-            <div>
-              <label style={labelStyle}>Kids Price</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#5a5550', font: '400 14px DM Sans' }}>$</span>
-                <input
-                  style={{ ...inputStyle, paddingLeft: 28 }}
-                  type="number" min="0" step="1"
-                  value={(form.kidPrice / 100).toFixed(2)}
-                  onChange={e => setForm(f => ({ ...f, kidPrice: Math.round(parseFloat(e.target.value || 0) * 100) }))}
-                />
-              </div>
-              <p style={{ font: '300 11px DM Sans', color: '#5a5550', marginTop: 4 }}>Ages 12 and under</p>
-            </div>
-          </div>
-
-          {/* Free for members toggle */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '16px 0', borderTop: '1px solid rgba(255,255,255,0.04)',
-          }}>
-            <div>
-              <div style={{ font: '500 13px DM Sans', color: '#e8e4df', marginBottom: 2 }}>Free for Members</div>
-              <div style={{ font: '300 11px DM Sans', color: '#5a5550' }}>
-                {form.freeForMembers ? 'Members attend this event at no charge' : 'Members pay the member price above'}
-              </div>
-            </div>
-            <button
-              onClick={() => setForm(f => ({ ...f, freeForMembers: !f.freeForMembers }))}
-              style={{
-                width: 52, height: 28, borderRadius: 14, border: 'none', cursor: 'pointer',
-                background: form.freeForMembers ? '#d4af37' : 'rgba(255,255,255,0.1)',
-                position: 'relative', transition: 'background 0.25s', flexShrink: 0,
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              <div style={{
-                width: 22, height: 22, borderRadius: '50%', background: '#fff',
-                position: 'absolute', top: 3,
-                left: form.freeForMembers ? 27 : 3,
-                transition: 'left 0.25s cubic-bezier(.16,1,.3,1)',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
-              }} />
-            </button>
-          </div>
-        </div>
-
-        {/* Image */}
-        <div className="admin-panel">
-          <label style={labelStyle}>Event Image</label>
-          <div style={{
-            border: '2px dashed rgba(212,175,55,0.2)', borderRadius: 8,
-            padding: '36px 24px', textAlign: 'center',
-            background: 'rgba(212,175,55,0.02)', cursor: 'pointer',
-            transition: 'border-color 0.2s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)'}
-          onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)'}
-          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#d4af37'; }}
-          onDragLeave={e => e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)'}
-          onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)'; toast('Image upload coming soon'); }}
-          >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="1" style={{ marginBottom: 10, opacity: 0.5 }}>
-              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/>
-            </svg>
-            <p style={{ font: '400 14px DM Sans', color: '#908a84', marginBottom: 4 }}>
-              Drag an image here, or click to browse
-            </p>
-            <p style={{ font: '300 11px DM Sans', color: '#5a5550' }}>
-              Recommended: 1200×600px. JPG, PNG, or WebP.
-            </p>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
-          <button
-            className="admin-btn admin-btn-gold admin-btn-lg"
-            disabled={!isValid || saving}
-            onClick={() => saveEvent(true)}
-            style={{ minWidth: 140 }}
-          >
-            {saving ? <><span className="admin-spinner" style={{ marginRight: 8 }} /> Saving...</> : (editingId ? 'Save & Publish' : 'Publish Event')}
-          </button>
-          <button
-            className="admin-btn admin-btn-outline admin-btn-lg"
-            disabled={!isValid || saving}
-            onClick={() => saveEvent(false)}
-          >
-            Save as Draft
-          </button>
-          {editingId && (
-            <>
-              {events.find(e => e.id === editingId)?.status === 'Published' && (
-                <button className="admin-btn admin-btn-ghost admin-btn-lg" onClick={() => unpublishEvent(editingId)}>
-                  Unpublish
-                </button>
-              )}
-              <button className="admin-btn admin-btn-danger admin-btn-lg" onClick={() => cancelEvent(editingId)}>
-                Cancel Event
-              </button>
-            </>
-          )}
-          <div style={{ flex: 1 }} />
-          <button className="admin-btn admin-btn-ghost admin-btn-lg" onClick={() => setView('list')}>
-            Discard
-          </button>
-        </div>
+        <Wizard
+          steps={wizardSteps}
+          onComplete={() => saveEvent(true)}
+          onSaveDraft={() => saveEvent(false)}
+          completeBtnText={saving ? 'Publishing...' : 'Publish Event'}
+          draftBtnText="Save as Draft"
+        />
       </div>
+
+      {deleteModalEl}
 
       <style>{`
         @media (max-width: 860px) {
-          .evt-form-grid, .evt-form-grid-3 { grid-template-columns: 1fr !important; }
+          .evt-form-grid-3 { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </>

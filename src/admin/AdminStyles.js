@@ -1,22 +1,22 @@
 export const ADMIN_CSS = `
 /* ══════════════════════════════════════════
-   DARK SKY ADMIN STYLES
+   DARK SKY ADMIN STYLES — LIGHT THEME
    ══════════════════════════════════════════ */
 
 .admin {
   display: flex;
   min-height: 100vh;
-  background: #04040c;
-  color: #e8e4df;
-  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: #F8F7F4;
+  color: #1E293B;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ── SIDEBAR ── */
 .admin-sidebar {
   width: 260px;
-  background: #06060f;
-  border-right: 1px solid rgba(212,175,55,0.1);
+  background: #1E293B;
+  border-right: none;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -32,7 +32,7 @@ export const ADMIN_CSS = `
 
 .admin-sidebar-header {
   padding: 24px 20px;
-  border-bottom: 1px solid rgba(212,175,55,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .admin-sidebar-brand {
   display: flex;
@@ -47,17 +47,17 @@ export const ADMIN_CSS = `
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 700 15px/1 'Playfair Display', serif;
-  color: #04040c;
+  font: 700 15px/1 Georgia, serif;
+  color: #FFFFFF;
   flex-shrink: 0;
 }
 .admin-sidebar-title {
-  font: 500 15px/1.2 'DM Sans', sans-serif;
-  color: #e8e4df;
+  font: 500 15px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #FFFFFF;
 }
 .admin-sidebar-title small {
   display: block;
-  font: 600 8px/1 'DM Sans', sans-serif;
+  font: 600 9px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #d4af37;
@@ -74,35 +74,39 @@ export const ADMIN_CSS = `
   margin-bottom: 8px;
 }
 .admin-nav-label {
-  font: 600 9px/1 'DM Sans', sans-serif;
+  font: 600 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #5a5550;
+  color: #64748B;
   padding: 12px 12px 8px;
 }
 .admin-nav-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 12px;
+  padding: 13px 12px;
+  height: 48px;
   border-radius: 6px;
-  font: 400 13.5px/1 'DM Sans', sans-serif;
-  color: #908a84;
+  font: 400 15px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #94A3B8;
   cursor: pointer;
   transition: all 0.2s;
   text-decoration: none;
   border: none;
+  border-left: 3px solid transparent;
   background: none;
   width: 100%;
   text-align: left;
+  box-sizing: border-box;
 }
 .admin-nav-item:hover {
-  background: rgba(212,175,55,0.06);
-  color: #e8e4df;
+  background: rgba(255,255,255,0.05);
+  color: #FFFFFF;
 }
 .admin-nav-item.active {
-  background: rgba(212,175,55,0.1);
-  color: #d4af37;
+  background: rgba(212,175,55,0.15);
+  color: #D4AF37;
+  border-left-color: #D4AF37;
 }
 .admin-nav-item svg {
   width: 18px;
@@ -115,25 +119,26 @@ export const ADMIN_CSS = `
 }
 .admin-nav-badge {
   margin-left: auto;
-  background: rgba(212,175,55,0.15);
+  background: rgba(212,175,55,0.12);
   color: #d4af37;
-  font: 600 10px/1 'DM Sans';
+  font: 600 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   padding: 3px 8px;
   border-radius: 10px;
 }
 
 .admin-sidebar-footer {
   padding: 16px 12px;
-  border-top: 1px solid rgba(212,175,55,0.08);
+  border-top: 1px solid rgba(255,255,255,0.08);
 }
 .admin-nav-back {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
+  height: 48px;
   border-radius: 6px;
-  font: 400 13px/1 'DM Sans';
-  color: #5a5550;
+  font: 400 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #94A3B8;
   cursor: pointer;
   transition: all 0.2s;
   text-decoration: none;
@@ -142,8 +147,8 @@ export const ADMIN_CSS = `
   width: 100%;
 }
 .admin-nav-back:hover {
-  color: #908a84;
-  background: rgba(255,255,255,0.03);
+  color: #FFFFFF;
+  background: rgba(255,255,255,0.05);
 }
 
 /* ── MAIN CONTENT ── */
@@ -165,10 +170,9 @@ export const ADMIN_CSS = `
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  height: 60px;
-  background: rgba(4,4,12,0.92);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(212,175,55,0.08);
+  height: 64px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
 }
 .admin-topbar-left {
   display: flex;
@@ -176,32 +180,32 @@ export const ADMIN_CSS = `
   gap: 16px;
 }
 .admin-topbar-title {
-  font: 500 16px/1 'Playfair Display', serif;
-  color: #e8e4df;
+  font: 500 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
 }
 .admin-topbar-user {
-  font: 400 13px/1 'DM Sans';
-  color: #908a84;
+  font: 400 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #64748B;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 .admin-topbar-avatar {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: rgba(212,175,55,0.15);
+  background: rgba(212,175,55,0.12);
   color: #d4af37;
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 600 11px/1 'DM Sans';
+  font: 600 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 .admin-hamburger {
   display: none;
   background: none;
   border: none;
-  color: #908a84;
+  color: #64748B;
   cursor: pointer;
   padding: 4px;
 }
@@ -218,53 +222,55 @@ export const ADMIN_CSS = `
   margin-bottom: 32px;
 }
 .admin-stat {
-  background: #0a0a1a;
-  border: 1px solid rgba(212,175,55,0.08);
-  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
   padding: 22px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   transition: border-color 0.2s;
 }
 .admin-stat:hover {
-  border-color: rgba(212,175,55,0.2);
+  border-color: rgba(212,175,55,0.3);
 }
 .admin-stat-label {
-  font: 500 10px/1 'DM Sans';
-  letter-spacing: 1.5px;
+  font: 500 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: #5a5550;
+  color: #94A3B8;
   margin-bottom: 10px;
 }
 .admin-stat-value {
-  font: 600 28px/1 'DM Sans';
-  color: #e8e4df;
+  font: 600 28px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
   margin-bottom: 6px;
 }
 .admin-stat-value.gold { color: #d4af37; }
 .admin-stat-sub {
-  font: 400 12px/1 'DM Sans';
-  color: #908a84;
+  font: 400 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #64748B;
 }
-.admin-stat-sub .up { color: #4ade80; }
-.admin-stat-sub .down { color: #f87171; }
+.admin-stat-sub .up { color: #10B981; }
+.admin-stat-sub .down { color: #EF4444; }
 
 /* ── TABLES ── */
 .admin-table-wrap {
-  background: #0a0a1a;
-  border: 1px solid rgba(212,175,55,0.08);
-  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
   overflow: hidden;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 .admin-table-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 18px 20px;
-  border-bottom: 1px solid rgba(212,175,55,0.06);
+  border-bottom: 1px solid #E2E8F0;
 }
 .admin-table-title {
-  font: 500 15px/1 'DM Sans';
-  color: #e8e4df;
+  font: 500 15px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
 }
 .admin-table {
   width: 100%;
@@ -272,26 +278,26 @@ export const ADMIN_CSS = `
 }
 .admin-table th {
   padding: 12px 16px;
-  font: 500 10px/1 'DM Sans';
-  letter-spacing: 1.5px;
+  font: 500 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: #5a5550;
+  color: #94A3B8;
   text-align: left;
-  border-bottom: 1px solid rgba(212,175,55,0.06);
-  background: rgba(4,4,12,0.5);
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8F7F4;
   white-space: nowrap;
 }
 .admin-table td {
   padding: 14px 16px;
-  font: 400 13px/1.4 'DM Sans';
-  color: #908a84;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font: 400 15px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #64748B;
+  border-bottom: 1px solid #FAFAF8;
   vertical-align: middle;
 }
 .admin-table tr:last-child td { border-bottom: none; }
-.admin-table tr:hover td { background: rgba(212,175,55,0.02); }
+.admin-table tr:hover td { background: #FAFAF8; }
 .admin-table tr.clickable { cursor: pointer; }
-.admin-table .text-white { color: #e8e4df; }
+.admin-table .text-white { color: #1E293B; }
 .admin-table .text-gold { color: #d4af37; }
 
 /* ── BADGES ── */
@@ -299,17 +305,17 @@ export const ADMIN_CSS = `
   display: inline-block;
   padding: 4px 10px;
   border-radius: 100px;
-  font: 600 10px/1 'DM Sans';
+  font: 600 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   white-space: nowrap;
 }
-.badge-green { background: rgba(74,222,128,0.1); color: #4ade80; }
-.badge-yellow { background: rgba(250,204,21,0.1); color: #facc15; }
-.badge-red { background: rgba(248,113,113,0.1); color: #f87171; }
-.badge-blue { background: rgba(96,165,250,0.1); color: #60a5fa; }
-.badge-purple { background: rgba(167,139,250,0.1); color: #a78bfa; }
-.badge-gray { background: rgba(144,138,132,0.1); color: #908a84; }
+.badge-green { background: rgba(16,185,129,0.1); color: #10B981; }
+.badge-yellow { background: rgba(245,158,11,0.1); color: #F59E0B; }
+.badge-red { background: rgba(239,68,68,0.1); color: #EF4444; }
+.badge-blue { background: rgba(59,130,246,0.1); color: #3B82F6; }
+.badge-purple { background: rgba(139,92,246,0.1); color: #8B5CF6; }
+.badge-gray { background: rgba(100,116,139,0.1); color: #64748B; }
 .badge-gold { background: rgba(212,175,55,0.12); color: #d4af37; }
 
 /* ── BUTTONS ── */
@@ -317,17 +323,19 @@ export const ADMIN_CSS = `
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font: 500 12.5px/1 'DM Sans';
+  padding: 12px 20px;
+  height: 48px;
+  border-radius: 8px;
+  font: 600 15px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 .admin-btn-gold {
   background: #d4af37;
-  color: #04040c;
+  color: #FFFFFF;
 }
 .admin-btn-gold:hover {
   background: #e0bf47;
@@ -340,7 +348,7 @@ export const ADMIN_CSS = `
 }
 .admin-btn-outline {
   background: transparent;
-  border: 1px solid rgba(212,175,55,0.25);
+  border: 1px solid #E2E8F0;
   color: #d4af37;
 }
 .admin-btn-outline:hover {
@@ -349,94 +357,105 @@ export const ADMIN_CSS = `
 }
 .admin-btn-ghost {
   background: transparent;
-  color: #908a84;
-  border: 1px solid rgba(255,255,255,0.06);
+  color: #64748B;
+  border: 1px solid #E2E8F0;
 }
 .admin-btn-ghost:hover {
-  color: #e8e4df;
-  border-color: rgba(255,255,255,0.12);
+  color: #1E293B;
+  border-color: #CBD5E1;
 }
 .admin-btn-sm {
-  padding: 7px 14px;
-  font-size: 11.5px;
+  padding: 8px 14px;
+  height: 36px;
+  font-size: 14px;
 }
 .admin-btn-lg {
   padding: 16px 28px;
-  font-size: 14px;
-  border-radius: 8px;
+  height: 52px;
+  font-size: 15px;
+  border-radius: 10px;
 }
 .admin-btn-danger {
   background: transparent;
-  border: 1px solid rgba(248,113,113,0.3);
-  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #EF4444;
 }
 .admin-btn-danger:hover {
-  background: rgba(248,113,113,0.08);
+  background: rgba(239,68,68,0.06);
 }
 
 /* ── FORM INPUTS ── */
 .admin-input {
   width: 100%;
-  padding: 11px 14px;
-  background: #0a0a1a;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  font: 400 13px/1 'DM Sans';
-  color: #e8e4df;
+  padding: 13px 14px;
+  height: 48px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font: 400 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
   outline: none;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 .admin-input:focus {
-  border-color: rgba(212,175,55,0.4);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
 }
 .admin-input::placeholder {
-  color: #5a5550;
+  color: #94A3B8;
 }
 .admin-input-lg {
   padding: 16px 18px;
+  height: 52px;
   font-size: 16px;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 .admin-select {
   width: 100%;
-  padding: 11px 14px;
-  background: #0a0a1a;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  font: 400 13px/1 'DM Sans';
-  color: #e8e4df;
+  padding: 13px 14px;
+  height: 48px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font: 400 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
   outline: none;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23908a84' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2364748B' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
   padding-right: 36px;
+  box-sizing: border-box;
 }
 .admin-select:focus {
-  border-color: rgba(212,175,55,0.4);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
 }
 .admin-textarea {
   width: 100%;
-  padding: 12px 14px;
-  background: #0a0a1a;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  font: 400 13px/1.5 'DM Sans';
-  color: #e8e4df;
+  padding: 14px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font: 400 16px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
   outline: none;
   resize: vertical;
   min-height: 80px;
+  box-sizing: border-box;
 }
 .admin-textarea:focus {
-  border-color: rgba(212,175,55,0.4);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
 }
 .admin-label {
   display: block;
-  font: 500 11px/1 'DM Sans';
+  font: 500 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #5a5550;
+  color: #94A3B8;
   margin-bottom: 8px;
 }
 
@@ -446,7 +465,7 @@ export const ADMIN_CSS = `
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(212,175,55,0.06);
+  border-bottom: 1px solid #E2E8F0;
   flex-wrap: wrap;
 }
 .admin-filter-search {
@@ -456,23 +475,23 @@ export const ADMIN_CSS = `
 .admin-filter-tabs {
   display: flex;
   gap: 0;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   overflow: hidden;
 }
 .admin-filter-tab {
-  padding: 8px 14px;
-  font: 500 11px/1 'DM Sans';
-  color: #5a5550;
+  padding: 10px 14px;
+  font: 500 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #94A3B8;
   cursor: pointer;
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(255,255,255,0.08);
+  border-right: 1px solid #E2E8F0;
   transition: all 0.2s;
   white-space: nowrap;
 }
 .admin-filter-tab:last-child { border-right: none; }
-.admin-filter-tab:hover { color: #908a84; }
+.admin-filter-tab:hover { color: #64748B; }
 .admin-filter-tab.active {
   background: rgba(212,175,55,0.1);
   color: #d4af37;
@@ -482,8 +501,8 @@ export const ADMIN_CSS = `
 .admin-product-img {
   width: 40px;
   height: 40px;
-  border-radius: 4px;
-  background: #12122a;
+  border-radius: 6px;
+  background: #F1F5F9;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -499,7 +518,7 @@ export const ADMIN_CSS = `
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  color: #5a5550;
+  color: #94A3B8;
 }
 .admin-product-cell {
   display: flex;
@@ -509,15 +528,16 @@ export const ADMIN_CSS = `
 
 /* ── PANELS / CARDS ── */
 .admin-panel {
-  background: #0a0a1a;
-  border: 1px solid rgba(212,175,55,0.08);
-  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 .admin-panel-title {
-  font: 500 15px/1 'DM Sans';
-  color: #e8e4df;
+  font: 500 15px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
   margin-bottom: 20px;
 }
 .admin-panel-row {
@@ -525,7 +545,7 @@ export const ADMIN_CSS = `
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid #FAFAF8;
 }
 .admin-panel-row:last-child { border-bottom: none; }
 
@@ -541,21 +561,21 @@ export const ADMIN_CSS = `
   display: flex;
   align-items: center;
   gap: 10px;
-  font: 400 12px/1 'DM Sans';
-  color: #5a5550;
+  font: 400 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #94A3B8;
   white-space: nowrap;
 }
 .admin-step.active { color: #d4af37; }
-.admin-step.done { color: #4ade80; }
+.admin-step.done { color: #10B981; }
 .admin-step-num {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid #E2E8F0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 600 11px/1 'DM Sans';
+  font: 600 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   flex-shrink: 0;
 }
 .admin-step.active .admin-step-num {
@@ -564,14 +584,14 @@ export const ADMIN_CSS = `
   color: #d4af37;
 }
 .admin-step.done .admin-step-num {
-  border-color: #4ade80;
-  background: rgba(74,222,128,0.1);
-  color: #4ade80;
+  border-color: #10B981;
+  background: rgba(16,185,129,0.1);
+  color: #10B981;
 }
 .admin-step-line {
   flex: 1;
   height: 1px;
-  background: rgba(255,255,255,0.06);
+  background: #E2E8F0;
   margin: 0 12px;
   min-width: 20px;
 }
@@ -582,8 +602,8 @@ export const ADMIN_CSS = `
   align-items: center;
   gap: 16px;
   padding: 14px 16px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
+  background: #FAFAF8;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   margin-bottom: 8px;
 }
@@ -592,16 +612,16 @@ export const ADMIN_CSS = `
   min-width: 0;
 }
 .admin-receive-item-name {
-  font: 500 13px/1.3 'DM Sans';
-  color: #e8e4df;
+  font: 500 15px/1.3 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .admin-receive-item-sku {
-  font: 400 11px/1 'DM Sans';
-  color: #5a5550;
+  font: 400 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #94A3B8;
 }
 .admin-receive-qty {
   display: flex;
@@ -609,12 +629,12 @@ export const ADMIN_CSS = `
   gap: 10px;
 }
 .admin-receive-qty-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  background: #12122a;
-  border: 1px solid rgba(255,255,255,0.08);
-  color: #e8e4df;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #1E293B;
   font-size: 18px;
   cursor: pointer;
   display: flex;
@@ -631,27 +651,27 @@ export const ADMIN_CSS = `
 .admin-receive-qty-input {
   width: 56px;
   text-align: center;
-  padding: 8px 4px;
-  background: #0a0a1a;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  font: 600 15px/1 'DM Sans';
-  color: #e8e4df;
+  padding: 10px 4px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font: 600 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
   outline: none;
 }
 .admin-receive-qty-input:focus {
-  border-color: rgba(212,175,55,0.4);
+  border-color: #D4AF37;
 }
 .admin-receive-remove {
   background: none;
   border: none;
-  color: #5a5550;
+  color: #94A3B8;
   cursor: pointer;
   padding: 4px;
   font-size: 18px;
   transition: color 0.2s;
 }
-.admin-receive-remove:hover { color: #f87171; }
+.admin-receive-remove:hover { color: #EF4444; }
 
 /* ── TOAST ── */
 .admin-toast-container {
@@ -665,13 +685,14 @@ export const ADMIN_CSS = `
   pointer-events: none;
 }
 .admin-toast {
-  background: #12122a;
-  border: 1px solid rgba(212,175,55,0.15);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-left: 4px solid #d4af37;
   border-radius: 8px;
   padding: 14px 20px;
-  font: 400 13px/1.4 'DM Sans';
-  color: #e8e4df;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font: 400 15px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
   pointer-events: auto;
   animation: toastIn 0.3s cubic-bezier(.16,1,.3,1);
   display: flex;
@@ -679,8 +700,8 @@ export const ADMIN_CSS = `
   gap: 10px;
   max-width: 380px;
 }
-.admin-toast.success { border-color: rgba(74,222,128,0.3); }
-.admin-toast.error { border-color: rgba(248,113,113,0.3); }
+.admin-toast.success { border-left-color: #10B981; }
+.admin-toast.error { border-left-color: #EF4444; }
 .admin-toast-icon { font-size: 16px; flex-shrink: 0; }
 @keyframes toastIn {
   from { opacity: 0; transform: translateX(20px); }
@@ -691,7 +712,7 @@ export const ADMIN_CSS = `
 .admin-drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(4,4,12,0.7);
+  background: rgba(0,0,0,0.4);
   z-index: 200;
   animation: fadeIn 0.2s;
 }
@@ -702,8 +723,8 @@ export const ADMIN_CSS = `
   bottom: 0;
   width: 520px;
   max-width: 100vw;
-  background: #08080f;
-  border-left: 1px solid rgba(212,175,55,0.1);
+  background: #FFFFFF;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.12);
   z-index: 201;
   overflow-y: auto;
   animation: slideIn 0.3s cubic-bezier(.16,1,.3,1);
@@ -713,25 +734,26 @@ export const ADMIN_CSS = `
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(212,175,55,0.08);
+  border-bottom: 1px solid #E2E8F0;
   position: sticky;
   top: 0;
-  background: #08080f;
+  background: #FFFFFF;
   z-index: 1;
 }
 .admin-drawer-title {
-  font: 500 16px/1 'Playfair Display', serif;
+  font: 500 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
 }
 .admin-drawer-close {
   background: none;
   border: none;
-  color: #5a5550;
+  color: #94A3B8;
   cursor: pointer;
   font-size: 22px;
   padding: 4px;
   transition: color 0.2s;
 }
-.admin-drawer-close:hover { color: #e8e4df; }
+.admin-drawer-close:hover { color: #1E293B; }
 .admin-drawer-body {
   padding: 24px;
 }
@@ -748,12 +770,12 @@ export const ADMIN_CSS = `
   gap: 12px;
 }
 .admin-page-title {
-  font: 500 22px/1.2 'Playfair Display', serif;
-  color: #e8e4df;
+  font: 600 22px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
 }
 .admin-page-subtitle {
-  font: 400 13px/1 'DM Sans';
-  color: #5a5550;
+  font: 400 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #94A3B8;
   margin-top: 4px;
 }
 
@@ -763,7 +785,7 @@ export const ADMIN_CSS = `
   align-items: center;
   gap: 14px;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid #FAFAF8;
 }
 .admin-alert-row:last-child { border-bottom: none; }
 .admin-alert-dot {
@@ -772,16 +794,16 @@ export const ADMIN_CSS = `
   border-radius: 50%;
   flex-shrink: 0;
 }
-.admin-alert-dot.red { background: #f87171; }
-.admin-alert-dot.yellow { background: #facc15; }
+.admin-alert-dot.red { background: #EF4444; }
+.admin-alert-dot.yellow { background: #F59E0B; }
 .admin-alert-info { flex: 1; }
 .admin-alert-name {
-  font: 500 13px/1.3 'DM Sans';
-  color: #e8e4df;
+  font: 500 15px/1.3 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1E293B;
 }
 .admin-alert-meta {
-  font: 400 11px/1 'DM Sans';
-  color: #5a5550;
+  font: 400 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #94A3B8;
   margin-top: 2px;
 }
 
@@ -789,7 +811,7 @@ export const ADMIN_CSS = `
 .admin-empty {
   text-align: center;
   padding: 48px 24px;
-  color: #5a5550;
+  color: #94A3B8;
 }
 .admin-empty-icon {
   font-size: 32px;
@@ -797,7 +819,7 @@ export const ADMIN_CSS = `
   opacity: 0.5;
 }
 .admin-empty-text {
-  font: 400 14px/1.5 'DM Sans';
+  font: 400 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ── CONFIRMATION ── */
@@ -809,8 +831,8 @@ export const ADMIN_CSS = `
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(74,222,128,0.1);
-  color: #4ade80;
+  background: rgba(16,185,129,0.1);
+  color: #10B981;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -818,12 +840,13 @@ export const ADMIN_CSS = `
   margin: 0 auto 16px;
 }
 .admin-confirm-title {
-  font: 500 18px/1.2 'Playfair Display', serif;
+  font: 500 18px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   margin-bottom: 8px;
+  color: #1E293B;
 }
 .admin-confirm-sub {
-  font: 400 13px/1.5 'DM Sans';
-  color: #908a84;
+  font: 400 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #64748B;
   margin-bottom: 24px;
 }
 
@@ -863,7 +886,7 @@ export const ADMIN_CSS = `
   }
   .admin-sidebar.open {
     transform: translateX(0);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.2);
   }
   .admin-main {
     margin-left: 0;
@@ -872,7 +895,7 @@ export const ADMIN_CSS = `
   .admin-content { padding: 20px 16px 48px; }
   .admin-topbar { padding: 0 16px; }
   .admin-stats { grid-template-columns: 1fr 1fr; }
-  .admin-table { font-size: 12px; }
+  .admin-table td { font-size: 14px; }
   .admin-table th, .admin-table td { padding: 10px 10px; }
   .admin-stepper { flex-wrap: wrap; gap: 8px; padding: 0; }
   .admin-step-line { display: none; }

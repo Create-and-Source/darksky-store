@@ -1,6 +1,9 @@
-import { useState, useEffect, createContext, useContext, useCallback } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useState, useEffect, createContext, useContext, useCallback, useRef } from 'react';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ADMIN_CSS } from './AdminStyles';
+import AdminTour from './AdminTour';
+import { executeUndo } from './components/UndoSystem';
+import { subscribe } from './data/store';
 
 // ── Toast Context ──
 const ToastContext = createContext();
@@ -18,8 +21,13 @@ const Icons = {
   email: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
   content: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
   reports: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>,
+  quickbooks: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>,
   back: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>,
   menu: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+  bell: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>,
+  help: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  search: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  chevronDown: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6,9 12,15 18,9"/></svg>,
 };
 
 const navItems = [
@@ -35,10 +43,42 @@ const navItems = [
   { to: '/admin/reports', icon: Icons.reports, label: 'Reports' },
 ];
 
+// Role-based nav filtering
+const ROLE_NAV = {
+  manager: null, // null means ALL pages
+  staff: ['Dashboard', 'Inventory', 'Receive', 'Transfers', 'Orders'],
+  volunteer: ['Dashboard', 'Inventory', 'Orders'],
+};
+const READONLY_FOR_VOLUNTEER = ['Inventory', 'Orders'];
+
+// Breadcrumb labels
+const breadcrumbMap = {
+  '/admin': 'Dashboard',
+  '/admin/inventory': 'Inventory',
+  '/admin/receive': 'Receive',
+  '/admin/transfers': 'Transfers',
+  '/admin/purchase-orders': 'Purchase Orders',
+  '/admin/orders': 'Orders',
+  '/admin/events': 'Events',
+  '/admin/emails': 'Email',
+  '/admin/content': 'Content',
+  '/admin/reports': 'Reports',
+  '/admin/quickbooks': 'QuickBooks',
+};
+
+const ROLE_LABELS = { manager: 'Manager', staff: 'Staff', volunteer: 'Volunteer' };
+
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [quickSearchOpen, setQuickSearchOpen] = useState(false);
+  const [quickSearchQuery, setQuickSearchQuery] = useState('');
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [role, setRole] = useState(() => localStorage.getItem('ds_admin_role') || 'manager');
   const navigate = useNavigate();
+  const location = useLocation();
+  const quickSearchInputRef = useRef(null);
+  const userDropdownRef = useRef(null);
 
   // Inject CSS
   useEffect(() => {
@@ -60,6 +100,112 @@ export default function AdminLayout() {
     }, 3500);
   }, []);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeydown = (e) => {
+      // Cmd+K or Ctrl+K: quick search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setQuickSearchOpen(prev => !prev);
+        setQuickSearchQuery('');
+      }
+
+      // Escape: close modals/drawers
+      if (e.key === 'Escape') {
+        if (quickSearchOpen) {
+          setQuickSearchOpen(false);
+          setQuickSearchQuery('');
+        }
+        if (userDropdownOpen) {
+          setUserDropdownOpen(false);
+        }
+        // Dispatch custom event so child components can close their drawers
+        document.dispatchEvent(new CustomEvent('admin-escape'));
+      }
+
+      // Cmd+Z or Ctrl+Z: undo
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        // Only intercept if not in a text input
+        const tag = e.target.tagName.toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || e.target.contentEditable === 'true') return;
+        e.preventDefault();
+        const undone = executeUndo();
+        if (undone) {
+          // Notify store subscribers to refresh
+          subscribe(() => {})(); // trigger a subscribe/unsubscribe to poke listeners
+          // Actually we need to dispatch a storage event or just notify
+          window.dispatchEvent(new Event('storage'));
+          addToast(`Undone: ${undone.description}`, 'success');
+        } else {
+          addToast('Nothing to undo', 'info');
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+  }, [quickSearchOpen, userDropdownOpen, addToast]);
+
+  // Focus quick search input when modal opens
+  useEffect(() => {
+    if (quickSearchOpen && quickSearchInputRef.current) {
+      setTimeout(() => quickSearchInputRef.current?.focus(), 50);
+    }
+  }, [quickSearchOpen]);
+
+  // Close user dropdown on outside click
+  useEffect(() => {
+    if (!userDropdownOpen) return;
+    const handler = (e) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [userDropdownOpen]);
+
+  // Role switching
+  const switchRole = (newRole) => {
+    localStorage.setItem('ds_admin_role', newRole);
+    setRole(newRole);
+    setUserDropdownOpen(false);
+    addToast(`Switched to ${ROLE_LABELS[newRole]} view`);
+  };
+
+  // Filter navItems based on role
+  const allowedLabels = ROLE_NAV[role];
+  const filteredNavItems = allowedLabels
+    ? navItems.filter(item => allowedLabels.includes(item.label))
+    : navItems;
+
+  // Quick search: filter all pages
+  const allPages = [
+    ...navItems.map(item => ({ label: item.label, to: item.to })),
+    { label: 'QuickBooks', to: '/admin/quickbooks' },
+  ];
+  const quickSearchResults = quickSearchQuery.trim()
+    ? allPages.filter(p => p.label.toLowerCase().includes(quickSearchQuery.toLowerCase()))
+    : allPages;
+
+  const handleQuickSearchSelect = (to) => {
+    setQuickSearchOpen(false);
+    setQuickSearchQuery('');
+    navigate(to);
+  };
+
+  const handleQuickSearchKeyDown = (e) => {
+    if (e.key === 'Enter' && quickSearchResults.length > 0) {
+      handleQuickSearchSelect(quickSearchResults[0].to);
+    }
+    if (e.key === 'Escape') {
+      setQuickSearchOpen(false);
+      setQuickSearchQuery('');
+    }
+  };
+
+  const currentPage = breadcrumbMap[location.pathname] || 'Admin';
+
   return (
     <ToastContext.Provider value={addToast}>
       <div className="admin">
@@ -72,7 +218,7 @@ export default function AdminLayout() {
         <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="admin-sidebar-header">
             <div className="admin-sidebar-brand">
-              <div className="admin-sidebar-logo">✦</div>
+              <div className="admin-sidebar-logo">&#10022;</div>
               <div className="admin-sidebar-title">
                 <small>ADMIN</small>
                 Dark Sky
@@ -83,19 +229,45 @@ export default function AdminLayout() {
           <nav className="admin-sidebar-nav">
             <div className="admin-nav-section">
               <div className="admin-nav-label">Management</div>
-              {navItems.map(item => (
+              {filteredNavItems.map(item => {
+                const isReadOnly = role === 'volunteer' && READONLY_FOR_VOLUNTEER.includes(item.label);
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                    onClick={closeSidebar}
+                    title={item.label}
+                  >
+                    {item.icon}
+                    <span style={{ flex: 1 }}>{item.label}</span>
+                    {isReadOnly && (
+                      <span style={{
+                        fontSize: 10, padding: '2px 6px', borderRadius: 4,
+                        background: 'rgba(100,116,139,0.1)', color: '#64748B',
+                        fontWeight: 500, letterSpacing: '0.5px', textTransform: 'uppercase',
+                      }}>View</span>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+            {/* Only show integrations for manager */}
+            {role === 'manager' && (
+              <div className="admin-nav-section">
+                <div className="admin-nav-label">Integrations</div>
                 <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
+                  to="/admin/quickbooks"
                   className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
                   onClick={closeSidebar}
                 >
-                  {item.icon}
-                  {item.label}
+                  {Icons.quickbooks}
+                  QuickBooks
+                  <span className="admin-nav-badge" style={{ background: 'rgba(212,175,55,0.12)', color: '#d4af37', fontSize: 12, padding: '2px 7px' }}>New</span>
                 </NavLink>
-              ))}
-            </div>
+              </div>
+            )}
           </nav>
 
           <div className="admin-sidebar-footer">
@@ -113,11 +285,107 @@ export default function AdminLayout() {
               <button className="admin-hamburger" onClick={() => setSidebarOpen(o => !o)}>
                 {Icons.menu}
               </button>
-              <span className="admin-topbar-title">Dark Sky Admin</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ color: '#94A3B8', fontSize: 14 }}>Admin</span>
+                <span style={{ color: '#CBD5E1', fontSize: 14 }}>/</span>
+                <span className="admin-topbar-title">{currentPage}</span>
+              </div>
             </div>
-            <div className="admin-topbar-user">
-              <div className="admin-topbar-avatar">T</div>
-              Tovah
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {/* Quick search trigger */}
+              <button
+                onClick={() => { setQuickSearchOpen(true); setQuickSearchQuery(''); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: '#F8F7F4', border: '1px solid #E2E8F0',
+                  borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
+                  font: "400 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  color: '#94A3B8', transition: 'border-color 0.15s',
+                }}
+                title="Quick search (Cmd+K)"
+              >
+                {Icons.search}
+                <span>Search...</span>
+                <span style={{
+                  fontSize: 11, padding: '1px 5px', borderRadius: 4,
+                  background: '#E2E8F0', color: '#64748B', fontFamily: 'monospace',
+                  marginLeft: 4,
+                }}>&#8984;K</span>
+              </button>
+
+              <button style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: 8, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Notifications">
+                {Icons.bell}
+              </button>
+
+              {/* User area with dropdown */}
+              <div style={{ position: 'relative' }} ref={userDropdownRef}>
+                <button
+                  onClick={() => setUserDropdownOpen(o => !o)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px',
+                    borderRadius: 8, transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#F1F5F9'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                >
+                  <div className="admin-topbar-avatar">T</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                    <span style={{ color: '#1E293B', fontWeight: 500, fontSize: 14 }}>Tovah</span>
+                    <span style={{ color: '#94A3B8', fontSize: 12 }}>{ROLE_LABELS[role]}</span>
+                  </div>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+                    letterSpacing: '0.5px', textTransform: 'uppercase',
+                    background: role === 'manager' ? 'rgba(212,175,55,0.12)' : role === 'staff' ? 'rgba(59,130,246,0.1)' : 'rgba(100,116,139,0.1)',
+                    color: role === 'manager' ? '#D4AF37' : role === 'staff' ? '#3B82F6' : '#64748B',
+                  }}>
+                    {ROLE_LABELS[role]}
+                  </span>
+                  {Icons.chevronDown}
+                </button>
+
+                {/* User dropdown */}
+                {userDropdownOpen && (
+                  <div style={{
+                    position: 'absolute', top: 'calc(100% + 6px)', right: 0,
+                    width: 200, background: '#FFFFFF', border: '1px solid #E2E8F0',
+                    borderRadius: 10, boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                    zIndex: 1000, overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      padding: '10px 14px', borderBottom: '1px solid #E2E8F0',
+                      font: "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px',
+                    }}>Switch Role</div>
+                    {['manager', 'staff', 'volunteer'].map(r => (
+                      <button
+                        key={r}
+                        onClick={() => switchRole(r)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          width: '100%', padding: '10px 14px',
+                          background: role === r ? '#F8F7F4' : 'transparent',
+                          border: 'none', cursor: 'pointer', textAlign: 'left',
+                          font: "400 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                          color: role === r ? '#D4AF37' : '#1E293B',
+                          transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={e => { if (role !== r) e.currentTarget.style.background = '#F8F7F4'; }}
+                        onMouseLeave={e => { if (role !== r) e.currentTarget.style.background = 'transparent'; }}
+                      >
+                        <span style={{
+                          width: 8, height: 8, borderRadius: '50%',
+                          background: role === r ? '#D4AF37' : '#E2E8F0',
+                        }} />
+                        {ROLE_LABELS[r]}
+                        {role === r && <span style={{ marginLeft: 'auto', fontSize: 12, color: '#D4AF37' }}>&#10003;</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </header>
 
@@ -126,12 +394,98 @@ export default function AdminLayout() {
           </div>
         </div>
 
+        {/* Tour / Onboarding */}
+        <AdminTour />
+
+        {/* Quick Search Modal */}
+        {quickSearchOpen && (
+          <>
+            <div
+              onClick={() => { setQuickSearchOpen(false); setQuickSearchQuery(''); }}
+              style={{
+                position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+                zIndex: 10000, backdropFilter: 'blur(2px)',
+              }}
+            />
+            <div style={{
+              position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)',
+              width: 480, maxWidth: 'calc(100vw - 32px)',
+              background: '#FFFFFF', border: '1px solid #E2E8F0',
+              borderRadius: 14, boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+              zIndex: 10001, overflow: 'hidden',
+              animation: 'helpFadeIn 0.15s ease',
+            }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '14px 18px', borderBottom: '1px solid #E2E8F0',
+              }}>
+                {Icons.search}
+                <input
+                  ref={quickSearchInputRef}
+                  type="text"
+                  placeholder="Search admin pages..."
+                  value={quickSearchQuery}
+                  onChange={e => setQuickSearchQuery(e.target.value)}
+                  onKeyDown={handleQuickSearchKeyDown}
+                  style={{
+                    flex: 1, border: 'none', outline: 'none', background: 'transparent',
+                    font: "400 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                    color: '#1E293B',
+                  }}
+                />
+                <span style={{
+                  fontSize: 11, padding: '2px 6px', borderRadius: 4,
+                  background: '#E2E8F0', color: '#64748B', fontFamily: 'monospace',
+                }}>ESC</span>
+              </div>
+              <div style={{ maxHeight: 320, overflowY: 'auto', padding: '6px 0' }}>
+                {quickSearchResults.length === 0 ? (
+                  <div style={{
+                    padding: '24px 18px', textAlign: 'center',
+                    font: "400 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                    color: '#94A3B8',
+                  }}>No pages found</div>
+                ) : (
+                  quickSearchResults.map(page => (
+                    <button
+                      key={page.to}
+                      onClick={() => handleQuickSearchSelect(page.to)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        width: '100%', padding: '10px 18px',
+                        background: 'transparent', border: 'none', cursor: 'pointer',
+                        font: "400 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        color: '#1E293B', textAlign: 'left', transition: 'background 0.1s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#F8F7F4'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={{ flex: 1 }}>{page.label}</span>
+                      <span style={{ fontSize: 12, color: '#94A3B8' }}>{page.to}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+              <div style={{
+                padding: '10px 18px', borderTop: '1px solid #E2E8F0',
+                display: 'flex', gap: 16,
+                font: "400 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                color: '#94A3B8',
+              }}>
+                <span>&#8629; to select</span>
+                <span>&#8593;&#8595; to navigate</span>
+                <span>esc to close</span>
+              </div>
+            </div>
+          </>
+        )}
+
         {/* Toasts */}
         <div className="admin-toast-container">
           {toasts.map(t => (
             <div key={t.id} className={`admin-toast ${t.type}`}>
               <span className="admin-toast-icon">
-                {t.type === 'success' ? '✓' : t.type === 'error' ? '✕' : 'ℹ'}
+                {t.type === 'success' ? '\u2713' : t.type === 'error' ? '\u2715' : '\u2139'}
               </span>
               {t.message}
             </div>

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getAnnouncement } from '../admin/data/store';
 
 export default function Nav({ cartCount, onCartClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -8,6 +9,7 @@ export default function Nav({ cartCount, onCartClick }) {
   const location = useLocation();
   const eduRef = useRef(null);
   const eduTimeout = useRef(null);
+  const announcement = getAnnouncement();
 
   const go = (path) => { navigate(path); setMenuOpen(false); setEduOpen(false); };
   const isActive = (path) => location.pathname === path ? 'active' : '';
@@ -22,14 +24,31 @@ export default function Nav({ cartCount, onCartClick }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
+
   const openEdu = () => { clearTimeout(eduTimeout.current); setEduOpen(true); };
   const closeEdu = () => { eduTimeout.current = setTimeout(() => setEduOpen(false), 150); };
 
   return (
     <>
+      {/* Announcement Bar */}
+      {announcement && announcement.active && announcement.text && (
+        <div className="ann-bar">
+          {announcement.text}
+        </div>
+      )}
+
       <nav className="nav">
         <div className="nav-brand" onClick={() => go('/')}>
-          <div className="nav-mark">✦</div>
+          <div className="nav-mark">&#10022;</div>
           <div className="nav-name">
             <small>IDSDC Gift Shop</small>
             Dark Sky
@@ -58,7 +77,7 @@ export default function Nav({ cartCount, onCartClick }) {
                 position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
                 marginTop: 20, minWidth: 200,
                 background: 'rgba(8,8,15,0.97)', backdropFilter: 'blur(20px)',
-                border: '1px solid var(--border)', padding: '8px 0',
+                border: '1px solid var(--border)', borderRadius: 'var(--r)', padding: '8px 0',
                 zIndex: 300, animation: 'eduFade 0.15s ease-out',
               }}>
                 <button onClick={() => go('/field-trips')} style={{
@@ -67,22 +86,24 @@ export default function Nav({ cartCount, onCartClick }) {
                   font: '400 13px DM Sans', color: 'var(--muted)',
                   cursor: 'pointer', transition: 'all 0.15s',
                 }}
-                onMouseEnter={e => { e.target.style.color = 'var(--text)'; e.target.style.background = 'rgba(201,169,74,0.06)'; }}
+                onMouseEnter={e => { e.target.style.color = 'var(--text)'; e.target.style.background = 'rgba(212,175,55,0.06)'; }}
                 onMouseLeave={e => { e.target.style.color = 'var(--muted)'; e.target.style.background = 'none'; }}
                 >
                   <div style={{ marginBottom: 2 }}>School Field Trips</div>
-                  <div style={{ font: '300 10px DM Sans', opacity: 0.6 }}>K–12 STEM programs</div>
+                  <div style={{ font: '300 10px DM Sans', opacity: 0.6 }}>K-12 STEM programs</div>
                 </button>
               </div>
             )}
           </div>
 
           <a className={isActive('/membership')} onClick={() => go('/membership')}>Membership</a>
+          <a className={isActive('/about')} onClick={() => go('/about')}>About</a>
+          <a className={isActive('/contact')} onClick={() => go('/contact')}>Contact</a>
         </div>
 
         <div className="nav-right">
           <button className="nav-cart" onClick={onCartClick} aria-label="Cart">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
               <line x1="3" y1="6" x2="21" y2="6"/>
               <path d="M16 10a4 4 0 01-8 0"/>
@@ -100,13 +121,24 @@ export default function Nav({ cartCount, onCartClick }) {
         </div>
       </nav>
 
+      {/* Full-screen mobile menu overlay */}
       <div className={`mob-menu ${menuOpen ? 'open' : ''}`}>
+        <button className="mob-menu-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M1 1l16 16M17 1L1 17"/>
+          </svg>
+        </button>
+        <div className="mob-menu-label">// Navigation</div>
         <button onClick={() => go('/')}>Home</button>
         <button onClick={() => go('/shop')}>Shop</button>
         <button onClick={() => go('/events')}>Events</button>
         <button onClick={() => go('/field-trips')}>Field Trips</button>
         <button onClick={() => go('/membership')}>Membership</button>
-        <button onClick={() => { onCartClick(); setMenuOpen(false); }}>Cart ({cartCount})</button>
+        <button onClick={() => go('/about')}>About</button>
+        <button onClick={() => go('/contact')}>Contact</button>
+        <button onClick={() => { onCartClick(); setMenuOpen(false); }}>
+          Cart {cartCount > 0 && `(${cartCount})`}
+        </button>
       </div>
 
       <style>{`
