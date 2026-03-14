@@ -125,6 +125,32 @@ const TOUR_CSS = `
 }
 .tour-skip:hover { color: #64748B; }
 
+/* ── TOUR MOBILE ── */
+@media (max-width: 768px) {
+  .tour-welcome {
+    padding: 24px 20px;
+    max-width: calc(100vw - 32px);
+    border-radius: 12px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .tour-welcome h2 { font-size: 20px; margin-bottom: 8px; }
+  .tour-welcome p { font-size: 14px; margin-bottom: 20px; }
+  .tour-welcome-star { width: 44px; height: 44px; font-size: 18px; margin-bottom: 16px; }
+  .tour-role { padding: 12px 14px; }
+  .tour-role-icon { width: 36px; height: 36px; font-size: 16px; }
+  .tour-role-info h4 { font-size: 14px; }
+  .tour-role-info p { font-size: 12px; }
+  .tour-roles { gap: 8px; margin-bottom: 20px; }
+  .tour-start-btn { height: 48px; font-size: 14px; margin-bottom: 8px; }
+  .tour-tooltip {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+}
+
 /* ── SPOTLIGHT OVERLAY ── */
 .tour-spotlight-overlay {
   position: fixed;

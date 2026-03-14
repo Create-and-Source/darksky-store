@@ -122,20 +122,21 @@ const cardStyle = {
 // ════════════════════════════════════════════
 function AttentionCard({ card, navigate }) {
   return (
-    <div style={{
+    <div className="attention-card" style={{
       ...cardStyle,
       borderLeft: `4px solid ${card.color}`,
       display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
     }}>
       <div style={{ flexShrink: 0 }}>{card.icon}</div>
-      <div style={{ flex: 1, minWidth: 200 }}>
+      <div className="attention-card-text" style={{ flex: 1, minWidth: 200 }}>
         <div style={{ font: `600 15px ${FONT}`, color: '#1E293B', marginBottom: 2 }}>{card.title}</div>
         <div style={{ font: `400 14px ${FONT}`, color: '#64748B' }}>{card.description}</div>
       </div>
       <button
+        className="attention-card-btn"
         onClick={() => navigate(card.to)}
         style={{
-          height: 48, padding: '0 24px', background: '#1E293B', color: '#FFFFFF',
+          height: 44, padding: '0 24px', background: '#1E293B', color: '#FFFFFF',
           border: 'none', borderRadius: 8, font: `600 14px ${FONT}`,
           cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap', flexShrink: 0,
         }}
@@ -364,8 +365,8 @@ function VolunteerDashboard() {
       </div>
 
       <style>{`
-        @media (max-width: 500px) {
-          .dashboard-quick-actions { grid-template-columns: 1fr !important; }
+        @media (max-width: 768px) {
+          .dashboard-quick-actions { grid-template-columns: repeat(2, 1fr) !important; }
         }
       `}</style>
     </>
@@ -579,9 +580,9 @@ function StaffDashboard() {
       </div>
 
       <style>{`
-        @media (max-width: 700px) {
-          .dashboard-snapshot { grid-template-columns: 1fr !important; }
-          .dashboard-quick-actions { grid-template-columns: 1fr !important; }
+        @media (max-width: 768px) {
+          .dashboard-snapshot { grid-template-columns: repeat(2, 1fr) !important; }
+          .dashboard-quick-actions { grid-template-columns: repeat(2, 1fr) !important; }
         }
       `}</style>
     </>
@@ -939,9 +940,9 @@ function ManagerDashboard() {
           .dashboard-quick-actions { grid-template-columns: repeat(2, 1fr) !important; }
           .dashboard-snapshot { grid-template-columns: repeat(2, 1fr) !important; }
         }
-        @media (max-width: 500px) {
-          .dashboard-quick-actions { grid-template-columns: 1fr !important; }
-          .dashboard-snapshot { grid-template-columns: 1fr !important; }
+        @media (max-width: 768px) {
+          .dashboard-quick-actions { grid-template-columns: repeat(2, 1fr) !important; }
+          .dashboard-snapshot { grid-template-columns: repeat(2, 1fr) !important; }
         }
       `}</style>
     </>

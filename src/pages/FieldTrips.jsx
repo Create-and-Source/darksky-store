@@ -285,13 +285,13 @@ export default function FieldTrips() {
             fontFamily: 'Playfair Display, serif', fontSize: 'clamp(40px, 6vw, 76px)',
             fontWeight: 400, lineHeight: 1, marginBottom: 24, letterSpacing: '-0.02em',
           }}>
-            School <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Field Trips</em>
+            Inspiring the Next <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Generation</em>
           </h1>
           <p style={{
             font: '300 18px/1.8 DM Sans', color: 'var(--muted)',
             maxWidth: 580, margin: '0 auto 40px',
           }}>
-            Hands-on STEM experiences aligned with state standards. Inspire the next generation of scientists, astronomers, and dark sky advocates.
+            STEM-aligned programs for K-12 students under the darkest skies near a major American city.
           </p>
           <div style={{ display: 'flex', gap: 48, justifyContent: 'center', flexWrap: 'wrap' }}>
             {[

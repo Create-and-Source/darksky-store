@@ -51,15 +51,16 @@ export default function Nav({ cartCount, onCartClick }) {
         <div className="nav-brand" onClick={() => go('/')}>
           <div className="nav-mark">&#10022;</div>
           <div className="nav-name">
-            <small>IDSDC Gift Shop</small>
-            Dark Sky
+            <small>International Dark Sky</small>
+            Discovery Center
           </div>
         </div>
 
         <div className="nav-links">
           <a className={isActive('/')} onClick={() => go('/')}>Home</a>
-          <a className={isActive('/shop')} onClick={() => go('/shop')}>Shop</a>
+          <a className={isActive('/about')} onClick={() => go('/about')}>About</a>
           <a className={isActive('/events')} onClick={() => go('/events')}>Events</a>
+          <a className={isActive('/membership')} onClick={() => go('/membership')}>Membership</a>
 
           {/* Education dropdown */}
           <div ref={eduRef} style={{ position: 'relative' }} onMouseEnter={openEdu} onMouseLeave={closeEdu}>
@@ -97,9 +98,7 @@ export default function Nav({ cartCount, onCartClick }) {
             )}
           </div>
 
-          <a className={isActive('/membership')} onClick={() => go('/membership')}>Membership</a>
-          <a className={isActive('/about')} onClick={() => go('/about')}>About</a>
-          <a className={isActive('/contact')} onClick={() => go('/contact')}>Contact</a>
+          <a className={isActive('/shop')} onClick={() => go('/shop')}>Shop</a>
         </div>
 
         <div className="nav-right">
@@ -131,12 +130,11 @@ export default function Nav({ cartCount, onCartClick }) {
         </button>
         <div className="mob-menu-label">// Navigation</div>
         <button onClick={() => go('/')}>Home</button>
-        <button onClick={() => go('/shop')}>Shop</button>
-        <button onClick={() => go('/events')}>Events</button>
-        <button onClick={() => go('/field-trips')}>Field Trips</button>
-        <button onClick={() => go('/membership')}>Membership</button>
         <button onClick={() => go('/about')}>About</button>
-        <button onClick={() => go('/contact')}>Contact</button>
+        <button onClick={() => go('/events')}>Events</button>
+        <button onClick={() => go('/membership')}>Membership</button>
+        <button onClick={() => go('/field-trips')}>Education</button>
+        <button onClick={() => go('/shop')}>Shop</button>
         <button onClick={() => { onCartClick(); setMenuOpen(false); }}>
           Cart {cartCount > 0 && `(${cartCount})`}
         </button>

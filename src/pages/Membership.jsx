@@ -323,7 +323,7 @@ export default function Membership() {
       <div className="mem-hero" style={{ paddingBottom: 80 }}>
         <div className="label" style={{ marginBottom: 20 }}>// Membership</div>
         <EditableText textKey="mem-hero-title" defaultText="More Than a <em style='font-style:italic;color:var(--gold)'>Membership</em>" tag="h1" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }} />
-        <EditableText textKey="mem-hero-sub" defaultText="Join a community dedicated to preserving the wonder of the night sky. Your membership supports dark sky education, conservation, and gives you exclusive access to the cosmos." tag="p" style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', maxWidth: 560, margin: '0 auto' }} />
+        <EditableText textKey="mem-hero-sub" defaultText="Join a community fighting to preserve the night sky. Members don't just visit — they belong." tag="p" style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', maxWidth: 560, margin: '0 auto' }} />
         <div style={{ marginTop: 48, display: 'flex', gap: 40, justifyContent: 'center', flexWrap: 'wrap' }}>
           {[
             ['300+', 'Members'],
@@ -405,6 +405,16 @@ export default function Membership() {
       }}>
         <p style={{ font: '400 16px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '0 auto' }}>
           At just <span style={{ color: 'var(--gold)', fontWeight: 600 }}>$2.25 per visit</span> on Explorer, membership pays for itself in two trips.
+        </p>
+      </div>
+
+      {/* Gift Membership Note */}
+      <div style={{
+        padding: '40px 64px', textAlign: 'center',
+        borderBottom: '1px solid var(--border)',
+      }}>
+        <p style={{ font: '400 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '0 auto', fontStyle: 'italic' }}>
+          <span style={{ color: 'var(--gold)' }}>Gift memberships available</span> — give the night sky to someone you love.
         </p>
       </div>
 

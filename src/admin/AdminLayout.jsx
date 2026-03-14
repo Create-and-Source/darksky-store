@@ -257,12 +257,40 @@ export default function AdminLayout() {
         {/* Sidebar */}
         <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="admin-sidebar-header">
-            <div className="admin-sidebar-brand">
-              <div className="admin-sidebar-logo">&#10022;</div>
-              <div className="admin-sidebar-title">
-                <small>ADMIN</small>
-                Dark Sky
+            <div className="admin-sidebar-brand" style={{ justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div className="admin-sidebar-logo">&#10022;</div>
+                <div className="admin-sidebar-title">
+                  <small>ADMIN</small>
+                  Dark Sky
+                </div>
               </div>
+              {/* Mobile close button */}
+              <button
+                className="admin-sidebar-close-btn"
+                onClick={closeSidebar}
+                style={{
+                  display: 'none', background: 'none', border: 'none',
+                  color: '#94A3B8', cursor: 'pointer', padding: 8,
+                  fontSize: 20, lineHeight: 1,
+                }}
+              >&#10005;</button>
+            </div>
+            {/* Mobile search inside sidebar */}
+            <div className="admin-sidebar-search" style={{ display: 'none', marginTop: 12 }}>
+              <button
+                onClick={() => { setQuickSearchOpen(true); setQuickSearchQuery(''); closeSidebar(); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                  padding: '10px 12px', background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6,
+                  color: '#94A3B8', cursor: 'pointer',
+                  font: "400 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                }}
+              >
+                {Icons.search}
+                Search pages...
+              </button>
             </div>
           </div>
 
@@ -325,15 +353,27 @@ export default function AdminLayout() {
               <button className="admin-hamburger" onClick={() => setSidebarOpen(o => !o)}>
                 {Icons.menu}
               </button>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {/* Mobile: small DS logo + page title */}
+              <div className="admin-topbar-brand-mobile" style={{ display: 'none' }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #d4af37, #a08520)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, color: '#fff', fontWeight: 700, flexShrink: 0,
+                }}>&#10022;</div>
+                <span className="admin-topbar-title">{currentPage}</span>
+              </div>
+              {/* Desktop: breadcrumb */}
+              <div className="admin-topbar-breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ color: '#94A3B8', fontSize: 14 }}>Admin</span>
                 <span style={{ color: '#CBD5E1', fontSize: 14 }}>/</span>
                 <span className="admin-topbar-title">{currentPage}</span>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              {/* Quick search trigger */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {/* Quick search trigger — hidden on mobile via CSS */}
               <button
+                className="admin-topbar-search"
                 onClick={() => { setQuickSearchOpen(true); setQuickSearchQuery(''); }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
@@ -355,9 +395,30 @@ export default function AdminLayout() {
 
               <NotificationBell />
 
-              {/* User area with dropdown */}
+              {/* Mobile-only: compact role dot + label */}
+              <button
+                className="admin-topbar-role-mobile"
+                onClick={() => setUserDropdownOpen(o => !o)}
+                style={{
+                  display: 'none', alignItems: 'center', gap: 6,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  padding: '4px 8px', borderRadius: 6,
+                }}
+              >
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: ROLE_BADGE_COLORS[role].text, flexShrink: 0,
+                }} />
+                <span style={{
+                  font: "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  color: ROLE_BADGE_COLORS[role].text,
+                }}>{ROLE_LABELS[role]}</span>
+              </button>
+
+              {/* Desktop: User area with dropdown */}
               <div style={{ position: 'relative' }} ref={userDropdownRef}>
                 <button
+                  className="admin-topbar-role-badge-full"
                   onClick={() => setUserDropdownOpen(o => !o)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 10,
@@ -368,9 +429,9 @@ export default function AdminLayout() {
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
                   <div className="admin-topbar-avatar">{ROLE_AVATARS[role]}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                  <div className="admin-topbar-user-name" style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
                     <span style={{ color: '#1E293B', fontWeight: 500, fontSize: 14 }}>{ROLE_NAMES[role]}</span>
-                    <span style={{ color: '#94A3B8', fontSize: 12 }}>{ROLE_LABELS[role]}</span>
+                    <span className="admin-topbar-user-role" style={{ color: '#94A3B8', fontSize: 12 }}>{ROLE_LABELS[role]}</span>
                   </div>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -384,7 +445,7 @@ export default function AdminLayout() {
                   {Icons.chevronDown}
                 </button>
 
-                {/* User dropdown */}
+                {/* User/role dropdown */}
                 {userDropdownOpen && (
                   <div style={{
                     position: 'absolute', top: 'calc(100% + 6px)', right: 0,
@@ -403,7 +464,7 @@ export default function AdminLayout() {
                         onClick={() => switchRole(r)}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 10,
-                          width: '100%', padding: '10px 14px',
+                          width: '100%', padding: '12px 14px', minHeight: 44,
                           background: role === r ? '#F8F7F4' : 'transparent',
                           border: 'none', cursor: 'pointer', textAlign: 'left',
                           font: "400 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
