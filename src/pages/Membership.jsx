@@ -1,59 +1,65 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const TIERS = [
   {
-    name: 'Explorer',
-    price: '$49',
+    name: 'Stargazer',
+    price: '$18',
     period: 'per year',
-    desc: 'For the curious stargazer beginning their journey.',
+    desc: 'Start your journey under the dark skies. Perfect for regular visitors and astronomy enthusiasts.',
     benefits: [
-      '10% discount on all store purchases',
+      'Unlimited visits to the Discovery Center',
+      '10% gift shop discount',
       'Monthly dark sky newsletter',
-      'Digital star map of the Sonoran sky',
-      'Invitation to 2 public stargazing events',
-      'Member-only product announcements',
+      'Invitation to member events',
     ],
     featured: false,
   },
   {
-    name: 'Observer',
-    price: '$99',
+    name: 'Explorer',
+    price: '$45',
     period: 'per year',
-    desc: 'For dedicated astronomers who want more of the night sky.',
+    desc: 'For the dedicated sky-watcher who wants the full dark sky experience.',
     benefits: [
-      '15% discount on all store purchases',
-      'Free shipping on all orders',
-      'Quarterly exclusive merchandise drops',
-      'Invitation to 6 stargazing events + 1 private',
-      'Name in the Observatory\'s Star Registry',
-      'Early access to limited edition releases',
+      'Everything in Stargazer, plus:',
+      'Free planetarium shows',
+      '15% gift shop discount',
+      'Early access to special events',
+      '2 guest passes per year',
     ],
     featured: true,
     badge: 'Most Popular',
   },
   {
-    name: 'Patron',
-    price: '$249',
+    name: 'Guardian',
+    price: '$120',
     period: 'per year',
-    desc: 'For those who want to give back to the night sky.',
+    desc: 'For those who want to protect the night sky for future generations.',
     benefits: [
-      '20% discount on all store purchases',
-      'Free expedited shipping on all orders',
-      'Complimentary annual gift ($75 value)',
-      'Unlimited private stargazing events',
-      'Named dedication in the observatory',
-      'VIP access to all special events',
-      'Quarterly call with Dark Sky team',
+      'Everything in Explorer, plus:',
+      'Private star parties',
+      '20% gift shop discount',
+      'Behind-the-scenes facility tours',
+      'Name on the donor wall',
+      'Exclusive Guardian-only merch',
     ],
     featured: false,
   },
 ];
 
 const PERKS = [
-  { icon: '🌟', title: 'Exclusive Discounts', desc: 'Members enjoy year-round savings on the entire collection, from apparel to fine art prints.' },
-  { icon: '🔭', title: 'Stargazing Events', desc: 'Private and public events under the darkest skies in Arizona, guided by astronomers.' },
-  { icon: '📦', title: 'Early Access', desc: 'First look at new arrivals, limited editions, and seasonal drops before the public.' },
-  { icon: '🌙', title: 'Dark Sky Impact', desc: 'Your membership funds light pollution reduction advocacy and science education programs.' },
+  { icon: '✦', title: 'Unlimited Visits', desc: 'Come as often as you\'d like. All membership tiers include unlimited admission to the International Dark Sky Discovery Center year-round.' },
+  { icon: '✦', title: 'Exclusive Events', desc: 'Private star parties, planetarium shows, meteor shower viewings, and guided astronomy sessions — experiences you won\'t find anywhere else.' },
+  { icon: '✦', title: 'Gift Shop Discounts', desc: 'Save 10–20% on every purchase in the gift shop and online store. Your membership pays for itself in just a few visits.' },
+  { icon: '✦', title: 'Preserve the Night Sky', desc: 'Your membership directly funds dark sky preservation, light pollution advocacy, and STEM education for the next generation of astronomers.' },
+];
+
+const FAQS = [
+  { q: 'When does my membership start?', a: 'Your membership begins immediately upon purchase. You\'ll receive a welcome email with your digital membership card and discount code within minutes.' },
+  { q: 'Can I upgrade my tier later?', a: 'Absolutely. You can upgrade at any time and we\'ll prorate the difference for the remainder of your membership year. Just contact us at hello@idarksky.org.' },
+  { q: 'How do guest passes work?', a: 'Explorer and Guardian members receive guest passes each year. Each pass admits one guest for a full day, including all exhibits. Passes reset on your membership anniversary.' },
+  { q: 'Are memberships tax-deductible?', a: 'Yes, a portion of your membership is tax-deductible as the Dark Sky Discovery Center is a 501(c)(3) non-profit organization. You\'ll receive a receipt detailing the deductible amount.' },
+  { q: 'Can I gift a membership?', a: 'Gift memberships are available for all tiers. The recipient will receive a beautifully designed digital welcome kit — perfect for the stargazer in your life.' },
+  { q: 'What\'s the cancellation policy?', a: 'Memberships are annual. You can cancel auto-renewal at any time and continue to enjoy benefits through the end of your membership period. We don\'t offer partial refunds.' },
 ];
 
 function useReveal(ref) {
@@ -69,6 +75,34 @@ function useReveal(ref) {
   }, []);
 }
 
+function FAQItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ borderBottom: '1px solid var(--border)' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          width: '100%', padding: '24px 0', background: 'none', border: 'none',
+          cursor: 'pointer', textAlign: 'left', gap: 16,
+        }}
+      >
+        <span style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, color: 'var(--text)' }}>{q}</span>
+        <span style={{
+          color: 'var(--gold)', fontSize: 18, flexShrink: 0,
+          transform: open ? 'rotate(45deg)' : 'none', transition: 'transform 0.3s',
+        }}>+</span>
+      </button>
+      <div style={{
+        maxHeight: open ? 200 : 0, overflow: 'hidden',
+        transition: 'max-height 0.35s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <p style={{ font: '300 14px/1.8 DM Sans', color: 'var(--muted)', paddingBottom: 24 }}>{a}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Membership() {
   const perksRef = useRef(null);
   useReveal(perksRef);
@@ -76,19 +110,26 @@ export default function Membership() {
   return (
     <div>
       {/* Hero */}
-      <div className="mem-hero">
+      <div className="mem-hero" style={{ paddingBottom: 80 }}>
         <div className="label" style={{ marginBottom: 20 }}>// Membership</div>
-        <h1 className="mem-hero h1" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }}>
-          Join the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Observatory</em>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }}>
+          More Than a <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Membership</em>
         </h1>
-        <p style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', maxWidth: 520, margin: '0 auto' }}>
-          Become part of a community dedicated to preserving the night sky. Members enjoy exclusive discounts, private events, and early access to our rarest pieces.
+        <p style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', maxWidth: 560, margin: '0 auto' }}>
+          Join a community dedicated to preserving the wonder of the night sky.
+          Your membership supports dark sky education, conservation, and gives you
+          exclusive access to the cosmos.
         </p>
-        <div style={{ marginTop: 40, display: 'flex', gap: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {['300+ Members', '4 Events/Month', '10–20% Savings'].map(stat => (
-            <div key={stat} style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, color: 'var(--gold)', marginBottom: 4, fontStyle: 'italic' }}>{stat.split(' ')[0]}</div>
-              <div style={{ font: '400 11px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>{stat.split(' ').slice(1).join(' ')}</div>
+        <div style={{ marginTop: 48, display: 'flex', gap: 40, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {[
+            ['300+', 'Members'],
+            ['4', 'Events / Month'],
+            ['10–20%', 'Store Savings'],
+            ['100%', 'Dark Sky Impact'],
+          ].map(([num, label]) => (
+            <div key={label} style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 32, color: 'var(--gold)', marginBottom: 4, fontStyle: 'italic' }}>{num}</div>
+              <div style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</div>
             </div>
           ))}
         </div>
@@ -104,29 +145,31 @@ export default function Membership() {
             <div className="mem-tier-period">{tier.period}</div>
             <p style={{ font: '300 13px/1.7 DM Sans', color: 'var(--muted)', marginBottom: 24 }}>{tier.desc}</p>
             <div className="mem-tier-divider" />
-            {tier.benefits.map(b => (
-              <div key={b} className="mem-benefit">
-                <span className="mem-benefit-icon">✦</span>
+            {tier.benefits.map((b, i) => (
+              <div key={b} className="mem-benefit" style={i === 0 && b.startsWith('Everything') ? { fontWeight: 500, color: 'var(--gold)', fontSize: 12, letterSpacing: '0.02em' } : {}}>
+                <span className="mem-benefit-icon">{i === 0 && b.startsWith('Everything') ? '↑' : '✦'}</span>
                 <span>{b}</span>
               </div>
             ))}
             <button className={`mem-btn ${tier.featured ? 'mem-btn-gold' : 'mem-btn-ghost'}`}>
-              Join as {tier.name}
+              Join Now — {tier.price}/yr
             </button>
           </div>
         ))}
       </div>
 
-      {/* Perks */}
+      {/* Why Join */}
       <div className="mem-perks">
-        <div className="label" style={{ marginBottom: 16 }}>// Member Benefits</div>
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.1 }}>
-          Why Join the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Dark Sky Family</em>
-        </h2>
+        <div style={{ textAlign: 'center', marginBottom: 56 }}>
+          <div className="label" style={{ marginBottom: 16 }}>// Why Join</div>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.1 }}>
+            Benefits of <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Membership</em>
+          </h2>
+        </div>
         <div ref={perksRef} className="mem-perks-grid reveal">
           {PERKS.map(perk => (
             <div key={perk.title} className="mem-perk">
-              <div className="mem-perk-icon">{perk.icon}</div>
+              <div className="mem-perk-icon" style={{ color: 'var(--gold)' }}>{perk.icon}</div>
               <div className="mem-perk-title">{perk.title}</div>
               <p className="mem-perk-desc">{perk.desc}</p>
             </div>
@@ -135,34 +178,28 @@ export default function Membership() {
       </div>
 
       {/* FAQ */}
-      <section className="section" style={{ borderTop: '1px solid var(--border)', maxWidth: 800, margin: '0 auto' }}>
-        <div className="label" style={{ marginBottom: 20 }}>// Common Questions</div>
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400, marginBottom: 48 }}>
-          Frequently Asked <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Questions</em>
-        </h2>
-        {[
-          { q: 'When does my membership start?', a: 'Membership begins immediately upon purchase. You\'ll receive a welcome email with your member benefits and discount code within minutes.' },
-          { q: 'Can I upgrade my membership tier?', a: 'Yes. You can upgrade at any time and we\'ll prorate the difference. Contact us at hello@idarksky.org to make the switch.' },
-          { q: 'Are memberships tax-deductible?', a: 'A portion of your membership may be tax-deductible as the Dark Sky Discovery Center is a 501(c)(3) non-profit. We\'ll provide a receipt detailing the deductible amount.' },
-          { q: 'Do memberships make great gifts?', a: 'Absolutely. Gift memberships are available and include a beautiful digital certificate — perfect for the stargazer in your life.' },
-        ].map(({ q, a }) => (
-          <div key={q} style={{ padding: '28px 0', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, marginBottom: 12 }}>{q}</div>
-            <p style={{ font: '300 14px/1.8 DM Sans', color: 'var(--muted)' }}>{a}</p>
+      <section className="section" style={{ borderTop: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <div className="label" style={{ marginBottom: 16 }}>// Common Questions</div>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400 }}>
+              Frequently Asked <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Questions</em>
+            </h2>
           </div>
-        ))}
+          {FAQS.map(faq => <FAQItem key={faq.q} {...faq} />)}
+        </div>
       </section>
 
       {/* CTA */}
       <div className="mission">
-        <div className="label" style={{ marginBottom: 24 }}>// Join Us</div>
+        <div className="label" style={{ marginBottom: 24 }}>// Protect the Night</div>
         <blockquote className="mission-quote">
-          "The universe is under no obligation to make sense to you.<br/>
-          <em>We are.</em>"
+          "The nitrogen in our DNA, the calcium in our teeth, the iron in our blood —
+          <em>were made in the interiors of collapsing stars.</em>"
         </blockquote>
-        <div className="mission-attr" style={{ marginBottom: 40 }}>// Neil deGrasse Tyson</div>
-        <button className="btn-primary" style={{ marginRight: 16 }}>Join as Explorer — $49/yr</button>
-        <button className="btn-ghost">View All Tiers</button>
+        <div className="mission-attr" style={{ marginBottom: 40 }}>// Carl Sagan</div>
+        <button className="btn-primary" style={{ marginRight: 16 }}>Join as Explorer — $45/yr</button>
+        <button className="btn-ghost" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Compare All Tiers</button>
       </div>
     </div>
   );

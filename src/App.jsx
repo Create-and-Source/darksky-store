@@ -8,6 +8,9 @@ import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Membership from './pages/Membership';
+import Events from './pages/Events';
+import FieldTrips from './pages/FieldTrips';
+import Checkout from './pages/Checkout';
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
 import Inventory from './admin/pages/Inventory';
@@ -15,6 +18,10 @@ import Receive from './admin/pages/Receive';
 import Transfers from './admin/pages/Transfers';
 import PurchaseOrders from './admin/pages/PurchaseOrders';
 import Orders from './admin/pages/Orders';
+import Content from './admin/pages/Content';
+import EventsAdmin from './admin/pages/EventsAdmin';
+import Emails from './admin/pages/Emails';
+import Reports from './admin/pages/Reports';
 
 let cartIdCounter = 0;
 
@@ -63,6 +70,10 @@ export default function App() {
         <Route path="transfers" element={<Transfers />} />
         <Route path="purchase-orders" element={<PurchaseOrders />} />
         <Route path="orders" element={<Orders />} />
+        <Route path="events" element={<EventsAdmin />} />
+        <Route path="emails" element={<Emails />} />
+        <Route path="content" element={<Content />} />
+        <Route path="reports" element={<Reports />} />
       </Route>
     </Routes>
   ) : (
@@ -75,7 +86,10 @@ export default function App() {
           <Route path="/shop" element={<Shop onAddToCart={addToCart} />} />
           <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />
           <Route path="/cart" element={<Cart cart={cart} onUpdate={updateQty} onRemove={removeItem} />} />
+          <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={() => setCart([])} />} />
           <Route path="/membership" element={<Membership />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/field-trips" element={<FieldTrips />} />
           <Route path="*" element={
             <div style={{ padding: '120px 64px', textAlign: 'center' }}>
               <div className="label" style={{ marginBottom: 24 }}>// 404</div>

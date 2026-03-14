@@ -80,7 +80,7 @@ export default function Cart({ cart, onUpdate, onRemove }) {
           <span className="price">{fmt(total)}</span>
         </div>
 
-        <button className="cart-checkout">Proceed to Checkout</button>
+        <button className="cart-checkout" onClick={() => navigate('/checkout')}>Proceed to Checkout</button>
         <button className="cart-continue" onClick={() => navigate('/shop')}>Continue Shopping</button>
 
         <div style={{ marginTop: 32, padding: 20, border: '1px solid var(--border)', background: 'rgba(201,169,74,0.04)' }}>
