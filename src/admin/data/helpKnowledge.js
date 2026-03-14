@@ -423,6 +423,50 @@ export const FAQ = [
     keywords: ['recent orders', 'latest orders', 'new orders', 'sales today'],
     feature: 'orders',
   },
+  // Volunteer-specific questions
+  {
+    q: 'How do I look up if something is in stock?',
+    a: 'Go to Inventory → Use the search bar at the top to type the product name → Check the Gift Shop column to see how many are in stock. If a customer asks "Do you have this in size L?", search for the product and look at the variant and gift shop quantity!',
+    keywords: ['in stock', 'look up', 'check stock', 'do we have', 'size', 'available'],
+    feature: 'inventory',
+  },
+  {
+    q: 'A customer wants to buy a membership — what do I tell them?',
+    a: 'Great question! Direct them to darkskycenter.org/membership where they can sign up online. There are three tiers: Stargazer ($18/year), Explorer ($45/year with 10% shop discount), and Guardian ($120/year with 20% discount). At $2.25 per visit, it pays for itself quickly!',
+    keywords: ['membership', 'customer', 'sign up', 'buy membership', 'join', 'member'],
+    feature: 'memberships',
+  },
+  {
+    q: 'What events are happening today?',
+    a: 'Check your Dashboard — today\'s events are listed right at the top with times and registration counts. You can also check the Coming Up This Week section to see what\'s scheduled for the rest of the week.',
+    keywords: ['events today', 'happening today', 'today\'s events', 'what\'s on', 'schedule'],
+    feature: 'events',
+  },
+  {
+    q: 'Who do I contact if I need help?',
+    a: 'For immediate help, contact Nancy (Manager) at (928) 555-0142. For day-to-day gift shop questions, ask Josie (Staff). You can also use this chat assistant anytime — I\'m always here to help you find your way around the system!',
+    keywords: ['contact', 'help', 'emergency', 'who do i call', 'phone', 'manager'],
+    feature: null,
+  },
+  // Staff-specific questions
+  {
+    q: 'A customer wants to know their order status',
+    a: 'Go to Orders → Use the search bar to find their order by order number, customer name, or email → Click the order to see its status (Processing, Shipped, Delivered, or Paid). You can share the status with the customer, but you can\'t modify orders.',
+    keywords: ['order status', 'customer order', 'where is my order', 'tracking', 'shipped'],
+    feature: 'orders',
+  },
+  {
+    q: 'How do I confirm a transfer?',
+    a: 'Go to Transfers → Find the transfer marked "In Transit" → Click on it → Click "Mark as Received" to confirm you\'ve received all the items. Stock counts at the gift shop will update automatically!',
+    keywords: ['confirm transfer', 'mark received', 'transfer received', 'accept transfer'],
+    feature: 'transfers',
+  },
+  {
+    q: 'Show me this month\'s sales',
+    a: 'Go to Reports → You\'ll see total revenue, order counts, and average order value at the top. Scroll down for top-selling products and sales trends. You can export any section as CSV for your records.',
+    keywords: ['sales', 'this month', 'revenue', 'how much', 'total sales', 'monthly'],
+    feature: 'reports',
+  },
 ];
 
 // ── ALL ADMIN ROUTES ──
@@ -440,7 +484,7 @@ export const CURRENT_PAGES = [
   { path: '/admin/quickbooks', name: 'QuickBooks', description: 'Export data as CSV for QuickBooks import' },
 ];
 
-// ── SUGGESTED QUICK QUESTIONS ──
+// ── SUGGESTED QUICK QUESTIONS (by role) ──
 export const QUICK_QUESTIONS = [
   'How do I receive a shipment?',
   'How do I create a star party?',
@@ -448,6 +492,27 @@ export const QUICK_QUESTIONS = [
   'How do I check what\'s running low?',
   'How do I edit the website?',
 ];
+
+export const ROLE_QUICK_QUESTIONS = {
+  manager: [
+    'How do I create a star party?',
+    'How do I send an email to members?',
+    'Show me this month\'s sales',
+    'How do I create a purchase order?',
+  ],
+  staff: [
+    'How do I receive a shipment?',
+    'How do I check what\'s running low?',
+    'A customer wants to know their order status',
+    'How do I confirm a transfer?',
+  ],
+  volunteer: [
+    'How do I look up if something is in stock?',
+    'A customer wants to buy a membership — what do I tell them?',
+    'What events are happening today?',
+    'Who do I contact if I need help?',
+  ],
+};
 
 // ── CONTEXT-AWARE SUGGESTIONS ──
 // Given a route, return relevant follow-up suggestions
@@ -511,7 +576,7 @@ export const PAGE_SUGGESTIONS = {
 
 // ── BUILD SYSTEM PROMPT ──
 // Dynamically constructs the system prompt from all the pieces above
-export function buildSystemPrompt(currentRoute) {
+export function buildSystemPrompt(currentRoute, role) {
   const featureList = Object.values(FEATURES).map(f =>
     `- ${f.name}${f.route ? ` (${f.route})` : ''}: ${f.description}`
   ).join('\n');
@@ -521,7 +586,15 @@ export function buildSystemPrompt(currentRoute) {
     ? `\nThe user is currently on the ${currentPage.name} page (${currentPage.path}): ${currentPage.description}. If they ask "how do I do this" or similar vague questions, assume they're asking about ${currentPage.name}.`
     : '';
 
+  const roleLines = {
+    manager: 'The current user is a Manager (Tovah/Nancy). They have full access to all features.',
+    staff: `The current user is Staff (Josie). She can: receive shipments, check inventory (gift shop only), confirm transfers, view orders. She CANNOT: create events, send emails, edit content, create purchase orders, view reports, or see financial data. If she asks about a manager-only feature, warmly redirect: "That's a manager function — ask Nancy or Tovah to handle that for you. You can [suggest what they CAN do instead]."`,
+    volunteer: `The current user is a Volunteer. They can: look up inventory to help customers, view orders (read-only). They CANNOT: edit anything, create events, send emails, receive shipments, create POs, or see financial data. If they ask about a restricted feature, warmly redirect: "That's handled by the managers — you can reach Nancy at (928) 555-0142, or ask Tovah or Josie. In the meantime, you can [suggest what they CAN do]." Never make them feel bad for asking.`,
+  };
+
   return `You are the Dark Sky Discovery Center admin assistant. You help Nancy, Josie, and volunteers use the MuseumOS platform. You know everything about every feature. Answer in 1-3 sentences, plain English, no jargon. Always tell them exactly where to click. Be warm and encouraging.
+
+${roleLines[role] || roleLines.manager}
 
 You know about these features:
 ${featureList}
@@ -533,9 +606,36 @@ ${contextLine}
 Always respond with the specific steps: 'Go to [page] → Click [button] → Do [action]'. If you don't know something, say 'I'm not sure about that — try clicking the ? icon next to that feature, or email saleem@createandsource.com for help.'`;
 }
 
+// ── ROLE-RESTRICTED FEATURES ──
+const MANAGER_ONLY_FEATURES = ['events', 'email', 'content', 'reports', 'quickbooks', 'purchaseOrders'];
+const STAFF_RESTRICTED = ['events', 'email', 'content', 'reports', 'quickbooks'];
+
+function getRoleRedirect(feature, role) {
+  if (role === 'volunteer') {
+    if (feature === 'events') return "Creating events is a manager function. You can view today's events on your dashboard though! If a customer asks about upcoming events, check the Events section on the public website or ask Nancy/Tovah.";
+    if (feature === 'email') return "Sending emails is handled by the managers. If you need to contact a customer, let Nancy or Tovah know and they can help.";
+    if (feature === 'reports') return "Reports are available to managers. You can check inventory levels from the Inventory page to help customers find what they need!";
+    if (feature === 'purchaseOrders') return "Purchase orders are created by managers. If you notice something is out of stock, let Nancy or Tovah know so they can reorder it.";
+    if (feature === 'content') return "Website editing is a manager function. If you spot something that needs updating, just let Nancy or Tovah know!";
+    if (feature === 'transfers') return "Creating transfers is a manager/staff function. If you think the gift shop needs restocking, let Josie or a manager know!";
+    if (feature === 'receive') return "Receiving shipments is handled by staff and managers. If a delivery arrives, find Josie or call Nancy at (928) 555-0142.";
+    return "That's a manager function. Ask Nancy or Tovah for help, or call (928) 555-0142.";
+  }
+  if (role === 'staff') {
+    if (feature === 'events') return "Creating events is a manager function. Ask Nancy or Tovah to set those up. You can let them know about event ideas though!";
+    if (feature === 'email') return "Sending emails is managed by Nancy and Tovah. If you want to suggest an email to customers, just let them know!";
+    if (feature === 'reports') return "Reports are available to managers. You can check inventory and orders from your dashboard to see what you need day-to-day.";
+    if (feature === 'purchaseOrders') return "Purchase orders are created by managers. If something needs reordering, flag it to Nancy or Tovah and they'll handle it.";
+    if (feature === 'content') return "Website content is edited by managers. If you spot something that needs changing, just let Nancy or Tovah know!";
+    if (feature === 'quickbooks') return "QuickBooks exports are a manager function. Nancy handles all the accounting and bookkeeping.";
+    return "That's a manager function. Ask Nancy or Tovah for help with that.";
+  }
+  return null;
+}
+
 // ── SMART RESPONSE ENGINE ──
 // Finds the best answer based on the user's question and current page context
-export function findBestResponse(question, currentRoute) {
+export function findBestResponse(question, currentRoute, role) {
   const q = question.toLowerCase().trim();
 
   // Check FAQ first — keyword matching with scoring
@@ -547,6 +647,8 @@ export function findBestResponse(question, currentRoute) {
 
     // Exact question match
     if (q === faq.q.toLowerCase()) {
+      const redirect = getRoleRedirect(faq.feature, role);
+      if (redirect) return { answer: redirect, feature: faq.feature, isExact: true };
       return { answer: faq.a, feature: faq.feature, isExact: true };
     }
 
@@ -570,6 +672,11 @@ export function findBestResponse(question, currentRoute) {
   }
 
   if (bestMatch && bestScore >= 2) {
+    // Check role restrictions — redirect warmly if feature is restricted
+    const redirect = getRoleRedirect(bestMatch.feature, role);
+    if (redirect) {
+      return { answer: redirect, feature: bestMatch.feature, isExact: false };
+    }
     return { answer: bestMatch.a, feature: bestMatch.feature, isExact: false };
   }
 

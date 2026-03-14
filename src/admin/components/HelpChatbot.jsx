@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { QUICK_QUESTIONS, findBestResponse, getFollowUpSuggestions } from '../data/helpKnowledge';
+import { QUICK_QUESTIONS, ROLE_QUICK_QUESTIONS, findBestResponse, getFollowUpSuggestions } from '../data/helpKnowledge';
+import { useRole } from '../AdminLayout';
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const CHAT_STORAGE_KEY = 'ds_help_chat_history';
@@ -30,6 +31,7 @@ export default function HelpChatbot() {
   const headerRef = useRef(null);
   const location = useLocation();
   const currentRoute = location.pathname;
+  const role = useRole();
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -47,9 +49,9 @@ export default function HelpChatbot() {
       setTimeout(() => inputRef.current?.focus(), 200);
       localStorage.setItem(CHAT_SEEN_KEY, '1');
       setFirstVisit(false);
-      // Set initial suggestions based on page
+      // Set initial suggestions based on role
       if (messages.length === 0) {
-        setSuggestions(QUICK_QUESTIONS);
+        setSuggestions(ROLE_QUICK_QUESTIONS[role] || QUICK_QUESTIONS);
       }
     }
   }, [open]);
@@ -103,7 +105,7 @@ export default function HelpChatbot() {
     // Simulate response delay for natural feel
     const delay = 400 + Math.random() * 600;
     setTimeout(() => {
-      const result = findBestResponse(text, currentRoute);
+      const result = findBestResponse(text, currentRoute, role);
       const botMsg = { role: 'assistant', content: result.answer, time: Date.now() };
       setMessages(prev => [...prev, botMsg]);
       setTyping(false);
@@ -113,7 +115,7 @@ export default function HelpChatbot() {
       // Filter out the question that was just asked
       setSuggestions(followUps.filter(q => q.toLowerCase() !== text.toLowerCase()).slice(0, 3));
     }, delay);
-  }, [currentRoute]);
+  }, [currentRoute, role]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -16,6 +16,9 @@ import Checkout from './pages/Checkout';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import OrderConfirmation from './pages/OrderConfirmation';
+import StarfieldBackground from './components/StarfieldBackground';
+import InstallPrompt from './components/InstallPrompt';
+import OfflineBanner from './components/OfflineBanner';
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
 import Inventory from './admin/pages/Inventory';
@@ -106,6 +109,8 @@ export default function App() {
   ) : (
     <EditModeProvider>
       <div className="ds-root">
+        <StarfieldBackground />
+        <OfflineBanner />
         <EditBanner />
         <Nav cartCount={cartCount} onCartClick={openDrawer} />
 
@@ -136,6 +141,7 @@ export default function App() {
         <Footer />
         <CartDrawer open={drawerOpen} onClose={closeDrawer} cart={cart} onUpdate={updateQty} onRemove={removeItem} />
         <EditToggleButton />
+        <InstallPrompt />
       </div>
     </EditModeProvider>
   );

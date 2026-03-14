@@ -3,12 +3,33 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ADMIN_CSS } from './AdminStyles';
 import AdminTour from './AdminTour';
 import HelpChatbot from './components/HelpChatbot';
+import NotificationBell from '../components/NotificationBell';
+import OfflineBanner from '../components/OfflineBanner';
 import { executeUndo } from './components/UndoSystem';
 import { subscribe } from './data/store';
 
 // ── Toast Context ──
 const ToastContext = createContext();
 export const useToast = () => useContext(ToastContext);
+
+// ── Role Context ──
+const RoleContext = createContext('manager');
+export const useRole = () => useContext(RoleContext);
+
+const ROLE_NAMES = { manager: 'Tovah', staff: 'Josie', volunteer: 'Volunteer' };
+const ROLE_AVATARS = { manager: 'T', staff: 'J', volunteer: 'V' };
+const ROLE_BADGE_COLORS = {
+  manager: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
+  staff: { bg: 'rgba(59,130,246,0.1)', text: '#3B82F6' },
+  volunteer: { bg: 'rgba(16,185,129,0.1)', text: '#10B981' },
+};
+
+// Routes each role can access (path suffixes after /admin)
+const ROLE_ALLOWED_ROUTES = {
+  manager: null, // all
+  staff: ['', '/inventory', '/receive', '/transfers', '/orders'],
+  volunteer: ['', '/inventory', '/orders'],
+};
 
 // ── SVG Icons ──
 const Icons = {
@@ -50,7 +71,10 @@ const ROLE_NAV = {
   staff: ['Dashboard', 'Inventory', 'Receive', 'Transfers', 'Orders'],
   volunteer: ['Dashboard', 'Inventory', 'Orders'],
 };
-const READONLY_FOR_VOLUNTEER = ['Inventory', 'Orders'];
+const READONLY_LABELS = {
+  staff: ['Orders'],
+  volunteer: ['Inventory', 'Orders'],
+};
 
 // Breadcrumb labels
 const breadcrumbMap = {
@@ -166,11 +190,24 @@ export default function AdminLayout() {
     return () => document.removeEventListener('mousedown', handler);
   }, [userDropdownOpen]);
 
+  // Route protection — redirect if not allowed
+  useEffect(() => {
+    const allowed = ROLE_ALLOWED_ROUTES[role];
+    if (!allowed) return; // manager can access all
+    const suffix = location.pathname.replace('/admin', '') || '';
+    if (!allowed.includes(suffix)) {
+      navigate('/admin', { replace: true });
+      addToast("You don't have access to that page", 'error');
+    }
+  }, [location.pathname, role, navigate, addToast]);
+
   // Role switching
   const switchRole = (newRole) => {
     localStorage.setItem('ds_admin_role', newRole);
     setRole(newRole);
     setUserDropdownOpen(false);
+    // Navigate to dashboard when switching to avoid landing on unauthorized page
+    navigate('/admin', { replace: true });
     addToast(`Switched to ${ROLE_LABELS[newRole]} view`);
   };
 
@@ -180,10 +217,10 @@ export default function AdminLayout() {
     ? navItems.filter(item => allowedLabels.includes(item.label))
     : navItems;
 
-  // Quick search: filter all pages
+  // Quick search: filter by role
   const allPages = [
-    ...navItems.map(item => ({ label: item.label, to: item.to })),
-    { label: 'QuickBooks', to: '/admin/quickbooks' },
+    ...filteredNavItems.map(item => ({ label: item.label, to: item.to })),
+    ...(role === 'manager' ? [{ label: 'QuickBooks', to: '/admin/quickbooks' }] : []),
   ];
   const quickSearchResults = quickSearchQuery.trim()
     ? allPages.filter(p => p.label.toLowerCase().includes(quickSearchQuery.toLowerCase()))
@@ -208,8 +245,10 @@ export default function AdminLayout() {
   const currentPage = breadcrumbMap[location.pathname] || 'Admin';
 
   return (
+    <RoleContext.Provider value={role}>
     <ToastContext.Provider value={addToast}>
       <div className="admin">
+        <OfflineBanner />
         {/* Sidebar overlay for mobile */}
         {sidebarOpen && (
           <div className="admin-drawer-overlay" onClick={closeSidebar} style={{ zIndex: 99 }} />
@@ -231,7 +270,7 @@ export default function AdminLayout() {
             <div className="admin-nav-section">
               <div className="admin-nav-label">Management</div>
               {filteredNavItems.map(item => {
-                const isReadOnly = role === 'volunteer' && READONLY_FOR_VOLUNTEER.includes(item.label);
+                const isReadOnly = (READONLY_LABELS[role] || []).includes(item.label);
                 return (
                   <NavLink
                     key={item.to}
@@ -314,9 +353,7 @@ export default function AdminLayout() {
                 }}>&#8984;K</span>
               </button>
 
-              <button style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: 8, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Notifications">
-                {Icons.bell}
-              </button>
+              <NotificationBell />
 
               {/* User area with dropdown */}
               <div style={{ position: 'relative' }} ref={userDropdownRef}>
@@ -330,17 +367,17 @@ export default function AdminLayout() {
                   onMouseEnter={e => e.currentTarget.style.background = '#F1F5F9'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <div className="admin-topbar-avatar">T</div>
+                  <div className="admin-topbar-avatar">{ROLE_AVATARS[role]}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                    <span style={{ color: '#1E293B', fontWeight: 500, fontSize: 14 }}>Tovah</span>
+                    <span style={{ color: '#1E293B', fontWeight: 500, fontSize: 14 }}>{ROLE_NAMES[role]}</span>
                     <span style={{ color: '#94A3B8', fontSize: 12 }}>{ROLE_LABELS[role]}</span>
                   </div>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                     padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
                     letterSpacing: '0.5px', textTransform: 'uppercase',
-                    background: role === 'manager' ? 'rgba(212,175,55,0.12)' : role === 'staff' ? 'rgba(59,130,246,0.1)' : 'rgba(100,116,139,0.1)',
-                    color: role === 'manager' ? '#D4AF37' : role === 'staff' ? '#3B82F6' : '#64748B',
+                    background: ROLE_BADGE_COLORS[role].bg,
+                    color: ROLE_BADGE_COLORS[role].text,
                   }}>
                     {ROLE_LABELS[role]}
                   </span>
@@ -378,10 +415,10 @@ export default function AdminLayout() {
                       >
                         <span style={{
                           width: 8, height: 8, borderRadius: '50%',
-                          background: role === r ? '#D4AF37' : '#E2E8F0',
+                          background: role === r ? ROLE_BADGE_COLORS[r].text : '#E2E8F0',
                         }} />
                         {ROLE_LABELS[r]}
-                        {role === r && <span style={{ marginLeft: 'auto', fontSize: 12, color: '#D4AF37' }}>&#10003;</span>}
+                        {role === r && <span style={{ marginLeft: 'auto', fontSize: 12, color: ROLE_BADGE_COLORS[r].text }}>&#10003;</span>}
                       </button>
                     ))}
                   </div>
@@ -497,5 +534,6 @@ export default function AdminLayout() {
         </div>
       </div>
     </ToastContext.Provider>
+    </RoleContext.Provider>
   );
 }

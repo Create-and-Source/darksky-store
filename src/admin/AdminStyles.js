@@ -907,4 +907,89 @@ export const ADMIN_CSS = `
   .admin-stats { grid-template-columns: 1fr; }
   .admin-grid-3 { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVE
+   ══════════════════════════════════════════ */
+
+/* ── Tablet (768px) ── */
+@media (max-width: 768px) {
+  .admin-topbar-user span:not(.admin-topbar-avatar) { display: none; }
+  .admin-topbar { gap: 8px; }
+  .dashboard-quick-actions { grid-template-columns: repeat(2, 1fr) !important; }
+  .dashboard-snapshot { grid-template-columns: repeat(2, 1fr) !important; }
+  .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .admin-table { min-width: 600px; }
+  .admin-receive-item { flex-wrap: wrap; }
+  .admin-receive-item-info { min-width: 100%; }
+  .admin-receive-qty { width: 100%; justify-content: flex-end; margin-top: 8px; }
+  .admin-toast { max-width: calc(100vw - 32px); right: 16px; }
+  .admin-toast-container { right: 0; left: 0; align-items: center; }
+}
+
+/* ── Phone (480px) ── */
+@media (max-width: 480px) {
+  .admin-content { padding: 16px 12px 40px; }
+  .admin-topbar { padding: 0 12px; height: 56px; }
+  .admin-topbar-title { font-size: 14px; }
+  .admin-page-title { font-size: 18px; }
+  .admin-page-subtitle { font-size: 13px; }
+  .admin-stats { gap: 10px; }
+  .admin-stat { padding: 16px 14px; }
+  .admin-stat-value { font-size: 22px; }
+  .admin-stat-label { font-size: 11px; }
+  .dashboard-quick-actions { grid-template-columns: 1fr !important; }
+  .dashboard-snapshot { grid-template-columns: 1fr !important; }
+  .admin-panel { padding: 16px; margin-bottom: 16px; }
+  .admin-panel-title { font-size: 14px; }
+  .admin-btn { padding: 10px 14px; font-size: 14px; height: 44px; }
+  .admin-btn-lg { padding: 12px 20px; height: 48px; }
+  .admin-input, .admin-select { height: 44px; font-size: 16px; }
+  .admin-drawer { width: 100vw; }
+  .admin-drawer-body { padding: 16px; }
+  .admin-drawer-header { padding: 14px 16px; }
+  .admin-filters { padding: 12px; gap: 8px; }
+  .admin-filter-tabs { width: 100%; }
+  .admin-filter-tab { flex: 1; text-align: center; padding: 10px 8px; font-size: 13px; }
+  .admin-table-header { padding: 14px 12px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .admin-stepper { gap: 6px; }
+  .admin-step { font-size: 12px; gap: 6px; }
+  .admin-step-num { width: 26px; height: 26px; font-size: 12px; }
+  .admin-confirm { padding: 24px 16px; }
+  .admin-confirm-title { font-size: 16px; }
+  .admin-confirm-sub { font-size: 14px; }
+  .admin-empty { padding: 32px 16px; }
+}
+
+/* ── Small phone (375px) ── */
+@media (max-width: 375px) {
+  .admin-content { padding: 12px 8px 32px; }
+  .admin-topbar { padding: 0 8px; }
+  .admin-stat { padding: 14px 12px; border-radius: 10px; }
+  .admin-stat-value { font-size: 20px; }
+  .admin-panel { padding: 14px 12px; border-radius: 10px; }
+  .admin-btn { width: 100%; justify-content: center; }
+  .admin-page-header { gap: 8px; }
+  .admin-page-header .admin-btn { width: 100%; }
+}
+
+/* ── Sidebar overlay backdrop on mobile ── */
+@media (max-width: 860px) {
+  .admin-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 99;
+    animation: fadeIn 0.2s;
+  }
+}
+
+/* ── Touch-friendly targets ── */
+@media (hover: none) and (pointer: coarse) {
+  .admin-nav-item { min-height: 48px; }
+  .admin-btn { min-height: 44px; }
+  .admin-filter-tab { min-height: 44px; }
+  .admin-receive-qty-btn { width: 44px; height: 44px; }
+  .admin-table td { padding: 14px 10px; }
+}
 `;
