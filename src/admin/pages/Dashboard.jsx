@@ -365,10 +365,10 @@ function AttentionCard({ card, navigate, delay = 0 }) {
   const borderColor = colorMap[card.urgency] || card.color || C.gold;
 
   return (
-    <div style={{
+    <div className="ds-attention-card" style={{
       ...cardBase,
       borderLeft: `3px solid ${borderColor}`,
-      display: 'flex', alignItems: 'center', gap: 14,
+      display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap',
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(6px)',
       transition: 'all 0.4s ease, box-shadow 0.2s ease, transform 0.2s ease',
@@ -386,15 +386,16 @@ function AttentionCard({ card, navigate, delay = 0 }) {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 1 }}>{card.title}</div>
-        <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2 }}>{card.description}</div>
+        <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, wordBreak: 'break-word' }}>{card.description}</div>
       </div>
       <button
+        className="ds-attention-btn"
         onClick={() => navigate(card.to)}
         style={{
           height: 34, padding: '0 16px', background: borderColor + '12',
           color: borderColor, border: `1px solid ${borderColor}30`,
           borderRadius: 7, fontFamily: FONT, fontSize: 13, fontWeight: 500,
-          cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap', flexShrink: 0,
+          cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
         }}
         onMouseEnter={e => { e.target.style.background = borderColor + '22'; }}
         onMouseLeave={e => { e.target.style.background = borderColor + '12'; }}
@@ -948,21 +949,21 @@ function ManagerDashboard() {
       {/* Greeting */}
       <div style={{
         paddingTop: 8, marginBottom: 32,
-        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8,
         opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(12px)',
         transition: 'all 0.6s ease',
+        width: '100%',
       }}>
-        <div>
-          <h1 style={{ fontFamily: FONT, fontSize: 28, fontWeight: 600, color: C.text, letterSpacing: '-0.02em', margin: '0 0 4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4 }}>
+          <h1 style={{ fontFamily: FONT, fontSize: 28, fontWeight: 600, color: C.text, letterSpacing: '-0.02em', margin: '0 0 4px', flex: 1, minWidth: 0 }}>
             {getGreeting()}, Tovah
           </h1>
-          <p style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, margin: 0 }}>
-            {formatTodayDate()}
-          </p>
+          <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 400, color: C.muted, whiteSpace: 'nowrap', paddingTop: 6 }}>
+            Last login: 2 hours ago
+          </div>
         </div>
-        <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 400, color: C.muted, paddingTop: 8 }}>
-          Last login: 2 hours ago
-        </div>
+        <p style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, margin: 0 }}>
+          {formatTodayDate()}
+        </p>
       </div>
 
       {/* Attention Cards */}
@@ -1001,13 +1002,11 @@ function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 12 }} className="ds-stats">
+      {/* Stats Grid — single grid so mobile 2-col has no orphans */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }} className="ds-stats">
         <StatCard label="Revenue (30 days)" value={revenue30} isCurrency sparkData={sparkData} delay={200} />
         <StatCard label="Orders (30 days)" value={last30Orders.length} detail={`${orders.filter(o => o.date === today).length} today`} sparkData={sparkData.map((v, i) => sparkData.length - i)} delay={300} />
         <StatCard label="Avg. Order Value" value={avgOrderValue} isCurrency delay={400} />
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }} className="ds-stats">
         <StatCard
           label="Active Members"
           value={members.length}
@@ -1031,10 +1030,10 @@ function ManagerDashboard() {
       </div>
 
       {/* Revenue Chart */}
-      <div style={{ ...cardBase, marginBottom: 32, padding: 0 }}>
+      <div style={{ ...cardBase, marginBottom: 32, padding: 0, overflow: 'hidden' }}>
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '16px 20px', borderBottom: `1px solid ${C.border}`,
+          padding: '12px 16px', borderBottom: `1px solid ${C.border}`, gap: 8, flexWrap: 'wrap',
         }}>
           <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.text }}>Revenue Overview</span>
           <PeriodTabs
@@ -1072,7 +1071,7 @@ function ManagerDashboard() {
       {/* Top Products + Channel Breakdown */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 12, marginBottom: 32 }} className="ds-products-channels">
         {/* Top Products */}
-        <div style={{ ...cardBase, padding: 0 }}>
+        <div style={{ ...cardBase, padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}` }}>
             <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.text }}>Top Products</span>
           </div>
@@ -1141,10 +1140,10 @@ function ManagerDashboard() {
       </div>
 
       {/* Recent Activity Timeline */}
-      <div style={{ ...cardBase, marginBottom: 32, padding: 0 }}>
+      <div style={{ ...cardBase, marginBottom: 32, padding: 0, overflow: 'hidden' }}>
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '16px 20px', borderBottom: `1px solid ${C.border}`,
+          padding: '14px 16px', borderBottom: `1px solid ${C.border}`,
         }}>
           <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.text }}>Recent Activity</span>
           <button
@@ -1211,15 +1210,15 @@ function ManagerDashboard() {
 
       {/* Low Stock Alert */}
       {lowStockItems.length > 0 && (
-        <div style={{ ...cardBase, marginBottom: 32, padding: 0 }}>
+        <div style={{ ...cardBase, marginBottom: 32, padding: 0, overflow: 'hidden' }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            padding: '14px 20px', borderBottom: `1px solid ${C.border}`,
+            padding: '14px 16px', borderBottom: `1px solid ${C.border}`,
           }}>
             {Icon.alert(C.warning)}
             <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.text }}>Low Stock Alert</span>
           </div>
-          <div style={{ display: 'flex', gap: 12, padding: '16px 20px', overflowX: 'auto' }}>
+          <div style={{ display: 'flex', gap: 10, padding: '14px 16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {lowStockItems.slice(0, 8).map(item => (
               <div key={item.id} style={{
                 minWidth: 160, padding: '12px 16px',
@@ -1372,9 +1371,31 @@ function ManagerDashboard() {
           .ds-stats { grid-template-columns: repeat(2, 1fr) !important; }
           .ds-products-channels { grid-template-columns: 1fr !important; }
         }
-        @media (max-width: 640px) {
-          .ds-quick-actions { grid-template-columns: repeat(2, 1fr) !important; }
-          .ds-stats { grid-template-columns: 1fr !important; }
+        @media (max-width: 768px) {
+          .ds-quick-actions { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+          .ds-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+          .ds-products-channels { grid-template-columns: 1fr !important; gap: 10px !important; }
+          .ds-attention-card {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+            padding: 14px !important;
+          }
+          .ds-attention-btn {
+            width: 100% !important;
+            text-align: center !important;
+            display: block !important;
+          }
+          .ds-stat-card {
+            padding: 14px !important;
+          }
+          .ds-stats > .ds-stat-card:last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+          }
+        }
+        @media (max-width: 375px) {
+          .ds-quick-actions { gap: 6px !important; }
+          .ds-stats { gap: 6px !important; }
         }
       `}</style>
     </div>

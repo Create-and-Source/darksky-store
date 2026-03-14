@@ -156,10 +156,11 @@ export default function HelpChatbot() {
       {/* Floating Chat Button */}
       {!open && (
         <button
+          className="ds-chat-btn"
           onClick={() => setOpen(true)}
           style={{
-            position: 'fixed', bottom: 24, right: 24, zIndex: 10001,
-            width: 56, height: 56, borderRadius: '50%',
+            position: 'fixed', bottom: 16, right: 16, zIndex: 10001,
+            width: 52, height: 52, borderRadius: '50%',
             background: 'linear-gradient(135deg, #D4AF37 0%, #B8941E 100%)',
             border: 'none', cursor: 'pointer',
             boxShadow: '0 4px 20px rgba(212,175,55,0.35)',
@@ -177,7 +178,7 @@ export default function HelpChatbot() {
           }}
           title="Ask for help"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
           </svg>
         </button>
@@ -185,10 +186,10 @@ export default function HelpChatbot() {
 
       {/* Label under button */}
       {!open && (
-        <div style={{
-          position: 'fixed', bottom: 6, right: 24, zIndex: 10001,
-          width: 56, textAlign: 'center',
-          font: `500 10px ${FONT}`, color: '#94A3B8',
+        <div className="ds-chat-label" style={{
+          position: 'fixed', bottom: 0, right: 16, zIndex: 10001,
+          width: 52, textAlign: 'center',
+          font: `500 9px ${FONT}`, color: '#94A3B8',
           pointerEvents: 'none',
         }}>
           Ask for help

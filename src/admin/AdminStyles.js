@@ -885,6 +885,19 @@ export const ADMIN_CSS = `
    Tested at: 375px, 390px, 428px, 768px
    ══════════════════════════════════════════════════ */
 
+/* ── Global overflow protection ── */
+html, body {
+  overflow-x: hidden;
+}
+.admin {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+.admin-main {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 /* ── Tablet (1024px) ── */
 @media (max-width: 1024px) {
   .admin-stats { grid-template-columns: repeat(2, 1fr); }
@@ -1252,6 +1265,46 @@ export const ADMIN_CSS = `
   /* ── OVERFLOW PROTECTION ── */
   .admin-content img { max-width: 100%; height: auto; }
   .admin-content [style*="overflowX"] { overflow-x: hidden !important; }
+
+  /* ── DASHBOARD REDESIGN MOBILE ── */
+  .admin-content {
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+  .admin-content > div {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .ds-quick-actions {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .ds-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .ds-stat-card {
+    min-height: 0 !important;
+  }
+  .ds-products-channels {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* ── FLOATING BUTTONS: stack vertically, smaller on mobile ── */
+  .tour-help-btn {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 18px !important;
+    bottom: 68px !important;
+    right: 16px !important;
+  }
+  .tour-help-menu {
+    bottom: 120px !important;
+    right: 16px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
 }
 
 /* ═══════════════════════════════════════

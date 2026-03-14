@@ -275,8 +275,8 @@ const TOUR_CSS = `
 /* ── HELP BUTTON ── */
 .tour-help-btn {
   position: fixed;
-  bottom: 92px;
-  right: 24px;
+  bottom: 80px;
+  right: 16px;
   z-index: 8000;
   width: 56px;
   height: 56px;
@@ -301,8 +301,8 @@ const TOUR_CSS = `
 /* ── HELP MENU ── */
 .tour-help-menu {
   position: fixed;
-  bottom: 160px;
-  right: 24px;
+  bottom: 136px;
+  right: 16px;
   z-index: 8001;
   background: #FFFFFF;
   border: 1px solid #E2E8F0;

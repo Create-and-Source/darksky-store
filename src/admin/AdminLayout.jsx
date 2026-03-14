@@ -398,23 +398,20 @@ export default function AdminLayout() {
 
               <NotificationBell />
 
-              {/* Mobile-only: compact role dot + label */}
+              {/* Mobile-only: compact role badge */}
               <button
                 className="admin-topbar-role-mobile"
                 onClick={() => setUserDropdownOpen(o => !o)}
                 style={{
-                  display: 'none', alignItems: 'center', gap: 6,
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  padding: '4px 8px', borderRadius: 6,
+                  display: 'none', alignItems: 'center', gap: 0,
+                  background: ROLE_BADGE_COLORS[role].bg, border: 'none', cursor: 'pointer',
+                  padding: '4px 10px', borderRadius: 6,
                 }}
               >
                 <span style={{
-                  width: 8, height: 8, borderRadius: '50%',
-                  background: ROLE_BADGE_COLORS[role].text, flexShrink: 0,
-                }} />
-                <span style={{
-                  font: "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  font: "500 11px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
                   color: ROLE_BADGE_COLORS[role].text,
+                  letterSpacing: '0.02em',
                 }}>{ROLE_LABELS[role]}</span>
               </button>
 
