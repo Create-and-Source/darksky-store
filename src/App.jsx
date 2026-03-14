@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { GLOBAL_CSS } from './styles';
 import Stars from './components/Stars';
@@ -12,6 +12,24 @@ import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Membership from './pages/Membership';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
+import Contact from './pages/Contact';
+import FieldTrips from './pages/FieldTrips';
+
+// Admin (lazy loaded)
+const AdminLayout = lazy(() => import('./admin/AdminLayout'));
+const Dashboard = lazy(() => import('./admin/pages/Dashboard'));
+const Inventory = lazy(() => import('./admin/pages/Inventory'));
+const Receive = lazy(() => import('./admin/pages/Receive'));
+const Transfers = lazy(() => import('./admin/pages/Transfers'));
+const PurchaseOrders = lazy(() => import('./admin/pages/PurchaseOrders'));
+const Orders = lazy(() => import('./admin/pages/Orders'));
+const EventsAdmin = lazy(() => import('./admin/pages/EventsAdmin'));
+const Emails = lazy(() => import('./admin/pages/Emails'));
+const Content = lazy(() => import('./admin/pages/Content'));
+const Reports = lazy(() => import('./admin/pages/Reports'));
+const QuickBooks = lazy(() => import('./admin/pages/QuickBooks'));
 
 let cartIdCounter = 0;
 
@@ -110,12 +128,14 @@ export default function App() {
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
+  const isAdmin = location.pathname.startsWith('/admin');
+
   return (
     <>
-      <CustomCursor />
-      <Stars count={180} className="stars-fixed" />
+      {!isAdmin && <CustomCursor />}
+      {!isAdmin && <Stars count={180} className="stars-fixed" />}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <Nav cartCount={cartCount} onCartClick={() => navigate('/cart')} />
+        {!isAdmin && <Nav cartCount={cartCount} onCartClick={() => navigate('/cart')} />}
 
         <main>
           <Routes>
@@ -126,7 +146,24 @@ export default function App() {
             <Route path="/shop" element={<Shop onAddToCart={addToCart} />} />
             <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />
             <Route path="/cart" element={<Cart cart={cart} onUpdate={updateQty} onRemove={removeItem} />} />
+            <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={() => setCart([])} />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/field-trips" element={<FieldTrips />} />
             <Route path="/membership" element={<Membership />} />
+            <Route path="/admin" element={<Suspense fallback={<div style={{ padding: '120px 64px', textAlign: 'center' }}>Loading admin...</div>}><AdminLayout /></Suspense>}>
+              <Route index element={<Dashboard />} />
+              <Route path="inventory" element={<Inventory />} />
+              <Route path="receive" element={<Receive />} />
+              <Route path="transfers" element={<Transfers />} />
+              <Route path="purchase-orders" element={<PurchaseOrders />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="events" element={<EventsAdmin />} />
+              <Route path="emails" element={<Emails />} />
+              <Route path="content" element={<Content />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="quickbooks" element={<QuickBooks />} />
+            </Route>
             <Route path="*" element={
               <div style={{ padding: '180px 64px 120px', textAlign: 'center', background: 'var(--bg)' }}>
                 <div className="label" style={{ marginBottom: 24 }}>// 404</div>
@@ -138,7 +175,7 @@ export default function App() {
           </Routes>
         </main>
 
-        <Footer />
+        {!isAdmin && <Footer />}
       </div>
     </>
   );

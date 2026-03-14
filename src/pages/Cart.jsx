@@ -87,7 +87,7 @@ export default function Cart({ cart, onUpdate, onRemove }) {
           <span className="price" style={goldGradientStyle}>{fmt(total)}</span>
         </div>
 
-        <button className="cart-checkout" style={{
+        <button className="cart-checkout" onClick={() => navigate('/checkout')} style={{
           background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
           backgroundSize: '200% 200%',
         }}>

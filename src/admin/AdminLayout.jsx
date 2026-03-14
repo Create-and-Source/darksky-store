@@ -6,7 +6,10 @@ import HelpChatbot from './components/HelpChatbot';
 import NotificationBell from '../components/NotificationBell';
 import OfflineBanner from '../components/OfflineBanner';
 import { executeUndo } from './components/UndoSystem';
-import { subscribe } from './data/store';
+import { subscribe, initStore } from './data/store';
+
+// Initialize store with seed data on first load
+initStore();
 
 // ── Toast Context ──
 const ToastContext = createContext();

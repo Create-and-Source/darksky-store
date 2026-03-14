@@ -421,14 +421,6 @@ export function getDashboardStats() {
   return { totalRevenue, orderCount: orders.length, todayOrders: todayOrders.length, lowStockCount: lowStock.length, memberCount: members.length };
 }
 
-// ═══════ REACT HOOK ═══════
-export function useStore() {
-  // Returns a trigger to force re-render when store changes
-  const [, setTick] = (await_import_useState())([0]);
-  // We can't use hooks here since this isn't a React module with imports.
-  // Components should use subscribe() in useEffect instead.
-}
-
 // ═══════ DEFAULT DATA ═══════
 const DEFAULT_EVENTS = [
   { id: 'EVT-001', title: 'New Moon Star Party', category: 'Star Party', date: '2026-03-29', time: '20:00', endTime: '23:00', location: 'Observatory Deck', description: 'Join us for our monthly new moon star party — the darkest skies of the month! Our volunteer astronomers will guide you through the constellations, and you\'ll get to view deep-sky objects through our 16-inch Dobsonian telescope. Bring a blanket and a thermos.', price: 1500, capacity: 45, ticketsSold: 12, status: 'Published', featured: true, memberFree: true },
