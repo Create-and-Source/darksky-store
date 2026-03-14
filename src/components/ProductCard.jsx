@@ -37,7 +37,8 @@ export default function ProductCard({ product, onAddToCart, delay = 0, badge }) 
         ) : (
           <div style={{ width: '100%', height: '100%', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: 32 }}>✦</div>
         )}
-        <button className="pc-qa" onClick={handleAdd}>Add to Cart</button>
+        <div className="pc-shine" />
+        <button className="pc-qa" onClick={handleAdd}>Quick Add</button>
       </div>
       <div className="pc-info">
         <div className="pc-name">{product.title}</div>

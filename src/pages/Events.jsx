@@ -20,10 +20,10 @@ const CATEGORIES = ['All', 'Stargazing', 'Workshops', 'Kids & Family', 'Special 
 
 const EVENTS = [
   { day: '22', month: 'MAR', cat: 'Stargazing', title: 'Full Moon Observatory Night', desc: 'Guided telescope viewing of the March full moon and spring constellations with our resident astronomers.', meta: '8:00 PM · Observatory Deck' },
-  { day: '29', month: 'MAR', cat: 'Kids & Family', title: 'Junior Astronomer Saturday', desc: 'Hands-on activities for ages 5-12. Build a constellation viewer and learn to navigate by the stars.', meta: '10:00 AM · Education Wing' },
+  { day: '29', month: 'MAR', cat: 'Kids & Family', title: 'Junior Astronomer Saturday', desc: 'Hands-on activities for ages 5-12. Build a constellation viewer and learn to navigate by the stars.', meta: '10:00 AM · Education Wing', spots: 72 },
   { day: '05', month: 'APR', cat: 'Workshops', title: 'Astrophotography Basics', desc: 'Capture the Milky Way with your camera. All skill levels welcome. Tripods and star trackers provided.', meta: '7:30 PM · Education Center' },
-  { day: '12', month: 'APR', cat: 'Stargazing', title: 'Messier Marathon', desc: 'Attempt to observe all 110 Messier objects in a single night. Hot cocoa and blankets provided.', meta: '7:00 PM · Telescope Park' },
-  { day: '18', month: 'APR', cat: 'Special Events', title: 'Dark Sky Gala 2026', desc: 'Annual fundraiser under the stars. Dinner, drinks, and a private planetarium show.', meta: '6:00 PM · Main Pavilion' },
+  { day: '12', month: 'APR', cat: 'Stargazing', title: 'Messier Marathon', desc: 'Attempt to observe all 110 Messier objects in a single night. Hot cocoa and blankets provided.', meta: '7:00 PM · Telescope Park', spots: 55 },
+  { day: '18', month: 'APR', cat: 'Special Events', title: 'Dark Sky Gala 2026', desc: 'Annual fundraiser under the stars. Dinner, drinks, and a private planetarium show.', meta: '6:00 PM · Main Pavilion', spots: 92, almostFull: true },
   { day: '26', month: 'APR', cat: 'Workshops', title: 'Telescope Building Workshop', desc: 'Build your own 6-inch Dobsonian telescope from scratch. Take it home and start observing.', meta: '9:00 AM · Workshop Bay' },
 ];
 
@@ -43,7 +43,7 @@ export default function Events() {
           <div className="section-header">
             <span className="section-label label">// Events &amp; Programs</span>
             <h1 className="section-title">Experience the <em>Night Sky</em></h1>
-            <p className="section-subtitle">
+            <p className="section-subtitle" style={{ lineHeight: 1.7 }}>
               From guided telescope sessions to exclusive galas, every event at the Discovery Center is designed to inspire wonder.
             </p>
           </div>
@@ -66,15 +66,24 @@ export default function Events() {
               style={{
                 padding: '10px 24px',
                 borderRadius: 100,
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontWeight: 500,
                 fontSize: 12,
-                border: `1px solid ${activeCategory === cat ? 'var(--gold)' : 'var(--border)'}`,
-                background: activeCategory === cat ? 'var(--gold)' : 'transparent',
-                color: activeCategory === cat ? 'var(--bg)' : 'var(--text2)',
+                letterSpacing: '0.02em',
                 cursor: 'pointer',
                 transition: 'all 0.3s var(--ease)',
-                letterSpacing: '0.02em',
+                ...(activeCategory === cat ? {
+                  background: 'linear-gradient(135deg, #D4AF37, #F5E6A3, #D4AF37)',
+                  backgroundSize: '200% 200%',
+                  border: '1px solid transparent',
+                  color: '#04040c',
+                } : {
+                  background: 'rgba(255,255,255,0.03)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  color: 'var(--text2)',
+                }),
               }}
             >
               {cat}
@@ -91,7 +100,7 @@ export default function Events() {
               textAlign: 'center',
               padding: '80px 0',
               color: 'var(--text2)',
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontSize: 15,
             }}>
               No events found in this category. Check back soon.
@@ -123,6 +132,36 @@ export default function Events() {
                     <h3 className="event-card-title">{event.title}</h3>
                     <p className="event-card-desc">{event.desc}</p>
                     <span className="event-card-meta">{event.meta}</span>
+
+                    {/* Spots remaining progress bar */}
+                    {event.spots && (
+                      <div style={{ marginTop: 16 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                          <span style={{ font: '500 10px "JetBrains Mono", monospace', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>
+                            Spots Remaining
+                          </span>
+                          {event.almostFull && (
+                            <span style={{
+                              font: '500 10px "JetBrains Mono", monospace',
+                              letterSpacing: '0.1em',
+                              color: '#FF6B6B',
+                              animation: 'almostFullPulse 2s ease-in-out infinite',
+                            }}>
+                              Almost Full
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ height: 3, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
+                          <div style={{
+                            width: `${event.spots}%`,
+                            height: '100%',
+                            background: 'linear-gradient(90deg, #D4AF37, #F5E6A3)',
+                            borderRadius: 2,
+                            transition: 'width 1.2s var(--ease)',
+                          }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </RevealSection>

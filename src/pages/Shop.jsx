@@ -11,6 +11,7 @@ export default function Shop({ onAddToCart }) {
   const [activeCat, setActiveCat] = useState(initialCat);
   const [search, setSearch] = useState('');
   const [visible, setVisible] = useState(24);
+  const [searchFocused, setSearchFocused] = useState(false);
 
   useEffect(() => {
     const cat = searchParams.get('cat') || 'All';
@@ -47,16 +48,25 @@ export default function Shop({ onAddToCart }) {
             {activeCat === 'All' ? <><em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>All</em> Products</> : <>{activeCat}</>}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ font: '400 12px DM Sans', color: 'var(--text2)' }}>{filtered.length} items</span>
+            <span style={{ font: '300 12px "Plus Jakarta Sans"', color: 'var(--text2)' }}>{filtered.length} items</span>
             <input
               type="search"
               placeholder="Search the cosmos..."
               value={search}
               onChange={e => { setSearch(e.target.value); setVisible(24); }}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
               style={{
-                background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
-                borderRadius: 3, padding: '9px 16px', font: '400 13px DM Sans',
-                color: 'var(--text)', outline: 'none', width: 220,
+                background: 'rgba(255,255,255,0.04)',
+                border: `1px solid ${searchFocused ? 'var(--gold)' : 'var(--border)'}`,
+                borderRadius: 3,
+                padding: '9px 16px',
+                font: '300 13px "Plus Jakarta Sans"',
+                color: 'var(--text)',
+                outline: 'none',
+                width: 220,
+                transition: 'border-color 0.25s, box-shadow 0.25s',
+                boxShadow: searchFocused ? '0 0 0 3px rgba(212,175,55,0.1)' : 'none',
               }}
             />
           </div>

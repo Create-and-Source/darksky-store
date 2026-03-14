@@ -5,6 +5,13 @@ import ProductCard from '../components/ProductCard';
 
 const fmt = (cents) => cents ? `$${(cents / 100).toFixed(2)}` : 'Price on request';
 
+const goldGradientStyle = {
+  background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+};
+
 export default function ProductDetail({ onAddToCart }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -33,7 +40,6 @@ export default function ProductDetail({ onAddToCart }) {
     setTimeout(() => setAdded(false), 2200);
   };
 
-  // Strip HTML tags from description
   const desc = product.description.replace(/<[^>]*>/g, '').trim();
 
   return (
@@ -46,7 +52,7 @@ export default function ProductDetail({ onAddToCart }) {
               <img
                 src={product.images[activeImg]}
                 alt={product.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s var(--ease)' }}
               />
             ) : (
               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: 64 }}>✦</div>
@@ -74,14 +80,21 @@ export default function ProductDetail({ onAddToCart }) {
           </div>
 
           <h1 className="pd-title">{product.title}</h1>
-          <div className="pd-price">{fmt(product.price)}</div>
+          <div className="pd-price" style={{
+            ...goldGradientStyle,
+            fontSize: 32,
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontWeight: 600,
+          }}>
+            {fmt(product.price)}
+          </div>
 
           <div className="pd-divider" />
 
           {desc && (
             <>
               <div className="pd-label-sm">Description</div>
-              <p className="pd-desc">{desc.substring(0, 280)}{desc.length > 280 ? '...' : ''}</p>
+              <p className="pd-desc" style={{ lineHeight: 1.7, fontWeight: 300 }}>{desc.substring(0, 280)}{desc.length > 280 ? '...' : ''}</p>
             </>
           )}
 
@@ -91,9 +104,17 @@ export default function ProductDetail({ onAddToCart }) {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
                 {product.tags.slice(0, 6).map(tag => (
                   <span key={tag} style={{
-                    fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.15em',
-                    textTransform: 'uppercase', color: 'var(--text2)',
-                    padding: '4px 10px', border: '1px solid var(--border)'
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: 9,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: 'var(--text2)',
+                    padding: '5px 12px',
+                    background: 'rgba(255,255,255,0.03)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 100,
                   }}>{tag}</span>
                 ))}
               </div>
@@ -104,14 +125,20 @@ export default function ProductDetail({ onAddToCart }) {
           <div className="pd-label-sm">Quantity</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
             <button className="cart-qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
-            <span style={{ font: '500 16px DM Sans', minWidth: 24, textAlign: 'center' }}>{qty}</span>
+            <span style={{ font: '500 16px "Plus Jakarta Sans"', minWidth: 24, textAlign: 'center' }}>{qty}</span>
             <button className="cart-qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
           </div>
 
           <button
             className="pd-add"
             onClick={handleAdd}
-            style={{ background: added ? '#2d6a2d' : 'var(--gold)' }}
+            style={added ? {
+              background: '#2d6a2d',
+              boxShadow: '0 0 20px rgba(74,222,128,0.2)',
+            } : {
+              background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+              backgroundSize: '200% 200%',
+            }}
           >
             {added ? '✓ Added to Cart' : 'Add to Cart'}
           </button>

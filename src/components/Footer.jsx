@@ -14,7 +14,7 @@ export default function Footer() {
           <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 400 }}>
             Stay Under the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Stars</em>
           </div>
-          <p style={{ font: '300 14px DM Sans', color: 'var(--text2)', marginTop: 8 }}>
+          <p style={{ font: '300 14px Plus Jakarta Sans', color: 'var(--text2)', marginTop: 8 }}>
             Monthly updates on events, new arrivals, and dark sky news.
           </p>
         </div>

@@ -1,5 +1,12 @@
 import { useEffect, useRef } from 'react';
 
+const goldGradientStyle = {
+  background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+};
+
 const TIERS = [
   {
     name: 'Explorer',
@@ -80,14 +87,14 @@ export default function Membership() {
         <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }}>
           Join the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Observatory</em>
         </h1>
-        <p style={{ font: '300 18px/1.8 DM Sans', color: 'var(--text2)', maxWidth: 520, margin: '0 auto' }}>
+        <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', maxWidth: 520, margin: '0 auto' }}>
           Become part of a community dedicated to preserving the night sky. Members enjoy exclusive discounts, private events, and early access to our rarest pieces.
         </p>
         <div style={{ marginTop: 40, display: 'flex', gap: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
           {['300+ Members', '4 Events/Month', '10-20% Savings'].map(stat => (
             <div key={stat} style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, color: 'var(--gold)', marginBottom: 4, fontStyle: 'italic' }}>{stat.split(' ')[0]}</div>
-              <div style={{ font: '400 11px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>{stat.split(' ').slice(1).join(' ')}</div>
+              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, marginBottom: 4, fontStyle: 'italic', ...goldGradientStyle }}>{stat.split(' ')[0]}</div>
+              <div style={{ font: '400 11px JetBrains Mono', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)' }}>{stat.split(' ').slice(1).join(' ')}</div>
             </div>
           ))}
         </div>
@@ -101,17 +108,24 @@ export default function Membership() {
               <div className={`mem-tier ${tier.featured ? 'featured' : ''}`}>
                 {tier.badge && <div className="mem-tier-badge">{tier.badge}</div>}
                 <div className="mem-tier-name">{tier.name}</div>
-                <div className="mem-tier-price">{tier.price}</div>
+                <div className="mem-tier-price" style={{ ...goldGradientStyle, fontSize: 36 }}>{tier.price}</div>
                 <div className="mem-tier-period">{tier.period}</div>
-                <p style={{ font: '300 13px/1.7 DM Sans', color: 'var(--text2)', marginBottom: 24 }}>{tier.desc}</p>
+                <p style={{ font: '300 13px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 24 }}>{tier.desc}</p>
                 <div className="mem-tier-divider" />
                 {tier.benefits.map(b => (
                   <div key={b} className="mem-benefit">
                     <span className="mem-benefit-icon">✦</span>
-                    <span>{b}</span>
+                    <span style={{ fontWeight: 300 }}>{b}</span>
                   </div>
                 ))}
-                <button className={`mem-btn ${tier.featured ? 'mem-btn-gold' : 'mem-btn-ghost'}`}>
+                <button
+                  className={`mem-btn ${tier.featured ? 'mem-btn-gold' : 'mem-btn-ghost'}`}
+                  style={tier.featured ? {
+                    background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+                    backgroundSize: '200% 200%',
+                    border: '1px solid transparent',
+                  } : undefined}
+                >
                   Join as {tier.name}
                 </button>
               </div>
@@ -133,7 +147,7 @@ export default function Membership() {
                 <div className="mem-perk">
                   <div className="mem-perk-icon">{perk.icon}</div>
                   <div className="mem-perk-title">{perk.title}</div>
-                  <p className="mem-perk-desc">{perk.desc}</p>
+                  <p className="mem-perk-desc" style={{ fontWeight: 300, lineHeight: 1.7 }}>{perk.desc}</p>
                 </div>
               </RevealSection>
             ))}
@@ -154,9 +168,18 @@ export default function Membership() {
             { q: 'Are memberships tax-deductible?', a: 'A portion of your membership may be tax-deductible as the Dark Sky Discovery Center is a 501(c)(3) non-profit. We\'ll provide a receipt detailing the deductible amount.' },
             { q: 'Do memberships make great gifts?', a: 'Absolutely. Gift memberships are available and include a beautiful digital certificate — perfect for the stargazer in your life.' },
           ].map(({ q, a }) => (
-            <div key={q} style={{ padding: '28px 0', borderBottom: '1px solid var(--border)' }}>
+            <div key={q} style={{
+              padding: '28px 24px',
+              marginBottom: 12,
+              background: 'rgba(255,255,255,0.02)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.05)',
+              borderRadius: 'var(--r)',
+              transition: 'border-color 0.3s',
+            }}>
               <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, marginBottom: 12 }}>{q}</div>
-              <p style={{ font: '300 14px/1.8 DM Sans', color: 'var(--text2)' }}>{a}</p>
+              <p style={{ font: '300 14px/1.8 "Plus Jakarta Sans"', color: 'var(--text2)' }}>{a}</p>
             </div>
           ))}
         </section>
@@ -170,7 +193,7 @@ export default function Membership() {
           <em>We are.</em>"
         </blockquote>
         <div className="mission-attr" style={{ marginBottom: 40 }}>// Neil deGrasse Tyson</div>
-        <button className="btn-primary" style={{ marginRight: 16 }}>Join as Explorer — $49/yr</button>
+        <button className="btn-primary" style={{ marginRight: 16, animation: 'breatheGlow 3s ease-in-out infinite' }}>Join as Explorer — $49/yr</button>
         <button className="btn-ghost">View All Tiers</button>
       </div>
     </div>

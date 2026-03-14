@@ -23,6 +23,11 @@ function RevealSection({ children, className = '', delay = 0 }) {
   );
 }
 
+/* ── Section separator ── */
+function SectionSep() {
+  return <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent)' }} />;
+}
+
 /* ── Marquee items ── */
 const MARQUEE_ITEMS = [
   'Observatory', 'Planetarium', 'Dark Sky Preserve', 'Telescope Park',
@@ -47,6 +52,48 @@ const STATS = [
 /* ── Category data ── */
 const CATEGORIES = ['Apparel', 'Kids', 'Gifts', 'Outerwear', 'Tanks'];
 
+/* ── Hero headline word-by-word animation ── */
+function AnimatedHeadline({ visible }) {
+  const line1 = ["The", "World's", "Center", "for", "Connecting"];
+  const line2 = ["the", "Night", "Sky", "to"];
+  const emWords = ["Life", "on", "Earth"];
+
+  let wordIndex = 0;
+
+  const renderWord = (word, isEm = false) => {
+    const i = wordIndex++;
+    const style = {
+      display: 'inline-block',
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'none' : 'translateY(20px)',
+      transition: 'opacity 0.6s var(--ease), transform 0.6s var(--ease)',
+      transitionDelay: `${300 + i * 120}ms`,
+      marginRight: '0.25em',
+    };
+    if (isEm) {
+      return <em key={i} style={{ ...style, fontStyle: 'italic', color: 'var(--gold)' }}>{word}</em>;
+    }
+    return <span key={i} style={style}>{word}</span>;
+  };
+
+  return (
+    <h1 className="hero-h1">
+      {line1.map(w => renderWord(w))}
+      <br />
+      {line2.map(w => renderWord(w))}
+      {emWords.map(w => renderWord(w, true))}
+    </h1>
+  );
+}
+
+/* ── Gold gradient text style ── */
+const goldGradientStyle = {
+  background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+};
+
 /* ────────────────────────────────────────── */
 export default function Home({ onAddToCart }) {
   const navigate = useNavigate();
@@ -68,14 +115,7 @@ export default function Home({ onAddToCart }) {
       <section className="hero">
         <div className="hero-gradient" />
 
-        <div
-          className="hero-content"
-          style={{
-            opacity: heroVis ? 1 : 0,
-            transform: heroVis ? 'none' : 'translateY(32px)',
-            transition: 'opacity 1.2s var(--ease), transform 1.2s var(--ease)',
-          }}
-        >
+        <div className="hero-content">
           <div
             className="label hero-label"
             style={{
@@ -88,17 +128,7 @@ export default function Home({ onAddToCart }) {
             // OPENING FALL 2026 · FOUNTAIN HILLS, ARIZONA
           </div>
 
-          <h1
-            className="hero-h1"
-            style={{
-              opacity: heroVis ? 1 : 0,
-              transform: heroVis ? 'none' : 'translateY(20px)',
-              transition: 'opacity 1s var(--ease), transform 1s var(--ease)',
-              transitionDelay: '0.3s',
-            }}
-          >
-            The World's Center for Connecting<br />the Night Sky to <em>Life on Earth</em>
-          </h1>
+          <AnimatedHeadline visible={heroVis} />
 
           <p
             className="hero-sub"
@@ -106,7 +136,7 @@ export default function Home({ onAddToCart }) {
               opacity: heroVis ? 1 : 0,
               transform: heroVis ? 'none' : 'translateY(16px)',
               transition: 'opacity 1s var(--ease), transform 1s var(--ease)',
-              transitionDelay: '0.5s',
+              transitionDelay: '1.8s',
               letterSpacing: '0.18em',
             }}
           >
@@ -119,10 +149,10 @@ export default function Home({ onAddToCart }) {
               opacity: heroVis ? 1 : 0,
               transform: heroVis ? 'none' : 'translateY(16px)',
               transition: 'opacity 1s var(--ease), transform 1s var(--ease)',
-              transitionDelay: '0.7s',
+              transitionDelay: '2.1s',
             }}
           >
-            <button className="btn-primary" onClick={() => navigate('/events')}>Explore Events</button>
+            <button className="btn-primary" style={{ animation: 'breatheGlow 3s ease-in-out infinite' }} onClick={() => navigate('/events')}>Explore Events</button>
             <button className="btn-ghost" onClick={() => navigate('/membership')}>Become a Member</button>
           </div>
         </div>
@@ -133,6 +163,7 @@ export default function Home({ onAddToCart }) {
         </div>
       </section>
 
+      <SectionSep />
 
       {/* ══════════════════════════════════════
           2 — MARQUEE
@@ -147,6 +178,7 @@ export default function Home({ onAddToCart }) {
         </div>
       </div>
 
+      <SectionSep />
 
       {/* ══════════════════════════════════════
           3 — DISCOVER THE CENTER
@@ -168,26 +200,33 @@ export default function Home({ onAddToCart }) {
             }}
           >
             {STATS.map((s, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: '48px 32px',
-                  textAlign: 'center',
-                  borderRight: i < STATS.length - 1 ? '1px solid var(--border)' : 'none',
-                }}
-              >
-                <div style={{ font: '600 44px "DM Sans", sans-serif', color: 'var(--gold)', lineHeight: 1, marginBottom: 12 }}>
-                  {s.value}
+              <RevealSection key={i} delay={200 + i * 100}>
+                <div
+                  style={{
+                    padding: '48px 32px',
+                    textAlign: 'center',
+                    borderRight: i < STATS.length - 1 ? '1px solid var(--border)' : 'none',
+                  }}
+                >
+                  <div style={{
+                    font: '300 44px "Plus Jakarta Sans", sans-serif',
+                    lineHeight: 1,
+                    marginBottom: 12,
+                    ...goldGradientStyle,
+                  }}>
+                    {s.value}
+                  </div>
+                  <div style={{ font: '400 11px "JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--text2)' }}>
+                    {s.label}
+                  </div>
                 </div>
-                <div style={{ font: '400 11px "JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text2)' }}>
-                  {s.label}
-                </div>
-              </div>
+              </RevealSection>
             ))}
           </div>
         </RevealSection>
       </section>
 
+      <SectionSep />
 
       {/* ══════════════════════════════════════
           4 — FEATURED PRODUCTS
@@ -215,6 +254,7 @@ export default function Home({ onAddToCart }) {
         </div>
       </section>
 
+      <SectionSep />
 
       {/* ══════════════════════════════════════
           5 — UPCOMING EVENTS
@@ -228,76 +268,81 @@ export default function Home({ onAddToCart }) {
         <RevealSection delay={80}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 48 }}>
             {EVENTS.map((ev, i) => (
-              <div
-                key={i}
-                style={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--r)',
-                  overflow: 'hidden',
-                  transition: 'border-color 0.3s var(--ease), transform 0.3s var(--ease), box-shadow 0.3s var(--ease)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'var(--border-hover)';
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 16px 48px rgba(0,0,0,0.4)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {/* Gradient placeholder */}
+              <RevealSection key={i} delay={i * 120}>
                 <div
                   style={{
-                    aspectRatio: '16/10',
-                    background: 'linear-gradient(135deg, #0c0c2a 0%, #1a1040 50%, #0e0e28 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    background: 'rgba(255,255,255,0.03)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 'var(--r)',
+                    overflow: 'hidden',
+                    transition: 'all 0.4s var(--ease)',
+                    cursor: 'pointer',
                     position: 'relative',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.05), 0 16px 48px rgba(0,0,0,0.4)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.05)';
                   }}
                 >
-                  <span style={{ fontSize: 28, color: 'var(--gold)', opacity: 0.4 }}>✦</span>
-
-                  {/* Date badge */}
+                  {/* Gradient placeholder */}
                   <div
                     style={{
-                      position: 'absolute',
-                      top: 16,
-                      left: 16,
-                      background: 'var(--gold)',
-                      color: '#04040c',
-                      borderRadius: 4,
-                      padding: '10px 12px 8px',
-                      textAlign: 'center',
-                      lineHeight: 1,
+                      aspectRatio: '16/10',
+                      background: 'linear-gradient(135deg, #0c0c2a 0%, #1a1040 50%, #0e0e28 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative',
                     }}
                   >
-                    <div style={{ font: '700 22px "DM Sans", sans-serif', marginBottom: 2 }}>{ev.day}</div>
-                    <div style={{ font: '600 10px "JetBrains Mono", monospace', letterSpacing: '0.08em' }}>{ev.month}</div>
-                  </div>
-                </div>
+                    <span style={{ fontSize: 28, color: 'var(--gold)', opacity: 0.4 }}>✦</span>
 
-                {/* Card body */}
-                <div style={{ padding: '28px 24px' }}>
-                  <div style={{ font: '400 10px "JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold)', marginBottom: 12 }}>
-                    {ev.cat}
+                    {/* Date badge — gold gradient, sharp edges */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 16,
+                        left: 16,
+                        background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+                        color: '#04040c',
+                        padding: '10px 12px 8px',
+                        textAlign: 'center',
+                        lineHeight: 1,
+                      }}
+                    >
+                      <div style={{ font: '700 22px "Plus Jakarta Sans", sans-serif', marginBottom: 2 }}>{ev.day}</div>
+                      <div style={{ font: '600 10px "JetBrains Mono", monospace', letterSpacing: '0.08em' }}>{ev.month}</div>
+                    </div>
                   </div>
-                  <h3 style={{ font: '500 20px/1.3 "Playfair Display", serif', color: 'var(--text)', margin: '0 0 10px' }}>
-                    {ev.title}
-                  </h3>
-                  <p style={{ font: '300 13px/1.7 "DM Sans", sans-serif', color: 'var(--text2)', margin: '0 0 16px' }}>
-                    {ev.desc}
-                  </p>
-                  <div style={{ font: '400 11px "JetBrains Mono", monospace', color: 'var(--muted)', letterSpacing: '0.04em' }}>
-                    {ev.meta}
+
+                  {/* Card body */}
+                  <div style={{ padding: '28px 24px' }}>
+                    <div style={{ font: '400 10px "JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--gold)', marginBottom: 12 }}>
+                      {ev.cat}
+                    </div>
+                    <h3 style={{ font: '500 20px/1.3 "Playfair Display", serif', color: 'var(--text)', margin: '0 0 10px' }}>
+                      {ev.title}
+                    </h3>
+                    <p style={{ font: '300 13px/1.7 "Plus Jakarta Sans", sans-serif', color: 'var(--text2)', margin: '0 0 16px' }}>
+                      {ev.desc}
+                    </p>
+                    <div style={{ font: '400 11px "JetBrains Mono", monospace', color: 'var(--muted)', letterSpacing: '0.04em' }}>
+                      {ev.meta}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </RevealSection>
             ))}
           </div>
         </RevealSection>
@@ -307,6 +352,7 @@ export default function Home({ onAddToCart }) {
         </div>
       </section>
 
+      <SectionSep />
 
       {/* ══════════════════════════════════════
           6 — MISSION QUOTE BAND
@@ -318,6 +364,7 @@ export default function Home({ onAddToCart }) {
         <div className="mission-attr">// International Dark Sky Discovery Center, Sonoran Desert</div>
       </div>
 
+      <SectionSep />
 
       {/* ══════════════════════════════════════
           7 — SHOP BY CATEGORY
@@ -336,99 +383,102 @@ export default function Home({ onAddToCart }) {
               const count = PRODUCTS.filter(p => p.category === cat).length;
 
               return (
-                <button
-                  key={cat}
-                  onClick={() => navigate(`/shop?cat=${cat}`)}
-                  style={{
-                    background: '#0e0e24',
-                    border: '1px solid #1e1e42',
-                    borderRadius: 6,
-                    padding: 0,
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'border-color 0.3s var(--ease), transform 0.3s var(--ease), box-shadow 0.3s var(--ease)',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'var(--gold)';
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.3)';
-                    e.currentTarget.querySelector('.cat-img-wrap').style.background = '#e8e4dc';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = '#1e1e42';
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.querySelector('.cat-img-wrap').style.background = '#dedad2';
-                  }}
-                >
-                  {/* Image zone */}
-                  <div
-                    className="cat-img-wrap"
+                <RevealSection key={cat} delay={i * 100}>
+                  <button
+                    onClick={() => navigate(`/shop?cat=${cat}`)}
                     style={{
-                      background: '#dedad2',
-                      height: 180,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      background: 'rgba(255,255,255,0.03)',
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      borderRadius: 6,
+                      padding: 0,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.4s var(--ease)',
                       overflow: 'hidden',
-                      transition: 'background 0.3s var(--ease)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                      width: '100%',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'rgba(212,175,55,0.3)';
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.2)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                      e.currentTarget.style.transform = 'none';
+                      e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.05)';
                     }}
                   >
-                    {heroImg ? (
-                      <img
-                        src={heroImg}
-                        alt={cat}
-                        style={{
-                          width: '85%',
-                          height: '85%',
-                          objectFit: 'contain',
-                          display: 'block',
-                          filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.25))',
-                        }}
-                      />
-                    ) : (
-                      <span style={{ fontSize: 48, opacity: 0.3, color: 'var(--muted)' }}>✦</span>
-                    )}
-                  </div>
+                    {/* Image zone */}
+                    <div
+                      style={{
+                        background: '#dedad2',
+                        height: 180,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        transition: 'background 0.3s var(--ease)',
+                      }}
+                    >
+                      {heroImg ? (
+                        <img
+                          src={heroImg}
+                          alt={cat}
+                          style={{
+                            width: '85%',
+                            height: '85%',
+                            objectFit: 'contain',
+                            display: 'block',
+                            filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.25))',
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: 48, opacity: 0.3, color: 'var(--muted)' }}>✦</span>
+                      )}
+                    </div>
 
-                  {/* Text zone */}
-                  <div style={{ padding: '20px 20px 22px', flex: 1 }}>
-                    <div className="label" style={{ marginBottom: 10, fontSize: 9 }}>
-                      {`0${i + 1} — ${cat.toUpperCase()}`}
+                    {/* Text zone */}
+                    <div style={{ padding: '20px 20px 22px', flex: 1 }}>
+                      <div className="label" style={{ marginBottom: 10, fontSize: 9 }}>
+                        {`0${i + 1} — ${cat.toUpperCase()}`}
+                      </div>
+                      <div style={{
+                        fontFamily: '"Playfair Display", serif',
+                        fontSize: 26,
+                        fontWeight: 500,
+                        color: 'var(--text)',
+                        marginBottom: 10,
+                        lineHeight: 1.1,
+                      }}>
+                        {cat}
+                      </div>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}>
+                        <span style={{ font: '300 13px "Plus Jakarta Sans", sans-serif', color: 'var(--text2)' }}>
+                          {count} products
+                        </span>
+                        <span style={{ font: '500 11px "JetBrains Mono", monospace', letterSpacing: '0.1em', color: 'var(--gold)' }}>
+                          Shop →
+                        </span>
+                      </div>
                     </div>
-                    <div style={{
-                      fontFamily: '"Playfair Display", serif',
-                      fontSize: 26,
-                      fontWeight: 500,
-                      color: 'var(--text)',
-                      marginBottom: 10,
-                      lineHeight: 1.1,
-                    }}>
-                      {cat}
-                    </div>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}>
-                      <span style={{ font: '500 13px "DM Sans", sans-serif', color: 'var(--text2)' }}>
-                        {count} products
-                      </span>
-                      <span style={{ font: '500 11px "JetBrains Mono", monospace', letterSpacing: '0.1em', color: 'var(--gold)' }}>
-                        Shop →
-                      </span>
-                    </div>
-                  </div>
-                </button>
+                  </button>
+                </RevealSection>
               );
             })}
           </div>
         </RevealSection>
       </section>
 
+      <SectionSep />
 
       {/* ══════════════════════════════════════
           8 — MEMBERSHIP TEASER
@@ -444,7 +494,7 @@ export default function Home({ onAddToCart }) {
           <div className="label section-label" style={{ marginBottom: 24 }}>05 — Membership</div>
           <h2 className="section-title" style={{ marginBottom: 20 }}>Join the <em>Observatory</em></h2>
           <p className="section-subtitle" style={{
-            font: '300 16px/1.8 "DM Sans", sans-serif',
+            font: '300 16px/1.8 "Plus Jakarta Sans", sans-serif',
             color: 'var(--text2)',
             maxWidth: 520,
             margin: '0 auto 40px',
@@ -452,7 +502,13 @@ export default function Home({ onAddToCart }) {
             Members enjoy exclusive discounts, early access to limited releases,
             and invitations to private stargazing events under the Sonoran sky.
           </p>
-          <button className="btn-primary" onClick={() => navigate('/membership')}>Explore Membership Tiers</button>
+          <button
+            className="btn-primary"
+            style={{ animation: 'breatheGlow 3s ease-in-out infinite' }}
+            onClick={() => navigate('/membership')}
+          >
+            Explore Membership Tiers
+          </button>
         </RevealSection>
       </section>
 

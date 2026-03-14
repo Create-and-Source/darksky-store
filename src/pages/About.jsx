@@ -16,6 +16,17 @@ function RevealSection({ children, className = '', delay = 0 }) {
   return <div ref={ref} className={`reveal ${className}`} style={{ transitionDelay: `${delay}ms` }}>{children}</div>;
 }
 
+function SectionSep() {
+  return <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent)' }} />;
+}
+
+const goldGradientStyle = {
+  background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+};
+
 const OFFERINGS = [
   { icon: '🔭', title: 'Research Observatory', desc: 'Five research-grade telescopes including a 24-inch Ritchey-Chrétien reflector. Open nightly for guided viewing sessions under some of the darkest skies in the American Southwest.' },
   { icon: '🌌', title: 'Digital Planetarium', desc: 'A state-of-the-art 4K fulldome theater seating 120 guests. Immersive shows transport you from our solar system to the edge of the observable universe.' },
@@ -41,12 +52,14 @@ export default function About() {
           <div className="section-header">
             <span className="section-label label">// About the Center</span>
             <h1 className="section-title">Connecting the Night Sky to <em>Life on Earth</em></h1>
-            <p className="section-subtitle">
+            <p className="section-subtitle" style={{ lineHeight: 1.7 }}>
               The International Dark Sky Discovery Center is a 35,000 square foot institution dedicated to dark sky preservation, astronomy education, and the wonder of the cosmos. Opening Fall 2026 in Fountain Hills, Arizona.
             </p>
           </div>
         </RevealSection>
       </section>
+
+      <SectionSep />
 
       {/* ── OFFERINGS GRID ── */}
       <section className="section">
@@ -63,17 +76,23 @@ export default function About() {
         </div>
       </section>
 
+      <SectionSep />
+
       {/* ── IMPACT STATS ── */}
       <RevealSection>
         <div className="about-stats">
-          {STATS.map((s) => (
-            <div className="about-stat" key={s.label}>
-              <div className="about-stat-number">{s.number}</div>
-              <div className="about-stat-label">{s.label}</div>
-            </div>
+          {STATS.map((s, i) => (
+            <RevealSection key={s.label} delay={i * 100}>
+              <div className="about-stat">
+                <div className="about-stat-number" style={goldGradientStyle}>{s.number}</div>
+                <div className="about-stat-label">{s.label}</div>
+              </div>
+            </RevealSection>
           ))}
         </div>
       </RevealSection>
+
+      <SectionSep />
 
       {/* ── OUR STORY ── */}
       <section className="section" style={{ background: 'var(--bg)' }}>
@@ -86,7 +105,7 @@ export default function About() {
 
         <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
           <RevealSection delay={100}>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', marginBottom: 40 }}>
+            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', marginBottom: 40, fontWeight: 300 }}>
               The International Dark Sky Discovery Center was born from a simple observation: the night sky is disappearing. Light pollution now affects 80% of the world's population, and a generation of children is growing up without ever seeing the Milky Way.
             </p>
           </RevealSection>
@@ -108,12 +127,14 @@ export default function About() {
           </RevealSection>
 
           <RevealSection delay={300}>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)' }}>
+            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', fontWeight: 300 }}>
               Nestled in the Sonoran Desert outside Fountain Hills, Arizona, the Discovery Center sits beneath some of the darkest, most pristine skies in the continental United States. Our 35,000-square-foot facility will serve as a beacon for astronomy education, dark sky advocacy, and scientific research.
             </p>
           </RevealSection>
         </div>
       </section>
+
+      <SectionSep />
 
       {/* ── CTA ── */}
       <RevealSection>

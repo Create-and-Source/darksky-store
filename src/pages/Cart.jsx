@@ -2,6 +2,13 @@ import { useNavigate } from 'react-router-dom';
 
 const fmt = (cents) => `$${(cents / 100).toFixed(2)}`;
 
+const goldGradientStyle = {
+  background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+};
+
 export default function Cart({ cart, onUpdate, onRemove }) {
   const navigate = useNavigate();
 
@@ -17,7 +24,7 @@ export default function Cart({ cart, onUpdate, onRemove }) {
         <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400, marginBottom: 16 }}>
           Your cart is <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>empty</em>
         </h2>
-        <p style={{ font: '300 15px/1.7 DM Sans', color: 'var(--text2)', maxWidth: 340, margin: '0 auto 36px' }}>
+        <p style={{ font: '300 15px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', maxWidth: 340, margin: '0 auto 36px' }}>
           The cosmos awaits. Explore our collection of dark sky treasures.
         </p>
         <button className="btn-primary" onClick={() => navigate('/shop')}>Explore the Shop</button>
@@ -49,7 +56,7 @@ export default function Cart({ cart, onUpdate, onRemove }) {
               </div>
               <button className="cart-item-remove" onClick={() => onRemove(item.cartId)}>Remove</button>
             </div>
-            <div className="cart-item-price">{fmt(item.price * item.qty)}</div>
+            <div className="cart-item-price" style={goldGradientStyle}>{fmt(item.price * item.qty)}</div>
           </div>
         ))}
 
@@ -71,22 +78,35 @@ export default function Cart({ cart, onUpdate, onRemove }) {
           <span>{shipping === 0 ? <span style={{ color: 'var(--gold)' }}>Free</span> : fmt(shipping)}</span>
         </div>
         {shipping > 0 && (
-          <div style={{ font: '300 11px DM Sans', color: 'var(--text2)', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ font: '300 11px "Plus Jakarta Sans"', color: 'var(--text2)', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
             Free shipping on orders over $50
           </div>
         )}
         <div className="cart-total">
           <span>Total</span>
-          <span className="price">{fmt(total)}</span>
+          <span className="price" style={goldGradientStyle}>{fmt(total)}</span>
         </div>
 
-        <button className="cart-checkout">Proceed to Checkout</button>
+        <button className="cart-checkout" style={{
+          background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+          backgroundSize: '200% 200%',
+        }}>
+          Proceed to Checkout
+        </button>
         <button className="cart-continue" onClick={() => navigate('/shop')}>Continue Shopping</button>
 
-        <div style={{ marginTop: 32, padding: 20, border: '1px solid var(--border)', background: 'var(--surface)' }}>
+        <div style={{
+          marginTop: 32,
+          padding: 24,
+          background: 'rgba(255,255,255,0.03)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+        }}>
           <div className="label" style={{ marginBottom: 12 }}>// Member Discount</div>
-          <p style={{ font: '300 13px/1.7 DM Sans', color: 'var(--text2)' }}>
-            Members receive 10-20% off all purchases. <button onClick={() => navigate('/membership')} style={{ background: 'none', border: 'none', color: 'var(--gold)', cursor: 'pointer', font: '500 13px DM Sans', textDecoration: 'underline' }}>Join today</button>
+          <p style={{ font: '300 13px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)' }}>
+            Members receive 10-20% off all purchases. <button onClick={() => navigate('/membership')} style={{ background: 'none', border: 'none', color: 'var(--gold)', cursor: 'pointer', font: '500 13px "Plus Jakarta Sans"', textDecoration: 'underline' }}>Join today</button>
           </p>
         </div>
 

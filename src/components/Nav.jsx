@@ -66,10 +66,31 @@ export default function Nav({ cartCount, onCartClick }) {
       </nav>
 
       <div className={`mob-menu ${menuOpen ? 'open' : ''}`}>
-        {NAV_LINKS.map(({ path, label }) => (
-          <button key={path} onClick={() => go(path)}>{label}</button>
+        {NAV_LINKS.map(({ path, label }, i) => (
+          <button
+            key={path}
+            onClick={() => go(path)}
+            style={{
+              opacity: menuOpen ? 1 : 0,
+              transform: menuOpen ? 'none' : 'translateY(20px)',
+              transition: 'opacity 0.4s var(--ease), transform 0.4s var(--ease)',
+              transitionDelay: menuOpen ? `${i * 80}ms` : '0ms',
+            }}
+          >
+            {label}
+          </button>
         ))}
-        <button onClick={() => { onCartClick(); setMenuOpen(false); }}>Cart ({cartCount})</button>
+        <button
+          onClick={() => { onCartClick(); setMenuOpen(false); }}
+          style={{
+            opacity: menuOpen ? 1 : 0,
+            transform: menuOpen ? 'none' : 'translateY(20px)',
+            transition: 'opacity 0.4s var(--ease), transform 0.4s var(--ease)',
+            transitionDelay: menuOpen ? `${NAV_LINKS.length * 80}ms` : '0ms',
+          }}
+        >
+          Cart ({cartCount})
+        </button>
       </div>
     </>
   );
