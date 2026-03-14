@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { addMember, isMember } from '../admin/data/store';
+import { EditableText } from '../components/EditMode';
 
 const TIERS = [
   {
     name: 'Stargazer',
     price: '$18',
     period: 'per year',
-    desc: 'Start your journey under the dark skies. Perfect for regular visitors and astronomy enthusiasts.',
+    desc: 'Your gateway to the night sky. Perfect for regular visitors and astronomy enthusiasts.',
     benefits: [
-      'Unlimited visits to the Discovery Center',
+      'Unlimited admission to the Discovery Center',
       '10% gift shop discount',
       'Monthly dark sky newsletter',
       'Invitation to member events',
+      'Constellation enamel pin',
     ],
     featured: false,
   },
@@ -19,13 +21,15 @@ const TIERS = [
     name: 'Explorer',
     price: '$45',
     period: 'per year',
-    desc: 'For the dedicated sky-watcher who wants the full dark sky experience.',
+    desc: 'For curious minds who want the full experience.',
     benefits: [
       'Everything in Stargazer, plus:',
       'Free planetarium shows',
       '15% gift shop discount',
       'Early access to special events',
       '2 guest passes per year',
+      'Free star parties',
+      'Explorer patch',
     ],
     featured: true,
     badge: 'Most Popular',
@@ -34,14 +38,16 @@ const TIERS = [
     name: 'Guardian',
     price: '$120',
     period: 'per year',
-    desc: 'For those who want to protect the night sky for future generations.',
+    desc: 'For those who believe the night sky is worth protecting.',
     benefits: [
       'Everything in Explorer, plus:',
-      'Private star parties',
+      'Private observatory sessions',
       '20% gift shop discount',
-      'Behind-the-scenes facility tours',
+      'Behind-the-scenes tours',
       'Name on the donor wall',
-      'Exclusive Guardian-only merch',
+      'Exclusive Guardian merch',
+      'Annual meet-and-greet',
+      'Tax-deductible',
     ],
     featured: false,
   },
@@ -316,14 +322,8 @@ export default function Membership() {
       {/* Hero */}
       <div className="mem-hero" style={{ paddingBottom: 80 }}>
         <div className="label" style={{ marginBottom: 20 }}>// Membership</div>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }}>
-          More Than a <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Membership</em>
-        </h1>
-        <p style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', maxWidth: 560, margin: '0 auto' }}>
-          Join a community dedicated to preserving the wonder of the night sky.
-          Your membership supports dark sky education, conservation, and gives you
-          exclusive access to the cosmos.
-        </p>
+        <EditableText textKey="mem-hero-title" defaultText="More Than a <em style='font-style:italic;color:var(--gold)'>Membership</em>" tag="h1" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }} />
+        <EditableText textKey="mem-hero-sub" defaultText="Join a community dedicated to preserving the wonder of the night sky. Your membership supports dark sky education, conservation, and gives you exclusive access to the cosmos." tag="p" style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', maxWidth: 560, margin: '0 auto' }} />
         <div style={{ marginTop: 48, display: 'flex', gap: 40, justifyContent: 'center', flexWrap: 'wrap' }}>
           {[
             ['300+', 'Members'],
@@ -397,14 +397,25 @@ export default function Membership() {
         </div>
       </section>
 
+      {/* Value stat */}
+      <div style={{
+        padding: '48px 64px', textAlign: 'center',
+        background: 'rgba(201,169,74,0.03)', borderTop: '1px solid var(--border)',
+        borderBottom: '1px solid var(--border)',
+      }}>
+        <p style={{ font: '400 16px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '0 auto' }}>
+          At just <span style={{ color: 'var(--gold)', fontWeight: 600 }}>$2.25 per visit</span> on Explorer, membership pays for itself in two trips.
+        </p>
+      </div>
+
       {/* CTA */}
       <div className="mission">
         <div className="label" style={{ marginBottom: 24 }}>// Protect the Night</div>
         <blockquote className="mission-quote">
-          "The nitrogen in our DNA, the calcium in our teeth, the iron in our blood --
-          <em>were made in the interiors of collapsing stars.</em>"
+          "My hope is that the IDSDC will be an Arizona icon known around the world as a place that enables sky watchers of all ages to learn more about the
+          <em> observable universe.</em>"
         </blockquote>
-        <div className="mission-attr" style={{ marginBottom: 40 }}>// Carl Sagan</div>
+        <div className="mission-attr" style={{ marginBottom: 40 }}>// Joe Bill, Board President</div>
         <button className="btn-primary" style={{ marginRight: 16 }} onClick={() => setJoinModal(TIERS[1])}>Join as Explorer -- $45/yr</button>
         <button className="btn-ghost" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Compare All Tiers</button>
       </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Stars from '../components/Stars';
 import ProductCard from '../components/ProductCard';
 import { PRODUCTS } from '../data/products';
+import { EditableText, SectionWrapper, AddSectionButton, useEditMode } from '../components/EditMode';
 
 const MARQUEE_ITEMS = ['Astronomy Apparel', 'Space Gifts', 'Kids Collection', 'Observatory Merch', 'Dark Sky Membership', 'Stargazing Accessories', 'Limited Editions', 'Night Sky Prints'];
 
@@ -64,6 +65,7 @@ export default function Home({ onAddToCart }) {
   return (
     <div>
       {/* -- HERO -- */}
+      <SectionWrapper pageId="home" sectionId="Hero">
       <section className="hero" ref={heroRef}>
         <div className="hero-stars">
           <Stars count={260} className="stars-canvas" />
@@ -81,15 +83,9 @@ export default function Home({ onAddToCart }) {
         </div>
 
         <div className={`hero-content ${heroVis ? 'hero-vis' : ''}`} style={{ opacity: heroVis ? 1 : 0, transform: heroVis ? 'none' : 'translateY(30px)', transition: 'opacity 1s, transform 1s cubic-bezier(.16,1,.3,1)', transitionDelay: '0.2s' }}>
-          <div className="label hero-label" style={{ transitionDelay: '0.1s' }}>
-            // International Dark Sky Discovery Center
-          </div>
-          <h1 className="hero-h1" style={{ transitionDelay: '0.3s' }}>
-            The Night<br/><em>Sky, Yours.</em>
-          </h1>
-          <p className="hero-sub" style={{ transitionDelay: '0.45s' }}>
-            Astronomy apparel, gifts, and collectibles from the Sonoran Desert's premier dark sky sanctuary. Every purchase preserves what we hold sacred.
-          </p>
+          <EditableText textKey="home-hero-label" defaultText="// International Dark Sky Discovery Center" tag="div" className="label hero-label" style={{ transitionDelay: '0.1s' }} />
+          <EditableText textKey="home-hero-title" defaultText="The Night<br/><em>Sky, Yours.</em>" tag="h1" className="hero-h1" style={{ transitionDelay: '0.3s' }} />
+          <EditableText textKey="home-hero-sub" defaultText="Astronomy apparel, gifts, and collectibles from the International Dark Sky Discovery Center in Fountain Hills, Arizona. Every purchase supports dark sky preservation and STEM education." tag="p" className="hero-sub" style={{ transitionDelay: '0.45s' }} />
           <div className="hero-actions" style={{ transitionDelay: '0.6s' }}>
             <button className="btn-primary" onClick={() => navigate('/shop')}>Explore the Collection</button>
             <button className="btn-ghost" onClick={() => navigate('/membership')}>Become a Member</button>
@@ -101,6 +97,7 @@ export default function Home({ onAddToCart }) {
           Scroll to Discover
         </div>
       </section>
+      </SectionWrapper>
 
       {/* -- MARQUEE -- */}
       <div className="marquee-wrap">
@@ -114,10 +111,12 @@ export default function Home({ onAddToCart }) {
       </div>
 
       {/* -- FEATURED COLLECTION -- */}
+      <AddSectionButton pageId="home" insertIndex={1} />
+      <SectionWrapper pageId="home" sectionId="Featured Collection">
       <section className="section" style={{ background: 'var(--bg)' }}>
         <RevealSection className="section-header">
-          <div className="label section-label">01 -- Collection</div>
-          <h2 className="section-title">Curated for the <em>Curious</em></h2>
+          <EditableText textKey="home-featured-label" defaultText="01 -- Collection" tag="div" className="label section-label" />
+          <EditableText textKey="home-featured-title" defaultText="Curated for the <em>Curious</em>" tag="h2" className="section-title" />
         </RevealSection>
         <div className="grid">
           {featured.map((p, i) => (
@@ -134,34 +133,39 @@ export default function Home({ onAddToCart }) {
           <button className="btn-ghost" onClick={() => navigate('/shop')}>View All Products</button>
         </div>
       </section>
+      </SectionWrapper>
 
       {/* -- NEWSLETTER SIGNUP -- */}
+      <AddSectionButton pageId="home" insertIndex={2} />
+      <SectionWrapper pageId="home" sectionId="Newsletter">
       <div className="newsletter-section">
         <RevealSection>
-          <h3 className="newsletter-title">Stay Under the <em>Stars</em></h3>
-          <p className="newsletter-sub">
-            Get early access to new arrivals, exclusive offers, and stories from the dark sky frontier.
-          </p>
+          <EditableText textKey="home-newsletter-title" defaultText="Stay Under the <em>Stars</em>" tag="h3" className="newsletter-title" />
+          <EditableText textKey="home-newsletter-sub" defaultText="New products, events, and dark sky updates — straight to your inbox. No spam, just starlight." tag="p" className="newsletter-sub" />
           <form className="newsletter-form" onSubmit={e => e.preventDefault()}>
             <input type="email" className="newsletter-input" placeholder="Your email address" />
             <button type="submit" className="newsletter-btn">Subscribe</button>
           </form>
         </RevealSection>
       </div>
+      </SectionWrapper>
 
       {/* -- MISSION BAND -- */}
+      <AddSectionButton pageId="home" insertIndex={3} />
+      <SectionWrapper pageId="home" sectionId="Mission Quote">
       <div className="mission">
-        <blockquote className="mission-quote">
-          "Spend time under the stars.<br/><em>Take the night sky home.</em>"
-        </blockquote>
-        <div className="mission-attr">// International Dark Sky Discovery Center, Sonoran Desert</div>
+        <EditableText textKey="home-mission-quote" defaultText={`"My hope is that the IDSDC will be an Arizona icon known around the world as a place that enables sky watchers of all ages to learn more about the <em>observable universe.</em>"`} tag="blockquote" className="mission-quote" />
+        <EditableText textKey="home-mission-attr" defaultText="// Joe Bill, Board President" tag="div" className="mission-attr" />
       </div>
+      </SectionWrapper>
 
       {/* -- NEW ARRIVALS -- */}
+      <AddSectionButton pageId="home" insertIndex={4} />
+      <SectionWrapper pageId="home" sectionId="New Arrivals">
       <section className="section" style={{ background: 'var(--bg2)' }}>
         <RevealSection className="section-header">
-          <div className="label section-label">02 -- New Arrivals</div>
-          <h2 className="section-title">Just <em>Landed</em></h2>
+          <EditableText textKey="home-arrivals-label" defaultText="02 -- New Arrivals" tag="div" className="label section-label" />
+          <EditableText textKey="home-arrivals-title" defaultText="Just <em>Landed</em>" tag="h2" className="section-title" />
         </RevealSection>
         <div className="grid grid-4">
           {newArrivals.map((p, i) => (
@@ -169,12 +173,15 @@ export default function Home({ onAddToCart }) {
           ))}
         </div>
       </section>
+      </SectionWrapper>
 
       {/* -- CATEGORIES -- */}
+      <AddSectionButton pageId="home" insertIndex={5} />
+      <SectionWrapper pageId="home" sectionId="Categories">
       <section className="section" style={{ background: 'var(--bg)' }}>
         <RevealSection className="section-header">
-          <div className="label section-label">03 -- Shop by Category</div>
-          <h2 className="section-title">Find Your <em>Constellation</em></h2>
+          <EditableText textKey="home-cat-label" defaultText="03 -- Shop by Category" tag="div" className="label section-label" />
+          <EditableText textKey="home-cat-title" defaultText="Find Your <em>Constellation</em>" tag="h2" className="section-title" />
         </RevealSection>
         <div className="cat-cards-5">
           {['Apparel', 'Kids', 'Gifts', 'Outerwear', 'Tanks'].map((cat, i) => {
@@ -208,31 +215,37 @@ export default function Home({ onAddToCart }) {
           })}
         </div>
       </section>
+      </SectionWrapper>
 
       {/* -- TESTIMONIALS -- */}
+      <AddSectionButton pageId="home" insertIndex={6} />
+      <SectionWrapper pageId="home" sectionId="Testimonials">
       <section className="section" style={{ background: 'var(--bg2)' }}>
         <RevealSection className="section-header">
-          <div className="label section-label">04 -- Community</div>
-          <h2 className="section-title">What Our Community <em>Says</em></h2>
+          <EditableText textKey="home-test-label" defaultText="04 -- Community" tag="div" className="label section-label" />
+          <EditableText textKey="home-test-title" defaultText="What Our Community <em>Says</em>" tag="h2" className="section-title" />
         </RevealSection>
         <div className="testimonials-grid">
           {TESTIMONIALS.map((t, i) => (
             <div key={i} className="testimonial-card">
               <div className="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-              <p className="testimonial-text">"{t.text}"</p>
+              <EditableText textKey={`home-testimonial-${i}-text`} defaultText={`"${t.text}"`} tag="p" className="testimonial-text" />
               <div className="testimonial-author">
                 <div className="testimonial-avatar">{t.initials}</div>
                 <div>
-                  <div className="testimonial-name">{t.author}</div>
-                  <div className="testimonial-loc">{t.location}</div>
+                  <EditableText textKey={`home-testimonial-${i}-name`} defaultText={t.author} tag="div" className="testimonial-name" />
+                  <EditableText textKey={`home-testimonial-${i}-loc`} defaultText={t.location} tag="div" className="testimonial-loc" />
                 </div>
               </div>
             </div>
           ))}
         </div>
       </section>
+      </SectionWrapper>
 
       {/* -- TRUST BADGES -- */}
+      <AddSectionButton pageId="home" insertIndex={7} />
+      <SectionWrapper pageId="home" sectionId="Trust Badges">
       <div className="trust-row" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'var(--bg)' }}>
         <div className="trust-item">
           <div className="trust-icon">
@@ -270,18 +283,20 @@ export default function Home({ onAddToCart }) {
           <span>Dark Sky Mission</span>
         </div>
       </div>
+      </SectionWrapper>
 
       {/* -- MEMBERSHIP TEASER -- */}
+      <AddSectionButton pageId="home" insertIndex={8} />
+      <SectionWrapper pageId="home" sectionId="Membership Teaser">
       <section className="section" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.08) 0%, transparent 60%), var(--bg)', textAlign: 'center' }}>
         <RevealSection>
-          <div className="label section-label" style={{ marginBottom: 24 }}>05 -- Membership</div>
-          <h2 className="section-title" style={{ marginBottom: 20 }}>Join the <em>Observatory</em></h2>
-          <p style={{ font: '300 16px/1.8 DM Sans, sans-serif', color: 'var(--muted)', maxWidth: 480, margin: '0 auto 36px' }}>
-            Members enjoy exclusive discounts, early access to limited releases, and invitations to private stargazing events under the Sonoran sky.
-          </p>
+          <EditableText textKey="home-mem-label" defaultText="05 -- Membership" tag="div" className="label section-label" style={{ marginBottom: 24 }} />
+          <EditableText textKey="home-mem-title" defaultText="Join the <em>Observatory</em>" tag="h2" className="section-title" style={{ marginBottom: 20 }} />
+          <EditableText textKey="home-mem-desc" defaultText="Members enjoy unlimited admission, exclusive discounts up to 20%, and invitations to private observatory sessions under the darkest skies in Greater Phoenix." tag="p" style={{ font: '300 16px/1.8 DM Sans, sans-serif', color: 'var(--muted)', maxWidth: 480, margin: '0 auto 36px' }} />
           <button className="btn-primary" onClick={() => navigate('/membership')}>Explore Membership Tiers</button>
         </RevealSection>
       </section>
+      </SectionWrapper>
     </div>
   );
 }

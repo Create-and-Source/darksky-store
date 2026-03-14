@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { GLOBAL_CSS } from './styles';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
+import CartDrawer from './components/CartDrawer';
+import { EditModeProvider, EditToggleButton, EditBanner } from './components/EditMode';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
@@ -78,6 +80,10 @@ export default function App() {
     removeFromCart(cartId);
   };
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const openDrawer = useCallback(() => setDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const isAdmin = location.pathname.startsWith('/admin');
 
@@ -98,34 +104,39 @@ export default function App() {
       </Route>
     </Routes>
   ) : (
-    <div className="ds-root">
-      <Nav cartCount={cartCount} onCartClick={() => navigate('/cart')} />
+    <EditModeProvider>
+      <div className="ds-root">
+        <EditBanner />
+        <Nav cartCount={cartCount} onCartClick={openDrawer} />
 
-      <main>
-        <Routes>
-          <Route path="/" element={<Home onAddToCart={addToCart} />} />
-          <Route path="/shop" element={<Shop onAddToCart={addToCart} />} />
-          <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />
-          <Route path="/cart" element={<Cart cart={cart} onUpdate={updateQty} onRemove={removeItem} />} />
-          <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={() => clearCart()} />} />
-          <Route path="/order-confirmation" element={<OrderConfirmation />} />
-          <Route path="/membership" element={<Membership />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/field-trips" element={<FieldTrips />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={
-            <div style={{ padding: '120px 64px', textAlign: 'center' }}>
-              <div className="label" style={{ marginBottom: 24 }}>// 404</div>
-              <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 64, fontWeight: 400, marginBottom: 20, fontStyle: 'italic', color: 'var(--gold)' }}>Lost in Space</h1>
-              <p style={{ font: '300 16px DM Sans', color: 'var(--muted)', marginBottom: 36 }}>This page has drifted beyond our telescope range.</p>
-              <button className="btn-primary" onClick={() => navigate('/')}>Return Home</button>
-            </div>
-          } />
-        </Routes>
-      </main>
+        <main>
+          <Routes>
+            <Route path="/" element={<Home onAddToCart={addToCart} />} />
+            <Route path="/shop" element={<Shop onAddToCart={addToCart} />} />
+            <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />
+            <Route path="/cart" element={<Cart cart={cart} onUpdate={updateQty} onRemove={removeItem} />} />
+            <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={() => clearCart()} />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/membership" element={<Membership />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/field-trips" element={<FieldTrips />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={
+              <div style={{ padding: '120px 64px', textAlign: 'center' }}>
+                <div className="label" style={{ marginBottom: 24 }}>// 404</div>
+                <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 64, fontWeight: 400, marginBottom: 20, fontStyle: 'italic', color: 'var(--gold)' }}>Lost in Space</h1>
+                <p style={{ font: '300 16px DM Sans', color: 'var(--muted)', marginBottom: 36 }}>This page has drifted beyond our telescope range.</p>
+                <button className="btn-primary" onClick={() => navigate('/')}>Return Home</button>
+              </div>
+            } />
+          </Routes>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+        <CartDrawer open={drawerOpen} onClose={closeDrawer} cart={cart} onUpdate={updateQty} onRemove={removeItem} />
+        <EditToggleButton />
+      </div>
+    </EditModeProvider>
   );
 }

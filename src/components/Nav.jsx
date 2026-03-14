@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getAnnouncement } from '../admin/data/store';
+import { EditableText } from './EditMode';
 
 export default function Nav({ cartCount, onCartClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -42,7 +43,7 @@ export default function Nav({ cartCount, onCartClick }) {
       {/* Announcement Bar */}
       {announcement && announcement.active && announcement.text && (
         <div className="ann-bar">
-          {announcement.text}
+          <EditableText textKey="nav-announcement" defaultText="International Dark Sky Discovery Center · Opening Fall 2026 · Fountain Hills, AZ" tag="span" />
         </div>
       )}
 

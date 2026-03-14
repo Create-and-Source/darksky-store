@@ -16,7 +16,7 @@ function useReveal() {
   return ref;
 }
 
-const SUBJECTS = ['General', 'Gift Shop', 'Events', 'Membership', 'Field Trips'];
+const SUBJECTS = ['General Inquiry', 'Gift Shop', 'Events & Programs', 'Membership', 'Field Trips & Education', 'Donations & Sponsorship'];
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -115,7 +115,7 @@ export default function Contact() {
             font: '300 17px/1.8 DM Sans', color: 'var(--muted)',
             maxWidth: 480, margin: '0 auto',
           }}>
-            Have a question, idea, or just want to say hello? We'd love to hear from you.
+            Have a question about the Discovery Center, our gift shop, or upcoming events? We'd love to hear from you.
           </p>
         </div>
 
@@ -249,6 +249,16 @@ export default function Contact() {
           <div style={{ padding: '48px 36px', background: 'var(--bg2, #09091f)' }} className="contact-info-side">
             <div className="label" style={{ marginBottom: 24 }}>// Contact Info</div>
 
+            {/* Opening Note */}
+            <div style={{
+              padding: '14px 18px', marginBottom: 28,
+              background: 'rgba(201,169,74,0.06)', border: '1px solid rgba(201,169,74,0.2)',
+            }}>
+              <span style={{ font: '600 9px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>
+                Opening Fall 2026
+              </span>
+            </div>
+
             {/* Email */}
             <div style={{ marginBottom: 32 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
@@ -264,12 +274,12 @@ export default function Contact() {
                 </div>
                 <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>Email</div>
               </div>
-              <a href="mailto:hello@idarksky.org" style={{ font: '400 15px DM Sans', color: 'var(--text)', textDecoration: 'none' }}>
-                hello@idarksky.org
+              <a href="mailto:info@darkskycenter.org" style={{ font: '400 15px DM Sans', color: 'var(--text)', textDecoration: 'none' }}>
+                info@darkskycenter.org
               </a>
             </div>
 
-            {/* Phone */}
+            {/* Website */}
             <div style={{ marginBottom: 32 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                 <div style={{
@@ -278,17 +288,19 @@ export default function Contact() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                 }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
-                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10 15 15 0 014-10z"/>
+                    <path d="M2 12h20"/>
                   </svg>
                 </div>
-                <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>Phone</div>
+                <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>Website</div>
               </div>
               <span style={{ font: '400 15px DM Sans', color: 'var(--text)' }}>
-                (520) 555-0142
+                darkskycenter.org
               </span>
             </div>
 
-            {/* Address */}
+            {/* Location */}
             <div style={{ marginBottom: 32 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                 <div style={{
@@ -301,36 +313,19 @@ export default function Contact() {
                     <circle cx="12" cy="10" r="3"/>
                   </svg>
                 </div>
-                <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>Address</div>
+                <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>Location</div>
               </div>
               <span style={{ font: '400 15px/1.6 DM Sans', color: 'var(--text)' }}>
-                Sonoran Desert Observatory, AZ
+                Fountain Hills, AZ
               </span>
-            </div>
-
-            {/* Hours */}
-            <div style={{ marginBottom: 36 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                <div style={{
-                  width: 36, height: 36, background: 'rgba(201,169,74,0.08)',
-                  border: '1px solid rgba(201,169,74,0.15)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12,6 12,12 16,14"/>
-                  </svg>
-                </div>
-                <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>Hours</div>
+              <div style={{ font: '300 12px/1.6 DM Sans', color: 'var(--muted)', marginTop: 4 }}>
+                Town Center area, near Community Center, Library & River of Time Museum
               </div>
-              <span style={{ font: '400 15px/1.6 DM Sans', color: 'var(--text)' }}>
-                Wed -- Sun, 6pm -- 11pm
-              </span>
             </div>
 
             {/* Map placeholder */}
             <div style={{
-              height: 180, background: 'rgba(13,13,34,0.8)',
+              height: 200, background: 'rgba(13,13,34,0.8)',
               border: '1px solid var(--border)',
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
@@ -362,8 +357,11 @@ export default function Contact() {
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
               </div>
+              <div style={{ font: '500 11px DM Sans', color: 'var(--text)', marginBottom: 2 }}>
+                Fountain Hills, Arizona
+              </div>
               <div style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a5550' }}>
-                Sonoran Desert, AZ
+                33.6°N · 111.7°W
               </div>
             </div>
           </div>

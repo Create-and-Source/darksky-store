@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { getInventory, receiveStock, subscribe } from '../data/store';
+import { getInventory, receiveStock, subscribe, getPurchaseOrders } from '../data/store';
 import { useToast } from '../AdminLayout';
 import HelpBubble from '../components/HelpBubble';
 
@@ -35,8 +35,11 @@ export default function Receive() {
 
   const inventory = getInventory();
 
-  const searchResults = search.length >= 2
-    ? inventory.filter(i => i.name.toLowerCase().includes(search.toLowerCase()) || i.sku.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
+  const searchResults = search.length >= 1
+    ? inventory.filter(i => {
+        const q = search.toLowerCase();
+        return i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q) || (i.category && i.category.toLowerCase().includes(q)) || (i.variant && i.variant.toLowerCase().includes(q));
+      }).slice(0, 10)
     : [];
 
   const addItem = (inv) => {
@@ -134,6 +137,86 @@ export default function Receive() {
         </div>
       </div>
 
+      {/* Expected POs */}
+      {step === 1 && (() => {
+        const expectedPOs = getPurchaseOrders().filter(po =>
+          ['Shipped', 'In Production', 'Ordered'].includes(po.status)
+        );
+        if (expectedPOs.length === 0) return null;
+        return (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{
+              font: "500 13px -apple-system, BlinkMacSystemFont, sans-serif",
+              color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10,
+            }}>
+              Expected Shipments
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {expectedPOs.map(po => (
+                <button
+                  key={po.id}
+                  onClick={() => {
+                    // Pre-fill receive form with PO items
+                    setLocation('warehouse');
+                    const inv = getInventory();
+                    const matchedItems = po.items.map(poItem => {
+                      const match = inv.find(i => i.sku === poItem.sku);
+                      if (!match) return null;
+                      return { ...match, receiveQty: poItem.ordered - (poItem.received || 0) };
+                    }).filter(Boolean);
+                    if (matchedItems.length > 0) {
+                      setItems(matchedItems);
+                      setReference(po.id);
+                      setNotes(`Receiving from ${po.vendor} — ${po.notes || ''}`);
+                      setStep(3);
+                      toast(`Pre-filled from ${po.id} — review quantities`);
+                    }
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '14px 18px', background: '#FFFFFF',
+                    border: '1px solid #E2E8F0', borderRadius: 10,
+                    cursor: 'pointer', textAlign: 'left', width: '100%',
+                    transition: 'border-color 0.2s, box-shadow 0.2s',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = '#D4AF37';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(212,175,55,0.12)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = '#E2E8F0';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{
+                    width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                    background: po.status === 'Shipped' ? 'rgba(16,185,129,0.08)' : 'rgba(139,92,246,0.08)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={po.status === 'Shipped' ? '#10B981' : '#8B5CF6'} strokeWidth="1.5">
+                      <polyline points="22,12 16,12 14,15 10,15 8,12 2,12"/>
+                      <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+                    </svg>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ font: "500 14px -apple-system, BlinkMacSystemFont, sans-serif", color: '#1E293B' }}>
+                      {po.id} from {po.vendor}
+                      {po.expectedDate && <span style={{ color: '#64748B', fontWeight: 400 }}> — expected {po.expectedDate}</span>}
+                    </div>
+                    <div style={{ font: "400 13px -apple-system, BlinkMacSystemFont, sans-serif", color: '#94A3B8', marginTop: 2 }}>
+                      {po.items.length} item{po.items.length !== 1 ? 's' : ''} &middot; {po.status}
+                    </div>
+                  </div>
+                  <span style={{ font: "500 13px -apple-system, BlinkMacSystemFont, sans-serif", color: '#D4AF37', flexShrink: 0 }}>
+                    Receive &rarr;
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Stepper */}
       <div className="admin-stepper">
         {stepLabels.map((label, i) => {
@@ -184,7 +267,7 @@ export default function Receive() {
             <input
               ref={searchRef}
               className="admin-input admin-input-lg"
-              placeholder="Scan barcode or type product name / SKU..."
+              placeholder="Type a product name, SKU, or category..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               autoFocus

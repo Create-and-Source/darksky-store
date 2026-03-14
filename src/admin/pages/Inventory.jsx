@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getInventory, getMovements, adjustStock, formatPrice, getStockStatus, subscribe } from '../data/store';
+import { getInventory, getMovements, adjustStock, formatPrice, getStockStatus, subscribe, getSalesVelocity } from '../data/store';
 import { useToast } from '../AdminLayout';
 import HelpBubble from '../components/HelpBubble';
 
@@ -24,11 +24,12 @@ export default function Inventory() {
   }, []);
 
   const inventory = getInventory();
+  const velocity = getSalesVelocity();
   const categories = ['All', ...Array.from(new Set(inventory.map(i => i.category)))];
 
   const filtered = inventory.filter(item => {
     const q = search.toLowerCase();
-    const matchSearch = !q || item.name.toLowerCase().includes(q) || item.sku.toLowerCase().includes(q);
+    const matchSearch = !q || item.name.toLowerCase().includes(q) || item.sku.toLowerCase().includes(q) || (item.category && item.category.toLowerCase().includes(q)) || (item.variant && item.variant.toLowerCase().includes(q));
     if (!matchSearch) return false;
     if (locFilter === 'warehouse') return (item.warehouse || 0) > 0;
     if (locFilter === 'giftshop') return (item.giftshop || 0) > 0;
@@ -111,7 +112,7 @@ export default function Inventory() {
           <div className="admin-filter-search" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             <input
               className="admin-input"
-              placeholder="Search by product name or SKU..."
+              placeholder="Search by name, SKU, or category..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -163,6 +164,8 @@ export default function Inventory() {
                 <th>Warehouse</th>
                 <th>Gift Shop</th>
                 <th>Total</th>
+                <th>Velocity</th>
+                <th>Days Left</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -170,6 +173,8 @@ export default function Inventory() {
               {filtered.map(item => {
                 const status = getStockStatus(item);
                 const total = (item.warehouse || 0) + (item.giftshop || 0);
+                const v = velocity[item.id] || { perWeek: 0, daysLeft: null };
+                const daysColor = v.daysLeft === null ? '#94A3B8' : v.daysLeft > 30 ? '#10B981' : v.daysLeft > 7 ? '#EAB308' : '#EF4444';
                 return (
                   <tr key={item.id} className="clickable" onClick={() => { setSelected(item); setAdjusting(false); }}>
                     <td>
@@ -190,6 +195,20 @@ export default function Inventory() {
                     <td>{item.giftshop || 0}</td>
                     <td className="text-white">{total}</td>
                     <td>
+                      {v.perWeek > 0 ? (
+                        <span style={{ fontSize: 13, color: '#64748B' }}>{v.perWeek}/wk</span>
+                      ) : (
+                        <span style={{ fontSize: 13, color: '#94A3B8' }}>—</span>
+                      )}
+                    </td>
+                    <td>
+                      {v.daysLeft !== null ? (
+                        <span style={{ fontSize: 13, fontWeight: 600, color: daysColor }}>~{v.daysLeft}d</span>
+                      ) : (
+                        <span style={{ fontSize: 13, color: '#94A3B8' }}>—</span>
+                      )}
+                    </td>
+                    <td>
                       <span className={`badge ${statusClass[status]}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                         {statusLabel[status]}
                         {status === 'out' && <HelpBubble text="This item has zero units. You need to receive more or order from your vendor." />}
@@ -200,7 +219,7 @@ export default function Inventory() {
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 32 }}>No products match your search. Try a different name, SKU, or filter.</td></tr>
+                <tr><td colSpan="9" style={{ textAlign: 'center', padding: 32 }}>No products match your search. Try a different name, SKU, or filter.</td></tr>
               )}
             </tbody>
           </table>

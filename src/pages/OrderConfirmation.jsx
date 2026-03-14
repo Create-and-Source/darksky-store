@@ -148,7 +148,37 @@ export default function OrderConfirmation() {
         {/* Buttons */}
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button className="btn-primary" onClick={() => navigate('/shop')}>Continue Shopping</button>
-          <button className="btn-ghost" onClick={() => navigate('/')}>Return Home</button>
+          <button className="btn-ghost" onClick={() => navigate('/')}>Track Your Order</button>
+        </div>
+
+        {/* Membership CTA */}
+        <div style={{
+          marginTop: 48, padding: '32px 28px',
+          background: 'rgba(212,175,55,0.04)',
+          border: '1px solid rgba(212,175,55,0.2)',
+          borderRadius: 'var(--r)',
+          textAlign: 'center',
+        }}>
+          <div style={{
+            font: '500 10px JetBrains Mono', letterSpacing: '0.15em',
+            textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 12,
+          }}>// Members Save More</div>
+          <h3 style={{
+            fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400,
+            marginBottom: 10,
+          }}>
+            Become a <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>member</em>
+          </h3>
+          <p style={{ font: '300 14px/1.7 DM Sans', color: 'var(--muted)', marginBottom: 20, maxWidth: 360, margin: '0 auto 20px' }}>
+            Get 10–20% off every purchase, early access to events, and support dark sky preservation.
+          </p>
+          <button
+            className="btn-primary"
+            onClick={() => navigate('/membership')}
+            style={{ padding: '12px 32px' }}
+          >
+            Learn About Membership
+          </button>
         </div>
       </div>
 

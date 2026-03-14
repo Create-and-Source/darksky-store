@@ -1,4 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
+import { FEATURES } from '../data/helpKnowledge';
+
+// ── TOOLTIP LOOKUP ──
+// Pull tooltip text from helpKnowledge.js by feature.tooltipKey
+// Usage: <HelpBubble feature="inventory" tooltipKey="search" />
+// Falls back to inline `text` prop if feature/key not found
+function resolveTooltipText(text, feature, tooltipKey) {
+  if (feature && tooltipKey && FEATURES[feature]?.tooltips?.[tooltipKey]) {
+    return FEATURES[feature].tooltips[tooltipKey];
+  }
+  return text || '';
+}
 
 const S = {
   wrap: { position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 6 },
@@ -39,10 +51,12 @@ const S = {
   },
 };
 
-export default function HelpBubble({ text, pos = 'below' }) {
+export default function HelpBubble({ text, feature, tooltipKey, pos = 'below' }) {
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
   const ref = useRef(null);
+
+  const resolvedText = resolveTooltipText(text, feature, tooltipKey);
 
   useEffect(() => {
     if (!open) return;
@@ -50,6 +64,8 @@ export default function HelpBubble({ text, pos = 'below' }) {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
+
+  if (!resolvedText) return null;
 
   return (
     <span style={S.wrap} ref={ref}>
@@ -64,7 +80,7 @@ export default function HelpBubble({ text, pos = 'below' }) {
       {open && (
         <div style={S.tooltip(pos)}>
           <div style={S.arrow(pos)} />
-          <p style={S.text}>{text}</p>
+          <p style={S.text}>{resolvedText}</p>
           <button style={S.dismiss} onClick={() => setOpen(false)}>Got it</button>
         </div>
       )}
@@ -74,11 +90,12 @@ export default function HelpBubble({ text, pos = 'below' }) {
 }
 
 // Convenience: label with help
-export function LabelWithHelp({ children, help, htmlFor, style = {} }) {
+export function LabelWithHelp({ children, help, feature, tooltipKey, htmlFor, style = {} }) {
+  const resolvedHelp = resolveTooltipText(help, feature, tooltipKey);
   return (
     <label htmlFor={htmlFor} style={{ display: 'flex', alignItems: 'center', ...style }}>
       {children}
-      {help && <HelpBubble text={help} />}
+      {resolvedHelp && <HelpBubble text={resolvedHelp} />}
     </label>
   );
 }

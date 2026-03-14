@@ -6,6 +6,7 @@ import {
   getOrders, getInventory, getMembers, getEvents,
   getStockStatus, formatPrice, subscribe,
   getPurchaseOrders, getTransfers,
+  getSmartTransferSuggestions, getPredictiveAlerts, addTransfer, addPurchaseOrder,
 } from '../data/store';
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -242,6 +243,12 @@ export default function Dashboard() {
     });
   }
 
+  // Smart Transfer suggestions
+  const transferSuggestions = getSmartTransferSuggestions();
+
+  // Predictive alerts
+  const predictiveAlerts = getPredictiveAlerts();
+
   const cardStyle = {
     background: '#FFFFFF',
     border: '1px solid #E2E8F0',
@@ -317,6 +324,133 @@ export default function Dashboard() {
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Predictive Alerts */}
+      {predictiveAlerts.length > 0 && (
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+            <h2 style={{ font: `600 18px ${FONT}`, color: '#1E293B', margin: 0 }}>
+              Predictive Alerts
+            </h2>
+            <HelpBubble text="Based on recent sales velocity, these items are projected to run out soon." />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {predictiveAlerts.slice(0, 4).map(item => (
+              <div key={item.id} style={{
+                ...cardStyle,
+                borderLeft: '4px solid #F59E0B',
+                display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+              }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                  background: 'rgba(245,158,11,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.5">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                  </svg>
+                </div>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ font: `600 14px ${FONT}`, color: '#1E293B', marginBottom: 2 }}>
+                    {item.name} ({item.variant})
+                  </div>
+                  <div style={{ font: `400 13px ${FONT}`, color: '#64748B' }}>
+                    Will be out of stock in ~{item.velocity.daysLeft} days at {item.velocity.perWeek}/week. {(item.warehouse || 0) + (item.giftshop || 0)} units remaining.
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    addPurchaseOrder({
+                      vendor: 'Printify',
+                      status: 'Draft',
+                      items: [{ name: item.name, sku: item.sku, variant: item.variant, ordered: item.suggestedQty || 24, received: 0, price: Math.round(item.price * 0.5) }],
+                      expectedDate: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
+                      notes: `Auto-draft: ${item.name} predicted out of stock in ${item.velocity.daysLeft} days`,
+                      total: (item.suggestedQty || 24) * Math.round(item.price * 0.5),
+                    });
+                    addToast('Draft PO created for ' + item.name);
+                  }}
+                  style={{
+                    height: 40, padding: '0 16px', background: '#FEF3C7', color: '#92400E',
+                    border: '1px solid #FDE68A', borderRadius: 8,
+                    font: `500 13px ${FONT}`, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                  }}
+                >
+                  Create Draft PO
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Smart Transfers */}
+      {transferSuggestions.length > 0 && (
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+            <h2 style={{ font: `600 18px ${FONT}`, color: '#1E293B', margin: 0 }}>
+              Smart Transfers
+            </h2>
+            <HelpBubble text="Items that are running low at the gift shop but are available in the warehouse." />
+          </div>
+          <div style={{
+            ...cardStyle,
+            borderLeft: '4px solid #10B981',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                background: 'rgba(16,185,129,0.08)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <IconTransferSmall />
+              </div>
+              <div>
+                <div style={{ font: `600 15px ${FONT}`, color: '#1E293B' }}>
+                  Gift shop is running low on {transferSuggestions.length} item{transferSuggestions.length !== 1 ? 's' : ''} that the warehouse has in stock
+                </div>
+                <div style={{ font: `400 13px ${FONT}`, color: '#64748B' }}>
+                  Create a transfer to restock the gift shop
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
+              {transferSuggestions.slice(0, 6).map(s => (
+                <span key={s.id} style={{
+                  display: 'inline-block', padding: '4px 10px', borderRadius: 6,
+                  background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)',
+                  font: `400 13px ${FONT}`, color: '#1E293B',
+                }}>
+                  {s.name} ({s.variant}) — GS: {s.giftshop}, WH: {s.warehouse}
+                </span>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                addTransfer({
+                  from: 'C&S Warehouse',
+                  to: 'Dark Sky Gift Shop',
+                  items: transferSuggestions.slice(0, 10).map(s => ({
+                    name: s.name, sku: s.sku, qty: s.suggestedQty,
+                  })),
+                  createdBy: 'Tovah',
+                  notes: 'Auto-suggested transfer for low gift shop stock',
+                });
+                addToast(`Transfer created with ${Math.min(transferSuggestions.length, 10)} items`);
+              }}
+              style={{
+                height: 44, padding: '0 20px', background: '#1E293B', color: '#FFFFFF',
+                border: 'none', borderRadius: 8,
+                font: `600 14px ${FONT}`, cursor: 'pointer',
+              }}
+              onMouseEnter={e => { e.target.style.background = '#334155'; }}
+              onMouseLeave={e => { e.target.style.background = '#1E293B'; }}
+            >
+              Create Transfer
+            </button>
           </div>
         </div>
       )}

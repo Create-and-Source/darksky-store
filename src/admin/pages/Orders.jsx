@@ -29,7 +29,7 @@ export default function Orders() {
     if (channelFilter !== 'All' && o.channel !== channelFilter) return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!o.id.toLowerCase().includes(q) && !o.customer.toLowerCase().includes(q)) return false;
+      if (!o.id.toLowerCase().includes(q) && !o.customer.toLowerCase().includes(q) && !(o.email && o.email.toLowerCase().includes(q))) return false;
     }
     return true;
   });
@@ -79,7 +79,7 @@ export default function Orders() {
           <div className="admin-filter-search" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             <input
               className="admin-input"
-              placeholder="Search by order ID or customer..."
+              placeholder="Search by order ID, customer, or email..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />

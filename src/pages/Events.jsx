@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { getEvents, addReservation, formatPrice } from '../admin/data/store';
+import { EditableText } from '../components/EditMode';
 
 const CATEGORIES = ['All', 'Star Party', 'Planetarium', 'Workshop', 'Special Event'];
 
@@ -510,18 +511,14 @@ export default function Events() {
       }} className="evt-hero">
         <div ref={heroRef} className="reveal" style={{ position: 'relative', zIndex: 2 }}>
           <div className="label" style={{ marginBottom: 20 }}>// Events & Programs</div>
-          <h1 style={{
+          <EditableText textKey="events-hero-title" defaultText="Experience the<br /><em style='font-style:italic;color:var(--gold)'>Night Sky</em>" tag="h1" style={{
             fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 7vw, 88px)',
             fontWeight: 400, lineHeight: 0.95, marginBottom: 24, letterSpacing: '-0.02em',
-          }}>
-            Experience the<br /><em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Night Sky</em>
-          </h1>
-          <p style={{
+          }} />
+          <EditableText textKey="events-hero-sub" defaultText="Star parties, planetarium shows, workshops, and celestial events -- all under some of the darkest skies in North America." tag="p" style={{
             font: '300 17px/1.8 DM Sans', color: 'var(--muted)',
             maxWidth: 520, margin: '0 auto',
-          }}>
-            Star parties, planetarium shows, workshops, and celestial events -- all under some of the darkest skies in North America.
-          </p>
+          }} />
         </div>
 
         {/* Decorative stars */}

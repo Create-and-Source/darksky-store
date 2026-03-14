@@ -47,7 +47,7 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.members)) set(KEYS.members, DEFAULT_MEMBERS);
   if (!localStorage.getItem(KEYS.inquiries)) set(KEYS.inquiries, []);
   if (!localStorage.getItem(KEYS.contacts)) set(KEYS.contacts, []);
-  if (!localStorage.getItem(KEYS.announcement)) set(KEYS.announcement, { text: 'Grand Opening Fall 2026 — Become a Founding Member Today', active: true });
+  if (!localStorage.getItem(KEYS.announcement)) set(KEYS.announcement, { text: 'International Dark Sky Discovery Center · Opening Fall 2026 · Fountain Hills, AZ', active: true });
   if (!localStorage.getItem(KEYS.ticketReservations)) set(KEYS.ticketReservations, []);
   if (!localStorage.getItem(KEYS.movementHistory)) set(KEYS.movementHistory, DEFAULT_MOVEMENTS);
 }
@@ -326,6 +326,89 @@ export const getStockStatus = (item) => {
   if (total <= (item.reorderPoint || 5)) return 'low';
   return 'in';
 };
+
+// ═══════ SALES VELOCITY ═══════
+// Calculate weekly sales rate per inventory item from order history
+export function getSalesVelocity() {
+  const orders = getOrders();
+  const inventory = getInventory();
+  if (orders.length === 0) return {};
+
+  // Find date range of orders
+  const dates = orders.map(o => o.date).filter(Boolean).sort();
+  const earliest = new Date(dates[0] + 'T00:00:00');
+  const latest = new Date(dates[dates.length - 1] + 'T23:59:59');
+  const weeks = Math.max(1, (latest - earliest) / (7 * 86400000));
+
+  // Aggregate qty sold per product name+variant
+  const sold = {};
+  orders.forEach(o => {
+    (o.items || []).forEach(item => {
+      const key = `${item.name}||${item.variant}`;
+      sold[key] = (sold[key] || 0) + (item.qty || 0);
+    });
+  });
+
+  // Map to inventory items
+  const velocity = {};
+  inventory.forEach(inv => {
+    const key = `${inv.name}||${inv.variant}`;
+    const totalSold = sold[key] || 0;
+    const perWeek = totalSold / weeks;
+    const totalStock = (inv.warehouse || 0) + (inv.giftshop || 0);
+    const daysLeft = perWeek > 0 ? Math.round((totalStock / perWeek) * 7) : null;
+    velocity[inv.id] = { perWeek: Math.round(perWeek * 10) / 10, totalSold, daysLeft };
+  });
+  return velocity;
+}
+
+// ═══════ SMART REORDER SUGGESTIONS ═══════
+// Items at or below reorder point that don't have an active PO
+export function getReorderSuggestions() {
+  const inventory = getInventory();
+  const pos = getPurchaseOrders();
+  const activePOSkus = new Set();
+  pos.filter(po => ['Draft', 'Ordered', 'In Production', 'Shipped'].includes(po.status))
+    .forEach(po => po.items.forEach(i => activePOSkus.add(i.sku)));
+
+  const velocity = getSalesVelocity();
+  return inventory.filter(item => {
+    const status = getStockStatus(item);
+    return (status === 'low' || status === 'out') && !activePOSkus.has(item.sku);
+  }).map(item => ({
+    ...item,
+    velocity: velocity[item.id] || { perWeek: 0, totalSold: 0, daysLeft: null },
+    suggestedQty: Math.max(12, (item.reorderPoint || 5) * 3),
+  }));
+}
+
+// ═══════ SMART TRANSFERS ═══════
+// Gift shop items running low that warehouse has in stock
+export function getSmartTransferSuggestions() {
+  const inventory = getInventory();
+  return inventory.filter(item => {
+    const gsStock = item.giftshop || 0;
+    const whStock = item.warehouse || 0;
+    return gsStock <= Math.ceil((item.reorderPoint || 5) / 2) && whStock >= 5;
+  }).map(item => ({
+    ...item,
+    suggestedQty: Math.min(item.warehouse, Math.max(5, (item.reorderPoint || 5))),
+  }));
+}
+
+// ═══════ PREDICTIVE ALERTS ═══════
+// Items predicted to run out within 14 days
+export function getPredictiveAlerts() {
+  const inventory = getInventory();
+  const velocity = getSalesVelocity();
+  return inventory.filter(item => {
+    const v = velocity[item.id];
+    return v && v.daysLeft !== null && v.daysLeft <= 14 && v.daysLeft > 0 && v.perWeek > 0;
+  }).map(item => ({
+    ...item,
+    velocity: velocity[item.id],
+  })).sort((a, b) => a.velocity.daysLeft - b.velocity.daysLeft);
+}
 
 // ═══════ DASHBOARD STATS ═══════
 export function getDashboardStats() {

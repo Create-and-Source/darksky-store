@@ -25,8 +25,11 @@ export default function Transfers() {
   const transfers = getTransfers();
   const inventory = getInventory();
 
-  const searchResults = search.length >= 2
-    ? inventory.filter(i => i.name.toLowerCase().includes(search.toLowerCase()) || i.sku.toLowerCase().includes(search.toLowerCase())).slice(0, 6)
+  const searchResults = search.length >= 1
+    ? inventory.filter(i => {
+        const q = search.toLowerCase();
+        return i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q) || (i.category && i.category.toLowerCase().includes(q)) || (i.variant && i.variant.toLowerCase().includes(q));
+      }).slice(0, 8)
     : [];
 
   const addToTransfer = (inv) => {

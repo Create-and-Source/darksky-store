@@ -452,7 +452,7 @@ body::before {
 }
 
 /* -- PRODUCT DETAIL -- */
-.pd { display: grid; grid-template-columns: 55% 45%; min-height: 100vh; }
+.pd { display: grid; grid-template-columns: 60% 40%; min-height: 100vh; }
 .pd-gallery { position: sticky; top: 72px; height: calc(100vh - 72px); overflow: hidden; }
 .pd-main-img { width: 100%; height: 75%; object-fit: cover; display: block; background: #E8E4DC; }
 .pd-thumbs { display: flex; gap: 2px; height: 25%; }

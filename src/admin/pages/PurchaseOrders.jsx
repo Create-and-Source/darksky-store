@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getPurchaseOrders, addPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, getInventory, VENDORS, formatPrice, subscribe } from '../data/store';
+import { getPurchaseOrders, addPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, getInventory, VENDORS, formatPrice, subscribe, getReorderSuggestions } from '../data/store';
 import { useToast } from '../AdminLayout';
 import Wizard from '../components/Wizard';
 import HelpBubble, { LabelWithHelp } from '../components/HelpBubble';
@@ -53,8 +53,11 @@ export default function PurchaseOrders() {
   const pos = getPurchaseOrders();
   const inventory = getInventory();
 
-  const searchResults = search.length >= 2
-    ? inventory.filter(i => i.name.toLowerCase().includes(search.toLowerCase()) || i.sku.toLowerCase().includes(search.toLowerCase())).slice(0, 6)
+  const searchResults = search.length >= 1
+    ? inventory.filter(i => {
+        const q = search.toLowerCase();
+        return i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q) || (i.category && i.category.toLowerCase().includes(q)) || (i.variant && i.variant.toLowerCase().includes(q));
+      }).slice(0, 8)
     : [];
 
   const addToPO = (inv) => {
@@ -180,7 +183,7 @@ export default function PurchaseOrders() {
           </LabelWithHelp>
           <input
             style={{ ...inputStyle, marginBottom: 8 }}
-            placeholder="Search products by name or SKU..."
+            placeholder="Search by name, SKU, or category..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -382,6 +385,67 @@ export default function PurchaseOrders() {
           + New Purchase Order
         </button>
       </div>
+
+      {/* Smart Reorder Suggestion */}
+      {(() => {
+        const suggestions = getReorderSuggestions();
+        if (suggestions.length === 0) return null;
+        return (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(212,175,55,0.08), rgba(212,175,55,0.03))',
+            border: '1px solid rgba(212,175,55,0.3)',
+            borderRadius: 12, padding: 20, marginBottom: 24,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+              </svg>
+              <span style={{ font: "600 15px -apple-system, BlinkMacSystemFont, sans-serif", color: '#D4AF37' }}>
+                Smart Reorder Suggestion
+              </span>
+            </div>
+            <p style={{ font: "400 14px -apple-system, BlinkMacSystemFont, sans-serif", color: '#64748B', margin: '0 0 12px' }}>
+              {suggestions.length} item{suggestions.length !== 1 ? 's are' : ' is'} at or below reorder point with no active PO:
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+              {suggestions.slice(0, 5).map(s => (
+                <span key={s.id} style={{
+                  display: 'inline-block', padding: '4px 10px', borderRadius: 6,
+                  background: 'rgba(212,175,55,0.1)', font: "400 13px -apple-system, BlinkMacSystemFont, sans-serif",
+                  color: '#1E293B',
+                }}>
+                  {s.name} ({s.variant}) — {(s.warehouse || 0) + (s.giftshop || 0)} left
+                </span>
+              ))}
+              {suggestions.length > 5 && (
+                <span style={{ padding: '4px 10px', font: "400 13px -apple-system, BlinkMacSystemFont, sans-serif", color: '#94A3B8' }}>
+                  +{suggestions.length - 5} more
+                </span>
+              )}
+            </div>
+            <button
+              className="admin-btn admin-btn-gold"
+              style={{ height: 40 }}
+              onClick={() => {
+                setForm({
+                  vendor: 'printify',
+                  items: suggestions.slice(0, 8).map(s => ({
+                    ...s,
+                    orderQty: s.suggestedQty,
+                    unitCost: Math.round(s.price * 0.5),
+                  })),
+                  expectedDate: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
+                  notes: 'Auto-suggested reorder for low stock items',
+                });
+                setCreating(true);
+              }}
+            >
+              Review & Send
+            </button>
+          </div>
+        );
+      })()}
 
       {/* PO Cards / Table */}
       {pos.length === 0 ? (

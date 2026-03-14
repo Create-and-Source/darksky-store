@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { EditableText } from './EditMode';
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -19,9 +20,7 @@ export default function Footer() {
     <>
       {/* Newsletter Row */}
       <div className="footer-newsletter">
-        <div className="footer-newsletter-text">
-          Stay Under the <em>Stars</em>
-        </div>
+        <EditableText textKey="footer-newsletter-text" defaultText="Stay Under the <em>Stars</em>" tag="div" className="footer-newsletter-text" />
         <form className="footer-newsletter-form" onSubmit={handleSubscribe}>
           <input
             type="email"
@@ -41,10 +40,8 @@ export default function Footer() {
       <footer className="footer">
         {/* Column 1: Brand */}
         <div>
-          <div className="footer-brand-name">Dark Sky</div>
-          <p className="footer-tagline">
-            Every purchase supports dark sky preservation and science education in the Sonoran Desert.
-          </p>
+          <EditableText textKey="footer-brand" defaultText="Dark Sky" tag="div" className="footer-brand-name" />
+          <EditableText textKey="footer-tagline" defaultText="Every purchase supports dark sky preservation and STEM education at the International Dark Sky Discovery Center in Fountain Hills, Arizona." tag="p" className="footer-tagline" />
           <div className="footer-social">
             <a className="footer-social-link" href="#" aria-label="Instagram">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -66,36 +63,35 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Column 2: Shop */}
-        <div>
-          <div className="footer-col-title">Shop</div>
-          <div className="footer-links">
-            <button onClick={() => navigate('/shop')}>All Products</button>
-            <button onClick={() => navigate('/shop?sort=newest')}>New Arrivals</button>
-            <button onClick={() => navigate('/shop')}>Best Sellers</button>
-            <button onClick={() => navigate('/shop')}>Gift Cards</button>
-          </div>
-        </div>
-
-        {/* Column 3: About */}
+        {/* Column 2: About */}
         <div>
           <div className="footer-col-title">About</div>
           <div className="footer-links">
             <button onClick={() => navigate('/about')}>Our Mission</button>
-            <button onClick={() => navigate('/contact')}>Visit Us</button>
-            <button onClick={() => navigate('/events')}>Events</button>
-            <button onClick={() => navigate('/membership')}>Membership</button>
+            <button onClick={() => navigate('/about')}>Team</button>
+            <button onClick={() => navigate('/about')}>Partners</button>
+            <button onClick={() => navigate('/contact')}>Contact</button>
           </div>
         </div>
 
-        {/* Column 4: Contact */}
+        {/* Column 3: Programs */}
         <div>
-          <div className="footer-col-title">Contact</div>
+          <div className="footer-col-title">Programs</div>
           <div className="footer-links">
-            <a href="mailto:hello@idarksky.org">hello@idarksky.org</a>
-            <a href="tel:+15205551234">(520) 555-1234</a>
-            <span style={{ font: '300 13px DM Sans', color: 'var(--muted)' }}>Sonoran Desert, AZ</span>
-            <span style={{ font: '300 13px DM Sans', color: 'var(--muted)' }}>Wed-Sun, 6pm-11pm</span>
+            <button onClick={() => navigate('/events')}>Events</button>
+            <button onClick={() => navigate('/membership')}>Membership</button>
+            <button onClick={() => navigate('/field-trips')}>Field Trips</button>
+            <button onClick={() => navigate('/about')}>Education</button>
+          </div>
+        </div>
+
+        {/* Column 4: Shop */}
+        <div>
+          <div className="footer-col-title">Shop</div>
+          <div className="footer-links">
+            <button onClick={() => navigate('/shop')}>Gift Shop</button>
+            <button onClick={() => navigate('/shop?sort=newest')}>New Arrivals</button>
+            <button onClick={() => navigate('/shop')}>Best Sellers</button>
           </div>
         </div>
       </footer>

@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { EditableText, SectionWrapper } from '../components/EditMode';
 
 function useReveal() {
   const ref = useRef(null);
@@ -16,18 +18,71 @@ function useReveal() {
 }
 
 const TEAM = [
-  { name: 'Saleem', role: 'Director', initials: 'S', color: 'rgba(201,169,74,0.15)' },
-  { name: 'Tovah', role: 'Gift Shop Manager', initials: 'T', color: 'rgba(139,92,246,0.15)' },
-  { name: 'Nancy', role: 'Events Coordinator', initials: 'N', color: 'rgba(34,211,238,0.15)' },
-  { name: 'Josie', role: 'Gift Shop Associate', initials: 'J', color: 'rgba(251,146,60,0.15)' },
+  { name: 'Kari Carlisle', role: 'Executive Director', initials: 'KC', color: 'rgba(201,169,74,0.15)' },
+  { name: 'Dr. Dania Wright', role: 'Education Director', initials: 'DW', color: 'rgba(139,92,246,0.15)' },
+  { name: 'Michael Weber', role: 'Visitor Services Manager', initials: 'MW', color: 'rgba(34,211,238,0.15)' },
+  { name: 'Joe Bill', role: 'Board President', initials: 'JB', color: 'rgba(251,146,60,0.15)' },
+];
+
+const COMPONENTS = [
+  {
+    name: 'Dark Sky Observatory',
+    desc: 'Home to the largest telescope in Greater Phoenix — a 27.5-inch PlaneWave CDK700. Research-grade optics for public viewing, citizen science, and university partnerships.',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10 15 15 0 014-10z"/>
+        <path d="M2 12h20"/>
+      </svg>
+    ),
+  },
+  {
+    name: 'Hyperspace Planetarium',
+    desc: '65-seat immersive dome theater with a 39-foot diameter. Full-dome digital projection for astronomy shows, live sky tours, and educational programming.',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    ),
+  },
+  {
+    name: 'Inspiration Theater',
+    desc: '150-seat multi-use space for lectures, film screenings, community events, and visiting speakers from NASA, ASU, and international research institutions.',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+    ),
+  },
+  {
+    name: 'Night Sky Experience',
+    desc: '3,300 sq ft interactive exhibit hall exploring light pollution, celestial navigation, the electromagnetic spectrum, and humanity\'s relationship with the cosmos.',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+      </svg>
+    ),
+  },
+];
+
+const PARTNERS = [
+  'Arizona State University',
+  'Town of Fountain Hills',
+  'McCarthy Building Companies',
+  'SWABACK Architecture',
+  'State of Arizona',
 ];
 
 export default function About() {
+  const navigate = useNavigate();
   const heroRef = useReveal();
-  const missionRef = useReveal();
+  const storyRef = useReveal();
+  const componentsRef = useReveal();
+  const pillarsRef = useReveal();
   const teamRef = useReveal();
-  const visionRef = useReveal();
-  const locationRef = useReveal();
+  const communityRef = useReveal();
+  const partnersRef = useReveal();
+  const supportRef = useReveal();
 
   return (
     <div>
@@ -39,18 +94,14 @@ export default function About() {
       }} className="about-hero">
         <div ref={heroRef} className="reveal" style={{ position: 'relative', zIndex: 2 }}>
           <div className="label" style={{ marginBottom: 20 }}>// About Us</div>
-          <h1 style={{
+          <EditableText textKey="about-hero-title" defaultText="About the<br /><em style='font-style:italic;color:var(--gold)'>Discovery Center</em>" tag="h1" style={{
             fontFamily: 'Playfair Display, serif', fontSize: 'clamp(40px, 7vw, 80px)',
             fontWeight: 400, lineHeight: 0.95, marginBottom: 24, letterSpacing: '-0.02em',
-          }}>
-            About the<br /><em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Discovery Center</em>
-          </h1>
-          <p style={{
+          }} />
+          <EditableText textKey="about-hero-sub" defaultText="A 501(c)(3) nonprofit dedicated to establishing and operating a world-class STEM education center in Fountain Hills, Arizona." tag="p" style={{
             font: '300 18px/1.8 DM Sans', color: 'var(--muted)',
             maxWidth: 560, margin: '0 auto 36px',
-          }}>
-            A world-class facility dedicated to celebrating, studying, and preserving the night sky for future generations.
-          </p>
+          }} />
 
           {/* Opening badge */}
           <div style={{
@@ -81,13 +132,13 @@ export default function About() {
         ))}
       </div>
 
-      {/* Mission */}
+      {/* Our Story */}
       <section className="section">
-        <div ref={missionRef} className="reveal" style={{ maxWidth: 800, margin: '0 auto' }}>
+        <div ref={storyRef} className="reveal" style={{ maxWidth: 800, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div className="label" style={{ marginBottom: 16 }}>// Our Mission</div>
+            <div className="label" style={{ marginBottom: 16 }}>// Our Story</div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.15 }}>
-              Preserving the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Night Sky</em>
+              From Dark Skies to <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Discovery</em>
             </h2>
           </div>
 
@@ -97,18 +148,18 @@ export default function About() {
           }} className="about-mission-grid">
             <div>
               <p style={{ font: '300 15px/1.9 DM Sans', color: 'var(--muted)', marginBottom: 20 }}>
-                The International Dark Sky Discovery Center is a nonprofit institution located in the heart of the Sonoran Desert, Arizona -- one of the last remaining regions in North America with truly pristine dark skies.
+                It started with a simple question from passionate Fountain Hills residents: "How can we protect the unique dark skies we have here?" That question sparked a movement that would transform a small Arizona community into a world-class destination for astronomy and science education.
               </p>
               <p style={{ font: '300 15px/1.9 DM Sans', color: 'var(--muted)' }}>
-                Our mission is to inspire wonder, advance scientific understanding, and protect the natural darkness that is essential to both human health and ecological balance. Through immersive exhibits, educational programs, and community engagement, we connect people with the cosmos.
+                In January 2018, Fountain Hills was certified as the world's 17th International Dark Sky Community — a recognition of the town's exceptional night skies and commitment to preserving them for future generations.
               </p>
             </div>
             <div>
               <p style={{ font: '300 15px/1.9 DM Sans', color: 'var(--muted)', marginBottom: 20 }}>
-                Light pollution affects more than 80% of the world's population. We believe that access to the night sky is a fundamental right -- one that enriches our culture, inspires scientific discovery, and reminds us of our place in the universe.
+                Ground was broken on April 8, 2024 — during a total solar eclipse — marking the beginning of construction on a 22,000-square-foot facility that will house an observatory, planetarium, theater, and interactive exhibit hall.
               </p>
               <p style={{ font: '300 15px/1.9 DM Sans', color: 'var(--muted)' }}>
-                Every visit, every membership, and every purchase at our gift shop directly supports dark sky preservation, light pollution advocacy, and STEM education for the next generation of astronomers and environmental stewards.
+                When it opens in Fall 2026, the International Dark Sky Discovery Center will be the premier dark sky destination in the American Southwest, with 5 million people living within a 30-minute drive.
               </p>
             </div>
           </div>
@@ -119,10 +170,10 @@ export default function About() {
             borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)',
           }}>
             {[
-              ['40,000+', 'Sq Ft Facility'],
-              ['16"', 'Research Telescope'],
-              ['K-12', 'Education Programs'],
-              ['501(c)(3)', 'Nonprofit Status'],
+              ['22,000', 'Sq Ft Facility'],
+              ['27.5"', 'PlaneWave CDK700'],
+              ['65', 'Seat Planetarium'],
+              ['501(c)(3)', 'Nonprofit'],
             ].map(([num, label]) => (
               <div key={label} style={{
                 flex: 1, padding: '32px 24px', textAlign: 'center',
@@ -130,6 +181,110 @@ export default function About() {
               }}>
                 <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, color: 'var(--gold)', fontStyle: 'italic', marginBottom: 6 }}>{num}</div>
                 <div style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Four Components */}
+      <section style={{
+        padding: '100px 64px',
+        background: 'var(--bg2, #09091f)',
+        borderTop: '1px solid var(--border)',
+        borderBottom: '1px solid var(--border)',
+      }} className="about-team-section">
+        <div ref={componentsRef} className="reveal" style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div className="label" style={{ marginBottom: 16 }}>// The Facility</div>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.1 }}>
+              Four Worlds of <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Discovery</em>
+            </h2>
+          </div>
+
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 0,
+            borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)',
+          }} className="about-team-grid">
+            {COMPONENTS.map(comp => (
+              <div key={comp.name} style={{
+                padding: '40px 32px',
+                borderRight: '1px solid var(--border)',
+                borderBottom: '1px solid var(--border)',
+                transition: 'background 0.3s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,169,74,0.02)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <div style={{
+                  width: 56, height: 56, borderRadius: '50%',
+                  background: 'rgba(201,169,74,0.08)', border: '1px solid rgba(201,169,74,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 20,
+                }}>
+                  {comp.icon}
+                </div>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 400, color: 'var(--text)', marginBottom: 10 }}>
+                  {comp.name}
+                </div>
+                <p style={{ font: '300 13px/1.75 DM Sans', color: 'var(--muted)' }}>
+                  {comp.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Three Pillars */}
+      <section className="section">
+        <div ref={pillarsRef} className="reveal" style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div className="label" style={{ marginBottom: 16 }}>// Our Mission</div>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.15 }}>
+              Three <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Pillars</em>
+            </h2>
+          </div>
+
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0,
+            borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)',
+          }} className="about-pillars-grid">
+            {[
+              {
+                title: 'Astronomy Education',
+                desc: 'K-12 STEM programs, university partnerships with ASU, public lectures, planetarium shows, and hands-on workshops that connect people of all ages with the cosmos.',
+                num: '01',
+              },
+              {
+                title: 'Research',
+                desc: 'The 27.5-inch PlaneWave CDK700 — the largest telescope in Greater Phoenix — enables citizen science, university research, and real astronomical discovery.',
+                num: '02',
+              },
+              {
+                title: 'Dark Sky Preservation',
+                desc: 'Advocating for responsible lighting policies that protect human health, wildlife habitats, and the sustainability of our night environment for future generations.',
+                num: '03',
+              },
+            ].map(pillar => (
+              <div key={pillar.title} style={{
+                padding: '48px 32px',
+                borderRight: '1px solid var(--border)',
+                borderBottom: '1px solid var(--border)',
+                transition: 'background 0.3s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,169,74,0.02)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <div style={{ font: '600 10px JetBrains Mono', letterSpacing: '0.18em', color: 'var(--gold)', marginBottom: 20 }}>
+                  {pillar.num}
+                </div>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, color: 'var(--text)', marginBottom: 14 }}>
+                  {pillar.title}
+                </div>
+                <p style={{ font: '300 14px/1.8 DM Sans', color: 'var(--muted)' }}>
+                  {pillar.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -145,12 +300,12 @@ export default function About() {
       }} className="about-team-section">
         <div ref={teamRef} className="reveal" style={{ maxWidth: 900, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <div className="label" style={{ marginBottom: 16 }}>// Our Team</div>
+            <div className="label" style={{ marginBottom: 16 }}>// Leadership</div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.1 }}>
               The People Behind <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Dark Sky</em>
             </h2>
             <p style={{ font: '300 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '16px auto 0' }}>
-              A small, passionate team dedicated to bringing the cosmos closer to everyone.
+              A dedicated team building the premier dark sky destination in the American Southwest.
             </p>
           </div>
 
@@ -173,12 +328,12 @@ export default function About() {
                   background: person.color, border: '1px solid rgba(201,169,74,0.15)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 20px',
-                  font: '400 28px Playfair Display, serif', fontStyle: 'italic',
+                  font: '400 24px Playfair Display, serif', fontStyle: 'italic',
                   color: 'var(--gold)',
                 }}>
                   {person.initials}
                 </div>
-                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 400, color: 'var(--text)', marginBottom: 6 }}>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, fontWeight: 400, color: 'var(--text)', marginBottom: 6 }}>
                   {person.name}
                 </div>
                 <div style={{ font: '400 11px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)' }}>
@@ -190,128 +345,123 @@ export default function About() {
         </div>
       </section>
 
-      {/* Location */}
+      {/* Community */}
       <section className="section">
-        <div ref={locationRef} className="reveal" style={{ maxWidth: 800, margin: '0 auto' }}>
+        <div ref={communityRef} className="reveal" style={{ maxWidth: 800, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div className="label" style={{ marginBottom: 16 }}>// Location</div>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.1 }}>
-              Sonoran <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Desert</em>, Arizona
+            <div className="label" style={{ marginBottom: 16 }}>// Community</div>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.15 }}>
+              A Community of <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Stargazers</em>
             </h2>
           </div>
 
           <div style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0,
-            border: '1px solid var(--border)',
-          }} className="about-location-grid">
-            {/* Map placeholder */}
-            <div style={{
-              padding: '64px 48px', display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-              background: 'rgba(201,169,74,0.02)',
-              borderRight: '1px solid var(--border)',
-              position: 'relative',
-            }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: '50%',
-                background: 'rgba(201,169,74,0.1)', border: '1px solid rgba(201,169,74,0.2)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginBottom: 20,
-              }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-                  <circle cx="12" cy="10" r="3"/>
-                </svg>
-              </div>
-              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, color: 'var(--text)', marginBottom: 8 }}>
-                Sonoran Desert Observatory
-              </div>
-              <div style={{ font: '300 13px DM Sans', color: 'var(--muted)' }}>
-                Southern Arizona, USA
-              </div>
-              <div style={{ font: '300 12px DM Sans', color: '#5a5550', marginTop: 4 }}>
-                Bortle Class 1 Dark Sky
-              </div>
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48,
+          }} className="about-mission-grid">
+            <div>
+              <p style={{ font: '300 15px/1.9 DM Sans', color: 'var(--muted)', marginBottom: 20 }}>
+                The Fountain Hills astronomy club has grown to over 600 members, making it one of the most active astronomy communities in Arizona. One founding member donated three telescopes to the local library — an initiative that won a national award for community outreach.
+              </p>
+              <p style={{ font: '300 15px/1.9 DM Sans', color: 'var(--muted)' }}>
+                Fountain Hills is one of only 13 dark sky communities featured in the Smithsonian's "Lights Out" exhibit, recognizing communities worldwide that are leading the way in dark sky preservation.
+              </p>
             </div>
+            <div>
+              <p style={{ font: '300 15px/1.9 DM Sans', color: 'var(--muted)', marginBottom: 20 }}>
+                With 5 million people living within a 30-minute drive, the Discovery Center will serve as a gateway to astronomy for one of the fastest-growing metropolitan areas in the United States.
+              </p>
+              <p style={{ font: '300 15px/1.9 DM Sans', color: 'var(--muted)' }}>
+                Our gift shop — both online and on-site — supports this mission directly. Every purchase funds dark sky preservation programs, STEM education initiatives, and the operation of our research-grade observatory.
+              </p>
+            </div>
+          </div>
 
-            {/* Info */}
-            <div style={{ padding: '48px' }}>
-              <div style={{ marginBottom: 28 }}>
-                <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 8 }}>Hours</div>
-                <p style={{ font: '400 14px/1.8 DM Sans', color: 'var(--text)' }}>
-                  Wednesday -- Sunday<br />
-                  6:00 PM -- 11:00 PM
-                </p>
+          {/* Community stats */}
+          <div style={{
+            display: 'flex', gap: 0, marginTop: 56,
+            borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)',
+          }}>
+            {[
+              ['600+', 'Club Members'],
+              ['17th', 'Dark Sky Community'],
+              ['5M', 'People Nearby'],
+              ['2026', 'Opening Year'],
+            ].map(([num, label]) => (
+              <div key={label} style={{
+                flex: 1, padding: '32px 24px', textAlign: 'center',
+                borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)',
+              }}>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, color: 'var(--gold)', fontStyle: 'italic', marginBottom: 6 }}>{num}</div>
+                <div style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</div>
               </div>
-              <div style={{ marginBottom: 28 }}>
-                <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 8 }}>Contact</div>
-                <p style={{ font: '400 14px/1.8 DM Sans', color: 'var(--text)' }}>
-                  hello@idarksky.org<br />
-                  (520) 555-0142
-                </p>
-              </div>
-              <div>
-                <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 8 }}>Admission</div>
-                <p style={{ font: '400 14px/1.8 DM Sans', color: 'var(--text)' }}>
-                  Adults: $15<br />
-                  Children (6-17): $8<br />
-                  Members: Free
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Vision */}
+      {/* Partners */}
       <section style={{
-        padding: '100px 64px',
+        padding: '80px 64px',
         background: 'var(--bg2, #09091f)',
         borderTop: '1px solid var(--border)',
         borderBottom: '1px solid var(--border)',
-      }} className="about-vision-section">
-        <div ref={visionRef} className="reveal" style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
-          <div className="label" style={{ marginBottom: 16 }}>// Our Vision</div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.15, marginBottom: 32 }}>
-            A World Where Everyone Can See the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Stars</em>
+      }}>
+        <div ref={partnersRef} className="reveal" style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
+          <div className="label" style={{ marginBottom: 16 }}>// Our Partners</div>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 400, marginBottom: 40 }}>
+            Building Together
           </h2>
-          <p style={{ font: '300 16px/1.9 DM Sans', color: 'var(--muted)', marginBottom: 24 }}>
-            We envision a future where dark sky preservation is woven into urban planning, environmental policy, and public consciousness. Where children grow up knowing the Milky Way not from photographs, but from their own backyards.
-          </p>
-          <p style={{ font: '300 16px/1.9 DM Sans', color: 'var(--muted)', marginBottom: 32 }}>
-            Through partnerships with the International Dark-Sky Association, local communities, and educational institutions, we are working to reclaim the night -- one sky at a time.
-          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16 }}>
+            {PARTNERS.map(p => (
+              <div key={p} style={{
+                padding: '14px 28px',
+                border: '1px solid var(--border)',
+                font: '400 13px DM Sans', color: 'var(--muted)',
+                transition: 'border-color 0.3s, color 0.3s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,169,74,0.3)'; e.currentTarget.style.color = 'var(--text)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)'; }}
+              >
+                {p}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
+      {/* Support Us */}
+      <section className="section">
+        <div ref={supportRef} className="reveal" style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
+          <div className="label" style={{ marginBottom: 16 }}>// Support Us</div>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.15, marginBottom: 20 }}>
+            Help Us Preserve the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Night Sky</em>
+          </h2>
+          <p style={{ font: '300 16px/1.9 DM Sans', color: 'var(--muted)', marginBottom: 32, maxWidth: 520, margin: '0 auto 32px' }}>
+            The IDSDC is a 501(c)(3) nonprofit. Your donation directly funds dark sky preservation, STEM education, and the construction of a world-class observatory and planetarium in Fountain Hills, Arizona.
+          </p>
           <div style={{
             padding: '32px 40px',
             border: '1px solid rgba(201,169,74,0.2)',
             background: 'rgba(201,169,74,0.03)',
+            marginBottom: 36,
           }}>
             <blockquote style={{
-              fontFamily: 'Playfair Display, serif', fontSize: 'clamp(20px, 2.5vw, 28px)',
+              fontFamily: 'Playfair Display, serif', fontSize: 'clamp(18px, 2vw, 24px)',
               fontWeight: 400, fontStyle: 'italic', color: 'var(--text)', lineHeight: 1.5,
               margin: 0,
             }}>
-              "The cosmos is within us. We are made of <span style={{ color: 'var(--gold)' }}>star-stuff</span>. We are a way for the universe to know itself."
+              "My hope is that the IDSDC will be an Arizona icon known around the world as a place that enables sky watchers of all ages to learn more about the <span style={{ color: 'var(--gold)' }}>observable universe</span>."
             </blockquote>
             <div style={{ font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginTop: 16 }}>
-              // Carl Sagan
+              // Joe Bill, Board President
             </div>
+          </div>
+          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="btn-primary" onClick={() => navigate('/membership')}>Become a Member</button>
+            <button className="btn-ghost" onClick={() => navigate('/contact')}>Get in Touch</button>
           </div>
         </div>
       </section>
-
-      {/* CTA */}
-      <div className="mission">
-        <div className="label" style={{ marginBottom: 24 }}>// Join the Movement</div>
-        <blockquote className="mission-quote" style={{ fontSize: 'clamp(22px, 3vw, 40px)' }}>
-          Support dark sky preservation. <em>Become a member today.</em>
-        </blockquote>
-        <div style={{ marginTop: 32 }}>
-          <a href="/membership" className="btn-primary" style={{ textDecoration: 'none', marginRight: 16 }}>Become a Member</a>
-          <a href="/contact" className="btn-ghost" style={{ textDecoration: 'none' }}>Get in Touch</a>
-        </div>
-      </div>
 
       <style>{`
         @keyframes aboutTwinkle {
@@ -327,9 +477,7 @@ export default function About() {
           .about-mission-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
           .about-team-section { padding: 64px 24px !important; }
           .about-team-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .about-location-grid { grid-template-columns: 1fr !important; }
-          .about-location-grid > div:first-child { border-right: none !important; border-bottom: 1px solid var(--border); }
-          .about-vision-section { padding: 64px 24px !important; }
+          .about-pillars-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 560px) {
           .about-team-grid { grid-template-columns: 1fr !important; }
