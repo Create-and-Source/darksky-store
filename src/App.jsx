@@ -8,6 +8,13 @@ import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Membership from './pages/Membership';
+import AdminLayout from './admin/AdminLayout';
+import Dashboard from './admin/pages/Dashboard';
+import Inventory from './admin/pages/Inventory';
+import Receive from './admin/pages/Receive';
+import Transfers from './admin/pages/Transfers';
+import PurchaseOrders from './admin/pages/PurchaseOrders';
+import Orders from './admin/pages/Orders';
 
 let cartIdCounter = 0;
 
@@ -45,8 +52,20 @@ export default function App() {
   };
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
+  const isAdmin = location.pathname.startsWith('/admin');
 
-  return (
+  return isAdmin ? (
+    <Routes>
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="inventory" element={<Inventory />} />
+        <Route path="receive" element={<Receive />} />
+        <Route path="transfers" element={<Transfers />} />
+        <Route path="purchase-orders" element={<PurchaseOrders />} />
+        <Route path="orders" element={<Orders />} />
+      </Route>
+    </Routes>
+  ) : (
     <div className="ds-root">
       <Nav cartCount={cartCount} onCartClick={() => navigate('/cart')} />
 
