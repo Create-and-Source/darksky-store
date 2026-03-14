@@ -252,19 +252,20 @@ const TOUR_CSS = `
   bottom: 24px;
   right: 24px;
   z-index: 8000;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: linear-gradient(135deg, #d4af37, #a08520);
   border: none;
   color: #FFFFFF;
-  font: 700 20px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font: 700 24px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+  box-shadow: 0 4px 20px rgba(212,175,55,0.4);
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: tourHelpPulse 3s ease-in-out infinite;
 }
 .tour-help-btn:hover {
   transform: scale(1.08);
@@ -274,7 +275,7 @@ const TOUR_CSS = `
 /* ── HELP MENU ── */
 .tour-help-menu {
   position: fixed;
-  bottom: 82px;
+  bottom: 92px;
   right: 24px;
   z-index: 8001;
   background: #FFFFFF;
@@ -359,6 +360,10 @@ const TOUR_CSS = `
 @keyframes tourScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
 @keyframes tourTooltipIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes tourMenuIn { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes tourHelpPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(212,175,55,0.3); }
+  50% { box-shadow: 0 4px 20px rgba(212,175,55,0.3), 0 0 0 8px rgba(212,175,55,0.1); }
+}
 @keyframes tourPulse {
   0%, 100% { box-shadow: 0 0 0 4px rgba(212,175,55,0.15), 0 0 24px rgba(212,175,55,0.2); }
   50% { box-shadow: 0 0 0 6px rgba(212,175,55,0.25), 0 0 32px rgba(212,175,55,0.3); }

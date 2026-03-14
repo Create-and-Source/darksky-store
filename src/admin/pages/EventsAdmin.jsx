@@ -183,7 +183,7 @@ export default function EventsAdmin() {
           price: priceCents,
           memberFree: form.memberFree,
           featured: form.featured,
-          status: publish ? 'Published' : undefined,
+          ...(publish ? { status: 'Published' } : {}),
         });
         toast(`Event updated${publish ? ' and published' : ''}`);
       } else {
@@ -271,7 +271,7 @@ export default function EventsAdmin() {
                 Events
                 <HelpBubble text="All your events -- upcoming, drafts, and past. Click any event to edit it." />
               </h1>
-              <p className="admin-page-subtitle">{events.length} event{events.length !== 1 ? 's' : ''} total</p>
+              <p className="admin-page-subtitle">Create and manage your star parties, shows, and workshops. Published events appear on your website.</p>
             </div>
           </div>
           <button className="admin-btn admin-btn-gold admin-btn-lg" onClick={openCreate} style={{ height: 48 }}>
@@ -304,7 +304,7 @@ export default function EventsAdmin() {
               {events.length === 0 ? 'No events yet' : 'No events match this filter'}
             </div>
             <p style={{ font: '400 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 24 }}>
-              {events.length === 0 ? 'Create your first event to start selling tickets!' : 'Try a different filter to see your events.'}
+              {events.length === 0 ? "You haven't created any events yet. Click '+ New Event' to get started — we'll walk you through it step by step." : 'Try a different filter to see your events.'}
             </p>
             {events.length === 0 && (
               <button className="admin-btn admin-btn-gold admin-btn-lg" onClick={openCreate} style={{ height: 48 }}>

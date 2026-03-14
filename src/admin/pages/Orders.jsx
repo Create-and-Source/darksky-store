@@ -70,19 +70,20 @@ export default function Orders() {
             Orders
             <HelpBubble text="All customer orders — online purchases and in-store (POS) sales." />
           </h1>
-          <p className="admin-page-subtitle">{orders.length} total orders</p>
+          <p className="admin-page-subtitle">All customer orders from your website and gift shop. Click any order to see details.</p>
         </div>
       </div>
 
       <div className="admin-table-wrap">
         <div className="admin-filters">
-          <div className="admin-filter-search">
+          <div className="admin-filter-search" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             <input
               className="admin-input"
               placeholder="Search by order ID or customer..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
+            <HelpBubble text="Search by order number (like ORD-2401) or customer name." />
           </div>
           <div className="admin-filter-tabs" style={{ display: 'inline-flex', alignItems: 'center', gap: 0 }}>
             {ALL_STATUSES.map(s => (
@@ -128,7 +129,7 @@ export default function Orders() {
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 32, color: '#94A3B8' }}>No orders match filters</td></tr>
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 32, color: '#94A3B8' }}>{orders.length === 0 ? "No orders yet. Once your store is live, online and in-store sales will appear here automatically." : "No orders match your current filters. Try adjusting the status or channel filter above."}</td></tr>
               )}
             </tbody>
           </table>

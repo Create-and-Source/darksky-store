@@ -376,7 +376,7 @@ export default function PurchaseOrders() {
             Purchase Orders
             <HelpBubble text="Purchase orders track what you're buying from vendors. Create one before placing an order." />
           </h1>
-          <p className="admin-page-subtitle">{pos.length} purchase orders</p>
+          <p className="admin-page-subtitle">Track what you've ordered from vendors. When items arrive, mark them received and stock updates automatically.</p>
         </div>
         <button className="admin-btn admin-btn-gold admin-btn-lg" style={{ height: 48 }} onClick={() => setCreating(true)}>
           + New Purchase Order
@@ -395,7 +395,7 @@ export default function PurchaseOrders() {
             No purchase orders yet
           </div>
           <p style={{ font: '400 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8', marginBottom: 24 }}>
-            Create a purchase order to restock inventory
+            When you need to restock, create a PO to track what's ordered and when it arrives.
           </p>
           <button className="admin-btn admin-btn-gold admin-btn-lg" onClick={() => setCreating(true)} style={{ height: 48 }}>
             + Create First PO

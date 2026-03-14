@@ -91,7 +91,7 @@ export default function Transfers() {
             Transfers
             <HelpBubble text="Transfers move products between your warehouse and the gift shop." />
           </h1>
-          <p className="admin-page-subtitle">Move stock between locations</p>
+          <p className="admin-page-subtitle">Move products between your warehouse and the gift shop. Mark items shipped and received to keep stock accurate.</p>
         </div>
         <div style={{ display: 'inline-flex', alignItems: 'center' }}>
           <button className="admin-btn admin-btn-gold" onClick={() => setCreating(true)}>
@@ -107,7 +107,7 @@ export default function Transfers() {
           <div className="admin-empty">
             <div className="admin-empty-icon">&#8644;</div>
             <div className="admin-empty-text">No transfers yet</div>
-            <p style={{ color: '#94A3B8', fontSize: 14, marginTop: 4 }}>Create a transfer to move stock between locations</p>
+            <p style={{ color: '#94A3B8', fontSize: 14, marginTop: 4 }}>Create a transfer when you need to move products between the warehouse and gift shop.</p>
           </div>
         ) : (
           <table className="admin-table">
@@ -183,7 +183,10 @@ export default function Transfers() {
                 </div>
               )}
 
-              <label className="admin-label">Add Products</label>
+              <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                Add Products
+                <HelpBubble text="Search for the products you want to transfer. Click to add them." />
+              </label>
               <input
                 className="admin-input"
                 placeholder="Search products..."
@@ -232,7 +235,10 @@ export default function Transfers() {
               )}
 
               <div style={{ marginBottom: 20 }}>
-                <label className="admin-label">Notes</label>
+                <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Notes
+                  <HelpBubble text="Add any notes about this transfer for your records." />
+                </label>
                 <textarea className="admin-textarea" placeholder="Transfer notes..." value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
               </div>
 

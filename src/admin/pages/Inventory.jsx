@@ -98,7 +98,7 @@ export default function Inventory() {
             Inventory
             <HelpBubble text="All products currently in stock at each location. Click any row to see details." />
           </h1>
-          <p className="admin-page-subtitle">{inventory.length} variants across all products</p>
+          <p className="admin-page-subtitle">See what's in stock at every location. Yellow means running low. Red means out of stock.</p>
         </div>
         <button className="admin-btn admin-btn-ghost" onClick={exportCSV} style={{ display: 'inline-flex', alignItems: 'center' }}>
           Export CSV
@@ -200,7 +200,7 @@ export default function Inventory() {
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 32 }}>No products found</td></tr>
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 32 }}>No products match your search. Try a different name, SKU, or filter.</td></tr>
               )}
             </tbody>
           </table>

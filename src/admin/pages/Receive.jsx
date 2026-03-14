@@ -130,7 +130,7 @@ export default function Receive() {
             Receive Stock
             <HelpBubble text="Use this when a shipment arrives. Search for what came in, enter how many, and confirm." />
           </h1>
-          <p className="admin-page-subtitle">Record incoming shipments</p>
+          <p className="admin-page-subtitle">Log incoming shipments. Search for products, enter quantities, and your stock updates automatically.</p>
         </div>
       </div>
 

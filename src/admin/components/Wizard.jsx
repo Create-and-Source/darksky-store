@@ -104,6 +104,19 @@ export default function Wizard({
 
       {/* Step content */}
       <div style={S.body} key={current}>
+        <div style={{
+          background: 'rgba(212,175,55,0.06)',
+          border: '1px solid rgba(212,175,55,0.15)',
+          borderRadius: 8,
+          padding: '12px 16px',
+          marginBottom: 20,
+          font: '400 14px/1.5 -apple-system, BlinkMacSystemFont, sans-serif',
+          color: '#94A3B8',
+        }}>
+          {isLast
+            ? "Almost done! Review everything below and publish when you're ready."
+            : `Step ${current + 1} of ${steps.length} — Don't worry, you can always come back and change this later.`}
+        </div>
         {step.content}
       </div>
 

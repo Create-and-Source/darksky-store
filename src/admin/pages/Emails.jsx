@@ -443,7 +443,7 @@ export default function Emails() {
             Email
             <HelpBubble text="Send updates, promotions, and newsletters to your subscribers." />
           </h1>
-          <p className="admin-page-subtitle">Send updates, promotions, and newsletters</p>
+          <p className="admin-page-subtitle">Send newsletters, promotions, and announcements to your customers and members.</p>
         </div>
       </div>
 

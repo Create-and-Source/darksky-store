@@ -144,7 +144,7 @@ export default function Content() {
             Content Manager
             <HelpBubble text="Edit your website text and announcements without calling anyone." />
           </h1>
-          <p className="admin-page-subtitle">Edit website text, announcements, and categories</p>
+          <p className="admin-page-subtitle">Edit your website text and announcements. Changes go live when you click Save.</p>
         </div>
       </div>
 

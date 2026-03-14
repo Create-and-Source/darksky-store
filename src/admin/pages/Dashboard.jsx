@@ -260,6 +260,9 @@ export default function Dashboard() {
         <p style={{ font: `400 16px ${FONT}`, color: '#64748B', margin: 0 }}>
           {formatTodayDate()}
         </p>
+        <p style={{ font: `400 14px ${FONT}`, color: '#94A3B8', margin: '4px 0 0' }}>
+          Your daily overview. Start here to see what needs attention.
+        </p>
       </div>
 
       {/* What Needs Your Attention */}
