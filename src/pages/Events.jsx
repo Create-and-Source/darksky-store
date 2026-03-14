@@ -52,7 +52,7 @@ export default function Events() {
 
       {/* ── CATEGORY FILTERS ── */}
       <RevealSection>
-        <div style={{
+        <div className="events-filters" style={{
           display: 'flex',
           justifyContent: 'center',
           gap: 8,
@@ -107,7 +107,7 @@ export default function Events() {
             </div>
           </RevealSection>
         ) : (
-          <div style={{
+          <div className="events-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 24,

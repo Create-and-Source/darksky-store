@@ -88,7 +88,7 @@ export default function Shop({ onAddToCart }) {
       </div>
 
       {/* Product Grid */}
-      <div style={{ padding: '48px 64px 80px' }}>
+      <div className="shop-grid-wrap" style={{ padding: '48px 64px 80px' }}>
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--text2)', fontFamily: 'Playfair Display, serif', fontSize: 24, fontStyle: 'italic' }}>
             No products found in this quadrant.

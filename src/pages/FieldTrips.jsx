@@ -317,7 +317,7 @@ export default function FieldTrips() {
             A Complete <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Learning Experience</em>
           </h2>
         </div>
-        <div ref={includesRef} className="reveal" style={{
+        <div ref={includesRef} className="reveal ft-includes-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
           borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)',
         }}>
@@ -413,7 +413,7 @@ export default function FieldTrips() {
           </h2>
         </div>
 
-        <div ref={testimonialsRef} className="reveal" style={{
+        <div ref={testimonialsRef} className="reveal ft-testimonials-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0,
           borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)',
         }}>

@@ -190,15 +190,7 @@ export default function Home({ onAddToCart }) {
         </RevealSection>
 
         <RevealSection delay={120}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              borderTop: '1px solid var(--border)',
-              borderBottom: '1px solid var(--border)',
-              marginTop: 56,
-            }}
-          >
+          <div className="home-stats-grid">
             {STATS.map((s, i) => (
               <RevealSection key={i} delay={200 + i * 100}>
                 <div
@@ -266,7 +258,7 @@ export default function Home({ onAddToCart }) {
         </RevealSection>
 
         <RevealSection delay={80}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 48 }}>
+          <div className="home-events-grid">
             {EVENTS.map((ev, i) => (
               <RevealSection key={i} delay={i * 120}>
                 <div
@@ -376,7 +368,7 @@ export default function Home({ onAddToCart }) {
         </RevealSection>
 
         <RevealSection delay={100}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginTop: 48 }}>
+          <div className="home-cats-grid">
             {CATEGORIES.map((cat, i) => {
               const catProducts = PRODUCTS.filter(p => p.category === cat && p.images[0]);
               const heroImg = catProducts[0]?.images[0];
