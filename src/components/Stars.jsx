@@ -7,26 +7,32 @@ export default function Stars({ count = 200, className = '' }) {
     const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let w = canvas.offsetWidth;
-    let h = canvas.offsetHeight;
-    let raf;
+    let w, h, raf;
     let mouseX = 0, mouseY = 0;
+    let visible = true;
 
     const stars = Array.from({ length: count }, () => ({
       x: Math.random(),
       y: Math.random(),
-      r: Math.random() * 1.2 + 0.2,
-      alpha: Math.random() * 0.7 + 0.2,
+      r: Math.random() * 1.4 + 0.3,
+      alpha: Math.random() * 0.6 + 0.2,
       speed: Math.random() * 0.0003 + 0.0001,
       twinkle: Math.random() * Math.PI * 2,
     }));
 
-    // Shooting stars
     let shooters = [];
     const addShooter = () => {
-      shooters.push({ x: Math.random() * w, y: Math.random() * h * 0.5, vx: 4 + Math.random() * 6, vy: 2 + Math.random() * 3, len: 80 + Math.random() * 80, alpha: 1, life: 1 });
+      shooters.push({
+        x: Math.random() * 0.7 * (w || 1),
+        y: Math.random() * 0.4 * (h || 1),
+        vx: 5 + Math.random() * 7,
+        vy: 2 + Math.random() * 4,
+        alpha: 1,
+      });
     };
-    const shooterInterval = setInterval(() => { if (Math.random() < 0.6) addShooter(); }, 3500);
+    const shooterInterval = setInterval(() => {
+      if (visible && Math.random() < 0.5) addShooter();
+    }, 6000);
 
     const resize = () => {
       w = canvas.offsetWidth;
@@ -39,32 +45,34 @@ export default function Stars({ count = 200, className = '' }) {
     ro.observe(canvas);
 
     const onMouse = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = (e.clientX - rect.left) / w - 0.5;
-      mouseY = (e.clientY - rect.top) / h - 0.5;
+      mouseX = (e.clientX / window.innerWidth) - 0.5;
+      mouseY = (e.clientY / window.innerHeight) - 0.5;
     };
-    window.addEventListener('mousemove', onMouse);
+    window.addEventListener('mousemove', onMouse, { passive: true });
 
-    let t = 0;
+    const onVisibility = () => { visible = !document.hidden; };
+    document.addEventListener('visibilitychange', onVisibility);
+
     const draw = () => {
+      if (!visible) { raf = requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, w, h);
-      t++;
 
+      // Stars
       stars.forEach(s => {
         s.twinkle += s.speed * 60;
-        const a = s.alpha * (0.7 + 0.3 * Math.sin(s.twinkle));
-        const px = (s.x + mouseX * -0.008) * w;
-        const py = (s.y + mouseY * -0.008) * h;
+        const a = s.alpha * (0.6 + 0.4 * Math.sin(s.twinkle));
+        const px = (s.x + mouseX * -0.006) * w;
+        const py = (s.y + mouseY * -0.006) * h;
         ctx.beginPath();
         ctx.arc(px, py, s.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255,248,220,${a})`;
         ctx.fill();
       });
 
-      // Gold nebula glow
-      const grd = ctx.createRadialGradient(w * 0.5, h * 0.3, 0, w * 0.5, h * 0.3, w * 0.4);
-      grd.addColorStop(0, 'rgba(201,169,74,0.04)');
-      grd.addColorStop(1, 'rgba(201,169,74,0)');
+      // Subtle gold nebula glow
+      const grd = ctx.createRadialGradient(w * 0.5, h * 0.35, 0, w * 0.5, h * 0.35, w * 0.35);
+      grd.addColorStop(0, 'rgba(212,175,55,0.02)');
+      grd.addColorStop(1, 'rgba(212,175,55,0)');
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, w, h);
 
@@ -73,12 +81,16 @@ export default function Stars({ count = 200, className = '' }) {
       shooters.forEach(s => {
         s.x += s.vx;
         s.y += s.vy;
-        s.alpha -= 0.018;
-        const g = ctx.createLinearGradient(s.x - s.vx * s.len / s.vx, s.y - s.vy * s.len / s.vx, s.x, s.y);
-        g.addColorStop(0, `rgba(201,169,74,0)`);
+        s.alpha -= 0.015;
+        const tailLen = 18;
+        const g = ctx.createLinearGradient(
+          s.x - s.vx * tailLen, s.y - s.vy * tailLen, s.x, s.y
+        );
+        g.addColorStop(0, 'rgba(212,175,55,0)');
+        g.addColorStop(0.6, `rgba(212,175,55,${s.alpha * 0.4})`);
         g.addColorStop(1, `rgba(255,248,220,${s.alpha})`);
         ctx.beginPath();
-        ctx.moveTo(s.x - s.vx * 14, s.y - s.vy * 14);
+        ctx.moveTo(s.x - s.vx * tailLen, s.y - s.vy * tailLen);
         ctx.lineTo(s.x, s.y);
         ctx.strokeStyle = g;
         ctx.lineWidth = 1.5;
@@ -94,6 +106,7 @@ export default function Stars({ count = 200, className = '' }) {
       clearInterval(shooterInterval);
       ro.disconnect();
       window.removeEventListener('mousemove', onMouse);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [count]);
 

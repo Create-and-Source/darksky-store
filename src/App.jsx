@@ -1,66 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { GLOBAL_CSS } from './styles';
+import Stars from './components/Stars';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
-import CartDrawer from './components/CartDrawer';
-import { EditModeProvider, EditToggleButton, EditBanner } from './components/EditMode';
 import Home from './pages/Home';
+import About from './pages/About';
+import Events from './pages/Events';
+import Education from './pages/Education';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Membership from './pages/Membership';
-import Events from './pages/Events';
-import FieldTrips from './pages/FieldTrips';
-import Checkout from './pages/Checkout';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import OrderConfirmation from './pages/OrderConfirmation';
-import StarfieldBackground from './components/StarfieldBackground';
-import InstallPrompt from './components/InstallPrompt';
-import OfflineBanner from './components/OfflineBanner';
-import AdminLayout from './admin/AdminLayout';
-import Dashboard from './admin/pages/Dashboard';
-import Inventory from './admin/pages/Inventory';
-import Receive from './admin/pages/Receive';
-import Transfers from './admin/pages/Transfers';
-import PurchaseOrders from './admin/pages/PurchaseOrders';
-import Orders from './admin/pages/Orders';
-import Content from './admin/pages/Content';
-import EventsAdmin from './admin/pages/EventsAdmin';
-import Emails from './admin/pages/Emails';
-import Reports from './admin/pages/Reports';
-import QuickBooks from './admin/pages/QuickBooks';
-import {
-  initStore,
-  getCart,
-  addToCart as storeAddToCart,
-  updateCartQty,
-  removeFromCart,
-  clearCart,
-  subscribe,
-} from './admin/data/store';
+
+let cartIdCounter = 0;
 
 export default function App() {
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Initialize store on mount
-  useEffect(() => {
-    initStore();
-    setCart(getCart());
-  }, []);
-
-  // Subscribe to store changes for cart reactivity
-  useEffect(() => {
-    const unsub = subscribe(() => {
-      setCart(getCart());
-    });
-    return unsub;
-  }, []);
-
-  // Inject global CSS
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = GLOBAL_CSS;
@@ -68,70 +27,48 @@ export default function App() {
     return () => document.head.removeChild(style);
   }, []);
 
-  // Scroll to top on route change
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
 
   const addToCart = (product) => {
-    storeAddToCart(product);
+    setCart(prev => {
+      const existing = prev.find(i => i.id === product.id);
+      if (existing) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
+      return [...prev, { ...product, qty: 1, cartId: ++cartIdCounter }];
+    });
   };
 
   const updateQty = (cartId, qty) => {
-    updateCartQty(cartId, qty);
+    if (qty < 1) { removeItem(cartId); return; }
+    setCart(prev => prev.map(i => i.cartId === cartId ? { ...i, qty } : i));
   };
 
   const removeItem = (cartId) => {
-    removeFromCart(cartId);
+    setCart(prev => prev.filter(i => i.cartId !== cartId));
   };
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const openDrawer = useCallback(() => setDrawerOpen(true), []);
-  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
-
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
-  const isAdmin = location.pathname.startsWith('/admin');
 
-  return isAdmin ? (
-    <Routes>
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="inventory" element={<Inventory />} />
-        <Route path="receive" element={<Receive />} />
-        <Route path="transfers" element={<Transfers />} />
-        <Route path="purchase-orders" element={<PurchaseOrders />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="events" element={<EventsAdmin />} />
-        <Route path="emails" element={<Emails />} />
-        <Route path="content" element={<Content />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="quickbooks" element={<QuickBooks />} />
-      </Route>
-    </Routes>
-  ) : (
-    <EditModeProvider>
-      <div className="ds-root">
-        <StarfieldBackground />
-        <OfflineBanner />
-        <EditBanner />
-        <Nav cartCount={cartCount} onCartClick={openDrawer} />
+  return (
+    <>
+      <Stars count={150} className="stars-fixed" />
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <Nav cartCount={cartCount} onCartClick={() => navigate('/cart')} />
 
         <main>
           <Routes>
             <Route path="/" element={<Home onAddToCart={addToCart} />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/education" element={<Education />} />
             <Route path="/shop" element={<Shop onAddToCart={addToCart} />} />
             <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />
             <Route path="/cart" element={<Cart cart={cart} onUpdate={updateQty} onRemove={removeItem} />} />
-            <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={() => clearCart()} />} />
-            <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/membership" element={<Membership />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/field-trips" element={<FieldTrips />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
             <Route path="*" element={
-              <div style={{ padding: '120px 64px', textAlign: 'center' }}>
+              <div style={{ padding: '180px 64px 120px', textAlign: 'center', background: 'var(--bg)' }}>
                 <div className="label" style={{ marginBottom: 24 }}>// 404</div>
                 <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 64, fontWeight: 400, marginBottom: 20, fontStyle: 'italic', color: 'var(--gold)' }}>Lost in Space</h1>
-                <p style={{ font: '300 16px DM Sans', color: 'var(--muted)', marginBottom: 36 }}>This page has drifted beyond our telescope range.</p>
+                <p style={{ font: '300 16px DM Sans', color: 'var(--text2)', marginBottom: 36 }}>This page has drifted beyond our telescope range.</p>
                 <button className="btn-primary" onClick={() => navigate('/')}>Return Home</button>
               </div>
             } />
@@ -139,10 +76,7 @@ export default function App() {
         </main>
 
         <Footer />
-        <CartDrawer open={drawerOpen} onClose={closeDrawer} cart={cart} onUpdate={updateQty} onRemove={removeItem} />
-        <EditToggleButton />
-        <InstallPrompt />
       </div>
-    </EditModeProvider>
+    </>
   );
 }
