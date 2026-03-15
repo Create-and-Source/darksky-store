@@ -210,7 +210,7 @@ export default function App() {
               <Route index element={<Dashboard />} />
               <Route path="inventory" element={<Inventory />} />
               <Route path="receive" element={<Receive />} />
-              <Route path="transfers" element={<Navigate to="/admin" replace />} />
+              <Route path="transfers" element={<Transfers />} />
               <Route path="purchase-orders" element={<Navigate to="/admin" replace />} />
               <Route path="orders" element={<Orders />} />
               <Route path="events" element={<EventsAdmin />} />

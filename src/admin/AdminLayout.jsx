@@ -35,7 +35,7 @@ const ROLE_BADGE_COLORS = {
 // Routes each role can access (path suffixes after /admin)
 const ROLE_ALLOWED_ROUTES = {
   admin: null, // all
-  shop_manager: ['', '/orders', '/inventory', '/receive', '/events', '/content', '/emails', '/social-media', '/design-studio'],
+  shop_manager: ['', '/orders', '/inventory', '/receive', '/transfers', '/events', '/content', '/emails', '/social-media', '/design-studio'],
   shop_staff: ['', '/orders', '/inventory', '/receive'],
   reports: ['', '/reports', '/donations'],
 };
@@ -80,6 +80,7 @@ const navSections = [
       { to: '/admin/orders', icon: Icons.orders, label: 'Orders' },
       { to: '/admin/inventory', icon: Icons.inventory, label: 'Inventory' },
       { to: '/admin/receive', icon: Icons.receive, label: 'Receive' },
+      { to: '/admin/transfers', icon: Icons.transfer, label: 'Transfers' },
     ],
   },
   {
@@ -121,7 +122,7 @@ const navItems = navSections.flatMap(s => s.items);
 // Role-based nav filtering
 const ROLE_NAV = {
   admin: null, // all
-  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Events', 'Email', 'Social Media', 'Design Studio'],
+  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Transfers', 'Events', 'Email', 'Social Media', 'Design Studio'],
   shop_staff: ['Dashboard', 'Orders', 'Inventory', 'Receive'],
   reports: ['Dashboard', 'Reports', 'Donations'],
 };
