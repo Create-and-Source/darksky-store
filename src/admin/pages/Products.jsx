@@ -128,6 +128,43 @@ export default function Products() {
     toast('Product deleted', 'success');
   };
 
+  const printBarcodes = () => {
+    const physicals = products.filter(p => p.type === 'physical');
+    if (physicals.length === 0) { toast('No physical products to print', 'warning'); return; }
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html><html><head><title>Barcode Labels — Dark Sky Gift Shop</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; padding: 20px; }
+  h1 { font-size: 16px; color: #1A1A2E; margin-bottom: 4px; }
+  .subtitle { font: 400 12px 'JetBrains Mono', monospace; color: #7C7B76; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .label { border: 1px dashed #D0D0D0; border-radius: 6px; padding: 14px 12px; text-align: center; break-inside: avoid; }
+  .label svg { margin: 0 auto 6px; display: block; }
+  .name { font: 600 11px 'Inter', sans-serif; color: #1A1A2E; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .id { font: 500 9px 'JetBrains Mono', monospace; color: #7C7B76; letter-spacing: 0.5px; }
+  .price { font: 600 11px 'Inter', sans-serif; color: #C5A55A; margin-top: 2px; }
+  @media print {
+    body { padding: 0; }
+    h1, .subtitle, .no-print { display: none; }
+    .grid { gap: 0; }
+    .label { border: 1px dotted #ccc; border-radius: 0; padding: 10px 8px; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"><\/script>
+</head><body>
+<h1>Barcode Labels — Dark Sky Gift Shop</h1>
+<p class="subtitle">${physicals.length} labels · ${new Date().toLocaleDateString()}</p>
+<button class="no-print" onclick="window.print()" style="margin-bottom:16px;padding:10px 24px;background:#C5A55A;color:#fff;border:none;border-radius:8px;font:600 14px Inter,sans-serif;cursor:pointer;">Print Labels</button>
+<div class="grid">
+${physicals.map(p => `<div class="label"><svg class="bc" data-value="${p.id}"></svg><div class="name">${p.title}</div><div class="id">${p.id}</div><div class="price">$${(p.price / 100).toFixed(2)}</div></div>`).join('')}
+</div>
+<script>document.querySelectorAll('.bc').forEach(el => { try { JsBarcode(el, el.dataset.value, { width: 1.5, height: 40, fontSize: 10, margin: 2, displayValue: true, font: 'JetBrains Mono' }); } catch(e) {} });<\/script>
+</body></html>`);
+    win.document.close();
+  };
+
   return (
     <div style={{ fontFamily: FONT, padding: '24px 32px', maxWidth: 1200, margin: '0 auto' }}>
       <PageTour storageKey="ds_tour_products" steps={[
@@ -144,9 +181,14 @@ export default function Products() {
           </p>
         </div>
         {tab === 'list' && (
-          <button id="tour-products-add" onClick={startAdd} style={{ ...btnStyle, background: C.gold, color: '#fff', padding: '10px 20px' }}>
-            + Add Product
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={printBarcodes} style={{ ...btnStyle, background: C.card, color: C.text, border: `1px solid ${C.border}`, padding: '10px 16px', fontSize: 13 }}>
+              Print Barcodes
+            </button>
+            <button id="tour-products-add" onClick={startAdd} style={{ ...btnStyle, background: C.gold, color: '#fff', padding: '10px 20px' }}>
+              + Add Product
+            </button>
+          </div>
         )}
       </div>
 
