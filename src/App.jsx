@@ -27,19 +27,13 @@ const Dashboard = lazy(() => import('./admin/pages/Dashboard'));
 const Inventory = lazy(() => import('./admin/pages/Inventory'));
 const Receive = lazy(() => import('./admin/pages/Receive'));
 const Transfers = lazy(() => import('./admin/pages/Transfers'));
-const PurchaseOrders = lazy(() => import('./admin/pages/PurchaseOrders'));
 const Orders = lazy(() => import('./admin/pages/Orders'));
 const EventsAdmin = lazy(() => import('./admin/pages/EventsAdmin'));
 const Emails = lazy(() => import('./admin/pages/Emails'));
-const Content = lazy(() => import('./admin/pages/Content'));
 const Reports = lazy(() => import('./admin/pages/Reports'));
-const QuickBooks = lazy(() => import('./admin/pages/QuickBooks'));
 const Donations = lazy(() => import('./admin/pages/Donations'));
 const DesignStudio = lazy(() => import('./admin/pages/DesignStudio'));
 const SocialMedia = lazy(() => import('./admin/pages/SocialMedia'));
-const Facility = lazy(() => import('./admin/pages/Facility'));
-const Visitors = lazy(() => import('./admin/pages/Visitors'));
-const Volunteers = lazy(() => import('./admin/pages/Volunteers'));
 
 const CART_KEY = 'ds_store_cart';
 
