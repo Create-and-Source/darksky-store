@@ -42,7 +42,22 @@ export const subscribe = (fn) => { listeners.add(fn); return () => listeners.del
 const notify = () => listeners.forEach(fn => fn());
 
 // ── INIT ──
+const DATA_VERSION = '2.0';
+
 export function initStore() {
+  // Version check — clear all ds_ keys and re-seed if version mismatch
+  if (localStorage.getItem('ds_data_version') !== DATA_VERSION) {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('ds_')) keysToRemove.push(key);
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    // Also clear darksky_ prefixed keys (admin tour, QB sync log)
+    ['darksky_admin_onboarded', 'darksky_qb_sync_log'].forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('ds_data_version', DATA_VERSION);
+  }
+
   if (!localStorage.getItem(KEYS.inventory)) set(KEYS.inventory, MOCK_INV);
   if (!localStorage.getItem(KEYS.orders)) set(KEYS.orders, MOCK_ORD);
   if (!localStorage.getItem(KEYS.pos)) set(KEYS.pos, MOCK_PO);
