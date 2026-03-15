@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { getInventory, receiveStock, subscribe, getPurchaseOrders } from '../data/store';
 import { useToast } from '../AdminLayout';
 import HelpBubble from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 
 const LOCATIONS = [
   { id: 'warehouse', name: 'C&S Warehouse' },
@@ -127,6 +128,11 @@ export default function Receive() {
 
   return (
     <>
+      <PageTour storageKey="ds_tour_receive" steps={[
+        { target: '.admin-page-title', title: 'Receive Stock', text: 'Use this page when a shipment arrives. It walks you through logging what came in step by step.' },
+        { target: '.admin-page-subtitle', title: 'Step-by-Step', text: 'First pick a location, then search for products, enter quantities, and confirm. Your inventory updates automatically.' },
+      ]} />
+
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>

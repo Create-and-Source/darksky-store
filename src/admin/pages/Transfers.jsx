@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getTransfers, addTransfer, updateTransfer, getInventory, subscribe } from '../data/store';
 import { useToast } from '../AdminLayout';
 import HelpBubble from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 
 const LOCATIONS = [
   { id: 'warehouse', name: 'C&S Warehouse' },
@@ -88,6 +89,12 @@ export default function Transfers() {
 
   return (
     <>
+      <PageTour storageKey="ds_tour_transfers" steps={[
+        { target: '.admin-page-title', title: 'Transfers', text: 'Move products between the C&S Warehouse and the Dark Sky Gift Shop.' },
+        { target: '.admin-btn-gold', title: 'Create a Transfer', text: 'Click here to start a new transfer. Pick products, set quantities, and send them to the other location.' },
+        { target: '.admin-table-wrap', title: 'Transfer History', text: 'Track all transfers here. Mark items as shipped or received to keep inventory accurate across locations.' },
+      ]} />
+
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>

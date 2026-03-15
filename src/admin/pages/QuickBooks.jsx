@@ -4,6 +4,7 @@ import {
   getInventory, getOrders, getPurchaseOrders, getMembers,
   formatPrice, subscribe,
 } from '../data/store';
+import PageTour from '../components/PageTour';
 
 // ---- Helpers ----
 const today = () => {
@@ -331,6 +332,12 @@ export default function QuickBooks() {
 
   return (
     <div style={S.page}>
+      <PageTour storageKey="ds_tour_quickbooks" steps={[
+        { target: '.admin-page-title', title: 'QuickBooks Integration', text: 'Export your sales, inventory, and customer data as CSV files ready for QuickBooks import.' },
+        { target: '#tour-qb-exports', title: 'Export Cards', text: 'Each card exports a different data type. Choose a date range and click Export — the CSV downloads instantly.' },
+        { target: '#tour-qb-log', title: 'Sync History', text: 'Every export is logged here so you always know when data was last synced.' },
+      ]} />
+
       {/* Page Header */}
       <div className="admin-page-header">
         <div>
@@ -340,7 +347,7 @@ export default function QuickBooks() {
       </div>
 
       {/* Connection Status */}
-      <div style={S.connCard}>
+      <div id="tour-qb-exports" style={S.connCard}>
         <div style={S.connLeft}>
           <div style={S.connLogo}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
@@ -464,7 +471,7 @@ export default function QuickBooks() {
       </div>
 
       {/* Sync Log */}
-      <div style={S.sectionTitle}>Export History</div>
+      <div id="tour-qb-log" style={S.sectionTitle}>Export History</div>
       <div className="admin-table-wrap">
         {syncLog.length === 0 ? (
           <div style={{ padding: '40px 20px', textAlign: 'center', color: '#94A3B8', font: "400 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>

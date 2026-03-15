@@ -1018,10 +1018,11 @@ input:focus, select:focus, textarea:focus {
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 1200px) {
-  .nav-center { gap: 20px; }
-  .nav-center a { font-size: 10px; letter-spacing: 0.15em; }
+  .nav-center { gap: 16px; }
+  .nav-center a { font-size: 10px; letter-spacing: 0.12em; }
+  .nav-right { gap: 12px; }
 }
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .nav { padding: 0 24px; }
   .nav-center, .nav-join { display: none; }
   .nav-ham { display: flex; }

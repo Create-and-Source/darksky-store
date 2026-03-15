@@ -120,7 +120,7 @@ export default function About() {
             <span className="section-label label" data-editable="about-hero-label">// About the Center</span>
             <h1 className="section-title" data-editable="about-hero-title">Connecting the Night Sky to <em>Life on Earth</em></h1>
             <p className="section-subtitle" data-editable="about-hero-subtitle" style={{ lineHeight: 1.7 }}>
-              The International Dark Sky Discovery Center is a 22,000 square foot institution dedicated to dark sky preservation, astronomy education, and the wonder of the cosmos. Now open in Fountain Hills, Arizona.
+              The International Dark Sky Discovery Center is a 22,000 square foot institution dedicated to dark sky preservation, astronomy education, and the wonder of the cosmos. Opening soon in Fountain Hills, Arizona.
             </p>
           </div>
         </RevealSection>
@@ -157,7 +157,7 @@ export default function About() {
       <VideoDivider
         src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/observatory-hero.mp4"
         title="22,000 Square Feet of Wonder"
-        subtitle="Now open in Fountain Hills, Arizona"
+        subtitle="Opening soon in Fountain Hills, Arizona"
         titleEditable="about-vid-title"
         subtitleEditable="about-vid-subtitle"
       />
@@ -165,9 +165,9 @@ export default function About() {
       <SectionSep />
 
       <VideoDivider
-        src="/videos/darksky/gila.mp4"
-        title="Protecting What Lives in the Dark"
-        subtitle="Dark sky preservation isn't just about stars — it's about the ecosystems that depend on natural darkness."
+        src="/videos/darksky/saturn-rings.mp4"
+        title="A Window to the Observable Universe"
+        subtitle="From Saturn's rings to distant galaxies — our observatory brings the cosmos within reach."
       />
 
       <SectionSep />
@@ -418,19 +418,19 @@ export default function About() {
           text-align: center;
           padding: 0 24px;
         }
-        .vid-divider-box { background: rgba(4,4,12,0.7); padding: 24px 48px; border-radius: 8px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .vid-divider-box { padding: 24px 48px; }
         .vid-divider-title {
           font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif;
           font-style: italic;
-          color: #fff;
+          color: #FFFFFF;
           margin: 0 0 12px;
-          text-shadow: 0 2px 24px rgba(0,0,0,0.6);
+          text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.8), 0 8px 40px rgba(0,0,0,0.6), 0 0 80px rgba(0,0,0,0.4);
         }
         .vid-divider-sub {
           font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif;
-          color: rgba(255,255,255,0.7);
+          color: rgba(255,255,255,0.9);
           margin: 0;
-          text-shadow: 0 1px 12px rgba(0,0,0,0.5);
+          text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7), 0 8px 32px rgba(0,0,0,0.5);
           letter-spacing: 0.02em;
         }
 

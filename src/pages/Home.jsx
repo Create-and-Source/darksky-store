@@ -325,15 +325,22 @@ export default function Home({ onAddToCart }) {
           <div className="label section-label">// Endorsements</div>
           <h2 className="section-title">Backed by Arizona's <em>Leaders</em></h2>
         </RevealSection>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="home-endorsements-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="home-endorsements-grid">
           {ENDORSEMENTS.map((e, i) => (
             <RevealSection key={i} delay={i * 80}>
-              <div style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 'var(--r)', padding: '32px 28px', minHeight: 200, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ font: '400 28px "Playfair Display", serif', color: 'var(--gold)', marginBottom: 12, lineHeight: 1, opacity: 0.4 }}>"</div>
-                <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', fontStyle: 'italic', flex: 1, margin: '0 0 20px' }}>{e.quote}</p>
-                <div>
-                  <div style={{ font: '500 14px "Plus Jakarta Sans"', color: 'var(--text)', marginBottom: 2 }}>{e.name}</div>
-                  <div style={{ font: '400 11px "JetBrains Mono"', color: 'var(--gold)', letterSpacing: '0.04em' }}>{e.title}</div>
+              <div className="endorsement-card">
+                <div className="endorsement-accent" />
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div className="endorsement-quote-mark">{'\u201C'}</div>
+                  <p className="endorsement-text">{e.quote}</p>
+                  <div className="endorsement-divider" />
+                  <div className="endorsement-author">
+                    <div className="endorsement-initial">{e.name.charAt(0)}</div>
+                    <div>
+                      <div className="endorsement-name">{e.name}</div>
+                      <div className="endorsement-title">{e.title}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </RevealSection>
@@ -427,9 +434,9 @@ export default function Home({ onAddToCart }) {
         .vid-divider-overlay-top { position: absolute; top: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-overlay-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 3; text-align: center; padding: 0 24px; }
-        .vid-divider-box { background: rgba(4,4,12,0.7); padding: 24px 48px; border-radius: 8px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-        .vid-divider-title { font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif; font-style: italic; color: #fff; margin: 0 0 12px; text-shadow: 0 2px 24px rgba(0,0,0,0.6); }
-        .vid-divider-sub { font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif; color: rgba(255,255,255,0.7); margin: 0; text-shadow: 0 1px 12px rgba(0,0,0,0.5); }
+        .vid-divider-box { padding: 24px 48px; }
+        .vid-divider-title { font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif; font-style: italic; color: #FFFFFF; margin: 0 0 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.8), 0 8px 40px rgba(0,0,0,0.6), 0 0 80px rgba(0,0,0,0.4); }
+        .vid-divider-sub { font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif; color: rgba(255,255,255,0.9); margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7), 0 8px 32px rgba(0,0,0,0.5); }
         @media (max-width: 1100px) {
           .home-facility-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .home-endorsements-grid { grid-template-columns: repeat(2, 1fr) !important; }
@@ -446,6 +453,97 @@ export default function Home({ onAddToCart }) {
           .home-facts-grid > div:last-child > div { border-bottom: none; }
           .home-endorsements-grid { grid-template-columns: 1fr !important; }
           .home-shop-cats { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+
+        /* Endorsement Cards */
+        .endorsement-card {
+          position: relative;
+          background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+          border: 1px solid rgba(212,175,55,0.12);
+          border-radius: 12px;
+          padding: 36px 32px 32px;
+          min-height: 240px;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          transition: all 0.4s var(--ease);
+        }
+        .endorsement-card:hover {
+          border-color: rgba(212,175,55,0.3);
+          transform: translateY(-4px);
+          box-shadow: 0 12px 40px rgba(212,175,55,0.08), 0 0 0 1px rgba(212,175,55,0.1);
+        }
+        .endorsement-accent {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, var(--gold), transparent);
+          opacity: 0.5;
+        }
+        .endorsement-card:hover .endorsement-accent {
+          opacity: 1;
+          height: 3px;
+        }
+        .endorsement-quote-mark {
+          font: 400 56px/1 'Playfair Display', serif;
+          color: var(--gold);
+          opacity: 0.25;
+          margin: -8px 0 4px -4px;
+          pointer-events: none;
+        }
+        .endorsement-text {
+          font: 300 15px/1.8 'Plus Jakarta Sans', sans-serif;
+          color: rgba(240,237,230,0.75);
+          font-style: italic;
+          flex: 1;
+          margin: 0 0 24px;
+        }
+        .endorsement-divider {
+          width: 32px;
+          height: 1px;
+          background: linear-gradient(90deg, var(--gold), transparent);
+          margin-bottom: 20px;
+          opacity: 0.4;
+          transition: width 0.4s var(--ease), opacity 0.4s;
+        }
+        .endorsement-card:hover .endorsement-divider {
+          width: 56px;
+          opacity: 0.7;
+        }
+        .endorsement-author {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .endorsement-initial {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.08));
+          border: 1px solid rgba(212,175,55,0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font: 600 14px 'Plus Jakarta Sans', sans-serif;
+          color: var(--gold);
+          flex-shrink: 0;
+        }
+        .endorsement-name {
+          font: 600 14px 'Plus Jakarta Sans', sans-serif;
+          color: var(--text);
+          margin-bottom: 2px;
+        }
+        .endorsement-title {
+          font: 400 11px 'JetBrains Mono', monospace;
+          color: var(--gold);
+          letter-spacing: 0.04em;
+          opacity: 0.7;
+        }
+        @media (max-width: 768px) {
+          .endorsement-card { padding: 28px 24px 24px; min-height: auto; }
+          .endorsement-text { font-size: 14px; }
         }
       `}</style>
     </div>

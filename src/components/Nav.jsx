@@ -307,7 +307,7 @@ export default function Nav({ cartCount, onCartClick }) {
           white-space: nowrap;
         }
         .nav-signin:hover { color: var(--gold); }
-        @media (max-width: 1024px) {
+        @media (max-width: 1100px) {
           .nav-donate, .nav-join, .nav-signin { display: none !important; }
         }
         .nav-admin-toggle-wrap {
