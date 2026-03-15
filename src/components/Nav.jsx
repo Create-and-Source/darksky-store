@@ -122,7 +122,7 @@ export default function Nav({ cartCount, onCartClick }) {
             </button>
             <span className="nav-admin-label">Admin</span>
             {adminOn && (
-              <a className="nav-admin-dash-link" onClick={() => go('/admin')}>
+              <a className="nav-admin-dash-link" onClick={() => go('/signin')}>
                 Dashboard &rarr;
               </a>
             )}
