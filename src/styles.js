@@ -165,6 +165,11 @@ body::before {
 }
 
 /* ═══ NAVIGATION ═══ */
+body.has-announcement .nav { top: 32px; }
+body.has-announcement .mob-menu { top: 32px; }
+body.has-announcement .cat-tabs { top: 104px; }
+body.has-announcement .sp-bar { top: 104px; }
+
 .nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   display: flex; align-items: center; justify-content: space-between;

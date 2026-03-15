@@ -53,6 +53,56 @@ let cartIdCounter = (() => {
   return saved.reduce((max, i) => Math.max(max, i.cartId || 0), 0);
 })();
 
+/* ── Announcement Bar (store-facing) ── */
+function AnnouncementBar() {
+  const [dismissed, setDismissed] = useState(false);
+  const [ann, setAnn] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('ds_announcement')) || { text: '', active: false }; } catch { return { text: '', active: false }; }
+  });
+
+  // Re-read on focus (catches admin changes in another tab or same session)
+  useEffect(() => {
+    const read = () => {
+      try { setAnn(JSON.parse(localStorage.getItem('ds_announcement')) || { text: '', active: false }); } catch {}
+    };
+    window.addEventListener('focus', read);
+    window.addEventListener('storage', read);
+    // Also poll every 2s for same-tab admin changes
+    const interval = setInterval(read, 2000);
+    return () => { window.removeEventListener('focus', read); window.removeEventListener('storage', read); clearInterval(interval); };
+  }, []);
+
+  const visible = ann.active && ann.text && !dismissed;
+
+  useEffect(() => {
+    document.body.classList.toggle('has-announcement', visible);
+    return () => document.body.classList.remove('has-announcement');
+  }, [visible]);
+
+  if (!visible) return null;
+
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 250,
+      background: '#D4AF37', color: '#04040c',
+      padding: '8px 40px 8px 16px', textAlign: 'center',
+      font: "500 11px 'JetBrains Mono', monospace",
+      letterSpacing: '1px', textTransform: 'uppercase',
+    }}>
+      {ann.text}
+      <button
+        onClick={() => setDismissed(true)}
+        aria-label="Dismiss"
+        style={{
+          position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+          background: 'none', border: 'none', color: '#04040c', cursor: 'pointer',
+          fontSize: 16, lineHeight: 1, padding: 4, opacity: 0.6,
+        }}
+      >&#10005;</button>
+    </div>
+  );
+}
+
 /* ── Custom Cursor (desktop only) ── */
 function CustomCursor() {
   const dotRef = useRef(null);
@@ -182,6 +232,7 @@ export default function App() {
       {!isAdmin && <EditToggleButton />}
       {!isAdmin && <EditBanner />}
       <div style={{ position: 'relative', zIndex: 1 }}>
+        {!isAdmin && <AnnouncementBar />}
         {!isAdmin && <Nav cartCount={cartCount} onCartClick={() => setDrawerOpen(true)} />}
         {!isAdmin && <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} cart={cart} onUpdate={updateQty} onRemove={removeItem} />}
 
