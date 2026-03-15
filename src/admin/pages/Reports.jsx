@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../AdminLayout';
-import HelpBubble from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 import {
   getOrders, getInventory, getMembers, getEvents,
@@ -323,7 +322,7 @@ export default function Reports() {
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         CSV
       </button>
-      <HelpBubble text="Downloads a spreadsheet file you can open in Excel or import into QuickBooks." />
+      
     </div>
   );
 
@@ -360,7 +359,7 @@ export default function Reports() {
               }}>{r.label}</button>
             ))}
           </div>
-          <HelpBubble text="Change the time period to see different data. This affects all charts below." />
+          
         </div>
       </div>
 
@@ -411,7 +410,7 @@ export default function Reports() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: 0 }}>Top Products</h3>
-              <HelpBubble text="Your best-selling products ranked by revenue. This shows what customers are buying most." />
+              
             </div>
             {csvBtn(exportTopProducts)}
           </div>
@@ -430,7 +429,7 @@ export default function Reports() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: 0 }}>Sales by Channel</h3>
-              <HelpBubble text="Shows how revenue breaks down between your online store and in-person POS sales at the gift shop." />
+              
             </div>
             {csvBtn(exportRevenue)}
           </div>
@@ -449,7 +448,7 @@ export default function Reports() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: 0 }}>Inventory Health</h3>
-              <HelpBubble text="A snapshot of your inventory across both the warehouse and the gift shop. Low stock items need restocking soon." />
+              
             </div>
             {csvBtn(exportInventory)}
           </div>
@@ -522,7 +521,7 @@ export default function Reports() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: 0 }}>Membership</h3>
-              <HelpBubble text="Your community membership breakdown by tier. Members get special perks and discounts." />
+              
             </div>
             {csvBtn(exportMembership)}
           </div>

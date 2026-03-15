@@ -4,7 +4,6 @@ import {
   getContent, updateContent, getAnnouncement, updateAnnouncement,
   getInventory, subscribe,
 } from '../data/store';
-import HelpBubble from '../components/HelpBubble';
 
 const PAGE_KEYS = ['home', 'about', 'membership'];
 const PAGE_LABELS = { home: 'Home', about: 'About', membership: 'Membership' };
@@ -142,7 +141,7 @@ export default function Content() {
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
             Content Manager
-            <HelpBubble text="Edit your website text and announcements without calling anyone." />
+            
           </h1>
           <p className="admin-page-subtitle">Edit your website text and announcements. Changes go live when you click Save.</p>
         </div>
@@ -183,7 +182,7 @@ export default function Content() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', font: "500 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: '#1E293B', marginBottom: 8 }}>
                   {PAGE_LABELS[key]}
-                  <HelpBubble text="Click a page to edit its text. Changes go live immediately when you save." />
+                  
                 </div>
                 <div style={{ font: "400 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: '#64748B', marginBottom: 12, lineHeight: 1.5 }}>
                   {page.title || 'No title set'}
@@ -222,7 +221,7 @@ export default function Content() {
               <div style={{ marginBottom: 20 }}>
                 <label style={labelStyle}>
                   Page Title
-                  <HelpBubble text="The main heading visitors see at the top of this page." />
+                  
                 </label>
                 <input
                   style={{ ...inputStyle, fontSize: 18, padding: '14px 16px' }}
@@ -236,7 +235,7 @@ export default function Content() {
               <div style={{ marginBottom: 20 }}>
                 <label style={labelStyle}>
                   Subtitle
-                  <HelpBubble text="A short tagline or description that appears below the title." />
+                  
                 </label>
                 <input
                   style={inputStyle}
@@ -250,7 +249,7 @@ export default function Content() {
               <div style={{ marginBottom: 20 }}>
                 <label style={labelStyle}>
                   Body Text
-                  <HelpBubble text="The main content of the page. You can write as much as you need here." />
+                  
                 </label>
                 <textarea
                   style={{ ...inputStyle, minHeight: 200, resize: 'vertical', lineHeight: 1.8 }}
@@ -287,7 +286,7 @@ export default function Content() {
         <div className="admin-panel" style={{ maxWidth: 700 }}>
           <div style={{ display: 'flex', alignItems: 'center', font: "500 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: '#1E293B', marginBottom: 8 }}>
             Announcement Bar
-            <HelpBubble text="This banner appears at the top of every page on your website. Great for promotions." />
+            
           </div>
           <p style={{ font: "400 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: '#94A3B8', marginBottom: 24 }}>
             This gold bar appears at the very top of the store. Use it for sales, shipping promos, or important updates.
@@ -333,7 +332,7 @@ export default function Content() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', font: "500 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: '#1E293B', marginBottom: 2 }}>
                 Show Announcement Bar
-                <HelpBubble text="When on, customers see the announcement. Turn off to hide it." />
+                
               </div>
               <div style={{ font: "400 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: '#94A3B8' }}>
                 {annActive ? 'Currently visible to all visitors' : 'Hidden from the store'}
@@ -372,7 +371,7 @@ export default function Content() {
         <div className="admin-panel" style={{ maxWidth: 600 }}>
           <div style={{ display: 'flex', alignItems: 'center', font: "500 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: '#1E293B', marginBottom: 4 }}>
             Store Categories
-            <HelpBubble text="These are the product categories shown in your shop. You can reorder them or hide ones you don't need." />
+            
           </div>
           <p style={{ font: "400 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: '#94A3B8', marginBottom: 24 }}>
             Reorder categories using the arrow buttons. Toggle visibility to show or hide categories in the shop.

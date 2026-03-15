@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HelpBubble from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 import { useToast, useRole } from '../AdminLayout';
 import {
@@ -769,7 +768,7 @@ function StaffDashboard() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <div style={labelStyle}>Low Stock — Gift Shop</div>
-            <HelpBubble text="These items are running low on the gift shop floor. Let a manager know if you need a transfer from the warehouse." />
+            
           </div>
           <div style={{ ...cardBase, padding: 0 }}>
             {lowStockGiftShop.slice(0, 6).map((item, i, arr) => (
@@ -1103,7 +1102,7 @@ function ManagerDashboard() {
         <div className="ds-attention-section" style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <div style={labelStyle}>Needs Attention</div>
-            <HelpBubble text="Tasks that may need action soon. Updates automatically based on orders, inventory, and events." />
+            
           </div>
           <div className="ds-attention-list" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {visibleAttention.map((card, i) => <AttentionCard key={i} card={card} navigate={navigate} delay={100 + i * 100} />)}
@@ -1386,7 +1385,7 @@ function ManagerDashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <div style={labelStyle}>Predictive Alerts</div>
             {Icon.zap()}
-            <HelpBubble text="Based on recent sales velocity, these items are projected to run out soon." />
+            
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {predictiveAlerts.slice(0, 3).map(item => (

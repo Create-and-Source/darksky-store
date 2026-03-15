@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getDonations, addDonation, updateDonation, deleteDonation, getFundraising, formatPrice, subscribe } from '../data/store';
 import { useToast, useRole } from '../AdminLayout';
-import HelpBubble from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 
 const C = { bg: '#FAFAF8', card: '#FFFFFF', border: '#E8E5DF', gold: '#C5A55A', text: '#1A1A2E', text2: '#7C7B76', muted: '#B5B3AD', success: '#3D8C6F', warning: '#D4943A', danger: '#C45B5B', shadow: '0 1px 3px rgba(0,0,0,0.04)' };
@@ -95,7 +94,7 @@ export default function Donations() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>Donations</h1>
-          <HelpBubble text="Track donor contributions, grants, and fundraising progress for the IDSDC." />
+          
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={exportCSV} style={{ padding: '8px 16px', border: '1px solid ' + C.border, borderRadius: 8, background: C.card, cursor: 'pointer', fontFamily: FONT, fontSize: 13, color: C.text2 }}>

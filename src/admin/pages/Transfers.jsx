@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getTransfers, addTransfer, updateTransfer, getInventory, subscribe } from '../data/store';
 import { useToast } from '../AdminLayout';
-import HelpBubble from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 
 const LOCATIONS = [
@@ -99,7 +98,7 @@ export default function Transfers() {
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
             Transfers
-            <HelpBubble text="Transfers move products between your warehouse and the gift shop." />
+            
           </h1>
           <p className="admin-page-subtitle">Move products between your warehouse and the gift shop. Mark items shipped and received to keep stock accurate.</p>
         </div>
@@ -107,7 +106,7 @@ export default function Transfers() {
           <button className="admin-btn admin-btn-gold" onClick={() => setCreating(true)}>
             + New Transfer
           </button>
-          <HelpBubble text="Create a transfer when you're sending products to another location." />
+          
         </div>
       </div>
 
@@ -142,9 +141,9 @@ export default function Transfers() {
                   <td>
                     <span className={`badge ${statusClass[t.status]}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                       {t.status}
-                      {t.status === 'Pending' && <HelpBubble text="Waiting to be shipped." />}
-                      {t.status === 'In Transit' && <HelpBubble text="On its way to the destination." />}
-                      {t.status === 'Received' && <HelpBubble text="Arrived and stock has been updated." />}
+                      {t.status === 'Pending' && }
+                      {t.status === 'In Transit' && }
+                      {t.status === 'Received' && }
                     </span>
                   </td>
                   <td>{t.createdDate}</td>
@@ -170,7 +169,7 @@ export default function Transfers() {
                 <div>
                   <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
                     From
-                    <HelpBubble text="Where the items are coming from and going to." />
+                    
                   </label>
                   <select className="admin-select" value={form.from} onChange={e => setForm(f => ({ ...f, from: e.target.value }))}>
                     {LOCATIONS.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -179,7 +178,7 @@ export default function Transfers() {
                 <div>
                   <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
                     To
-                    <HelpBubble text="Where the items are coming from and going to." />
+                    
                   </label>
                   <select className="admin-select" value={form.to} onChange={e => setForm(f => ({ ...f, to: e.target.value }))}>
                     {LOCATIONS.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -195,7 +194,7 @@ export default function Transfers() {
 
               <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
                 Add Products
-                <HelpBubble text="Search for the products you want to transfer. Click to add them." />
+                
               </label>
               <input
                 className="admin-input"
@@ -247,7 +246,7 @@ export default function Transfers() {
               <div style={{ marginBottom: 20 }}>
                 <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
                   Notes
-                  <HelpBubble text="Add any notes about this transfer for your records." />
+                  
                 </label>
                 <textarea className="admin-textarea" placeholder="Transfer notes..." value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
               </div>
@@ -347,7 +346,7 @@ export default function Transfers() {
                   onClick={() => markShipped(selected.id)}
                 >
                   Mark as Shipped
-                  <HelpBubble text="Click when items leave the sending location." />
+                  
                 </button>
               )}
               {selected.status === 'In Transit' && (
@@ -357,7 +356,7 @@ export default function Transfers() {
                   onClick={() => markReceived(selected.id)}
                 >
                   Mark as Received
-                  <HelpBubble text="Click when items arrive. This updates stock counts at both locations." />
+                  
                 </button>
               )}
             </div>

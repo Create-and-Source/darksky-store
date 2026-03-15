@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast, useRole } from '../AdminLayout';
-import HelpBubble from '../components/HelpBubble';
 import {
   getVolunteers, addVolunteer, updateVolunteer, deleteVolunteer, subscribe,
 } from '../data/store';
@@ -180,7 +179,7 @@ export default function Volunteers() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <h1 style={{ font: `600 24px ${FONT}`, margin: 0 }}>Volunteer Management</h1>
-          <HelpBubble text="Track volunteer schedules, hours, and certifications. Use Log Hours to record time, or Add Volunteer to onboard new team members." />
+          
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button style={btnOutline} onClick={() => setShowLogHours(true)}>Log Hours</button>

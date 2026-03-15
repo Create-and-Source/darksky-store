@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '../AdminLayout';
 import Wizard from '../components/Wizard';
-import HelpBubble, { LabelWithHelp } from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 import {
   getEmails, addEmail, getMembers, getOrders, getEvents, getReservations, subscribe,
@@ -361,7 +360,7 @@ export default function Emails() {
         <div>
           <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
             Preview and Send
-            <HelpBubble text="Always send a test email first to make sure it looks right." />
+            
           </h2>
 
           {/* Email preview */}
@@ -447,7 +446,7 @@ export default function Emails() {
         <div>
           <h1 className="admin-page-title" style={{ display: 'flex', alignItems: 'center' }}>
             Email
-            <HelpBubble text="Send updates, promotions, and newsletters to your subscribers." />
+            
           </h1>
           <p className="admin-page-subtitle">Send newsletters, promotions, and announcements to your customers and members.</p>
         </div>
@@ -486,7 +485,7 @@ export default function Emails() {
           <div className="admin-table-header">
             <span className="admin-table-title" style={{ display: 'flex', alignItems: 'center' }}>
               Sent Emails
-              <HelpBubble text="History of all emails you have sent." />
+              
             </span>
           </div>
           <div style={{ overflowX: 'auto' }}>
@@ -555,7 +554,7 @@ export default function Emails() {
             <span style={{ font: '500 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37' }}>
               {allSubscribers.length} total subscribers
             </span>
-            <HelpBubble text="Combined list of members and customers from orders." />
+            
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table className="admin-table">

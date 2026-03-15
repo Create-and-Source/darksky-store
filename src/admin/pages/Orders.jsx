@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getOrders, updateOrder, formatPrice, subscribe } from '../data/store';
 import { useToast } from '../AdminLayout';
-import HelpBubble from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 
 const statusClass = { Paid: 'badge-green', Processing: 'badge-blue', Shipped: 'badge-purple', Delivered: 'badge-gray' };
@@ -75,7 +74,7 @@ export default function Orders() {
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
             Orders
-            <HelpBubble text="All customer orders — online purchases and in-store (POS) sales." />
+            
           </h1>
           <p className="admin-page-subtitle">All customer orders from your website and gift shop. Click any order to see details.</p>
         </div>
@@ -90,7 +89,7 @@ export default function Orders() {
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            <HelpBubble text="Search by order number (like ORD-2401) or customer name." />
+            
           </div>
           <div className="admin-filter-tabs" style={{ display: 'inline-flex', alignItems: 'center', gap: 0 }}>
             {ALL_STATUSES.map(s => (
@@ -98,7 +97,7 @@ export default function Orders() {
                 {s}
               </button>
             ))}
-            <HelpBubble text="Filter orders by their current status to find what needs attention." />
+            
           </div>
           <div className="admin-filter-tabs" style={{ display: 'inline-flex', alignItems: 'center', gap: 0 }}>
             {ALL_CHANNELS.map(c => (
@@ -106,7 +105,7 @@ export default function Orders() {
                 {c}
               </button>
             ))}
-            <HelpBubble text="Online orders come from your website. POS orders come from Square at the gift shop." />
+            
           </div>
         </div>
 
@@ -200,7 +199,7 @@ export default function Orders() {
                 <div style={{ marginBottom: 20 }}>
                   <div className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
                     Add Tracking Number
-                    <HelpBubble text="Add the shipping tracking number so customers can track their package." />
+                    
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input
@@ -260,7 +259,7 @@ export default function Orders() {
               <div style={{ marginTop: 20 }}>
                 <div className="admin-label" style={{ marginBottom: 8, display: 'inline-flex', alignItems: 'center' }}>
                   Update Status
-                  <HelpBubble text="Change the order status as you process it. Customers get notified automatically." />
+                  
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <select
@@ -289,7 +288,7 @@ export default function Orders() {
                       value={trackingInput}
                       onChange={e => setTrackingInput(e.target.value)}
                     />
-                    <HelpBubble text="Add the shipping tracking number so customers can track their package." />
+                    
                   </div>
                 )}
               </div>

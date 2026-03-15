@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { getPurchaseOrders, addPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, getInventory, VENDORS, formatPrice, subscribe, getReorderSuggestions } from '../data/store';
 import { useToast } from '../AdminLayout';
 import Wizard from '../components/Wizard';
-import HelpBubble, { LabelWithHelp } from '../components/HelpBubble';
 import { undoable } from '../components/UndoSystem';
 
 const statusClass = { Draft: 'badge-gray', Ordered: 'badge-blue', 'In Production': 'badge-purple', Shipped: 'badge-gold', Received: 'badge-green' };
@@ -377,7 +376,7 @@ export default function PurchaseOrders() {
         <div>
           <h1 className="admin-page-title" style={{ display: 'flex', alignItems: 'center' }}>
             Purchase Orders
-            <HelpBubble text="Purchase orders track what you're buying from vendors. Create one before placing an order." />
+            
           </h1>
           <p className="admin-page-subtitle">Track what you've ordered from vendors. When items arrive, mark them received and stock updates automatically.</p>
         </div>

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast, useRole } from '../AdminLayout';
-import HelpBubble from '../components/HelpBubble';
 import {
   getFacilityBookings, addFacilityBooking, updateFacilityBooking,
   deleteFacilityBooking, FACILITY_SPACES, subscribe,
@@ -207,7 +206,7 @@ export default function Facility() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <h1 style={{ font: `600 24px ${FONT}`, margin: 0 }}>Facility Calendar</h1>
-          <HelpBubble text="Manage space bookings across all IDSDC facilities. Click an empty cell to create a booking, or click an existing booking for details." />
+          
         </div>
         <button style={btnPrimary} onClick={() => openNew(null, null)}>+ New Booking</button>
       </div>

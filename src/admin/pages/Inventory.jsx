@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getInventory, getMovements, adjustStock, formatPrice, getStockStatus, subscribe, getSalesVelocity } from '../data/store';
 import { useToast } from '../AdminLayout';
-import HelpBubble from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 
 const statusLabel = { in: 'In Stock', low: 'Low Stock', out: 'Out of Stock' };
@@ -104,13 +103,13 @@ export default function Inventory() {
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
             Inventory
-            <HelpBubble text="All products currently in stock at each location. Click any row to see details." />
+            
           </h1>
           <p className="admin-page-subtitle">See what's in stock at every location. Yellow means running low. Red means out of stock.</p>
         </div>
         <button className="admin-btn admin-btn-ghost" onClick={exportCSV} style={{ display: 'inline-flex', alignItems: 'center' }}>
           Export CSV
-          <HelpBubble text="Downloads a spreadsheet of all your products. Open in Excel or import into QuickBooks." />
+          
         </button>
       </div>
 
@@ -123,7 +122,7 @@ export default function Inventory() {
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            <HelpBubble text="Type a product name or product code to find it fast." />
+            
           </div>
           <div className="admin-filter-tabs" style={{ display: 'inline-flex', alignItems: 'center', gap: 0 }}>
             {[['all', 'All'], ['warehouse', 'Warehouse'], ['giftshop', 'Gift Shop']].map(([val, label]) => (
@@ -135,7 +134,7 @@ export default function Inventory() {
                 {label}
               </button>
             ))}
-            <HelpBubble text="Filter to see only warehouse stock or gift shop stock." />
+            
           </div>
           <div className="admin-filter-tabs">
             {categories.map(cat => (
@@ -218,8 +217,8 @@ export default function Inventory() {
                     <td id="tour-inventory-status">
                       <span className={`badge ${statusClass[status]}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                         {statusLabel[status]}
-                        {status === 'out' && <HelpBubble text="This item has zero units. You need to receive more or order from your vendor." />}
-                        {status === 'low' && <HelpBubble text="Getting low. Consider reordering before you run out." />}
+                        {status === 'out' && }
+                        {status === 'low' && }
                       </span>
                     </td>
                   </tr>
@@ -279,13 +278,13 @@ export default function Inventory() {
                   onClick={() => setAdjusting(true)}
                 >
                   Adjust Stock
-                  <HelpBubble text="Use this to correct the count if something's wrong. Enter the new number and a reason." />
+                  
                 </button>
               ) : (
                 <div className="admin-panel" style={{ padding: 16, marginBottom: 24 }}>
                   <div className="admin-panel-title" style={{ fontSize: 15, marginBottom: 12, display: 'inline-flex', alignItems: 'center' }}>
                     Adjust Stock
-                    <HelpBubble text="Use this to correct the count if something's wrong. Enter the new number and a reason." />
+                    
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <label className="admin-label">Location</label>
@@ -330,7 +329,7 @@ export default function Inventory() {
 
               <div className="admin-label" style={{ marginBottom: 12, display: 'inline-flex', alignItems: 'center' }}>
                 Movement History
-                <HelpBubble text="This shows every time this item was received, sold, or transferred." />
+                
               </div>
               {history.length === 0 ? (
                 <div className="admin-empty" style={{ padding: 24 }}>

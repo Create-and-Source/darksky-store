@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getInventory, receiveStock, subscribe, getPurchaseOrders } from '../data/store';
 import { useToast } from '../AdminLayout';
-import HelpBubble from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 
 const LOCATIONS = [
@@ -137,7 +136,7 @@ export default function Receive() {
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
             Receive Stock
-            <HelpBubble text="Use this when a shipment arrives. Search for what came in, enter how many, and confirm." />
+            
           </h1>
           <p className="admin-page-subtitle">Log incoming shipments. Search for products, enter quantities, and your stock updates automatically.</p>
         </div>
@@ -246,7 +245,7 @@ export default function Receive() {
           <>
             <div className="admin-panel-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
               Select Receiving Location
-              <HelpBubble text="Pick where the shipment arrived — your warehouse or the gift shop." />
+              
             </div>
             <div className="admin-grid-2" style={{ gap: 12 }}>
               {LOCATIONS.map(loc => (
@@ -268,7 +267,7 @@ export default function Receive() {
           <>
             <div className="admin-panel-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
               Scan or Search Products
-              <HelpBubble text="Start typing a product name to find it. Click to add it to your receive list." />
+              
             </div>
             <input
               ref={searchRef}
@@ -326,7 +325,7 @@ export default function Receive() {
           <>
             <div className="admin-panel-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
               Enter Quantities
-              <HelpBubble text="Enter how many of this item you received in the shipment." />
+              
             </div>
             {items.map(i => (
               <div key={i.id} className="admin-receive-item">
@@ -357,14 +356,14 @@ export default function Receive() {
             <div style={{ marginBottom: 16 }}>
               <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
                 Reference (PO Number or Supplier)
-                <HelpBubble text="Add the PO number or any notes about this shipment for your records." />
+                
               </label>
               <input className="admin-input" placeholder="e.g. PO-0045 or Printify" value={reference} onChange={e => setReference(e.target.value)} />
             </div>
             <div>
               <label className="admin-label" style={{ display: 'inline-flex', alignItems: 'center' }}>
                 Notes
-                <HelpBubble text="Add the PO number or any notes about this shipment for your records." />
+                
               </label>
               <textarea className="admin-textarea" placeholder="Any notes about this shipment..." value={notes} onChange={e => setNotes(e.target.value)} />
             </div>
@@ -418,7 +417,7 @@ export default function Receive() {
           ) : (
             <button className="admin-btn admin-btn-gold admin-btn-lg" disabled={submitting} onClick={handleSubmit} style={{ display: 'inline-flex', alignItems: 'center' }}>
               {submitting ? <><span className="admin-spinner" /> Receiving...</> : 'Receive Stock'}
-              {!submitting && <HelpBubble text="This saves everything and updates your stock counts automatically." />}
+              {!submitting && }
             </button>
           )}
         </div>

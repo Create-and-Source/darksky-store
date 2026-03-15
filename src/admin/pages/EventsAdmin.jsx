@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../AdminLayout';
 import Wizard from '../components/Wizard';
-import HelpBubble, { LabelWithHelp } from '../components/HelpBubble';
 import PageTour from '../components/PageTour';
 import { undoable } from '../components/UndoSystem';
 import {
@@ -276,7 +275,7 @@ export default function EventsAdmin() {
             <div>
               <h1 className="admin-page-title" style={{ display: 'flex', alignItems: 'center' }}>
                 Events
-                <HelpBubble text="All your events -- upcoming, drafts, and past. Click any event to edit it." />
+                
               </h1>
               <p className="admin-page-subtitle">Create and manage your star parties, shows, and workshops. Published events appear on your website.</p>
             </div>
