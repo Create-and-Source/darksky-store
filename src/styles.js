@@ -198,8 +198,7 @@ body.has-announcement .sp-bar { top: 104px; }
   font: 500 12px 'JetBrains Mono'; letter-spacing: 0.2em; color: var(--text);
 }
 .nav-center {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 32px;
+  display: flex; gap: 24px; margin: 0 auto;
 }
 .nav-center a {
   font: 500 11px 'Plus Jakarta Sans'; letter-spacing: 0.2em; text-transform: uppercase;
@@ -222,7 +221,7 @@ body.has-announcement .sp-bar { top: 104px; }
 .nav-center a:hover::before { width: 100%; }
 .nav-center a.active::before { display: none; }
 
-.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 .nav-cart {
   position: relative; background: none; border: none; cursor: pointer;
   color: var(--text2); transition: color 0.25s; padding: 4px;
@@ -1019,11 +1018,16 @@ input:focus, select:focus, textarea:focus {
 }
 @media (max-width: 1200px) {
   .nav-center { gap: 16px; }
-  .nav-center a { font-size: 10px; letter-spacing: 0.12em; }
+  .nav-center a { font-size: 10px; letter-spacing: 0.1em; }
   .nav-right { gap: 12px; }
 }
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .nav { padding: 0 24px; }
+  .nav-center { gap: 12px; }
+  .nav-center a { font-size: 9px; letter-spacing: 0.06em; }
+  .nav-right { gap: 8px; }
+}
+@media (max-width: 768px) {
   .nav-center, .nav-join { display: none; }
   .nav-ham { display: flex; }
 }
