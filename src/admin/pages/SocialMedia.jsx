@@ -368,6 +368,37 @@ async function renderPoster(template, clr, fields, bgUrl) {
   return canvas;
 }
 
+// ── Lifestyle mockup prompts ──
+const LIFESTYLE_SCENES = [
+  { id: 'star-party', name: 'Star Party', prompt: 'at a star party in the Sonoran Desert, Milky Way visible overhead, warm campfire glow' },
+  { id: 'sunset', name: 'Desert Sunset', prompt: 'hiking a desert trail at golden hour, saguaro cactus and warm sunset light' },
+  { id: 'observatory', name: 'Observatory', prompt: 'on the observatory deck at night, telescope nearby, stars filling the sky' },
+  { id: 'coffee', name: 'Morning Coffee', prompt: 'at an outdoor desert cafe, warm morning light, Fountain Hills Arizona' },
+  { id: 'adventure', name: 'Adventure', prompt: 'exploring the desert with binoculars, bright blue sky, red rock landscape' },
+];
+
+function buildLifestylePrompt(product, scene) {
+  const name = (product?.title || product?.name || '').toLowerCase();
+  const sp = scene?.prompt || LIFESTYLE_SCENES[0].prompt;
+  if (name.includes('hoodie') || name.includes('sweatshirt'))
+    return `Young person wearing a dark astronomy-themed hoodie, ${sp}, cozy and relaxed, photographed from behind looking up at the stars, lifestyle photography`;
+  if (name.includes('tee') || name.includes('t-shirt') || name.includes('shirt') || name.includes('tank'))
+    return `Person wearing a dark graphic t-shirt with astronomy design, ${sp}, casual and confident, lifestyle photography, editorial style`;
+  if (name.includes('mug') || name.includes('cup'))
+    return `Hands holding a ceramic mug with astronomy design, steam rising, ${sp}, cozy lifestyle photography, shallow depth of field`;
+  if (name.includes('hat') || name.includes('cap') || name.includes('beanie'))
+    return `Person wearing an astronomy-themed hat, ${sp}, profile view looking at the sky, lifestyle photography`;
+  if (name.includes('poster') || name.includes('print') || name.includes('canvas'))
+    return `Astronomy poster in a modern minimalist room, warm lamp light, desert-themed decor, cozy evening atmosphere, interior lifestyle photography`;
+  if (name.includes('bag') || name.includes('tote'))
+    return `Person carrying a tote bag with astronomy design, ${sp}, casual adventure style, lifestyle photography`;
+  if (name.includes('sticker'))
+    return `Astronomy sticker on a water bottle, ${sp}, outdoor adventure vibes, close-up lifestyle photography`;
+  if (name.includes('phone') || name.includes('case'))
+    return `Person holding phone with astronomy-themed case, ${sp}, screen glow on face, lifestyle photography`;
+  return `Person using ${product?.title || 'product'} outdoors in the Arizona desert at twilight, warm golden light, lifestyle editorial photography`;
+}
+
 const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: C.shadow };
 const pillBase = { padding: '7px 16px', borderRadius: 100, border: 'none', cursor: 'pointer', font: `500 12px ${FONT}`, letterSpacing: '0.02em', transition: 'all 0.15s' };
 const labelStyle = { fontFamily: MONO, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, color: C.text2, marginBottom: 8, display: 'block' };
@@ -406,6 +437,9 @@ export default function SocialMedia() {
   const [uploadedFile, setUploadedFile] = useState(null); // { name, size, type, objectUrl, dataUrl }
   const [mediaMode, setMediaMode] = useState('photo'); // 'photo' | 'poster'
   const [mediaTab, setMediaTab] = useState('upload'); // 'upload' | 'generate' | 'gallery'
+  const [productMediaMode, setProductMediaMode] = useState('product'); // 'product' | 'lifestyle' | 'upload'
+  const [lifestyleScene, setLifestyleScene] = useState(LIFESTYLE_SCENES[0]);
+  const [lifestylePrompt, setLifestylePrompt] = useState('');
   const [galleryImages, setGalleryImages] = useState([]);
   const [posterTemplate, setPosterTemplate] = useState('bold');
   const [posterColors, setPosterColors] = useState(POSTER_COLORS[0]);
@@ -499,11 +533,12 @@ export default function SocialMedia() {
   const clearMedia = () => { if (uploadedFile?.objectUrl) URL.revokeObjectURL(uploadedFile.objectUrl); setMediaUrl(''); setUploadedFile(null); setMediaType('image'); };
   const onDrop = (e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f); };
 
-  const generateImage = async (surprise = false) => {
-    if (!surprise && !imagePrompt.trim()) { toast('Enter a prompt', 'error'); return; }
+  const generateImage = async (surprise = false, promptOverride = null) => {
+    const p = promptOverride || imagePrompt;
+    if (!surprise && !p.trim()) { toast('Enter a prompt', 'error'); return; }
     setGeneratingImage(true);
     try {
-      const r = await fetch(GENERATE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }, body: JSON.stringify({ prompt: surprise ? '' : imagePrompt.trim(), style: imageStyle.toLowerCase(), surprise }) });
+      const r = await fetch(GENERATE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }, body: JSON.stringify({ prompt: surprise ? '' : p.trim(), style: imageStyle.toLowerCase(), surprise }) });
       if (!r.ok) throw new Error('Failed');
       const res = await r.json(); const url = res.image_url || res.url || res.imageUrl || '';
       if (!url) throw new Error('No image');
@@ -676,55 +711,118 @@ export default function SocialMedia() {
 
                   {/* ── PHOTO MODE ── */}
                   {mediaMode === 'photo' && (<>
-                    <div style={{ display: 'flex', gap: 0, marginBottom: 12, background: '#F0EDE8', borderRadius: 6, overflow: 'hidden' }}>
-                      {[['upload', 'Upload'], ['generate', 'Generate'], ['gallery', 'Gallery']].map(([k, l]) => (
-                        <button key={k} onClick={() => setMediaTab(k)} style={{ flex: 1, padding: '6px 0', background: mediaTab === k ? C.card : 'transparent', border: 'none', font: `500 10px ${FONT}`, color: mediaTab === k ? C.text : C.muted, cursor: 'pointer', borderRadius: mediaTab === k ? 6 : 0, boxShadow: mediaTab === k ? C.shadow : 'none' }}>{l}</button>
-                      ))}
-                    </div>
-                    {mediaTab === 'upload' && (
-                      <div onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop}
-                        onClick={() => fileInputRef.current?.click()}
-                        style={{ border: `2px dashed ${dragOver ? C.gold : C.border}`, borderRadius: 8, padding: 24, textAlign: 'center', cursor: 'pointer', background: dragOver ? `${C.gold}06` : 'transparent', marginBottom: 12 }}>
-                        <input ref={fileInputRef} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={e => handleFileSelect(e.target.files[0])} />
-                        <div style={{ font: `400 12px ${FONT}`, color: C.muted }}>Drag or click to upload</div>
-                      </div>
-                    )}
-                    {mediaTab === 'generate' && (
-                      <div style={{ marginBottom: 12 }}>
-                        <textarea value={imagePrompt} onChange={e => setImagePrompt(e.target.value)} rows={2} style={{ ...inputStyle, fontSize: 12, lineHeight: 1.4, resize: 'vertical', marginBottom: 8 }} placeholder="Describe the image..." />
-                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>{IMG_STYLES.map(s => <button key={s} onClick={() => setImageStyle(s)} style={{ ...pillBase, padding: '3px 8px', fontSize: 9, background: imageStyle === s ? C.gold : 'transparent', color: imageStyle === s ? '#fff' : C.text2, border: imageStyle === s ? `1px solid ${C.gold}` : `1px solid ${C.border}` }}>{s}</button>)}</div>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => generateImage(false)} disabled={generatingImage} style={{ ...pillBase, padding: '7px 16px', background: generatingImage ? C.muted : C.gold, color: '#fff', fontSize: 11, fontWeight: 600 }}>{generatingImage ? 'Creating...' : 'Generate'}</button>
-                          <button onClick={() => generateImage(true)} disabled={generatingImage} style={{ ...pillBase, padding: '7px 12px', background: 'transparent', color: C.text2, border: `1px solid ${C.border}`, fontSize: 11 }}>Surprise</button>
-                        </div>
-                        {generatingImage && <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}><div style={{ width: 16, height: 16, borderRadius: '50%', border: `2px solid ${C.border}`, borderTopColor: C.gold, animation: 'smSpin 0.8s linear infinite' }} /><span style={{ font: `400 11px ${FONT}`, color: C.text2 }}>Creating...</span></div>}
-                      </div>
-                    )}
-                    {mediaTab === 'gallery' && (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, marginBottom: 12 }}>
-                        {galleryImages.map(img => (
-                          <button key={img.id} onClick={() => pickGallery(img)} style={{ padding: 0, border: '2px solid transparent', borderRadius: 5, overflow: 'hidden', cursor: 'pointer', background: '#f0ede8', aspectRatio: '1' }} onMouseEnter={e => e.currentTarget.style.borderColor = C.gold} onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}>
-                            <img src={img.image_url || img.url || img.storage_path || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+
+                    {/* Product source: 3-card selector */}
+                    {sourceType === 'product' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 12 }}>
+                        {[
+                          { id: 'product', label: 'Product Photo', desc: 'Flat mockup' },
+                          { id: 'lifestyle', label: 'Lifestyle Scene', desc: 'AI mockup' },
+                          { id: 'upload', label: 'Upload', desc: 'Your file' },
+                        ].map(m => (
+                          <button key={m.id} onClick={() => {
+                            setProductMediaMode(m.id);
+                            if (m.id === 'product' && sourceData?.images?.[0]) { setMediaUrl(sourceData.images[0]); setMediaType('image'); setUploadedFile(null); }
+                            if (m.id === 'lifestyle') { const sc = lifestyleScene; setLifestylePrompt(buildLifestylePrompt(sourceData, sc)); setImageStyle('Realistic'); }
+                          }} style={{
+                            ...cardStyle, padding: '10px 8px', textAlign: 'center', cursor: 'pointer',
+                            border: productMediaMode === m.id ? `2px solid ${C.gold}` : `1px solid ${C.border}`,
+                          }}>
+                            <div style={{ font: `600 11px ${FONT}`, color: productMediaMode === m.id ? C.gold : C.text, marginBottom: 2 }}>{m.label}</div>
+                            <div style={{ font: `400 9px ${FONT}`, color: C.muted }}>{m.desc}</div>
                           </button>
                         ))}
-                        {!galleryImages.length && <p style={{ font: `400 11px ${FONT}`, color: C.muted, gridColumn: '1/-1', textAlign: 'center', padding: 16 }}>No gallery images</p>}
                       </div>
                     )}
-                    {mediaUrl && (
+
+                    {/* Product Photo mode */}
+                    {sourceType === 'product' && productMediaMode === 'product' && mediaUrl && (
                       <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 12 }}>
-                        {mediaType === 'video' ? <video src={mediaUrl} controls style={{ width: '100%', maxHeight: 200, display: 'block', background: '#000' }} />
-                        : <img src={mediaUrl} alt="Selected" onClick={() => setLightboxUrl(mediaUrl)} style={{ width: '100%', maxHeight: 220, objectFit: 'contain', background: '#f0ede8', display: 'block', cursor: 'zoom-in' }} />}
-                        <div style={{ padding: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
-                          {uploadedFile && <span style={{ font: `400 10px ${FONT}`, color: C.muted, flex: 1 }}>{uploadedFile.name}</span>}
-                          <button onClick={clearMedia} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: 'transparent', color: C.danger, border: `1px solid ${C.border}` }}>Remove</button>
+                        <img src={mediaUrl} alt="Product" onClick={() => setLightboxUrl(mediaUrl)} style={{ width: '100%', maxHeight: 220, objectFit: 'contain', background: '#f0ede8', display: 'block', cursor: 'zoom-in' }} />
+                        <div style={{ padding: '6px 8px', font: `400 10px ${FONT}`, color: C.muted }}>Product photo from catalog</div>
+                      </div>
+                    )}
+
+                    {/* Lifestyle Scene mode */}
+                    {sourceType === 'product' && productMediaMode === 'lifestyle' && (
+                      <div style={{ marginBottom: 12 }}>
+                        <label style={labelStyle}>Scene</label>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
+                          {LIFESTYLE_SCENES.map(sc => (
+                            <button key={sc.id} onClick={() => { setLifestyleScene(sc); setLifestylePrompt(buildLifestylePrompt(sourceData, sc)); }}
+                              style={{ ...pillBase, padding: '4px 10px', fontSize: 10, background: lifestyleScene.id === sc.id ? C.gold : 'transparent', color: lifestyleScene.id === sc.id ? '#fff' : C.text2, border: lifestyleScene.id === sc.id ? `1px solid ${C.gold}` : `1px solid ${C.border}` }}>{sc.name}</button>
+                          ))}
                         </div>
-                        {sourceType === 'product' && sourceData?.images?.[0] && mediaUrl === sourceData.images[0] && (
-                          <div style={{ padding: '4px 8px 8px', font: `400 11px ${FONT}`, color: C.muted }}>
-                            Product photo auto-loaded. <button onClick={() => { clearMedia(); setMediaTab('generate'); }} style={{ background: 'none', border: 'none', color: C.gold, font: `400 11px ${FONT}`, cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Generate or upload instead</button>
+                        <textarea value={lifestylePrompt} onChange={e => setLifestylePrompt(e.target.value)} rows={3} style={{ ...inputStyle, fontSize: 12, lineHeight: 1.4, resize: 'vertical', marginBottom: 8 }} placeholder="Describe the lifestyle scene..." />
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>{IMG_STYLES.map(s => <button key={s} onClick={() => setImageStyle(s)} style={{ ...pillBase, padding: '3px 8px', fontSize: 9, background: imageStyle === s ? C.gold : 'transparent', color: imageStyle === s ? '#fff' : C.text2, border: imageStyle === s ? `1px solid ${C.gold}` : `1px solid ${C.border}` }}>{s}</button>)}</div>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button onClick={() => generateImage(false, lifestylePrompt)} disabled={generatingImage} style={{ ...pillBase, padding: '7px 16px', background: generatingImage ? C.muted : C.gold, color: '#fff', fontSize: 11, fontWeight: 600 }}>{generatingImage ? 'Creating...' : 'Generate Lifestyle'}</button>
+                          <button onClick={() => { const sc = LIFESTYLE_SCENES[Math.floor(Math.random() * LIFESTYLE_SCENES.length)]; setLifestyleScene(sc); const p = buildLifestylePrompt(sourceData, sc); setLifestylePrompt(p); generateImage(false, p); }} disabled={generatingImage} style={{ ...pillBase, padding: '7px 12px', background: 'transparent', color: C.text2, border: `1px solid ${C.border}`, fontSize: 11 }}>Try Another Scene</button>
+                        </div>
+                        {generatingImage && <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}><div style={{ width: 16, height: 16, borderRadius: '50%', border: `2px solid ${C.border}`, borderTopColor: C.gold, animation: 'smSpin 0.8s linear infinite' }} /><span style={{ font: `400 11px ${FONT}`, color: C.text2 }}>Creating lifestyle mockup...</span></div>}
+                        {mediaUrl && !generatingImage && mediaUrl !== sourceData?.images?.[0] && (
+                          <div style={{ ...cardStyle, overflow: 'hidden', marginTop: 12 }}>
+                            <img src={mediaUrl} alt="Lifestyle" onClick={() => setLightboxUrl(mediaUrl)} style={{ width: '100%', maxHeight: 250, objectFit: 'contain', background: '#f0ede8', display: 'block', cursor: 'zoom-in' }} />
+                            <div style={{ padding: 8, display: 'flex', gap: 6 }}>
+                              <button onClick={() => downloadImage(mediaUrl, `darksky-lifestyle-${(sourceData?.title || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 20)}.png`)} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: C.gold, color: '#fff' }}>Download</button>
+                              <button onClick={() => toast('Selected as post image')} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: 'transparent', color: C.gold, border: `1px solid ${C.gold}` }}>Use This</button>
+                              <button onClick={() => { setProductMediaMode('product'); if (sourceData?.images?.[0]) { setMediaUrl(sourceData.images[0]); } }} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: 'transparent', color: C.text2, border: `1px solid ${C.border}` }}>Back to Product Photo</button>
+                            </div>
                           </div>
                         )}
                       </div>
                     )}
+
+                    {/* Upload mode (for products) or default tabs (for non-products) */}
+                    {(sourceType !== 'product' || productMediaMode === 'upload') && (<>
+                      {sourceType !== 'product' && (
+                        <div style={{ display: 'flex', gap: 0, marginBottom: 12, background: '#F0EDE8', borderRadius: 6, overflow: 'hidden' }}>
+                          {[['upload', 'Upload'], ['generate', 'Generate'], ['gallery', 'Gallery']].map(([k, l]) => (
+                            <button key={k} onClick={() => setMediaTab(k)} style={{ flex: 1, padding: '6px 0', background: mediaTab === k ? C.card : 'transparent', border: 'none', font: `500 10px ${FONT}`, color: mediaTab === k ? C.text : C.muted, cursor: 'pointer', borderRadius: mediaTab === k ? 6 : 0, boxShadow: mediaTab === k ? C.shadow : 'none' }}>{l}</button>
+                          ))}
+                        </div>
+                      )}
+                      {(mediaTab === 'upload' || (sourceType === 'product' && productMediaMode === 'upload')) && (
+                        <div onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+                          onClick={() => fileInputRef.current?.click()}
+                          style={{ border: `2px dashed ${dragOver ? C.gold : C.border}`, borderRadius: 8, padding: 24, textAlign: 'center', cursor: 'pointer', background: dragOver ? `${C.gold}06` : 'transparent', marginBottom: 12 }}>
+                          <input ref={fileInputRef} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={e => handleFileSelect(e.target.files[0])} />
+                          <div style={{ font: `400 12px ${FONT}`, color: C.muted }}>Drag or click to upload</div>
+                        </div>
+                      )}
+                      {sourceType !== 'product' && mediaTab === 'generate' && (
+                        <div style={{ marginBottom: 12 }}>
+                          <textarea value={imagePrompt} onChange={e => setImagePrompt(e.target.value)} rows={2} style={{ ...inputStyle, fontSize: 12, lineHeight: 1.4, resize: 'vertical', marginBottom: 8 }} placeholder="Describe the image..." />
+                          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>{IMG_STYLES.map(s => <button key={s} onClick={() => setImageStyle(s)} style={{ ...pillBase, padding: '3px 8px', fontSize: 9, background: imageStyle === s ? C.gold : 'transparent', color: imageStyle === s ? '#fff' : C.text2, border: imageStyle === s ? `1px solid ${C.gold}` : `1px solid ${C.border}` }}>{s}</button>)}</div>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button onClick={() => generateImage(false)} disabled={generatingImage} style={{ ...pillBase, padding: '7px 16px', background: generatingImage ? C.muted : C.gold, color: '#fff', fontSize: 11, fontWeight: 600 }}>{generatingImage ? 'Creating...' : 'Generate'}</button>
+                            <button onClick={() => generateImage(true)} disabled={generatingImage} style={{ ...pillBase, padding: '7px 12px', background: 'transparent', color: C.text2, border: `1px solid ${C.border}`, fontSize: 11 }}>Surprise</button>
+                          </div>
+                          {generatingImage && <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}><div style={{ width: 16, height: 16, borderRadius: '50%', border: `2px solid ${C.border}`, borderTopColor: C.gold, animation: 'smSpin 0.8s linear infinite' }} /><span style={{ font: `400 11px ${FONT}`, color: C.text2 }}>Creating...</span></div>}
+                        </div>
+                      )}
+                      {sourceType !== 'product' && mediaTab === 'gallery' && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, marginBottom: 12 }}>
+                          {galleryImages.map(img => (
+                            <button key={img.id} onClick={() => pickGallery(img)} style={{ padding: 0, border: '2px solid transparent', borderRadius: 5, overflow: 'hidden', cursor: 'pointer', background: '#f0ede8', aspectRatio: '1' }} onMouseEnter={e => e.currentTarget.style.borderColor = C.gold} onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}>
+                              <img src={img.image_url || img.url || img.storage_path || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                            </button>
+                          ))}
+                          {!galleryImages.length && <p style={{ font: `400 11px ${FONT}`, color: C.muted, gridColumn: '1/-1', textAlign: 'center', padding: 16 }}>No gallery images</p>}
+                        </div>
+                      )}
+                      {/* Generic media preview for non-product or uploaded */}
+                      {mediaUrl && (sourceType !== 'product' || productMediaMode === 'upload') && (
+                        <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 12 }}>
+                          {mediaType === 'video' ? <video src={mediaUrl} controls style={{ width: '100%', maxHeight: 200, display: 'block', background: '#000' }} />
+                          : <img src={mediaUrl} alt="Selected" onClick={() => setLightboxUrl(mediaUrl)} style={{ width: '100%', maxHeight: 220, objectFit: 'contain', background: '#f0ede8', display: 'block', cursor: 'zoom-in' }} />}
+                          <div style={{ padding: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
+                            {uploadedFile && <span style={{ font: `400 10px ${FONT}`, color: C.muted, flex: 1 }}>{uploadedFile.name}</span>}
+                            <button onClick={clearMedia} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: 'transparent', color: C.danger, border: `1px solid ${C.border}` }}>Remove</button>
+                          </div>
+                        </div>
+                      )}
+                    </>)}
                   </>)}
 
                   {/* ── POSTER MODE ── */}
