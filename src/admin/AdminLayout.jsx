@@ -50,7 +50,7 @@ const ROLE_ALLOWED_ROUTES = {
   executive_director: null, // all
   admin: null,
   treasurer: ['', '/donations', '/reports', '/payroll', '/quickbooks'],
-  shop_manager: ['', '/pos', '/products', '/orders', '/inventory', '/receive', '/transfers'],
+  shop_manager: ['', '/pos', '/products', '/orders', '/inventory', '/purchase-orders', '/receive', '/transfers'],
   shop_staff: ['', '/pos', '/orders', '/inventory', '/receive'],
   visitor_services: ['', '/pos', '/events', '/reports'],
   education_director: ['', '/events', '/field-trips', '/donations', '/reports'],
