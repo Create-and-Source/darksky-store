@@ -196,30 +196,31 @@ export default function AdminLayout() {
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState('');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [role, setRole] = useState(() => localStorage.getItem('ds_admin_role') || 'executive_director');
   const navigate = useNavigate();
   const location = useLocation();
   const quickSearchInputRef = useRef(null);
   const userDropdownRef = useRef(null);
 
-  // Sync role from localStorage on every render cycle
-  useEffect(() => {
-    const stored = localStorage.getItem('ds_admin_role');
-    if (stored) setRole(stored);
-  }, [location.pathname]);
+  // Role is ALWAYS read fresh from localStorage — never stale
+  const [roleVersion, setRoleVersion] = useState(0);
+  const role = localStorage.getItem('ds_admin_role') || 'executive_director';
 
-  // Also listen for storage changes (cross-tab and same-tab)
+  // Force re-render when role changes (via polling + events)
   useEffect(() => {
+    let lastRole = role;
     const sync = () => {
-      const stored = localStorage.getItem('ds_admin_role');
-      if (stored) setRole(stored);
+      const current = localStorage.getItem('ds_admin_role') || 'executive_director';
+      if (current !== lastRole) { lastRole = current; setRoleVersion(v => v + 1); }
     };
     window.addEventListener('storage', sync);
-    window.addEventListener('ds-auth-change', sync);
-    // Poll for same-tab changes (sign-in writes then navigates)
-    const id = setInterval(sync, 500);
-    return () => { window.removeEventListener('storage', sync); window.removeEventListener('ds-auth-change', sync); clearInterval(id); };
+    const id = setInterval(sync, 300);
+    return () => { window.removeEventListener('storage', sync); clearInterval(id); };
   }, []);
+
+  const setRole = (newRole) => {
+    localStorage.setItem('ds_admin_role', newRole);
+    setRoleVersion(v => v + 1);
+  };
 
   // Inject CSS
   useEffect(() => {
