@@ -40,18 +40,85 @@ async function downloadImage(url, filename) {
 }
 
 // ── Smart image prompt from source ──
-function buildImagePrompt(sourceType, sourceData) {
-  if (sourceType === 'product') return 'A lifestyle product photo on a desert sandstone surface at twilight, warm golden light, astronomy themed';
-  if (sourceType === 'donation') return 'Aerial view of the International Dark Sky Discovery Center under construction at sunset, Fountain Hills Arizona, inspiring progress';
+function extractActivities(desc) {
+  const activities = [];
+  if (desc.includes('rocket')) activities.push('building model rockets');
+  if (desc.includes('planet')) activities.push('learning about planets');
+  if (desc.includes('planetarium')) activities.push('planetarium show');
+  if (desc.includes('telescope')) activities.push('looking through telescopes');
+  if (desc.includes('build') || desc.includes('craft')) activities.push('hands-on science activities');
+  if (desc.includes('lunch')) activities.push('outdoor lunch');
+  return activities.length > 0 ? activities.join(', ') : 'hands-on space science activities';
+}
+
+function buildImagePrompt(sourceType, sourceData, fundraisingData) {
   if (sourceType === 'custom') return '';
-  if (sourceType !== 'event' || !sourceData) return 'Stargazers gathered under the Milky Way in the Sonoran Desert, warm desert tones, observatory dome silhouette, Fountain Hills Arizona';
-  const t = (sourceData.title || '').toLowerCase();
-  if (t.includes('astrophoto')) return 'Person with camera on tripod photographing the Milky Way in the desert at night, long exposure star trails';
-  if (t.includes('family') || t.includes('kid') || t.includes('safari')) return 'Family of four looking through a telescope at the stars, warm desert evening, sense of wonder';
-  if (t.includes('meteor')) return 'Bright meteor streaking across a star-filled desert sky, saguaro cactus silhouettes';
-  if (t.includes('planet')) return 'Jupiter and Saturn visible in a dark desert sky above an observatory';
-  if (t.includes('gala') || t.includes('pour')) return 'Elegant outdoor evening event under string lights at a desert observatory, warm tones';
-  return 'Stargazers gathered under the Milky Way in the Sonoran Desert, warm desert tones, observatory dome silhouette, Fountain Hills Arizona';
+
+  if (sourceType === 'product' && sourceData) {
+    const name = (sourceData.title || '').toLowerCase();
+    if (name.includes('hoodie') || name.includes('shirt') || name.includes('tee') || name.includes('apparel'))
+      return `${sourceData.title} displayed on desert sandstone at golden hour, warm tones, product lifestyle photo, astronomy themed apparel`;
+    if (name.includes('mug') || name.includes('cup'))
+      return `${sourceData.title} on a wooden table with steam rising, desert sunrise through window, cozy morning astronomy vibes`;
+    if (name.includes('poster') || name.includes('print') || name.includes('art'))
+      return `${sourceData.title} framed on a modern wall, warm interior lighting, desert-inspired home decor`;
+    return `${sourceData.title} product photo on desert sandstone at twilight, warm golden light, astronomy themed, professional product photography`;
+  }
+
+  if (sourceType === 'donation') {
+    const pct = fundraisingData?.goal > 0 ? Math.round((fundraisingData.raised / fundraisingData.goal) * 100) : 94;
+    return `Aerial view of a modern science center under construction at golden hour, Arizona desert landscape, progress and hope, ${pct} percent complete`;
+  }
+
+  if (sourceType !== 'event' || !sourceData) return '';
+
+  const title = (sourceData.title || '').toLowerCase();
+  const desc = (sourceData.description || '').toLowerCase();
+  const combined = title + ' ' + desc;
+
+  // Kids / camp / family events
+  if (combined.includes('kids') || combined.includes('camp') || combined.includes('children') || combined.includes('youth')) {
+    if (combined.includes('rocket') || combined.includes('launch'))
+      return 'Excited children launching model rockets in the Arizona desert with a clear blue sky, science camp atmosphere, Sonoran Desert landscape';
+    if (combined.includes('planet') && !combined.includes('planetarium'))
+      return 'Children looking at colorful planet models in a science center classroom, wonder and excitement, bright educational environment';
+    return `Children at a space science camp in the Arizona desert, ${extractActivities(desc)}, bright sunny day, educational and fun atmosphere, Fountain Hills Arizona`;
+  }
+
+  // Star party / stargazing
+  if (combined.includes('star party') || combined.includes('stargazing') || combined.includes('new moon'))
+    return 'Silhouettes of people gathered around telescopes under the Milky Way, Sonoran Desert, saguaro cactus, observatory dome in background, Fountain Hills Arizona';
+
+  // Astrophotography
+  if (combined.includes('astrophotography') || combined.includes('photography'))
+    return 'Photographer with camera on tripod capturing the Milky Way over the desert, long exposure star trails, warm desert tones';
+
+  // Meteor shower
+  if (combined.includes('meteor') || combined.includes('shower'))
+    return 'Bright meteors streaking across a star-filled desert sky, people lying on blankets looking up, saguaro cactus silhouettes, warm desert night';
+
+  // Planets / viewing
+  if (combined.includes('planet') || combined.includes('jupiter') || combined.includes('saturn') || combined.includes('mars'))
+    return 'Jupiter and Saturn glowing bright in a dark desert sky, observatory dome open, telescope pointed skyward, Fountain Hills Arizona';
+
+  // Planetarium
+  if (combined.includes('planetarium') || combined.includes('show') || combined.includes('dome'))
+    return 'Inside a planetarium dome with projected stars and galaxies, silhouetted audience looking up in wonder, immersive blue and purple lighting';
+
+  // Workshop / class / education
+  if (combined.includes('workshop') || combined.includes('class') || combined.includes('learn'))
+    return 'People gathered around a table in a modern science center classroom, astronomy charts on walls, engaged learning atmosphere, warm lighting';
+
+  // Drinks / social / pours
+  if (combined.includes('drink') || combined.includes('pour') || combined.includes('wine') || combined.includes('beer') || combined.includes('cocktail'))
+    return 'People enjoying craft drinks under the stars on a desert patio, warm string lights, telescope in background, intimate evening atmosphere';
+
+  // Wildlife / nocturnal / nature
+  if (combined.includes('wildlife') || combined.includes('nocturnal') || combined.includes('nature') || combined.includes('safari'))
+    return 'Nocturnal desert animals under a starry sky, educational nature walk at dusk, Sonoran Desert landscape';
+
+  // Fallback: use the actual event title
+  return `${sourceData.title} at the International Dark Sky Discovery Center, Fountain Hills Arizona, desert landscape, evening atmosphere, astronomy themed`;
 }
 
 // ── Template-based copy generation ──
@@ -203,7 +270,7 @@ export default function SocialMedia() {
   const goToStep2 = () => {
     if (!context.trim() && sourceType !== 'custom') { toast('Add some context first', 'error'); return; }
     // Auto-fill image prompt
-    setImagePrompt(buildImagePrompt(sourceType, sourceData));
+    setImagePrompt(buildImagePrompt(sourceType, sourceData, fundraising));
     // Auto-fill copy from templates
     const templatePosts = generateTemplatePosts(sourceType, sourceData, platforms, fundraising);
     setPosts(templatePosts);
