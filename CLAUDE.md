@@ -37,7 +37,7 @@ src/
 │   ├── StarfieldBackground.jsx # Alternate starfield (unused?)
 │   ├── ProductCard.jsx         # Product card with reveal animation + Quick Add
 │   ├── EditMode.jsx            # Full CMS: editable text/images, sections, publish/revisions
-│   ├── CartDrawer.jsx          # Slide-in cart drawer (not currently wired in App.jsx)
+│   ├── CartDrawer.jsx          # Slide-in cart drawer (wired in App.jsx, opens on cart icon click)
 │   ├── InstallPrompt.jsx       # PWA install banner
 │   ├── OfflineBanner.jsx       # Offline status indicator
 │   └── NotificationBell.jsx    # Admin notification dropdown (low stock, PO arrivals)
@@ -131,6 +131,12 @@ src/
 | `ds_ticket_reservations` | Array | Empty [] | Event ticket reservations |
 | `ds_movement_history` | Object | store.js (2 products) | Stock movement audit log per product |
 | `ds_products` | Array | products.js (67 products) | Storefront product catalog |
+
+### Storefront Cart (managed by `App.jsx`)
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `ds_store_cart` | Array | Customer shopping cart — persists across page reloads, cleared on checkout |
 
 ### Auth & UI State
 
@@ -241,14 +247,22 @@ Admin pages read/write via same store.js functions
 Changes in admin immediately visible on store pages (same localStorage)
 ```
 
-### Checkout → Orders Flow
+### Cart → Checkout → Orders Flow
 
 ```
-Customer adds to cart (App.jsx useState)
+Customer clicks "Add to Cart" (Shop, ProductDetail, Home)
+    ↓
+addToCart() in App.jsx → updates useState + syncs to ds_store_cart in localStorage
+    ↓
+Cart icon in Nav opens CartDrawer slide-out (shows items, qty, totals)
+    ↓
+"Proceed to Checkout" → navigates to /checkout with cart data
     ↓
 /checkout — Checkout.jsx form validates
     ↓
 addOrder(orderData) from store.js
+    ↓
+clearCart() removes ds_store_cart from localStorage
     ↓
 Order appears in /admin/orders
     ↓
@@ -304,7 +318,10 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 
 ### Real / Connected
 - Product catalog from Printify (67 products with real images and prices)
+- Cart persists in localStorage (`ds_store_cart`) — survives page reload
+- CartDrawer slide-out opens on cart icon click (Nav), shows items/totals
 - Checkout → admin orders flow (connected via store.js)
+- Cart clears from localStorage after successful checkout
 - Events admin → public events page (connected via ds_events)
 - Shop → products from localStorage (connected via ds_products)
 - Membership page reads member count from localStorage

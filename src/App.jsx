@@ -4,6 +4,7 @@ import { GLOBAL_CSS } from './styles';
 import Stars from './components/Stars';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
+import CartDrawer from './components/CartDrawer';
 import { EditModeProvider, EditToggleButton, EditBanner } from './components/EditMode';
 import { initStore } from './admin/data/store';
 import Home from './pages/Home';
@@ -33,7 +34,23 @@ const Content = lazy(() => import('./admin/pages/Content'));
 const Reports = lazy(() => import('./admin/pages/Reports'));
 const QuickBooks = lazy(() => import('./admin/pages/QuickBooks'));
 
-let cartIdCounter = 0;
+const CART_KEY = 'ds_store_cart';
+
+function loadCart() {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+
+let cartIdCounter = (() => {
+  const saved = loadCart();
+  return saved.reduce((max, i) => Math.max(max, i.cartId || 0), 0);
+})();
 
 /* ── Custom Cursor (desktop only) ── */
 function CustomCursor() {
@@ -101,9 +118,13 @@ function CustomCursor() {
 initStore();
 
 export default function App() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(loadCart);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Sync cart to localStorage on every change
+  useEffect(() => { saveCart(cart); }, [cart]);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -113,6 +134,9 @@ export default function App() {
   }, []);
 
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
+
+  // Close drawer on navigation
+  useEffect(() => { setDrawerOpen(false); }, [location.pathname]);
 
   const addToCart = useCallback((product) => {
     setCart(prev => {
@@ -129,6 +153,11 @@ export default function App() {
 
   const removeItem = useCallback((cartId) => {
     setCart(prev => prev.filter(i => i.cartId !== cartId));
+  }, []);
+
+  const clearCart = useCallback(() => {
+    setCart([]);
+    localStorage.removeItem(CART_KEY);
   }, []);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
@@ -152,7 +181,8 @@ export default function App() {
       {!isAdmin && <EditToggleButton />}
       {!isAdmin && <EditBanner />}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        {!isAdmin && <Nav cartCount={cartCount} onCartClick={() => navigate('/cart')} />}
+        {!isAdmin && <Nav cartCount={cartCount} onCartClick={() => setDrawerOpen(true)} />}
+        {!isAdmin && <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} cart={cart} onUpdate={updateQty} onRemove={removeItem} />}
 
         <main>
           <Routes>
@@ -163,7 +193,7 @@ export default function App() {
             <Route path="/shop" element={<Shop onAddToCart={addToCart} />} />
             <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />
             <Route path="/cart" element={<Cart cart={cart} onUpdate={updateQty} onRemove={removeItem} />} />
-            <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={() => setCart([])} />} />
+            <Route path="/checkout" element={<Checkout cart={cart} onOrderComplete={clearCart} />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/field-trips" element={<FieldTrips />} />
