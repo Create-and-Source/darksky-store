@@ -205,7 +205,7 @@ export default function POS() {
       { target: '#tour-pos-cart', title: 'Cart', text: 'Items you add appear here. Adjust quantities, apply member discounts, and choose a payment method.' },
       { target: '#tour-pos-checkout', title: 'Checkout', text: 'When ready, tap the Charge button to complete the sale.' },
     ]} />
-    <div className="pos-layout" style={{ fontFamily: FONT, display: 'flex', height: 'calc(100vh - 56px)', overflow: 'hidden' }}>
+    <div className="pos-layout" style={{ fontFamily: FONT, display: 'flex', height: 'calc(100vh - 56px)', overflow: 'hidden', maxWidth: '100%' }}>
       {/* ── LEFT: Products ── */}
       <div id="tour-pos-products" className="pos-left" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${C.border}`, overflow: 'hidden' }}>
         {/* Search + Filters */}
@@ -308,7 +308,7 @@ export default function POS() {
       </div>
 
       {/* ── RIGHT: Cart ── */}
-      <div id="tour-pos-cart" className="pos-right" style={{ flex: '0 0 340px', maxWidth: 400, display: 'flex', flexDirection: 'column', background: C.card, overflow: 'hidden' }}>
+      <div id="tour-pos-cart" className="pos-right" style={{ flex: '0 1 340px', minWidth: 280, display: 'flex', flexDirection: 'column', background: C.card, overflow: 'hidden' }}>
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}` }}>
           {[['current', 'Current Sale'], ['held', `Held Sales${heldSales.length ? ` (${heldSales.length})` : ''}`]].map(([key, label]) => (
