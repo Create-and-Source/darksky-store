@@ -321,11 +321,24 @@ export default function AdminLayout() {
   }, [location.pathname, role, navigate, addToast]);
 
   // Role switching
+  const SWITCH_NAMES = {
+    executive_director: 'Dr. J', treasurer: 'Finance', board: 'Board',
+    shop_manager: 'Nancy', shop_staff: 'Josi', visitor_services: 'Sam',
+    education_director: 'Maria', social_media: 'Alex',
+    volunteer_coordinator: 'Jordan', payroll: 'HR Admin',
+  };
+  const SWITCH_STORE_ROLE = {
+    executive_director: 'manager', treasurer: 'manager', board: 'manager',
+    shop_manager: 'manager', shop_staff: 'staff', visitor_services: 'staff',
+    education_director: 'manager', social_media: 'staff',
+    volunteer_coordinator: 'manager', payroll: 'manager',
+  };
   const switchRole = (newRole) => {
     localStorage.setItem('ds_admin_role', newRole);
+    localStorage.setItem('ds_user_name', SWITCH_NAMES[newRole] || ROLE_NAMES[newRole]);
+    localStorage.setItem('ds_user_role', SWITCH_STORE_ROLE[newRole] || 'staff');
     setRole(newRole);
     setUserDropdownOpen(false);
-    // Navigate to dashboard when switching to avoid landing on unauthorized page
     navigate('/admin', { replace: true });
     addToast(`Switched to ${ROLE_LABELS[newRole]} view`);
   };
