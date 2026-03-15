@@ -497,6 +497,11 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 - Membership page reads member count from localStorage
 - Inventory adjustments on order placement
 - CSV exports in Reports and QuickBooks pages
+- Donations tracking (CRUD, fundraising progress, acknowledgment workflow)
+- Facility bookings (CRUD, weekly calendar, 5 IDSDC spaces)
+- Visitor tracking (daily counts, 30-day trend chart)
+- Volunteer management (roster, hours logging, certifications)
+- Role-based access (8 roles with different sidebar/dashboard views)
 
 ### Mock / Placeholder
 - Payment processing (Square placeholder — "coming soon")
@@ -520,7 +525,7 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 | Contact.jsx | SUBJECTS (6), contact details |
 | Membership.jsx | TIERS (3), PERKS (4), FAQ (4) |
 | mockData.js | INVENTORY (36), ORDERS (11), POs (5), TRANSFERS (3), VENDORS (3) |
-| store.js | DEFAULT_EVENTS (6), DEFAULT_MEMBERS (5), DEFAULT_CONTENT, DEFAULT_MOVEMENTS |
+| store.js | DEFAULT_EVENTS (6), DEFAULT_MEMBERS (5), DEFAULT_CONTENT, DEFAULT_MOVEMENTS, DEFAULT_DONATIONS (8), DEFAULT_FACILITY_BOOKINGS (12), DEFAULT_VISITORS (30 days), DEFAULT_VOLUNTEERS (6), DEFAULT_FUNDRAISING |
 
 ## Key Contact Info (Hardcoded)
 
