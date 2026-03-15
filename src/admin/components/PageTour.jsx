@@ -123,8 +123,8 @@ export default function PageTour({ steps = [], storageKey }) {
       {/* Highlight border around target */}
       {rect && (
         <div style={{
-          position: 'absolute',
-          top: rect.top - 6, left: rect.left - 6,
+          position: 'fixed',
+          top: rect.top - window.scrollY - 6, left: rect.left - 6,
           width: rect.width + 12, height: rect.height + 12,
           border: '2px solid #C5A55A', borderRadius: 8,
           zIndex: 10001, pointerEvents: 'none',
