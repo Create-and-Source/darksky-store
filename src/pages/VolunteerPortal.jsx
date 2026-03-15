@@ -22,6 +22,19 @@ const STATUS_LABEL = { completed: 'Completed', 'in-progress': 'In Progress', 'no
 
 const ACTIVITIES = ['Event Support', 'Gift Shop', 'Setup/Teardown', 'Training', 'Admin', 'Other'];
 
+// ── Geo-fenced time clock ──
+const IDSDC_LAT = 33.6;
+const IDSDC_LNG = -111.7;
+const GEO_RADIUS_MILES = 0.5;
+
+function haversineDistance(lat1, lng1, lat2, lng2) {
+  const R = 3959; // Earth radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export default function VolunteerPortal() {
   const navigate = useNavigate();
   const [, setTick] = useState(0);
@@ -73,6 +86,86 @@ export default function VolunteerPortal() {
 
   const isCheckedIn = (eventId) => checkins.some(c => c.eventId === eventId);
 
+  // ── Time Clock ──
+  const [clockedIn, setClockedIn] = useState(() => {
+    try { const d = JSON.parse(localStorage.getItem('ds_volunteer_clock')); return d || null; } catch { return null; }
+  });
+  const [geoStatus, setGeoStatus] = useState('idle'); // 'idle' | 'checking' | 'in-range' | 'out-of-range' | 'denied' | 'error'
+  const [geoDistance, setGeoDistance] = useState(null);
+  const [elapsed, setElapsed] = useState('00:00:00');
+
+  // Live timer
+  useEffect(() => {
+    if (!clockedIn) return;
+    const tick = () => {
+      const diff = Date.now() - new Date(clockedIn.clockInTime).getTime();
+      const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+      const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+      const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+      setElapsed(`${h}:${m}:${s}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [clockedIn]);
+
+  // Find current shift (event happening within 2 hours of now)
+  const now = new Date();
+  const currentShift = futureEvents.find(ev => {
+    if (!ev.time) return false;
+    const evDate = new Date(ev.date + 'T' + ev.time);
+    const diff = (evDate - now) / 3600000; // hours
+    return diff > -2 && diff < 2;
+  }) || futureEvents[0]; // fallback to next shift
+
+  const checkLocation = () => {
+    setGeoStatus('checking');
+    if (!navigator.geolocation) { setGeoStatus('error'); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const dist = haversineDistance(pos.coords.latitude, pos.coords.longitude, IDSDC_LAT, IDSDC_LNG);
+        setGeoDistance(dist);
+        setGeoStatus(dist <= GEO_RADIUS_MILES ? 'in-range' : 'out-of-range');
+      },
+      (err) => {
+        if (err.code === 1) setGeoStatus('denied');
+        else setGeoStatus('error');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleClockIn = () => {
+    const data = {
+      clockInTime: new Date().toISOString(),
+      eventId: currentShift?.id || null,
+      eventTitle: currentShift?.title || 'General',
+      volunteerId: 'VOL-001',
+      name: localStorage.getItem('ds_user_name') || 'Volunteer',
+    };
+    localStorage.setItem('ds_volunteer_clock', JSON.stringify(data));
+    setClockedIn(data);
+    addVolunteerCheckin({ volunteerId: 'VOL-001', eventId: currentShift?.id, name: data.name });
+  };
+
+  const handleClockOut = () => {
+    if (!clockedIn) return;
+    const diffMs = Date.now() - new Date(clockedIn.clockInTime).getTime();
+    const hrs = Math.round(diffMs / 3600000 * 10) / 10; // round to 0.1
+    addVolunteerHour({
+      volunteerId: 'VOL-001',
+      name: clockedIn.name,
+      date: new Date().toISOString().slice(0, 10),
+      hours: Math.max(0.5, hrs),
+      activity: 'Event Support',
+      notes: `Shift: ${clockedIn.eventTitle}. Geo-verified clock in/out.`,
+    });
+    localStorage.removeItem('ds_volunteer_clock');
+    setClockedIn(null);
+    setGeoStatus('idle');
+    setElapsed('00:00:00');
+  };
+
   const handleSignOut = () => {
     localStorage.removeItem('ds_auth_user');
     localStorage.removeItem('ds_user_role');
@@ -123,6 +216,8 @@ export default function VolunteerPortal() {
         .vp-link-card:hover { border-color: #C5A55A; }
         .vp-link-icon { font-size: 28px; margin-bottom: 8px; }
         .vp-link-text { font-family: ${BODY}; font-size: 14px; font-weight: 600; }
+        @keyframes vpPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes vpSpin { to { transform: rotate(360deg); } }
         @media (max-width: 600px) {
           .vp-form { grid-template-columns: 1fr; }
           .vp-stats { flex-direction: column; }
@@ -137,6 +232,101 @@ export default function VolunteerPortal() {
         </div>
 
         <div className="vp-body">
+          {/* ═══ TIME CLOCK ═══ */}
+          <div className="vp-section">
+            <div className="vp-label">Time Clock</div>
+            <h2 className="vp-title">{clockedIn ? 'You\'re On the Clock' : 'Clock In'}</h2>
+
+            <div className="vp-card" style={{ padding: 28 }}>
+              {clockedIn ? (
+                /* CLOCKED IN STATE */
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontFamily: MONO, fontSize: 48, fontWeight: 700, color: '#3D8C6F', marginBottom: 8, letterSpacing: 2 }}>{elapsed}</div>
+                  <div style={{ fontFamily: BODY, fontSize: 15, color: '#7C7B76', marginBottom: 4 }}>Clocked in for: <strong style={{ color: '#1A1A2E' }}>{clockedIn.eventTitle}</strong></div>
+                  <div style={{ fontFamily: MONO, fontSize: 11, color: '#B5B3AD', marginBottom: 24 }}>Since {new Date(clockedIn.clockInTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#3D8C6F', animation: 'vpPulse 2s infinite' }} />
+                    <span style={{ fontFamily: MONO, fontSize: 11, color: '#3D8C6F', textTransform: 'uppercase', letterSpacing: 1 }}>Location Verified</span>
+                  </div>
+                  <button onClick={handleClockOut} style={{ fontFamily: BODY, fontSize: 15, fontWeight: 600, color: '#fff', background: '#C45B5B', border: 'none', borderRadius: 8, padding: '14px 48px', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                    onMouseEnter={e => e.target.style.opacity = '0.85'} onMouseLeave={e => e.target.style.opacity = '1'}>
+                    Clock Out
+                  </button>
+                </div>
+              ) : (
+                /* CLOCK IN STATE */
+                <div>
+                  {currentShift && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, padding: '14px 16px', background: '#F8F7F4', borderRadius: 8, border: '1px solid #E8E5DF' }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 8, background: 'rgba(197,165,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>&#128197;</div>
+                      <div>
+                        <div style={{ fontFamily: BODY, fontSize: 15, fontWeight: 600, color: '#1A1A2E' }}>{currentShift.title}</div>
+                        <div style={{ fontFamily: MONO, fontSize: 11, color: '#7C7B76' }}>
+                          {new Date(currentShift.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {currentShift.time}{currentShift.endTime ? ` - ${currentShift.endTime}` : ''} · {currentShift.location}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {geoStatus === 'idle' && (
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ fontFamily: BODY, fontSize: 14, color: '#7C7B76', marginBottom: 16 }}>You must be at the Discovery Center to clock in. We'll verify your location.</p>
+                      <button onClick={checkLocation} className="vp-btn" style={{ padding: '14px 40px', fontSize: 15 }}>Verify My Location</button>
+                    </div>
+                  )}
+
+                  {geoStatus === 'checking' && (
+                    <div style={{ textAlign: 'center', padding: 20 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', border: '3px solid #E8E5DF', borderTopColor: '#C5A55A', animation: 'vpSpin 0.8s linear infinite', margin: '0 auto 12px' }} />
+                      <p style={{ fontFamily: BODY, fontSize: 14, color: '#7C7B76' }}>Checking your location...</p>
+                    </div>
+                  )}
+
+                  {geoStatus === 'in-range' && (
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#3D8C6F' }} />
+                        <span style={{ fontFamily: MONO, fontSize: 12, color: '#3D8C6F', fontWeight: 600 }}>You're at the Discovery Center</span>
+                      </div>
+                      {geoDistance != null && <p style={{ fontFamily: MONO, fontSize: 11, color: '#B5B3AD', marginBottom: 16 }}>{(geoDistance * 5280).toFixed(0)} feet from facility</p>}
+                      <button onClick={handleClockIn} style={{ fontFamily: BODY, fontSize: 16, fontWeight: 700, color: '#fff', background: '#3D8C6F', border: 'none', borderRadius: 8, padding: '16px 56px', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                        onMouseEnter={e => e.target.style.opacity = '0.85'} onMouseLeave={e => e.target.style.opacity = '1'}>
+                        Clock In Now
+                      </button>
+                    </div>
+                  )}
+
+                  {geoStatus === 'out-of-range' && (
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#C45B5B' }} />
+                        <span style={{ fontFamily: MONO, fontSize: 12, color: '#C45B5B', fontWeight: 600 }}>You're not at the facility</span>
+                      </div>
+                      <p style={{ fontFamily: BODY, fontSize: 13, color: '#7C7B76', marginBottom: 16 }}>
+                        You're {geoDistance ? geoDistance.toFixed(1) : '?'} miles away. You must be within {GEO_RADIUS_MILES} miles to clock in.
+                      </p>
+                      <button onClick={checkLocation} className="vp-btn" style={{ padding: '10px 32px' }}>Try Again</button>
+                    </div>
+                  )}
+
+                  {geoStatus === 'denied' && (
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ fontFamily: BODY, fontSize: 14, color: '#C45B5B', marginBottom: 12 }}>Location access was denied.</p>
+                      <p style={{ fontFamily: BODY, fontSize: 13, color: '#7C7B76' }}>Please enable location services in your browser settings and try again.</p>
+                    </div>
+                  )}
+
+                  {geoStatus === 'error' && (
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ fontFamily: BODY, fontSize: 14, color: '#C45B5B', marginBottom: 12 }}>Could not determine your location.</p>
+                      <button onClick={checkLocation} className="vp-btn" style={{ padding: '10px 32px' }}>Retry</button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Upcoming Shifts */}
           <div className="vp-section">
             <div className="vp-label">Schedule</div>
