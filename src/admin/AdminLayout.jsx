@@ -35,9 +35,9 @@ const ROLE_BADGE_COLORS = {
 // Routes each role can access (path suffixes after /admin)
 const ROLE_ALLOWED_ROUTES = {
   admin: null, // all
-  shop_manager: ['', '/orders', '/inventory', '/receive', '/transfers', '/purchase-orders', '/events', '/content', '/emails', '/facility'],
+  shop_manager: ['', '/orders', '/inventory', '/receive', '/events', '/content', '/emails'],
   shop_staff: ['', '/orders', '/inventory', '/receive'],
-  reports: ['', '/reports', '/quickbooks', '/donations', '/visitors'],
+  reports: ['', '/reports', '/donations'],
 };
 
 // ── SVG Icons ──
@@ -73,28 +73,23 @@ const navSections = [
     ],
   },
   {
-    label: 'Programs & Events',
-    items: [
-      { to: '/admin/events', icon: Icons.events, label: 'Events' },
-      { to: '/admin/facility', icon: Icons.facility, label: 'Facility' },
-    ],
-  },
-  {
     label: 'Gift Shop',
     items: [
       { to: '/admin/orders', icon: Icons.orders, label: 'Orders' },
       { to: '/admin/inventory', icon: Icons.inventory, label: 'Inventory' },
       { to: '/admin/receive', icon: Icons.receive, label: 'Receive' },
-      { to: '/admin/transfers', icon: Icons.transfer, label: 'Transfers' },
-      { to: '/admin/purchase-orders', icon: Icons.purchase, label: 'Purchase Orders' },
+    ],
+  },
+  {
+    label: 'Programs',
+    items: [
+      { to: '/admin/events', icon: Icons.events, label: 'Events' },
     ],
   },
   {
     label: 'Community',
     items: [
       { to: '/admin/donations', icon: Icons.donations, label: 'Donations' },
-      { to: '/admin/visitors', icon: Icons.visitors, label: 'Visitors' },
-      { to: '/admin/volunteers', icon: Icons.volunteers, label: 'Volunteers' },
     ],
   },
   {
@@ -108,7 +103,6 @@ const navSections = [
     label: 'Reporting',
     items: [
       { to: '/admin/reports', icon: Icons.reports, label: 'Reports' },
-      { to: '/admin/quickbooks', icon: Icons.quickbooks, label: 'QuickBooks' },
     ],
   },
 ];
@@ -119,13 +113,13 @@ const navItems = navSections.flatMap(s => s.items);
 // Role-based nav filtering
 const ROLE_NAV = {
   admin: null, // all
-  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Transfers', 'Purchase Orders', 'Events', 'Content', 'Email', 'Facility'],
+  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Events', 'Content', 'Email'],
   shop_staff: ['Dashboard', 'Orders', 'Inventory', 'Receive'],
-  reports: ['Dashboard', 'Reports', 'QuickBooks', 'Donations', 'Visitors'],
+  reports: ['Dashboard', 'Reports', 'Donations'],
 };
 const READONLY_LABELS = {
   shop_staff: ['Inventory'],
-  reports: ['Donations', 'Visitors'],
+  reports: ['Donations'],
 };
 
 // Breadcrumb labels

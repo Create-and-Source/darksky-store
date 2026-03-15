@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { GLOBAL_CSS } from './styles';
 import Stars from './components/Stars';
 import Nav from './components/Nav';
@@ -206,18 +206,18 @@ export default function App() {
               <Route index element={<Dashboard />} />
               <Route path="inventory" element={<Inventory />} />
               <Route path="receive" element={<Receive />} />
-              <Route path="transfers" element={<Transfers />} />
-              <Route path="purchase-orders" element={<PurchaseOrders />} />
+              <Route path="transfers" element={<Navigate to="/admin" replace />} />
+              <Route path="purchase-orders" element={<Navigate to="/admin" replace />} />
               <Route path="orders" element={<Orders />} />
               <Route path="events" element={<EventsAdmin />} />
               <Route path="emails" element={<Emails />} />
               <Route path="content" element={<Content />} />
               <Route path="reports" element={<Reports />} />
-              <Route path="quickbooks" element={<QuickBooks />} />
+              <Route path="quickbooks" element={<Navigate to="/admin/reports" replace />} />
               <Route path="donations" element={<Donations />} />
-              <Route path="facility" element={<Facility />} />
-              <Route path="visitors" element={<Visitors />} />
-              <Route path="volunteers" element={<Volunteers />} />
+              <Route path="facility" element={<Navigate to="/admin" replace />} />
+              <Route path="visitors" element={<Navigate to="/admin" replace />} />
+              <Route path="volunteers" element={<Navigate to="/admin" replace />} />
             </Route>
             <Route path="*" element={
               <div style={{ padding: '180px 64px 120px', textAlign: 'center', background: 'var(--bg)' }}>

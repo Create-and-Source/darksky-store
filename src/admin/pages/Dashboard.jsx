@@ -730,7 +730,7 @@ function StaffDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }} className="ds-stats">
         <StatCard label="Orders Today" value={orders.filter(o => o.date === today).length} detail="order count only" delay={300} />
         <StatCard label="Low Stock Items" value={lowStockGiftShop.length} detail={`${lowStockGiftShop.filter(i => (i.giftshop ?? 0) === 0).length} out of stock`} detailColor={lowStockGiftShop.length > 0 ? C.warning : undefined} delay={400} />
-        <StatCard label="Pending Transfers" value={pendingTransfers.length} detail="in transit or pending" delay={500} />
+        <StatCard label="Total Inventory" value={inventory.reduce((s,i) => s + (i.giftshop || 0) + (i.warehouse || 0), 0)} suffix=" items" delay={500} />
       </div>
 
       {/* Today's Checklist */}
@@ -1055,7 +1055,7 @@ function ManagerDashboard() {
           <QuickAction icon={Icon.receive} label="Receive Shipment" onClick={() => navigate('/admin/receive')} delay={200} />
           <QuickAction icon={Icon.calendar} label="Create Event" onClick={() => navigate('/admin/events')} delay={300} />
           <QuickAction icon={Icon.cart} label="Record Donation" onClick={() => navigate('/admin/donations')} delay={400} />
-          <QuickAction icon={Icon.chart} label="Schedule Facility" onClick={() => navigate('/admin/facility')} delay={500} />
+          <QuickAction icon={Icon.chart} label="View Reports" onClick={() => navigate('/admin/reports')} delay={500} />
         </div>
       </div>
 
@@ -1356,68 +1356,6 @@ function ManagerDashboard() {
                 </button>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Smart Transfer Suggestions */}
-      {transferSuggestions.length > 0 && (
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <div style={labelStyle}>Smart Transfers</div>
-            <HelpBubble text="Items running low at the gift shop that are available in the warehouse." />
-          </div>
-          <div style={{
-            ...cardBase, borderLeft: `3px solid ${C.success}`,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                background: `${C.success}10`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {Icon.transfer(C.success)}
-              </div>
-              <div>
-                <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 600, color: C.text }}>
-                  {transferSuggestions.length} item{transferSuggestions.length !== 1 ? 's' : ''} can be restocked from warehouse
-                </div>
-                <div style={{ fontFamily: FONT, fontSize: 13, color: C.text2 }}>Create a transfer to restock the gift shop</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-              {transferSuggestions.slice(0, 6).map(s => (
-                <span key={s.id} style={{
-                  display: 'inline-block', padding: '4px 10px', borderRadius: 6,
-                  background: `${C.success}08`, border: `1px solid ${C.success}18`,
-                  fontFamily: FONT, fontSize: 13, color: C.text,
-                }}>
-                  {s.name} — GS:{s.giftshop} WH:{s.warehouse}
-                </span>
-              ))}
-            </div>
-            <button
-              onClick={() => {
-                addTransfer({
-                  from: 'C&S Warehouse', to: 'Dark Sky Gift Shop',
-                  items: transferSuggestions.slice(0, 10).map(s => ({ name: s.name, sku: s.sku, qty: s.suggestedQty })),
-                  createdBy: 'Tovah',
-                  notes: 'Auto-suggested transfer for low gift shop stock',
-                });
-                addToast(`Transfer created with ${Math.min(transferSuggestions.length, 10)} items`);
-              }}
-              style={{
-                height: 36, padding: '0 20px',
-                background: C.sidebar, color: '#fff',
-                border: 'none', borderRadius: 8,
-                fontFamily: FONT, fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                transition: 'background 0.15s',
-              }}
-              onMouseEnter={e => { e.target.style.background = '#2a2a42'; }}
-              onMouseLeave={e => { e.target.style.background = C.sidebar; }}
-            >
-              Create Transfer
-            </button>
           </div>
         </div>
       )}

@@ -402,21 +402,23 @@ VideoDivider components (Home, About, Education) accept `titleEditable` and `sub
 
 | Role | User | Access |
 |------|------|--------|
-| Admin (Nancy) | N | All admin pages, edit mode pencil on store |
-| Gift Shop Manager (Tovah) | T | Dashboard, Orders, Inventory, Receive, Transfers, POs, Events, Content, Email, Facility |
+| Admin (Nancy) | N | All 9 visible pages |
+| Gift Shop Manager (Tovah) | T | Dashboard, Orders, Inventory, Receive, Events, Content, Email |
 | Gift Shop Staff (Josie) | J | Dashboard, Orders, Inventory (read-only), Receive |
-| Reports (Patricia) | P | Dashboard (read-only), Reports, QuickBooks, Donations (read-only), Visitors (read-only) |
+| Reports (Patricia) | P | Dashboard (read-only), Reports, Donations (read-only) |
 
-### Admin Sidebar Sections
+### Admin Sidebar Sections (Demo)
 
 | Section | Pages |
 |---------|-------|
 | Overview | Dashboard |
-| Programs & Events | Events, Facility |
-| Gift Shop | Orders, Inventory, Receive, Transfers, Purchase Orders |
-| Community | Donations, Visitors, Volunteers |
+| Gift Shop | Orders, Inventory, Receive |
+| Programs | Events |
+| Community | Donations |
 | Communications | Email, Content |
-| Reporting | Reports, QuickBooks |
+| Reporting | Reports |
+
+Hidden pages (code exists, not in sidebar/routes): Transfers, Purchase Orders, QuickBooks, Facility, Visitors, Volunteers. These routes redirect to /admin.
 
 ### IDSDC Facility Spaces
 
