@@ -5,6 +5,7 @@ import AdminTour from './AdminTour';
 import NotificationBell from '../components/NotificationBell';
 import OfflineBanner from '../components/OfflineBanner';
 import { executeUndo } from './components/UndoSystem';
+import HelpChatbot from './components/HelpChatbot';
 import { subscribe, initStore } from './data/store';
 
 // Initialize store with seed data on first load
@@ -616,6 +617,8 @@ export default function AdminLayout() {
         {/* Tour / Onboarding */}
         <AdminTour />
 
+        {/* Help Chatbot */}
+        <HelpChatbot />
 
         {/* Quick Search Modal */}
         {quickSearchOpen && (

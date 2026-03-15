@@ -615,6 +615,28 @@ function VolunteerDashboard() {
         </div>
       </div>
 
+      {/* Help Prompt */}
+      <div style={{
+        ...cardBase, marginBottom: 32,
+        background: `linear-gradient(135deg, ${C.gold}08, ${C.gold}03)`,
+        border: `1px solid ${C.gold}25`,
+        display: 'flex', alignItems: 'center', gap: 16,
+      }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: '50%',
+          background: `${C.gold}15`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: FONT, fontSize: 20, fontWeight: 600, color: C.gold,
+        }}>?</div>
+        <div>
+          <div style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 2 }}>
+            Need help with anything?
+          </div>
+          <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2 }}>
+            Click the gold chat bubble in the bottom-right corner to ask the Dark Sky Assistant.
+          </div>
+        </div>
+      </div>
 
       <style>{`
         @media (max-width: 768px) {
