@@ -39,6 +39,7 @@ const DesignStudio = lazy(() => import('./admin/pages/DesignStudio'));
 const SocialMedia = lazy(() => import('./admin/pages/SocialMedia'));
 const BoardMeeting = lazy(() => import('./admin/pages/BoardMeeting'));
 const Payroll = lazy(() => import('./admin/pages/Payroll'));
+const QuickBooks = lazy(() => import('./admin/pages/QuickBooks'));
 const POS = lazy(() => import('./admin/pages/POS'));
 const Products = lazy(() => import('./admin/pages/Products'));
 
@@ -273,7 +274,7 @@ export default function App() {
               <Route path="emails" element={<Emails />} />
               <Route path="content" element={<Navigate to="/admin" replace />} />
               <Route path="reports" element={<Reports />} />
-              <Route path="quickbooks" element={<Navigate to="/admin/reports" replace />} />
+              <Route path="quickbooks" element={<QuickBooks />} />
               <Route path="donations" element={<Donations />} />
               <Route path="design-studio" element={<DesignStudio />} />
               <Route path="social-media" element={<SocialMedia />} />

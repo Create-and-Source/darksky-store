@@ -49,7 +49,7 @@ const ROLE_BADGE_COLORS = {
 const ROLE_ALLOWED_ROUTES = {
   executive_director: null, // all
   admin: null,
-  treasurer: ['', '/donations', '/reports', '/payroll'],
+  treasurer: ['', '/donations', '/reports', '/payroll', '/quickbooks'],
   shop_manager: ['', '/pos', '/products', '/orders', '/inventory', '/receive', '/transfers'],
   shop_staff: ['', '/pos', '/orders', '/inventory', '/receive'],
   visitor_services: ['', '/pos', '/events', '/reports'],
@@ -135,6 +135,7 @@ const navSections = [
     items: [
       { to: '/admin/reports', icon: Icons.reports, label: 'Reports' },
       { to: '/admin/payroll', icon: Icons.quickbooks, label: 'Staff & Time' },
+      { to: '/admin/quickbooks', icon: Icons.quickbooks, label: 'QuickBooks' },
     ],
   },
 ];
@@ -146,7 +147,7 @@ const navItems = navSections.flatMap(s => s.items);
 const ROLE_NAV = {
   executive_director: null,
   admin: null,
-  treasurer: ['Dashboard', 'Donations', 'Reports', 'Staff & Time'],
+  treasurer: ['Dashboard', 'Donations', 'Reports', 'Staff & Time', 'QuickBooks'],
   shop_manager: ['Dashboard', 'POS', 'Products', 'Orders', 'Inventory', 'Receive', 'Transfers'],
   shop_staff: ['Dashboard', 'POS', 'Orders', 'Inventory', 'Receive'],
   visitor_services: ['Dashboard', 'POS', 'Events', 'Reports'],
