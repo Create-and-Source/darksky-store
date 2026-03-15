@@ -9,6 +9,7 @@ import {
   getSmartTransferSuggestions, getPredictiveAlerts, addTransfer, addPurchaseOrder,
   getDonations, getFacilityBookings, getVisitors, getVolunteers, getFundraising,
   getAnnouncement, updateAnnouncement,
+  getStaff, getTimesheets, getInquiries, getVolunteerHours,
 } from '../data/store';
 
 // ── Design Tokens ──
@@ -1588,6 +1589,244 @@ function BoardMemberDashboard() {
 }
 
 // ════════════════════════════════════════════
+// ROLE-SPECIFIC DASHBOARDS
+// ════════════════════════════════════════════
+
+function RoleDashHeader({ subtitle }) {
+  return (
+    <div style={{ paddingTop: 8, marginBottom: 24 }}>
+      <h1 style={{ font: `600 28px ${FONT}`, color: C.text, margin: 0 }}>{getGreeting()}, {localStorage.getItem('ds_user_name') || 'Team'}</h1>
+      <div style={{ font: `400 14px ${FONT}`, color: C.text2, marginTop: 4 }}>{subtitle}</div>
+    </div>
+  );
+}
+
+function MiniStatCard({ label, value, color = C.gold }) {
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 18px', boxShadow: C.shadow }}>
+      <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 6 }}>{label}</div>
+      <div style={{ font: `600 26px ${FONT}`, color }}>{value}</div>
+    </div>
+  );
+}
+
+// ── Education Director Dashboard ──
+function EducationDashboard() {
+  const navigate = useNavigate();
+  const events = getEvents();
+  const inquiries = getInquiries();
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = events.filter(e => e.date >= today && e.status === 'Published').sort((a, b) => a.date.localeCompare(b.date));
+  const fieldTripInquiries = inquiries.filter(i => i.type === 'field-trip');
+  const totalTickets = events.reduce((s, e) => s + (e.ticketsSold || 0), 0);
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow };
+  return (
+    <div>
+      <RoleDashHeader subtitle="Education & Programs Dashboard" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <MiniStatCard label="Upcoming Events" value={upcoming.length} />
+        <MiniStatCard label="Tickets Sold" value={totalTickets} />
+        <MiniStatCard label="Field Trip Requests" value={fieldTripInquiries.length} color={fieldTripInquiries.length > 0 ? C.warning : C.gold} />
+        <MiniStatCard label="Published Events" value={events.filter(e => e.status === 'Published').length} />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+        <div style={cardStyle}>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Next Events</div>
+          {upcoming.slice(0, 5).map(e => (
+            <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+              <div><div style={{ font: `500 14px ${FONT}`, color: C.text }}>{e.title}</div><div style={{ font: `400 12px ${MONO}`, color: C.text2 }}>{e.date} · {e.location}</div></div>
+              <div style={{ font: `600 13px ${FONT}`, color: C.gold }}>{e.ticketsSold || 0}/{e.capacity}</div>
+            </div>
+          ))}
+        </div>
+        <div style={cardStyle}>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Field Trip Requests</div>
+          {fieldTripInquiries.length === 0 ? <p style={{ font: `400 14px ${FONT}`, color: C.muted }}>No pending requests.</p> :
+            fieldTripInquiries.slice(0, 5).map((inq, i) => (
+              <div key={i} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ font: `500 14px ${FONT}`, color: C.text }}>{inq.school || inq.name || 'Inquiry'}</div>
+                <div style={{ font: `400 12px ${MONO}`, color: C.text2 }}>{inq.date} · {inq.students ? inq.students + ' students' : ''}</div>
+              </div>
+            ))}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button onClick={() => navigate('/admin/events')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Manage Events</button>
+        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>View Reports</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Social Media Dashboard ──
+function SocialMediaDashboard() {
+  const navigate = useNavigate();
+  const connRaw = localStorage.getItem('ds_social_connections');
+  const connections = connRaw ? JSON.parse(connRaw) : { instagram: true, facebook: true, x: false, linkedin: true };
+  const postsRaw = localStorage.getItem('ds_social_posts');
+  const posts = postsRaw ? JSON.parse(postsRaw) : [];
+  const published = posts.filter(p => p.status === 'published').length;
+  const drafts = posts.filter(p => p.status === 'draft').length;
+  const scheduled = posts.filter(p => p.status === 'scheduled').length;
+  const connected = Object.values(connections).filter(Boolean).length;
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow };
+  return (
+    <div>
+      <RoleDashHeader subtitle="Marketing & Communications Dashboard" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <MiniStatCard label="Published Posts" value={published} color={C.success} />
+        <MiniStatCard label="Drafts" value={drafts} />
+        <MiniStatCard label="Scheduled" value={scheduled} color={C.warning} />
+        <MiniStatCard label="Connected Accounts" value={`${connected}/4`} />
+      </div>
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button onClick={() => navigate('/admin/social-media')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Create Post</button>
+        <button onClick={() => navigate('/admin/design-studio')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Design Studio</button>
+        <button onClick={() => navigate('/admin/emails')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Email Campaigns</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Visitor Services Dashboard ──
+function VisitorServicesDashboard() {
+  const navigate = useNavigate();
+  const visitors = getVisitors();
+  const events = getEvents();
+  const today = new Date().toISOString().slice(0, 10);
+  const todayVisitors = visitors.find(v => v.date === today);
+  const todayEvents = events.filter(e => e.date === today && e.status === 'Published');
+  const thisWeek = visitors.filter(v => { const d = new Date(v.date); const now = new Date(); const diff = (now - d) / 86400000; return diff >= 0 && diff < 7; });
+  const weekTotal = thisWeek.reduce((s, v) => s + v.total, 0);
+  return (
+    <div>
+      <RoleDashHeader subtitle="Visitor Services Dashboard" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <MiniStatCard label="Today's Visitors" value={todayVisitors?.total || 0} />
+        <MiniStatCard label="This Week" value={weekTotal} />
+        <MiniStatCard label="Today's Events" value={todayEvents.length} />
+        <MiniStatCard label="Members Today" value={todayVisitors?.members || 0} color={C.success} />
+      </div>
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button onClick={() => navigate('/admin/pos')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Open POS</button>
+        <button onClick={() => navigate('/admin/events')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Today's Events</button>
+        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Reports</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Volunteer Coordinator Dashboard ──
+function VolunteerCoordDashboard() {
+  const navigate = useNavigate();
+  const volunteers = getVolunteers();
+  const vHours = getVolunteerHours();
+  const events = getEvents();
+  const today = new Date().toISOString().slice(0, 10);
+  const active = volunteers.filter(v => v.status === 'Active').length;
+  const thisMonth = today.slice(0, 7);
+  const monthHours = vHours.filter(h => (h.date || '').startsWith(thisMonth)).reduce((s, h) => s + (h.hours || 0), 0);
+  const upcoming = events.filter(e => e.date >= today && e.status === 'Published').length;
+  const totalCerts = new Set(volunteers.flatMap(v => v.certifications || [])).size;
+  return (
+    <div>
+      <RoleDashHeader subtitle="Volunteer Management Dashboard" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <MiniStatCard label="Active Volunteers" value={active} color={C.success} />
+        <MiniStatCard label="Hours This Month" value={monthHours} />
+        <MiniStatCard label="Upcoming Events" value={upcoming} />
+        <MiniStatCard label="Certifications" value={totalCerts} />
+      </div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow, marginBottom: 16 }}>
+        <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Volunteer Roster</div>
+        {volunteers.map(v => (
+          <div key={v.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+            <div><div style={{ font: `500 14px ${FONT}`, color: C.text }}>{v.name}</div><div style={{ font: `400 12px ${MONO}`, color: C.text2 }}>{v.role} · {(v.availability || []).join(', ')}</div></div>
+            <span style={{ font: `600 11px ${MONO}`, padding: '3px 8px', borderRadius: 4, background: v.status === 'Active' ? '#E8F5E9' : '#FFF3E0', color: v.status === 'Active' ? C.success : C.warning }}>{v.status}</span>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => navigate('/admin/events')} style={{ width: '100%', padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>View Events</button>
+    </div>
+  );
+}
+
+// ── Payroll/HR Dashboard ──
+function PayrollDashboard() {
+  const navigate = useNavigate();
+  const staff = getStaff();
+  const timesheets = getTimesheets();
+  const pending = timesheets.filter(t => t.status === 'Pending').length;
+  const totalHours = timesheets.reduce((s, t) => s + t.hours.reduce((a, b) => a + b, 0), 0);
+  return (
+    <div>
+      <RoleDashHeader subtitle="Staff & Time Dashboard" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <MiniStatCard label="Total Staff" value={staff.length} />
+        <MiniStatCard label="Pending Timesheets" value={pending} color={pending > 0 ? C.warning : C.success} />
+        <MiniStatCard label="Hours This Week" value={totalHours} />
+        <MiniStatCard label="Active Staff" value={staff.filter(s => s.status === 'Active').length} color={C.success} />
+      </div>
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button onClick={() => navigate('/admin/payroll')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Manage Staff & Time</button>
+        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Reports</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Shop Manager Dashboard ──
+function ShopManagerDashboard() {
+  const navigate = useNavigate();
+  const orders = getOrders();
+  const inventory = getInventory();
+  const today = new Date().toISOString().slice(0, 10);
+  const todayOrders = orders.filter(o => o.date === today);
+  const todayRevenue = todayOrders.reduce((s, o) => s + (o.total || 0), 0);
+  const posOrders = orders.filter(o => o.channel === 'POS');
+  const lowStock = inventory.filter(i => { const s = getStockStatus(i); return s === 'low' || s === 'out'; });
+  const totalItems = inventory.reduce((s, i) => s + (i.giftshop || 0) + (i.warehouse || 0), 0);
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow };
+  return (
+    <div>
+      <RoleDashHeader subtitle="Gift Shop Manager Dashboard" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <MiniStatCard label="Today's Orders" value={todayOrders.length} />
+        <MiniStatCard label="Today's Revenue" value={formatPrice(todayRevenue)} />
+        <MiniStatCard label="Low Stock Items" value={lowStock.length} color={lowStock.length > 0 ? C.danger : C.success} />
+        <MiniStatCard label="Total Inventory" value={totalItems} />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div style={cardStyle}>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Recent Orders</div>
+          {orders.slice(0, 5).map(o => (
+            <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
+              <div><span style={{ font: `500 13px ${FONT}`, color: C.text }}>{o.id}</span> <span style={{ font: `400 11px ${MONO}`, color: C.text2, marginLeft: 8 }}>{o.channel || 'Online'}</span></div>
+              <span style={{ font: `600 13px ${FONT}`, color: C.gold }}>{formatPrice(o.total)}</span>
+            </div>
+          ))}
+        </div>
+        <div style={cardStyle}>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Low Stock Alerts</div>
+          {lowStock.length === 0 ? <p style={{ font: `400 13px ${FONT}`, color: C.success }}>All items stocked.</p> :
+            lowStock.slice(0, 5).map(i => (
+              <div key={i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
+                <span style={{ font: `400 13px ${FONT}`, color: C.text }}>{i.name}</span>
+                <span style={{ font: `600 12px ${MONO}`, color: C.danger }}>GS: {i.giftshop || 0}</span>
+              </div>
+            ))}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button onClick={() => navigate('/admin/pos')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Open POS</button>
+        <button onClick={() => navigate('/admin/orders')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>All Orders</button>
+        <button onClick={() => navigate('/admin/inventory')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Inventory</button>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════
 // MAIN DASHBOARD — switches by role
 // ════════════════════════════════════════════
 export default function Dashboard() {
@@ -1598,8 +1837,17 @@ export default function Dashboard() {
     return subscribe(() => setTick(t => t + 1));
   }, []);
 
-  if (role === 'shop_staff') return <StaffDashboard />;
-  if (role === 'reports' || role === 'treasurer' || role === 'board') return <BoardMemberDashboard />;
-  // executive_director, shop_manager, education_director, social_media, visitor_services, volunteer_coordinator, payroll all get full dashboard
-  return <ManagerDashboard />;
+  switch (role) {
+    case 'executive_director': return <ManagerDashboard />;
+    case 'shop_manager': return <ShopManagerDashboard />;
+    case 'shop_staff': return <StaffDashboard />;
+    case 'treasurer': return <BoardMemberDashboard />;
+    case 'board': return <BoardMemberDashboard />;
+    case 'education_director': return <EducationDashboard />;
+    case 'social_media': return <SocialMediaDashboard />;
+    case 'visitor_services': return <VisitorServicesDashboard />;
+    case 'volunteer_coordinator': return <VolunteerCoordDashboard />;
+    case 'payroll': return <PayrollDashboard />;
+    default: return <ManagerDashboard />;
+  }
 }
