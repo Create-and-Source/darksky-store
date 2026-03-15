@@ -90,12 +90,12 @@ export default function Events() {
   return (
     <div>
       {/* ── HERO ── */}
-      <section className="events-hero">
+      <section className="events-hero" data-section="Hero">
         <RevealSection>
           <div className="section-header">
-            <span className="section-label label">// Events &amp; Programs</span>
-            <h1 className="section-title">Experience the <em>Night Sky</em></h1>
-            <p className="section-subtitle" style={{ lineHeight: 1.7 }}>
+            <span className="section-label label" data-editable="events-hero-label">// Events &amp; Programs</span>
+            <h1 className="section-title" data-editable="events-hero-title">Experience the <em>Night Sky</em></h1>
+            <p className="section-subtitle" data-editable="events-hero-subtitle" style={{ lineHeight: 1.7 }}>
               From guided telescope sessions to exclusive galas, every event at the Discovery Center is designed to inspire wonder.
             </p>
           </div>

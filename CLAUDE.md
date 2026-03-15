@@ -294,16 +294,42 @@ Admin toggle ON → ds_user_role = 'manager'
     ↓
 EditToggleButton appears (pencil icon, bottom-left)
     ↓
-Click pencil → EditBanner shows at top
+Click pencil → EditBanner shows at top, body gets 'edit-mode-active' class
     ↓
-EditableText/EditableImage become contentEditable
+DOM-based editing: [data-editable] elements get gold dashed hover borders
     ↓
-Changes saved to ds_site_edits (draft)
+Click any [data-editable] element → contentEditable=true, solid gold border
     ↓
-Publish → merged into ds_site_published
+Type new text → click away (blur) → innerHTML saved to ds_site_edits, "Saved" toast
     ↓
-Revision saved to ds_site_revisions (max 10)
+Section controls: [data-section] elements get hover overlay with visibility toggle
+    ↓
+Publish → ds_site_edits merged into ds_site_published, revision saved, exits edit mode
+    ↓
+Discard → ds_site_edits cleared, page reloads
+    ↓
+On every page load: MutationObserver applies published text from ds_site_published
+    to matching [data-editable] elements
 ```
+
+#### Editable elements (data-editable keys)
+
+| Page | Key | Element |
+|------|-----|---------|
+| Home | home-hero-label | Hero label text |
+| Home | home-hero-subtitle | Hero subtitle |
+| Home | home-discover-label, home-discover-title | Discover section |
+| Home | home-collection-label, home-collection-title | Products section |
+| Home | home-events-label, home-events-title | Events section |
+| Home | home-shop-label, home-shop-title | Shop section |
+| Home | home-membership-label, home-membership-title, home-membership-subtitle | Membership section |
+| Home | home-mission-quote, home-mission-attr | Mission quote band |
+| About | about-hero-label, about-hero-title, about-hero-subtitle | Hero |
+| About | about-story-label, about-story-title, about-story-p1, about-story-p2 | Our Story |
+| Events | events-hero-label, events-hero-title, events-hero-subtitle | Hero |
+| Membership | mem-hero-label, mem-hero-title, mem-hero-subtitle | Hero |
+| Membership | mem-perks-label, mem-perks-title | Perks section |
+| Membership | mem-faq-label, mem-faq-title | FAQ section |
 
 ### Admin Roles
 

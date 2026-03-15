@@ -195,7 +195,7 @@ export default function Home({ onAddToCart }) {
       {/* ══════════════════════════════════════
           1 — HERO (with desert-night-sky video background)
       ══════════════════════════════════════ */}
-      <section className="hero">
+      <section className="hero" data-section="Hero">
         <video
           className="hero-video-bg"
           src="/videos/desert-night-sky.mp4"
@@ -219,7 +219,7 @@ export default function Home({ onAddToCart }) {
               transitionDelay: '0.15s',
             }}
           >
-            // OPENING FALL 2026 · FOUNTAIN HILLS, ARIZONA
+            <span data-editable="home-hero-label">// OPENING FALL 2026 · FOUNTAIN HILLS, ARIZONA</span>
           </div>
 
           <AnimatedHeadline visible={heroVis} />
@@ -234,7 +234,7 @@ export default function Home({ onAddToCart }) {
               letterSpacing: '0.18em',
             }}
           >
-            Observatory. Planetarium. Exhibits. Experiences.
+            <span data-editable="home-hero-subtitle">Observatory. Planetarium. Exhibits. Experiences.</span>
           </p>
 
           <div
@@ -277,10 +277,10 @@ export default function Home({ onAddToCart }) {
       {/* ══════════════════════════════════════
           3 — DISCOVER THE CENTER
       ══════════════════════════════════════ */}
-      <section className="section" style={{ background: 'var(--bg)' }}>
+      <section className="section" style={{ background: 'var(--bg)' }} data-section="Discover">
         <RevealSection className="section-header">
-          <div className="label section-label">01 — Discover</div>
-          <h2 className="section-title">A Sanctuary for the <em>Night Sky</em></h2>
+          <div className="label section-label" data-editable="home-discover-label">01 — Discover</div>
+          <h2 className="section-title" data-editable="home-discover-title">A Sanctuary for the <em>Night Sky</em></h2>
         </RevealSection>
 
         <RevealSection delay={120}>
@@ -317,10 +317,10 @@ export default function Home({ onAddToCart }) {
       {/* ══════════════════════════════════════
           4 — FEATURED PRODUCTS
       ══════════════════════════════════════ */}
-      <section className="section" style={{ background: 'var(--bg)' }}>
+      <section className="section" style={{ background: 'var(--bg)' }} data-section="Products">
         <RevealSection className="section-header">
-          <div className="label section-label">02 — Collection</div>
-          <h2 className="section-title">Curated for the <em>Curious</em></h2>
+          <div className="label section-label" data-editable="home-collection-label">02 — Collection</div>
+          <h2 className="section-title" data-editable="home-collection-title">Curated for the <em>Curious</em></h2>
         </RevealSection>
 
         <div className="grid">
@@ -352,10 +352,10 @@ export default function Home({ onAddToCart }) {
       {/* ══════════════════════════════════════
           5 — UPCOMING EVENTS
       ══════════════════════════════════════ */}
-      <section className="section" style={{ background: 'var(--surface)' }}>
+      <section className="section" style={{ background: 'var(--surface)' }} data-section="Events">
         <RevealSection className="section-header">
-          <div className="label section-label">03 — Events</div>
-          <h2 className="section-title">Under the <em>Stars</em></h2>
+          <div className="label section-label" data-editable="home-events-label">03 — Events</div>
+          <h2 className="section-title" data-editable="home-events-title">Under the <em>Stars</em></h2>
         </RevealSection>
 
         <RevealSection delay={80}>
@@ -457,11 +457,11 @@ export default function Home({ onAddToCart }) {
       {/* ══════════════════════════════════════
           6 — MISSION QUOTE BAND
       ══════════════════════════════════════ */}
-      <div className="mission">
-        <blockquote className="mission-quote">
+      <div className="mission" data-section="Mission">
+        <blockquote className="mission-quote" data-editable="home-mission-quote">
           "Spend time under the stars.<br /><em>Take the night sky home.</em>"
         </blockquote>
-        <div className="mission-attr">// International Dark Sky Discovery Center, Sonoran Desert</div>
+        <div className="mission-attr" data-editable="home-mission-attr">// International Dark Sky Discovery Center, Sonoran Desert</div>
       </div>
 
       <SectionSep />
@@ -469,10 +469,10 @@ export default function Home({ onAddToCart }) {
       {/* ══════════════════════════════════════
           7 — SHOP BY CATEGORY
       ══════════════════════════════════════ */}
-      <section className="section" style={{ background: 'var(--bg)' }}>
+      <section className="section" style={{ background: 'var(--bg)' }} data-section="Categories">
         <RevealSection className="section-header">
-          <div className="label section-label">04 — Shop</div>
-          <h2 className="section-title">Find Your <em>Constellation</em></h2>
+          <div className="label section-label" data-editable="home-shop-label">04 — Shop</div>
+          <h2 className="section-title" data-editable="home-shop-title">Find Your <em>Constellation</em></h2>
         </RevealSection>
 
         <RevealSection delay={100}>
@@ -585,15 +585,16 @@ export default function Home({ onAddToCart }) {
       ══════════════════════════════════════ */}
       <section
         className="section"
+        data-section="Membership"
         style={{
           background: 'radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.08) 0%, transparent 60%), var(--bg)',
           textAlign: 'center',
         }}
       >
         <RevealSection>
-          <div className="label section-label" style={{ marginBottom: 24 }}>05 — Membership</div>
-          <h2 className="section-title" style={{ marginBottom: 20 }}>Join the <em>Observatory</em></h2>
-          <p className="section-subtitle" style={{
+          <div className="label section-label" style={{ marginBottom: 24 }} data-editable="home-membership-label">05 — Membership</div>
+          <h2 className="section-title" style={{ marginBottom: 20 }} data-editable="home-membership-title">Join the <em>Observatory</em></h2>
+          <p className="section-subtitle" data-editable="home-membership-subtitle" style={{
             font: '300 16px/1.8 "Plus Jakarta Sans", sans-serif',
             color: 'var(--text2)',
             maxWidth: 520,

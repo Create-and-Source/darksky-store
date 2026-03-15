@@ -86,12 +86,12 @@ export default function Membership() {
   return (
     <div>
       {/* Hero */}
-      <div className="mem-hero">
-        <div className="label" style={{ marginBottom: 20 }}>// Membership</div>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }}>
+      <div className="mem-hero" data-section="Hero">
+        <div className="label" style={{ marginBottom: 20 }} data-editable="mem-hero-label">// Membership</div>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }} data-editable="mem-hero-title">
           Join the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Observatory</em>
         </h1>
-        <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', maxWidth: 520, margin: '0 auto' }}>
+        <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', maxWidth: 520, margin: '0 auto' }} data-editable="mem-hero-subtitle">
           Become part of a community dedicated to preserving the night sky. Members enjoy exclusive discounts, private events, and early access to our rarest pieces.
         </p>
         <div style={{ marginTop: 40, display: 'flex', gap: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -140,9 +140,9 @@ export default function Membership() {
 
       {/* Perks */}
       <RevealSection>
-        <div className="mem-perks">
-          <div className="label" style={{ marginBottom: 16 }}>// Member Benefits</div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.1 }}>
+        <div className="mem-perks" data-section="Perks">
+          <div className="label" style={{ marginBottom: 16 }} data-editable="mem-perks-label">// Member Benefits</div>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 400, lineHeight: 1.1 }} data-editable="mem-perks-title">
             Why Join the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Dark Sky Family</em>
           </h2>
           <div className="mem-perks-grid">
@@ -162,8 +162,8 @@ export default function Membership() {
       {/* FAQ */}
       <RevealSection>
         <section className="section" style={{ borderTop: '1px solid var(--border)', maxWidth: 800, margin: '0 auto' }}>
-          <div className="label" style={{ marginBottom: 20 }}>// Common Questions</div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400, marginBottom: 48 }}>
+          <div className="label" style={{ marginBottom: 20 }} data-editable="mem-faq-label">// Common Questions</div>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400, marginBottom: 48 }} data-editable="mem-faq-title">
             Frequently Asked <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Questions</em>
           </h2>
           {[

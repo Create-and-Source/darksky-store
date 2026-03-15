@@ -47,12 +47,12 @@ export default function About() {
   return (
     <div>
       {/* ── HERO ── */}
-      <section className="about-hero">
+      <section className="about-hero" data-section="Hero">
         <RevealSection>
           <div className="section-header">
-            <span className="section-label label">// About the Center</span>
-            <h1 className="section-title">Connecting the Night Sky to <em>Life on Earth</em></h1>
-            <p className="section-subtitle" style={{ lineHeight: 1.7 }}>
+            <span className="section-label label" data-editable="about-hero-label">// About the Center</span>
+            <h1 className="section-title" data-editable="about-hero-title">Connecting the Night Sky to <em>Life on Earth</em></h1>
+            <p className="section-subtitle" data-editable="about-hero-subtitle" style={{ lineHeight: 1.7 }}>
               The International Dark Sky Discovery Center is a 35,000 square foot institution dedicated to dark sky preservation, astronomy education, and the wonder of the cosmos. Opening Fall 2026 in Fountain Hills, Arizona.
             </p>
           </div>
@@ -95,17 +95,17 @@ export default function About() {
       <SectionSep />
 
       {/* ── OUR STORY ── */}
-      <section className="section" style={{ background: 'var(--bg)' }}>
+      <section className="section" style={{ background: 'var(--bg)' }} data-section="Story">
         <RevealSection>
           <div className="section-header">
-            <span className="section-label label">// Our Story</span>
-            <h2 className="section-title">Born from a <em>Mission</em></h2>
+            <span className="section-label label" data-editable="about-story-label">// Our Story</span>
+            <h2 className="section-title" data-editable="about-story-title">Born from a <em>Mission</em></h2>
           </div>
         </RevealSection>
 
         <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
           <RevealSection delay={100}>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', marginBottom: 40, fontWeight: 300 }}>
+            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', marginBottom: 40, fontWeight: 300 }} data-editable="about-story-p1">
               The International Dark Sky Discovery Center was born from a simple observation: the night sky is disappearing. Light pollution now affects 80% of the world's population, and a generation of children is growing up without ever seeing the Milky Way.
             </p>
           </RevealSection>
@@ -127,7 +127,7 @@ export default function About() {
           </RevealSection>
 
           <RevealSection delay={300}>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', fontWeight: 300 }}>
+            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', fontWeight: 300 }} data-editable="about-story-p2">
               Nestled in the Sonoran Desert outside Fountain Hills, Arizona, the Discovery Center sits beneath some of the darkest, most pristine skies in the continental United States. Our 35,000-square-foot facility will serve as a beacon for astronomy education, dark sky advocacy, and scientific research.
             </p>
           </RevealSection>

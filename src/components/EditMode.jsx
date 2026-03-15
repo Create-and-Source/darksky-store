@@ -356,6 +356,7 @@ export function EditBanner() {
             onClick={() => {
               if (window.confirm('Discard all unpublished changes?')) {
                 discardChanges();
+                window.location.reload();
               }
             }}
             disabled={!hasChanges}
@@ -659,7 +660,7 @@ export function SectionWrapper({
 /* ------------------------------------------------------------------ */
 
 export function PublishModal({ onClose }) {
-  const { changes, publish, changeCount } = useEditMode();
+  const { changes, publish, changeCount, setEditMode } = useEditMode();
 
   const textCount = changes.texts ? Object.keys(changes.texts).length : 0;
   const imageCount = changes.images ? Object.keys(changes.images).length : 0;
@@ -667,6 +668,7 @@ export function PublishModal({ onClose }) {
 
   const handlePublish = () => {
     publish();
+    setEditMode(false);
     onClose();
   };
 
@@ -1226,6 +1228,39 @@ function EditModeStyles() {
         border-color: #d4af37;
       }
 
+      /* ---- Data-editable (DOM-based editing) ---- */
+      .edit-mode-active [data-editable] {
+        cursor: text !important;
+        transition: outline 0.15s ease, background 0.15s ease;
+        outline: 2px dashed transparent;
+        outline-offset: 2px;
+      }
+      .edit-mode-active [data-editable]:hover {
+        outline-color: rgba(212,175,55,0.5);
+      }
+      .edit-mode-active [data-editable].editing {
+        outline: 2px solid #d4af37 !important;
+        background: rgba(212,175,55,0.05) !important;
+      }
+
+      /* ---- Section controls (injected into data-section elements) ---- */
+      .em-section-ctrl-injected {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      [data-section]:hover > .em-section-ctrl-injected {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .edit-mode-active [data-section] {
+        transition: outline 0.2s;
+      }
+      .edit-mode-active [data-section]:hover {
+        outline: 1px dashed rgba(212,175,55,0.15);
+        outline-offset: -1px;
+      }
+
       /* ---- Add Section ---- */
       .em-add-section {
         position: relative;
@@ -1300,6 +1335,165 @@ function EditModeStyles() {
 }
 
 /* ------------------------------------------------------------------ */
+/*  EditModeDOM — DOM-based editing via data-editable attributes      */
+/* ------------------------------------------------------------------ */
+
+function EditModeDOM() {
+  const { editMode, previewMode, changes, setText, getSectionVisible, toggleSectionVisible } = useEditMode();
+  const isEditing = editMode && !previewMode;
+
+  // 1. Toggle body class
+  useEffect(() => {
+    document.body.classList.toggle('edit-mode-active', isEditing);
+    return () => document.body.classList.remove('edit-mode-active');
+  }, [isEditing]);
+
+  // 2. Apply published + draft text overrides to [data-editable] elements
+  useEffect(() => {
+    const published = loadJSON(LS_PUBLISHED_KEY, {});
+    const texts = { ...(published.texts || {}) };
+    if (changes.texts) Object.assign(texts, changes.texts);
+    if (Object.keys(texts).length === 0) return;
+
+    let raf = null;
+    let applying = false;
+
+    const applyEdits = () => {
+      raf = null;
+      applying = true;
+      document.querySelectorAll('[data-editable]').forEach(el => {
+        if (el.contentEditable === 'true') return;
+        const key = el.getAttribute('data-editable');
+        if (texts[key] !== undefined && el.innerHTML !== texts[key]) {
+          el.innerHTML = texts[key];
+        }
+      });
+      applying = false;
+    };
+
+    const schedule = () => {
+      if (!raf && !applying) raf = requestAnimationFrame(applyEdits);
+    };
+
+    schedule();
+    const observer = new MutationObserver(schedule);
+    observer.observe(document.getElementById('root') || document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [changes]);
+
+  // 3. Click-to-edit and blur-to-save handlers
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const onClick = (e) => {
+      const el = e.target.closest('[data-editable]');
+      if (!el || el.contentEditable === 'true') return;
+      e.stopPropagation();
+      el.contentEditable = 'true';
+      el.classList.add('editing');
+      el.focus();
+    };
+
+    const onFocusOut = (e) => {
+      const el = e.target;
+      if (!el?.getAttribute?.('data-editable') || el.contentEditable !== 'true') return;
+      setText(el.getAttribute('data-editable'), el.innerHTML);
+      el.contentEditable = 'false';
+      el.classList.remove('editing');
+      showToast('Saved');
+    };
+
+    document.addEventListener('click', onClick, true);
+    document.addEventListener('focusout', onFocusOut);
+
+    return () => {
+      document.removeEventListener('click', onClick, true);
+      document.removeEventListener('focusout', onFocusOut);
+      document.querySelectorAll('[data-editable].editing').forEach(el => {
+        el.contentEditable = 'false';
+        el.classList.remove('editing');
+      });
+    };
+  }, [isEditing, setText]);
+
+  // 4. Section controls — inject control bars into [data-section] elements
+  useEffect(() => {
+    if (!isEditing) {
+      document.querySelectorAll('.em-section-ctrl-injected').forEach(el => el.remove());
+      return;
+    }
+
+    const injectControls = () => {
+      document.querySelectorAll('[data-section]').forEach(section => {
+        if (section.querySelector('.em-section-ctrl-injected')) return;
+        section.style.position = 'relative';
+
+        const name = section.getAttribute('data-section');
+        const bar = document.createElement('div');
+        bar.className = 'em-section-ctrl-injected em-section-ctrl';
+        bar.innerHTML = `
+          <span class="em-section-ctrl__name">${name}</span>
+          <button class="em-section-ctrl__btn" data-action="toggle" title="Toggle visibility">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        `;
+
+        bar.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-action]');
+          if (!btn) return;
+          e.stopPropagation();
+          if (btn.getAttribute('data-action') === 'toggle') {
+            const pageId = section.closest('[data-page]')?.getAttribute('data-page') || 'default';
+            toggleSectionVisible(pageId, name);
+          }
+        });
+
+        section.appendChild(bar);
+      });
+    };
+
+    // Inject after render and on DOM changes (page navigation)
+    const timer = setTimeout(injectControls, 100);
+    const observer = new MutationObserver(() => setTimeout(injectControls, 100));
+    observer.observe(document.getElementById('root') || document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      document.querySelectorAll('.em-section-ctrl-injected').forEach(el => el.remove());
+    };
+  }, [isEditing, toggleSectionVisible]);
+
+  // 5. Apply section visibility
+  useEffect(() => {
+    document.querySelectorAll('[data-section]').forEach(el => {
+      const pageId = el.closest('[data-page]')?.getAttribute('data-page') || 'default';
+      const sectionId = el.getAttribute('data-section');
+      const visible = getSectionVisible(pageId, sectionId);
+      if (!visible) {
+        el.style.display = isEditing ? '' : 'none';
+        el.style.opacity = isEditing ? '0.3' : '';
+      } else {
+        el.style.display = '';
+        el.style.opacity = '';
+      }
+    });
+  }, [isEditing, changes, getSectionVisible]);
+
+  return null;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Wrap Provider to include styles                                   */
 /* ------------------------------------------------------------------ */
 
@@ -1309,6 +1503,7 @@ EditModeProvider = function EditModeProviderWithStyles({ children }) {
   return (
     <OriginalProvider>
       <EditModeStyles />
+      <EditModeDOM />
       {children}
     </OriginalProvider>
   );
