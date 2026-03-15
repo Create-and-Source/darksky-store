@@ -230,12 +230,14 @@ export default function FieldTripsAdmin() {
         </table>
       </div>
 
-      {/* Detail Panel */}
+      {/* Detail Drawer */}
       {selected && (
+        <>
+        <div onClick={() => setSelectedId(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 999 }} />
         <div style={{
-          background: C.card, border: `1px solid ${C.border}`, borderRadius: 12,
-          padding: 28, marginTop: 20, boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
-          animation: 'helpFadeIn 0.2s ease',
+          position: 'fixed', top: 0, right: 0, bottom: 0, width: 520, maxWidth: '90vw',
+          background: C.card, boxShadow: '-8px 0 32px rgba(0,0,0,0.12)',
+          zIndex: 1000, overflowY: 'auto', padding: 28,
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
             <div>
@@ -352,6 +354,7 @@ export default function FieldTripsAdmin() {
             </button>
           </div>
         </div>
+        </>
       )}
 
       {/* Add Field Trip Modal */}
