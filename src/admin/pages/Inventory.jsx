@@ -217,8 +217,6 @@ export default function Inventory() {
                     <td id="tour-inventory-status">
                       <span className={`badge ${statusClass[status]}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                         {statusLabel[status]}
-                        {status === 'out' && }
-                        {status === 'low' && }
                       </span>
                     </td>
                   </tr>

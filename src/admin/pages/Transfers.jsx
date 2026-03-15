@@ -141,9 +141,6 @@ export default function Transfers() {
                   <td>
                     <span className={`badge ${statusClass[t.status]}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                       {t.status}
-                      {t.status === 'Pending' && }
-                      {t.status === 'In Transit' && }
-                      {t.status === 'Received' && }
                     </span>
                   </td>
                   <td>{t.createdDate}</td>

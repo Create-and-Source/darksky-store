@@ -417,7 +417,6 @@ export default function Receive() {
           ) : (
             <button className="admin-btn admin-btn-gold admin-btn-lg" disabled={submitting} onClick={handleSubmit} style={{ display: 'inline-flex', alignItems: 'center' }}>
               {submitting ? <><span className="admin-spinner" /> Receiving...</> : 'Receive Stock'}
-              {!submitting && }
             </button>
           )}
         </div>
