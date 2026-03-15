@@ -1,7 +1,7 @@
 # Dark Sky Discovery Center — Gift Shop & Admin
 
 > International Dark Sky Discovery Center (IDSDC) in Fountain Hills, AZ.
-> Opening Fall 2026. This is a demo storefront + admin system for the gift shop.
+> Phase One opened Fall 2025; full facility opening mid-2026. This is a demo storefront + admin system for the gift shop.
 
 ## Tech Stack
 
@@ -373,7 +373,8 @@ Located in `public/videos/`:
 
 | File | Size | Used In | Description |
 |------|------|---------|-------------|
-| `hero-space.mp4` | 22MB | Home hero background | Full-screen behind hero text |
+| `desert-night-sky.mp4` | 22MB | Home hero background | Full-screen behind hero text |
+| `hero-space.mp4` | 22MB | Unused | Earlier hero video alternative |
 | `hero1-4.mp4` | ~5MB each | Unused | Earlier hero video alternatives |
 
 ### Supabase Videos (streamed from `https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/`)
@@ -383,7 +384,7 @@ Located in `public/videos/`:
 | `owl.mp4` | Home divider | "Where the Wild Things Wake" |
 | `scorpion-uv.mp4` | Home divider | "See What Others Can't" |
 | `milky-way.mp4` | Home divider | "The Universe in Motion" |
-| `observatory-hero.mp4` | About divider | "35,000 Square Feet of Wonder" |
+| `observatory-hero.mp4` | About divider | "22,000 Square Feet of Wonder" |
 | `education-hero.mp4` | Education divider | "Learning Under the Stars" |
 | Other available: `andromeda.mp4`, `bubble-nebula.mp4`, `comet-neowise.mp4`, `crescent-nebula.mp4`, `desert-night-sky.mp4`, `first-light-nebula.mp4`, `meteor-shower.mp4`, `nebula.mp4`, `saturn.mp4`, `kit-fox.mp4`, `bats.mp4`, `ringtail.mp4`, `education-fieldtrip.mp4`, `education-workshop.mp4`, `education-outreach.mp4` | — | Available in Supabase |
 
@@ -430,10 +431,10 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 
 ## Key Contact Info (Hardcoded)
 
-- **Address**: 16845 E Palisades Blvd, Fountain Hills, AZ 85268
+- **Address**: 13001 N La Montana Drive, Fountain Hills, AZ 85268
 - **Hours**: Wed — Sun, 6pm — 11pm
-- **Email**: hello@idsdc.org / info@darkskycenter.org / education@idarksky.org
-- **Phone**: (928) 555-0142
+- **Email**: info@darkskycenter.org
+- **Phone**: (contact via website)
 - **Website**: darkskycenter.org
 - **Coordinates**: 33.6°N · 111.7°W
 - **Tax Rate**: 8.6%

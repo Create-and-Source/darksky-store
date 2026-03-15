@@ -130,9 +130,9 @@ const EVENTS = [
 
 /* ── Stats data ── */
 const STATS = [
-  { value: '35,000+', label: 'Square Feet' },
+  { value: '22,000+', label: 'Square Feet' },
   { value: '200+', label: 'Programs per Year' },
-  { value: '5', label: 'Research Telescopes' },
+  { value: '27.5"', label: 'PlaneWave Telescope' },
   { value: '1', label: 'Mission' },
 ];
 
@@ -225,7 +225,7 @@ export default function Home({ onAddToCart }) {
               transitionDelay: '0.15s',
             }}
           >
-            <span data-editable="home-hero-label">// OPENING FALL 2026 · FOUNTAIN HILLS, ARIZONA</span>
+            <span data-editable="home-hero-label">// NOW OPEN · FOUNTAIN HILLS, ARIZONA</span>
           </div>
 
           <AnimatedHeadline visible={heroVis} />
@@ -500,7 +500,7 @@ export default function Home({ onAddToCart }) {
       <VideoDivider
         src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/milky-way.mp4"
         title="Discover the Cosmos"
-        subtitle="35,000 square feet dedicated to the night sky"
+        subtitle="22,000 square feet dedicated to the night sky"
       />
 
       {/* ══════════════════════════════════════

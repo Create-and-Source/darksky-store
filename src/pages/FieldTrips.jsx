@@ -600,7 +600,7 @@ export default function FieldTrips() {
         <div className="label" style={{ marginBottom: 24 }}>// Get in Touch</div>
         <blockquote className="mission-quote" style={{ fontSize: 'clamp(22px, 3vw, 40px)' }}>
           Questions? Reach our education coordinator directly at<br />
-          <em>education@idarksky.org</em> <span style={{ color: 'var(--muted)' }}>or</span> <em>(928) 555-0142</em>
+          <em>info@darkskycenter.org</em>
         </blockquote>
         <div style={{ marginTop: 32 }}>
           <a href="#inquiry" className="btn-primary" style={{ textDecoration: 'none', marginRight: 16 }}>Book a Field Trip</a>

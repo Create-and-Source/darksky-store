@@ -109,17 +109,17 @@ const goldGradientStyle = {
 };
 
 const OFFERINGS = [
-  { icon: '/images/darksky/observatory-hero.jpg', title: 'Research Observatory', desc: 'Five research-grade telescopes including a 24-inch Ritchey-Chrétien reflector. Open nightly for guided viewing sessions under some of the darkest skies in the American Southwest.' },
-  { icon: '/images/darksky/nebula.jpg', title: 'Digital Planetarium', desc: 'A state-of-the-art 4K fulldome theater seating 120 guests. Immersive shows transport you from our solar system to the edge of the observable universe.' },
+  { icon: '/images/darksky/observatory-hero.jpg', title: 'Dark Sky Observatory', desc: 'Home to a 27.5-inch PlaneWave CDK700 — the largest telescope in Greater Phoenix. Open nightly for guided viewing sessions under some of the darkest skies in the American Southwest.' },
+  { icon: '/images/darksky/nebula.jpg', title: 'Hyperspace Planetarium', desc: 'A state-of-the-art tilted-dome theater seating 65 guests. Immersive shows transport you from our solar system to the edge of the observable universe.' },
   { icon: '/images/darksky/saturn.jpg', title: 'Interactive Exhibits', desc: 'Hands-on galleries exploring light pollution, celestial navigation, space exploration, and the cultural significance of the night sky across civilizations.' },
   { icon: '/images/darksky/milky-way.jpg', title: 'Curated Experiences', desc: 'From stargazing dinners to astrophotography workshops, every visit is designed to create lasting connections with the cosmos.' },
 ];
 
 const STATS = [
-  { number: '35K+', label: 'Square Feet' },
-  { number: '50M+', label: 'Dark Sky Acres Preserved' },
+  { number: '22K+', label: 'Square Feet' },
+  { number: '27.5"', label: 'PlaneWave CDK700' },
   { number: '200+', label: 'Annual Programs' },
-  { number: '24"', label: 'Primary Telescope' },
+  { number: '65', label: 'Planetarium Seats' },
 ];
 
 export default function About() {
@@ -148,7 +148,7 @@ export default function About() {
             <span className="section-label label" data-editable="about-hero-label">// About the Center</span>
             <h1 className="section-title" data-editable="about-hero-title">Connecting the Night Sky to <em>Life on Earth</em></h1>
             <p className="section-subtitle" data-editable="about-hero-subtitle" style={{ lineHeight: 1.7 }}>
-              The International Dark Sky Discovery Center is a 35,000 square foot institution dedicated to dark sky preservation, astronomy education, and the wonder of the cosmos. Opening Fall 2026 in Fountain Hills, Arizona.
+              The International Dark Sky Discovery Center is a 22,000 square foot institution dedicated to dark sky preservation, astronomy education, and the wonder of the cosmos. Now open in Fountain Hills, Arizona.
             </p>
           </div>
         </RevealSection>
@@ -192,8 +192,8 @@ export default function About() {
       {/* ── VIDEO DIVIDER ── */}
       <VideoDivider
         src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/observatory-hero.mp4"
-        title="35,000 Square Feet of Wonder"
-        subtitle="Opening Fall 2026 in Fountain Hills, Arizona"
+        title="22,000 Square Feet of Wonder"
+        subtitle="Now open in Fountain Hills, Arizona"
       />
 
       <SectionSep />
@@ -282,7 +282,7 @@ export default function About() {
 
           <RevealSection delay={300}>
             <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', fontWeight: 300 }} data-editable="about-story-p2">
-              Nestled in the Sonoran Desert outside Fountain Hills, Arizona, the Discovery Center sits beneath some of the darkest, most pristine skies in the continental United States. Our 35,000-square-foot facility will serve as a beacon for astronomy education, dark sky advocacy, and scientific research.
+              Nestled in the Sonoran Desert outside Fountain Hills, Arizona, the Discovery Center sits beneath some of the darkest, most pristine skies in the continental United States. Our 22,000-square-foot facility serves as a beacon for astronomy education, dark sky advocacy, and scientific research.
             </p>
           </RevealSection>
         </div>

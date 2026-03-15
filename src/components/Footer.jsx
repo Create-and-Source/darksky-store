@@ -49,10 +49,10 @@ export default function Footer() {
           <div>
             <div className="footer-col-title">Visit</div>
             <div className="footer-links">
-              <a>16845 E Palisades Blvd</a>
+              <a>13001 N La Montana Drive</a>
               <a>Fountain Hills, AZ 85268</a>
               <a>Wed — Sun, 6pm — 11pm</a>
-              <a href="mailto:hello@idsdc.org">hello@idsdc.org</a>
+              <a href="mailto:info@darkskycenter.org">info@darkskycenter.org</a>
               <a>Get Directions →</a>
             </div>
           </div>

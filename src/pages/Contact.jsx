@@ -255,7 +255,7 @@ export default function Contact() {
               background: 'rgba(201,169,74,0.06)', border: '1px solid rgba(201,169,74,0.2)',
             }}>
               <span style={{ font: '600 9px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>
-                Opening Fall 2026
+                Now Open
               </span>
             </div>
 

@@ -173,7 +173,7 @@ export default function Membership() {
           </h2>
           {[
             { q: 'When does my membership start?', a: 'Membership begins immediately upon purchase. You\'ll receive a welcome email with your member benefits and discount code within minutes.' },
-            { q: 'Can I upgrade my membership tier?', a: 'Yes. You can upgrade at any time and we\'ll prorate the difference. Contact us at hello@idarksky.org to make the switch.' },
+            { q: 'Can I upgrade my membership tier?', a: 'Yes. You can upgrade at any time and we\'ll prorate the difference. Contact us at info@darkskycenter.org to make the switch.' },
             { q: 'Are memberships tax-deductible?', a: 'A portion of your membership may be tax-deductible as the Dark Sky Discovery Center is a 501(c)(3) non-profit. We\'ll provide a receipt detailing the deductible amount.' },
             { q: 'Do memberships make great gifts?', a: 'Absolutely. Gift memberships are available and include a beautiful digital certificate — perfect for the stargazer in your life.' },
           ].map(({ q, a }) => (

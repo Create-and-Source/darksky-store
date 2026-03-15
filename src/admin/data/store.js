@@ -49,7 +49,7 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.members)) set(KEYS.members, DEFAULT_MEMBERS);
   if (!localStorage.getItem(KEYS.inquiries)) set(KEYS.inquiries, []);
   if (!localStorage.getItem(KEYS.contacts)) set(KEYS.contacts, []);
-  if (!localStorage.getItem(KEYS.announcement)) set(KEYS.announcement, { text: 'International Dark Sky Discovery Center · Opening Fall 2026 · Fountain Hills, AZ', active: true });
+  if (!localStorage.getItem(KEYS.announcement)) set(KEYS.announcement, { text: 'International Dark Sky Discovery Center · Now Open · Fountain Hills, AZ', active: true });
   if (!localStorage.getItem(KEYS.ticketReservations)) set(KEYS.ticketReservations, []);
   if (!localStorage.getItem(KEYS.movementHistory)) set(KEYS.movementHistory, DEFAULT_MOVEMENTS);
   if (!localStorage.getItem(KEYS.products)) set(KEYS.products, MOCK_PRODUCTS);
