@@ -41,7 +41,7 @@ export default function Nav({ cartCount, onCartClick }) {
     } else {
       localStorage.setItem('ds_user_name', 'Nancy');
       localStorage.setItem('ds_user_role', 'manager');
-      localStorage.setItem('ds_admin_role', 'manager');
+      localStorage.setItem('ds_admin_role', 'admin');
       setAdminOn(true);
     }
     window.dispatchEvent(new Event('ds-auth-change'));

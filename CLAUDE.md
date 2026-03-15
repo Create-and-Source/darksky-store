@@ -400,16 +400,12 @@ VideoDivider components (Home, About, Education) accept `titleEditable` and `sub
 
 ### Admin Roles
 
-| Role | Access |
-|------|--------|
-| Executive Director (Nancy) | All admin pages |
-| Manager (Tovah) | All admin pages, edit mode pencil on store |
-| Treasurer (David) | Dashboard, Donations, Reports, QuickBooks, Orders |
-| Education Director (Maria) | Dashboard, Events, Facility, Volunteers, Visitors, Reports |
-| Visitor Services (Alex) | Dashboard, Visitors, Facility, Inventory, Orders, Volunteers |
-| Board Member (Patricia) | Dashboard (read-only summary), Donations, Reports, Visitors |
-| Gift Shop Staff (Josie) | Dashboard, Inventory, Receive, Transfers, Orders (read-only) |
-| Volunteer | Dashboard, Inventory (read-only), Orders (read-only) |
+| Role | User | Access |
+|------|------|--------|
+| Admin (Nancy) | N | All admin pages, edit mode pencil on store |
+| Gift Shop Manager (Tovah) | T | Dashboard, Orders, Inventory, Receive, Transfers, POs, Events, Content, Email, Facility |
+| Gift Shop Staff (Josie) | J | Dashboard, Orders, Inventory (read-only), Receive |
+| Reports (Patricia) | P | Dashboard (read-only), Reports, QuickBooks, Donations (read-only), Visitors (read-only) |
 
 ### Admin Sidebar Sections
 

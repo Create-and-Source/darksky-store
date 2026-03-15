@@ -1594,9 +1594,8 @@ export default function Dashboard() {
     return subscribe(() => setTick(t => t + 1));
   }, []);
 
-  if (role === 'volunteer') return <VolunteerDashboard />;
-  if (role === 'staff') return <StaffDashboard />;
-  if (role === 'board_member') return <BoardMemberDashboard />;
-  // executive_director, treasurer, education_director, visitor_services, manager all get full dashboard
+  if (role === 'shop_staff') return <StaffDashboard />;
+  if (role === 'reports') return <BoardMemberDashboard />;
+  // admin and shop_manager get full dashboard
   return <ManagerDashboard />;
 }

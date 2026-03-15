@@ -16,40 +16,28 @@ const ToastContext = createContext();
 export const useToast = () => useContext(ToastContext);
 
 // ── Role Context ──
-const RoleContext = createContext('manager');
+const RoleContext = createContext('admin');
 export const useRole = () => useContext(RoleContext);
 
 const ROLE_NAMES = {
-  manager: 'Tovah', staff: 'Josie', volunteer: 'Volunteer',
-  executive_director: 'Nancy', treasurer: 'David',
-  education_director: 'Maria', visitor_services: 'Alex', board_member: 'Patricia',
+  admin: 'Nancy', shop_manager: 'Tovah', shop_staff: 'Josie', reports: 'Patricia',
 };
 const ROLE_AVATARS = {
-  manager: 'T', staff: 'J', volunteer: 'V',
-  executive_director: 'N', treasurer: 'D',
-  education_director: 'M', visitor_services: 'A', board_member: 'P',
+  admin: 'N', shop_manager: 'T', shop_staff: 'J', reports: 'P',
 };
 const ROLE_BADGE_COLORS = {
-  manager: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
-  staff: { bg: 'rgba(59,130,246,0.1)', text: '#3B82F6' },
-  volunteer: { bg: 'rgba(16,185,129,0.1)', text: '#10B981' },
-  executive_director: { bg: 'rgba(124,107,175,0.12)', text: '#7C6BAF' },
-  treasurer: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
-  education_director: { bg: 'rgba(59,130,246,0.1)', text: '#3B82F6' },
-  visitor_services: { bg: 'rgba(61,140,111,0.1)', text: '#3D8C6F' },
-  board_member: { bg: 'rgba(196,91,91,0.1)', text: '#C45B5B' },
+  admin: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
+  shop_manager: { bg: 'rgba(59,130,246,0.1)', text: '#3B82F6' },
+  shop_staff: { bg: 'rgba(16,185,129,0.1)', text: '#10B981' },
+  reports: { bg: 'rgba(124,107,175,0.12)', text: '#7C6BAF' },
 };
 
 // Routes each role can access (path suffixes after /admin)
 const ROLE_ALLOWED_ROUTES = {
-  manager: null, // all
-  executive_director: null, // all
-  treasurer: ['', '/donations', '/reports', '/quickbooks', '/orders'],
-  education_director: ['', '/events', '/facility', '/volunteers', '/visitors', '/reports'],
-  visitor_services: ['', '/visitors', '/facility', '/inventory', '/orders', '/volunteers'],
-  board_member: ['', '/donations', '/reports', '/visitors'],
-  staff: ['', '/inventory', '/receive', '/transfers', '/orders'],
-  volunteer: ['', '/inventory', '/orders'],
+  admin: null, // all
+  shop_manager: ['', '/orders', '/inventory', '/receive', '/transfers', '/purchase-orders', '/events', '/content', '/emails', '/facility'],
+  shop_staff: ['', '/orders', '/inventory', '/receive'],
+  reports: ['', '/reports', '/quickbooks', '/donations', '/visitors'],
 };
 
 // ── SVG Icons ──
@@ -130,19 +118,14 @@ const navItems = navSections.flatMap(s => s.items);
 
 // Role-based nav filtering
 const ROLE_NAV = {
-  manager: null,
-  executive_director: null,
-  treasurer: ['Dashboard', 'Donations', 'Reports', 'QuickBooks', 'Orders'],
-  education_director: ['Dashboard', 'Events', 'Facility', 'Volunteers', 'Visitors', 'Reports'],
-  visitor_services: ['Dashboard', 'Visitors', 'Facility', 'Inventory', 'Orders', 'Volunteers'],
-  board_member: ['Dashboard', 'Donations', 'Reports', 'Visitors'],
-  staff: ['Dashboard', 'Inventory', 'Receive', 'Transfers', 'Orders'],
-  volunteer: ['Dashboard', 'Inventory', 'Orders'],
+  admin: null, // all
+  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Transfers', 'Purchase Orders', 'Events', 'Content', 'Email', 'Facility'],
+  shop_staff: ['Dashboard', 'Orders', 'Inventory', 'Receive'],
+  reports: ['Dashboard', 'Reports', 'QuickBooks', 'Donations', 'Visitors'],
 };
 const READONLY_LABELS = {
-  staff: ['Orders'],
-  volunteer: ['Inventory', 'Orders'],
-  board_member: ['Donations', 'Reports', 'Visitors'],
+  shop_staff: ['Inventory'],
+  reports: ['Donations', 'Visitors'],
 };
 
 // Breadcrumb labels
@@ -165,10 +148,7 @@ const breadcrumbMap = {
 };
 
 const ROLE_LABELS = {
-  manager: 'Manager', staff: 'Gift Shop Staff', volunteer: 'Volunteer',
-  executive_director: 'Executive Director', treasurer: 'Treasurer',
-  education_director: 'Education Director', visitor_services: 'Visitor Services',
-  board_member: 'Board Member',
+  admin: 'Admin', shop_manager: 'Gift Shop Manager', shop_staff: 'Gift Shop Staff', reports: 'Reports',
 };
 
 export default function AdminLayout() {
@@ -177,7 +157,7 @@ export default function AdminLayout() {
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState('');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [role, setRole] = useState(() => localStorage.getItem('ds_admin_role') || 'manager');
+  const [role, setRole] = useState(() => localStorage.getItem('ds_admin_role') || 'admin');
   const navigate = useNavigate();
   const location = useLocation();
   const quickSearchInputRef = useRef(null);
@@ -298,7 +278,6 @@ export default function AdminLayout() {
   // Quick search: filter by role
   const allPages = [
     ...filteredNavItems.map(item => ({ label: item.label, to: item.to })),
-    ...(role === 'manager' ? [{ label: 'QuickBooks', to: '/admin/quickbooks' }] : []),
   ];
   const quickSearchResults = quickSearchQuery.trim()
     ? allPages.filter(p => p.label.toLowerCase().includes(quickSearchQuery.toLowerCase()))
@@ -526,7 +505,7 @@ export default function AdminLayout() {
                       font: "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                       color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px',
                     }}>Switch Role</div>
-                    {['executive_director', 'treasurer', 'board_member', 'manager', 'education_director', 'visitor_services', 'staff', 'volunteer'].map(r => (
+                    {['admin', 'shop_manager', 'shop_staff', 'reports'].map(r => (
                       <button
                         key={r}
                         onClick={() => switchRole(r)}

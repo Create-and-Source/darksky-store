@@ -168,12 +168,12 @@ export default function App() {
 
   const isAdmin = location.pathname.startsWith('/admin');
 
-  // Auto-set manager role when visiting /admin directly
+  // Auto-set admin role when visiting /admin directly
   useEffect(() => {
     if (isAdmin && localStorage.getItem('ds_user_role') !== 'manager') {
       localStorage.setItem('ds_user_name', 'Nancy');
       localStorage.setItem('ds_user_role', 'manager');
-      localStorage.setItem('ds_admin_role', 'manager');
+      localStorage.setItem('ds_admin_role', 'admin');
       window.dispatchEvent(new Event('ds-auth-change'));
     }
   }, [isAdmin]);

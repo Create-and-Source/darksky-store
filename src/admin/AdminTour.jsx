@@ -573,8 +573,8 @@ function WelcomeModal({ onStart, onSkip }) {
           >
             <div className="tour-role-icon">&#128105;&#8205;&#128188;</div>
             <div className="tour-role-info">
-              <h4>I'm a Manager</h4>
-              <p>Tovah, Nancy -- full access tour</p>
+              <h4>I'm an Admin</h4>
+              <p>Nancy, Tovah -- full access tour</p>
             </div>
           </button>
           <button

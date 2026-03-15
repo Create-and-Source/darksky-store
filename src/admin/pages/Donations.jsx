@@ -27,7 +27,7 @@ export default function Donations() {
   const [form, setForm] = useState({ ...emptyForm });
   const toast = useToast();
   const role = useRole();
-  const isReadOnly = role === 'board_member';
+  const isReadOnly = role === 'reports';
 
   useEffect(() => subscribe(() => setTick(t => t + 1)), []);
 
