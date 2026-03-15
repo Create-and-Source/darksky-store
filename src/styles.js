@@ -1010,10 +1010,16 @@ input:focus, select:focus, textarea:focus {
   .mem-perks-grid { grid-template-columns: repeat(2,1fr); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
-@media (max-width: 860px) {
+@media (max-width: 1200px) {
+  .nav-center { gap: 20px; }
+  .nav-center a { font-size: 10px; letter-spacing: 0.15em; }
+}
+@media (max-width: 1024px) {
   .nav { padding: 0 24px; }
   .nav-center, .nav-join { display: none; }
   .nav-ham { display: flex; }
+}
+@media (max-width: 860px) {
   .section { padding: 80px 24px; }
   .section-sm { padding: 48px 24px; }
   .shop-hero { padding: 120px 24px 32px; }

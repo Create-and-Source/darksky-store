@@ -6,8 +6,18 @@ const NAV_LINKS = [
   { path: '/about', label: 'About' },
   { path: '/events', label: 'Events' },
   { path: '/membership', label: 'Membership' },
-  { path: '/education', label: 'Education' },
   { path: '/shop', label: 'Shop' },
+];
+
+const MOBILE_LINKS = [
+  { path: '/', label: 'Home' },
+  { path: '/about', label: 'About' },
+  { path: '/events', label: 'Events' },
+  { path: '/membership', label: 'Membership' },
+  { path: '/shop', label: 'Shop' },
+  { path: '/education', label: 'Education' },
+  { path: '/field-trips', label: 'Field Trips' },
+  { path: '/contact', label: 'Contact' },
 ];
 
 export default function Nav({ cartCount, onCartClick }) {
@@ -74,11 +84,9 @@ export default function Nav({ cartCount, onCartClick }) {
           <button className="nav-donate" onClick={() => go('/donate')}>Donate</button>
           <button className="nav-join" onClick={() => go('/membership')}>Join</button>
 
-          {/* Admin toggle — subtle, right side */}
+          {/* Admin toggle — always visible */}
           <div className="nav-admin-toggle-wrap">
-            {adminOn && (
-              <span className="nav-admin-badge">ADMIN</span>
-            )}
+            {adminOn && <span className="nav-admin-badge">ADMIN</span>}
             <button
               className={`nav-admin-switch${adminOn ? ' on' : ''}`}
               onClick={toggleAdmin}
@@ -114,7 +122,7 @@ export default function Nav({ cartCount, onCartClick }) {
 
       {/* Mobile Menu */}
       <div className={`mob-menu ${menuOpen ? 'open' : ''}`}>
-        {NAV_LINKS.map(({ path, label }, i) => (
+        {MOBILE_LINKS.map(({ path, label }, i) => (
           <button
             key={path}
             onClick={() => go(path)}
@@ -122,42 +130,62 @@ export default function Nav({ cartCount, onCartClick }) {
               opacity: menuOpen ? 1 : 0,
               transform: menuOpen ? 'none' : 'translateY(20px)',
               transition: 'opacity 0.4s var(--ease), transform 0.4s var(--ease)',
-              transitionDelay: menuOpen ? `${i * 80}ms` : '0ms',
+              transitionDelay: menuOpen ? `${i * 60}ms` : '0ms',
             }}
           >
             {label}
           </button>
         ))}
-        <button
-          onClick={() => go('/donate')}
-          style={{
-            opacity: menuOpen ? 1 : 0,
-            transform: menuOpen ? 'none' : 'translateY(20px)',
-            transition: 'opacity 0.4s var(--ease), transform 0.4s var(--ease)',
-            transitionDelay: menuOpen ? `${NAV_LINKS.length * 80}ms` : '0ms',
-            color: 'var(--gold)',
-          }}
-        >
-          Donate
-        </button>
+
+        {/* Cart */}
         <button
           onClick={() => { onCartClick(); setMenuOpen(false); }}
           style={{
             opacity: menuOpen ? 1 : 0,
             transform: menuOpen ? 'none' : 'translateY(20px)',
             transition: 'opacity 0.4s var(--ease), transform 0.4s var(--ease)',
-            transitionDelay: menuOpen ? `${NAV_LINKS.length * 80}ms` : '0ms',
+            transitionDelay: menuOpen ? `${MOBILE_LINKS.length * 60}ms` : '0ms',
           }}
         >
           Cart ({cartCount})
         </button>
+
+        {/* Donate + Join buttons */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 280,
+          marginTop: 16,
+          opacity: menuOpen ? 1 : 0,
+          transform: menuOpen ? 'none' : 'translateY(20px)',
+          transition: 'opacity 0.4s var(--ease), transform 0.4s var(--ease)',
+          transitionDelay: menuOpen ? `${(MOBILE_LINKS.length + 1) * 60}ms` : '0ms',
+        }}>
+          <button
+            onClick={() => go('/donate')}
+            style={{
+              padding: '14px 0', borderRadius: 100, border: '1px solid var(--gold)',
+              background: 'transparent', color: 'var(--gold)',
+              font: '500 14px "Plus Jakarta Sans", sans-serif', letterSpacing: '0.06em',
+              cursor: 'pointer',
+            }}
+          >Donate</button>
+          <button
+            onClick={() => go('/membership')}
+            style={{
+              padding: '14px 0', borderRadius: 100, border: '1px solid var(--gold)',
+              background: 'var(--gold)', color: 'var(--bg)',
+              font: '500 14px "Plus Jakarta Sans", sans-serif', letterSpacing: '0.06em',
+              cursor: 'pointer',
+            }}
+          >Join</button>
+        </div>
+
         {/* Mobile admin toggle */}
         <div
           style={{
             opacity: menuOpen ? 1 : 0,
             transform: menuOpen ? 'none' : 'translateY(20px)',
             transition: 'opacity 0.4s var(--ease), transform 0.4s var(--ease)',
-            transitionDelay: menuOpen ? `${(NAV_LINKS.length + 1) * 80}ms` : '0ms',
+            transitionDelay: menuOpen ? `${(MOBILE_LINKS.length + 2) * 60}ms` : '0ms',
             display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center',
             padding: '8px 0',
           }}
@@ -191,7 +219,7 @@ export default function Nav({ cartCount, onCartClick }) {
         .nav-donate {
           font: 500 11px 'Plus Jakarta Sans', sans-serif;
           letter-spacing: 0.08em;
-          padding: 9px 20px;
+          padding: 8px 18px;
           border-radius: 100px;
           border: 1px solid var(--gold);
           color: var(--gold);
@@ -202,10 +230,9 @@ export default function Nav({ cartCount, onCartClick }) {
         }
         .nav-donate:hover {
           background: rgba(212,175,55,0.1);
-          transform: scale(1.02);
         }
-        @media (max-width: 860px) {
-          .nav-donate { display: none; }
+        @media (max-width: 1024px) {
+          .nav-donate, .nav-join { display: none !important; }
         }
         .nav-admin-toggle-wrap {
           display: flex;
@@ -284,7 +311,7 @@ export default function Nav({ cartCount, onCartClick }) {
         }
         .nav-admin-dash-link:hover { opacity: 1; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
           .nav-admin-toggle-wrap { display: none; }
         }
       `}</style>
