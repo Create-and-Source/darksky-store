@@ -20,6 +20,9 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import Contact from './pages/Contact';
 import FieldTrips from './pages/FieldTrips';
 import Donate from './pages/Donate';
+import SignIn from './pages/SignIn';
+import VolunteerPortal from './pages/VolunteerPortal';
+import MemberPortal from './pages/MemberPortal';
 
 // Admin (lazy loaded)
 const AdminLayout = lazy(() => import('./admin/AdminLayout'));
@@ -34,6 +37,8 @@ const Reports = lazy(() => import('./admin/pages/Reports'));
 const Donations = lazy(() => import('./admin/pages/Donations'));
 const DesignStudio = lazy(() => import('./admin/pages/DesignStudio'));
 const SocialMedia = lazy(() => import('./admin/pages/SocialMedia'));
+const BoardMeeting = lazy(() => import('./admin/pages/BoardMeeting'));
+const Payroll = lazy(() => import('./admin/pages/Payroll'));
 
 const CART_KEY = 'ds_store_cart';
 
@@ -215,12 +220,12 @@ export default function App() {
 
   const isAdmin = location.pathname.startsWith('/admin');
 
-  // Auto-set admin role when visiting /admin directly
+  // Auto-set admin role when visiting /admin directly (if not signed in)
   useEffect(() => {
-    if (isAdmin && localStorage.getItem('ds_user_role') !== 'manager') {
-      localStorage.setItem('ds_user_name', 'Nancy');
+    if (isAdmin && !localStorage.getItem('ds_admin_role')) {
+      localStorage.setItem('ds_user_name', 'Executive Director');
       localStorage.setItem('ds_user_role', 'manager');
-      localStorage.setItem('ds_admin_role', 'admin');
+      localStorage.setItem('ds_admin_role', 'executive_director');
       window.dispatchEvent(new Event('ds-auth-change'));
     }
   }, [isAdmin]);
@@ -251,6 +256,10 @@ export default function App() {
             <Route path="/field-trips" element={<FieldTrips />} />
             <Route path="/membership" element={<Membership />} />
             <Route path="/donate" element={<Donate />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/volunteer-portal" element={<VolunteerPortal />} />
+            <Route path="/member-portal" element={<MemberPortal />} />
+            <Route path="/admin/board-meeting" element={<Suspense fallback={<div style={{ padding: '120px 64px', textAlign: 'center' }}>Loading...</div>}><BoardMeeting /></Suspense>} />
             <Route path="/admin" element={<Suspense fallback={<div style={{ padding: '120px 64px', textAlign: 'center' }}>Loading admin...</div>}><AdminLayout /></Suspense>}>
               <Route index element={<Dashboard />} />
               <Route path="inventory" element={<Inventory />} />
@@ -266,6 +275,7 @@ export default function App() {
               <Route path="donations" element={<Donations />} />
               <Route path="design-studio" element={<DesignStudio />} />
               <Route path="social-media" element={<SocialMedia />} />
+              <Route path="payroll" element={<Payroll />} />
               <Route path="facility" element={<Navigate to="/admin" replace />} />
               <Route path="visitors" element={<Navigate to="/admin" replace />} />
               <Route path="volunteers" element={<Navigate to="/admin" replace />} />

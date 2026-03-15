@@ -16,28 +16,48 @@ const ToastContext = createContext();
 export const useToast = () => useContext(ToastContext);
 
 // ── Role Context ──
-const RoleContext = createContext('admin');
+const RoleContext = createContext('executive_director');
 export const useRole = () => useContext(RoleContext);
 
 const ROLE_NAMES = {
-  admin: 'Nancy', shop_manager: 'Tovah', shop_staff: 'Josie', reports: 'Patricia',
+  executive_director: 'Executive Director', treasurer: 'Treasurer', board: 'Board Member',
+  shop_manager: 'Gift Shop Manager', shop_staff: 'Gift Shop Staff', visitor_services: 'Visitor Services',
+  education_director: 'Education Director', social_media: 'Social Media Manager',
+  volunteer_coordinator: 'Volunteer Coordinator', payroll: 'Payroll / HR',
+  admin: 'Admin',
 };
 const ROLE_AVATARS = {
-  admin: 'N', shop_manager: 'T', shop_staff: 'J', reports: 'P',
+  executive_director: '🏛️', treasurer: '💰', board: '📊', shop_manager: '🛍️', shop_staff: '🏪',
+  visitor_services: '🎟️', education_director: '🔭', social_media: '📱',
+  volunteer_coordinator: '👥', payroll: '💵', admin: '✦',
 };
 const ROLE_BADGE_COLORS = {
-  admin: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
+  executive_director: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
+  treasurer: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
+  board: { bg: 'rgba(124,107,175,0.12)', text: '#7C6BAF' },
   shop_manager: { bg: 'rgba(59,130,246,0.1)', text: '#3B82F6' },
   shop_staff: { bg: 'rgba(16,185,129,0.1)', text: '#10B981' },
-  reports: { bg: 'rgba(124,107,175,0.12)', text: '#7C6BAF' },
+  visitor_services: { bg: 'rgba(61,140,111,0.1)', text: '#3D8C6F' },
+  education_director: { bg: 'rgba(59,130,246,0.1)', text: '#3B82F6' },
+  social_media: { bg: 'rgba(196,91,91,0.1)', text: '#C45B5B' },
+  volunteer_coordinator: { bg: 'rgba(16,185,129,0.1)', text: '#10B981' },
+  payroll: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
+  admin: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
 };
 
 // Routes each role can access (path suffixes after /admin)
 const ROLE_ALLOWED_ROUTES = {
-  admin: null, // all
-  shop_manager: ['', '/orders', '/inventory', '/receive', '/transfers', '/events', '/content', '/emails', '/social-media', '/design-studio'],
+  executive_director: null, // all
+  admin: null,
+  treasurer: ['', '/donations', '/reports', '/payroll'],
+  shop_manager: ['', '/orders', '/inventory', '/receive', '/transfers'],
   shop_staff: ['', '/orders', '/inventory', '/receive'],
-  reports: ['', '/reports', '/donations'],
+  visitor_services: ['', '/events', '/reports'],
+  education_director: ['', '/events', '/reports'],
+  social_media: ['', '/design-studio', '/social-media', '/emails'],
+  volunteer_coordinator: ['', '/events', '/reports'],
+  payroll: ['', '/payroll', '/reports'],
+  board: [''],
 };
 
 // ── SVG Icons ──
@@ -112,6 +132,7 @@ const navSections = [
     label: 'Reporting',
     items: [
       { to: '/admin/reports', icon: Icons.reports, label: 'Reports' },
+      { to: '/admin/payroll', icon: Icons.quickbooks, label: 'Payroll' },
     ],
   },
 ];
@@ -121,14 +142,22 @@ const navItems = navSections.flatMap(s => s.items);
 
 // Role-based nav filtering
 const ROLE_NAV = {
-  admin: null, // all
-  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Transfers', 'Events', 'Email', 'Social Media', 'Design Studio'],
+  executive_director: null,
+  admin: null,
+  treasurer: ['Dashboard', 'Donations', 'Reports', 'Payroll'],
+  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Transfers'],
   shop_staff: ['Dashboard', 'Orders', 'Inventory', 'Receive'],
-  reports: ['Dashboard', 'Reports', 'Donations'],
+  visitor_services: ['Dashboard', 'Events', 'Reports'],
+  education_director: ['Dashboard', 'Events', 'Reports'],
+  social_media: ['Dashboard', 'Design Studio', 'Social Media', 'Email'],
+  volunteer_coordinator: ['Dashboard', 'Events', 'Reports'],
+  payroll: ['Dashboard', 'Payroll', 'Reports'],
+  board: ['Dashboard'],
 };
 const READONLY_LABELS = {
   shop_staff: ['Inventory'],
-  reports: ['Donations'],
+  visitor_services: ['Events', 'Reports'],
+  board: ['Dashboard'],
 };
 
 // Breadcrumb labels
@@ -150,11 +179,11 @@ const breadcrumbMap = {
   '/admin/facility': 'Facility',
   '/admin/visitors': 'Visitors',
   '/admin/volunteers': 'Volunteers',
+  '/admin/payroll': 'Payroll',
+  '/admin/board-meeting': 'Board Meeting',
 };
 
-const ROLE_LABELS = {
-  admin: 'Admin', shop_manager: 'Gift Shop Manager', shop_staff: 'Gift Shop Staff', reports: 'Reports',
-};
+const ROLE_LABELS = ROLE_NAMES;
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -162,7 +191,7 @@ export default function AdminLayout() {
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState('');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [role, setRole] = useState(() => localStorage.getItem('ds_admin_role') || 'admin');
+  const [role, setRole] = useState(() => localStorage.getItem('ds_admin_role') || 'executive_director');
   const navigate = useNavigate();
   const location = useLocation();
   const quickSearchInputRef = useRef(null);
@@ -510,7 +539,7 @@ export default function AdminLayout() {
                       font: "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                       color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px',
                     }}>Switch Role</div>
-                    {['admin', 'shop_manager', 'shop_staff', 'reports'].map(r => (
+                    {['executive_director', 'treasurer', 'board', 'shop_manager', 'shop_staff', 'visitor_services', 'education_director', 'social_media', 'volunteer_coordinator', 'payroll'].map(r => (
                       <button
                         key={r}
                         onClick={() => switchRole(r)}

@@ -28,6 +28,11 @@ const KEYS = {
   visitors: 'ds_visitors',
   volunteers: 'ds_volunteers',
   fundraising: 'ds_fundraising',
+  staff: 'ds_staff',
+  timesheets: 'ds_timesheets',
+  payrollHistory: 'ds_payroll_history',
+  volunteerHours: 'ds_volunteer_hours',
+  volunteerCheckins: 'ds_volunteer_checkins',
 };
 
 // ── HELPERS ──
@@ -42,7 +47,7 @@ export const subscribe = (fn) => { listeners.add(fn); return () => listeners.del
 const notify = () => listeners.forEach(fn => fn());
 
 // ── INIT ──
-const DATA_VERSION = '2.0';
+const DATA_VERSION = '3.0';
 
 export function initStore() {
   // Version check — clear all ds_ keys and re-seed if version mismatch
@@ -78,6 +83,11 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.visitors)) set(KEYS.visitors, DEFAULT_VISITORS);
   if (!localStorage.getItem(KEYS.volunteers)) set(KEYS.volunteers, DEFAULT_VOLUNTEERS);
   if (!localStorage.getItem(KEYS.fundraising)) set(KEYS.fundraising, DEFAULT_FUNDRAISING);
+  if (!localStorage.getItem(KEYS.staff)) set(KEYS.staff, DEFAULT_STAFF);
+  if (!localStorage.getItem(KEYS.timesheets)) set(KEYS.timesheets, DEFAULT_TIMESHEETS);
+  if (!localStorage.getItem(KEYS.payrollHistory)) set(KEYS.payrollHistory, DEFAULT_PAYROLL);
+  if (!localStorage.getItem(KEYS.volunteerHours)) set(KEYS.volunteerHours, DEFAULT_VOLUNTEER_HOURS);
+  if (!localStorage.getItem(KEYS.volunteerCheckins)) set(KEYS.volunteerCheckins, []);
 }
 
 // ═══════ PRODUCTS (storefront catalog) ═══════
@@ -659,4 +669,51 @@ const DEFAULT_VOLUNTEERS = [
   { id: 'VOL-004', name: 'Diane Martinez', email: 'dmartinez@email.com', phone: '(480) 555-0104', role: 'Gift Shop Helper', status: 'Active', startDate: '2026-01-10', hoursThisMonth: 12, totalHours: 36, certifications: ['POS Training'], availability: ['Sat','Sun'], notes: 'Weekend availability only' },
   { id: 'VOL-005', name: 'Tom Bradley', email: 'tbradley@email.com', phone: '(480) 555-0105', role: 'Trail Guide', status: 'On Leave', startDate: '2025-10-15', hoursThisMonth: 0, totalHours: 110, certifications: ['Wilderness First Aid','Desert Ecology'], availability: ['Fri','Sat','Sun'], notes: 'On medical leave until April' },
   { id: 'VOL-006', name: 'Priya Sharma', email: 'psharma@email.com', phone: '(480) 555-0106', role: 'Event Support', status: 'Active', startDate: '2026-02-01', hoursThisMonth: 8, totalHours: 18, certifications: ['First Aid'], availability: ['Thu','Fri','Sat'], notes: 'New volunteer, eager and reliable' },
+];
+
+// ═══════ STAFF / PAYROLL SEED DATA ═══════
+export const getStaff = () => get(KEYS.staff, []);
+export const getTimesheets = () => get(KEYS.timesheets, []);
+export const getPayrollHistory = () => get(KEYS.payrollHistory, []);
+export const getVolunteerHours = () => get(KEYS.volunteerHours, []);
+export const getVolunteerCheckins = () => get(KEYS.volunteerCheckins, []);
+export function addVolunteerHour(entry) { const all = getVolunteerHours(); all.unshift({ id: genId('VH'), ...entry, date: entry.date || new Date().toISOString().slice(0,10) }); set(KEYS.volunteerHours, all); }
+export function addVolunteerCheckin(entry) { const all = getVolunteerCheckins(); all.unshift({ id: genId('VC'), ...entry, timestamp: new Date().toISOString() }); set(KEYS.volunteerCheckins, all); }
+export function updateTimesheets(data) { set(KEYS.timesheets, data); }
+export function addPayrollRecord(record) { const all = getPayrollHistory(); all.unshift(record); set(KEYS.payrollHistory, all); }
+
+const DEFAULT_STAFF = [
+  { id: 'STF-001', name: 'Dr. Jay Herschel', role: 'Executive Director', department: 'Leadership', status: 'Active', hireDate: '2024-01-15', payType: 'Salary', payRate: null, email: 'jay@darkskycenter.org' },
+  { id: 'STF-002', name: 'Tovah Marx', role: 'Gift Shop Manager', department: 'Operations', status: 'Active', hireDate: '2025-03-01', payType: 'Hourly', payRate: 1800, email: 'tovah@darkskycenter.org' },
+  { id: 'STF-003', name: 'Josie Chen', role: 'Gift Shop Staff', department: 'Operations', status: 'Active', hireDate: '2025-06-15', payType: 'Hourly', payRate: 1500, email: 'josie@darkskycenter.org' },
+  { id: 'STF-004', name: 'Maria Santos', role: 'Education Director', department: 'Programs', status: 'Active', hireDate: '2025-02-01', payType: 'Salary', payRate: null, email: 'maria@darkskycenter.org' },
+  { id: 'STF-005', name: 'Alex Rivera', role: 'Social Media Manager', department: 'Marketing', status: 'Active', hireDate: '2025-04-01', payType: 'Hourly', payRate: 2000, email: 'alex@darkskycenter.org' },
+  { id: 'STF-006', name: 'Sam Patel', role: 'Visitor Services', department: 'Front Desk', status: 'Active', hireDate: '2025-05-01', payType: 'Hourly', payRate: 1600, email: 'sam@darkskycenter.org' },
+  { id: 'STF-007', name: 'Jordan Kim', role: 'Volunteer Coordinator', department: 'People', status: 'Active', hireDate: '2025-03-15', payType: 'Salary', payRate: null, email: 'jordan@darkskycenter.org' },
+];
+
+const DEFAULT_TIMESHEETS = [
+  { staffId: 'STF-002', name: 'Tovah Marx', week: '2026-03-09', hours: [8,8,8,8,8,4,0], status: 'Pending' },
+  { staffId: 'STF-003', name: 'Josie Chen', week: '2026-03-09', hours: [0,0,6,6,6,8,8], status: 'Pending' },
+  { staffId: 'STF-005', name: 'Alex Rivera', week: '2026-03-09', hours: [8,8,8,8,0,0,0], status: 'Pending' },
+  { staffId: 'STF-006', name: 'Sam Patel', week: '2026-03-09', hours: [0,8,8,8,8,8,0], status: 'Pending' },
+];
+
+const DEFAULT_PAYROLL = [
+  { period: 'Mar 1-15, 2026', total: 892000, status: 'Pending', date: '2026-03-15' },
+  { period: 'Feb 16-28, 2026', total: 856000, status: 'Paid', date: '2026-02-28', paidAt: '2026-03-01' },
+  { period: 'Feb 1-15, 2026', total: 871000, status: 'Paid', date: '2026-02-15', paidAt: '2026-02-16' },
+];
+
+const DEFAULT_VOLUNTEER_HOURS = [
+  { id: 'VH-001', volunteerId: 'VOL-001', name: 'Carlos Reyes', date: '2026-03-14', hours: 4, activity: 'Event Support', notes: 'Star Party setup and telescope operation' },
+  { id: 'VH-002', volunteerId: 'VOL-002', name: 'Linda Foster', date: '2026-03-13', hours: 3, activity: 'Gift Shop', notes: 'Afternoon shift' },
+  { id: 'VH-003', volunteerId: 'VOL-003', name: 'Kevin Nguyen', date: '2026-03-12', hours: 5, activity: 'Event Support', notes: 'School field trip assistance' },
+  { id: 'VH-004', volunteerId: 'VOL-001', name: 'Carlos Reyes', date: '2026-03-10', hours: 4, activity: 'Event Support', notes: 'Telescope operation evening session' },
+  { id: 'VH-005', volunteerId: 'VOL-004', name: 'Diane Martinez', date: '2026-03-09', hours: 6, activity: 'Gift Shop', notes: 'Weekend full shift' },
+  { id: 'VH-006', volunteerId: 'VOL-006', name: 'Priya Sharma', date: '2026-03-08', hours: 4, activity: 'Setup/Teardown', notes: 'Event setup' },
+  { id: 'VH-007', volunteerId: 'VOL-003', name: 'Kevin Nguyen', date: '2026-03-07', hours: 3, activity: 'Training', notes: 'Telescope certification module 3' },
+  { id: 'VH-008', volunteerId: 'VOL-002', name: 'Linda Foster', date: '2026-03-06', hours: 4, activity: 'Gift Shop', notes: 'Midweek shift' },
+  { id: 'VH-009', volunteerId: 'VOL-001', name: 'Carlos Reyes', date: '2026-03-05', hours: 4, activity: 'Event Support', notes: 'Astrophotography workshop' },
+  { id: 'VH-010', volunteerId: 'VOL-004', name: 'Diane Martinez', date: '2026-03-02', hours: 6, activity: 'Gift Shop', notes: 'Weekend shift' },
 ];
