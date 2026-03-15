@@ -359,16 +359,12 @@ The shop page (`/shop`) uses a premium editorial layout inspired by high-end e-c
 
 1. **Hero** — 50vh cinematic hero with Dark Sky desert photo, dark overlay, large Playfair Display title
 2. **Filter Bar** — Sticky below nav (top: 72px). Category pills with gold active underline, search input, sort dropdown
-3. **Staff Picks** — 3-column grid of best sellers with "Best Seller" gold badges (hidden when filtered)
-4. **Category Cards** — 5 cards with Dark Sky photo backgrounds, dark gradient overlays, category name + item count (hidden when filtered)
-5. **Masonry Grid** (unfiltered) — Magazine-style mixed layout:
-   - `row-lg-md`: 1 large (2fr) + 1-2 medium (1fr)
-   - `row-3`: 3 equal columns
-   - `row-md-lg`: 1-2 medium + 1 large
-   - `row-2-filler`: 2 products + 1 Dark Sky filler photo
-   - Lifestyle banners every ~10 products (full-width, 200px, Dark Sky photo + text)
-6. **Uniform Grid** (filtered) — Standard 4-column grid
-7. **Trust Section** — 4 trust badges, newsletter signup, help link
+3. **Staff Picks** — 3-column grid of best sellers, max 300px wide, image max-height 280px
+4. **Category Cards** — 5 cards with Dark Sky photo backgrounds, dark gradient overlays, category name + item count
+5. **Masonry Grid** (unfiltered) — Magazine-style mixed layout with 16px gaps, large cards max-height 300px image
+6. **Uniform Grid** (filtered) — 4-col desktop / 3-col tablet / 2-col mobile, 16px gaps
+7. **Product Cards** — max-width 300px, max-height 400px total. Image: max-height 280px desktop / 200px mobile, object-fit: contain, light background. Below: gold category tag, 14px name, gold bold price
+8. **Trust Section** — 4 trust badges, newsletter signup, help link
 | Education | edu-hero-label, edu-hero-title, edu-hero-subtitle | Hero |
 | Education | edu-prog-label-{i}, edu-prog-title-{i}, edu-prog-desc-{i} | Programs (4 each) |
 | Education | edu-stat-number-{i}, edu-stat-label-{i} | Stats (4 each) |

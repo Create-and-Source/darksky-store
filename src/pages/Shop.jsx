@@ -832,11 +832,13 @@ const SHOP_CSS = `
 .sp-featured {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  gap: 16px;
+}
+.sp-card--featured {
+  max-width: 300px;
 }
 .sp-card--featured .sp-card-img-wrap {
-  aspect-ratio: 3/4.5;
-  border-radius: 6px;
+  max-height: 280px;
 }
 
 /* ═══ CATEGORY CARDS ═══ */
@@ -934,14 +936,14 @@ const SHOP_CSS = `
 .sp-grid--uniform {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 16px;
 }
 
 /* ═══ MASONRY ROWS ═══ */
 .sp-masonry-row {
   display: grid;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 .sp-masonry--lg-md {
   grid-template-columns: 2fr 1fr;
@@ -960,38 +962,40 @@ const SHOP_CSS = `
 }
 .sp-masonry--1 {
   grid-template-columns: 1fr;
-  max-width: 400px;
+  max-width: 300px;
 }
 .sp-masonry-side {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 .sp-masonry-lg .sp-card-img-wrap {
-  aspect-ratio: 3/4;
+  max-height: 300px;
 }
 
 /* ═══ PRODUCT CARD ═══ */
 .sp-card {
   cursor: pointer;
   position: relative;
+  max-width: 300px;
+  max-height: 400px;
 }
 .sp-card-img-wrap {
   position: relative;
-  aspect-ratio: 3/4;
+  max-height: 280px;
   overflow: hidden;
   border-radius: 6px;
   background: #eae7e0;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   transition: box-shadow 0.45s cubic-bezier(.16,1,.3,1);
 }
 .sp-card:hover .sp-card-img-wrap {
-  box-shadow: 0 16px 48px rgba(212,175,55,0.1), 0 4px 16px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 28px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.3);
 }
 .sp-card-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.55s cubic-bezier(.16,1,.3,1);
   will-change: transform;
 }
@@ -1017,20 +1021,20 @@ const SHOP_CSS = `
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 7px;
+  margin-bottom: 5px;
   opacity: 0.7;
 }
 .sp-card-name {
-  font: 400 14px/1.4 'Plus Jakarta Sans', sans-serif;
+  font: 400 14px/1.35 'Plus Jakarta Sans', sans-serif;
   color: rgba(255,255,255,0.88);
-  margin-bottom: 7px;
+  margin-bottom: 5px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .sp-card-price {
-  font: 600 16px/1 'Plus Jakarta Sans', sans-serif;
+  font: 600 15px/1 'Plus Jakarta Sans', sans-serif;
   color: var(--gold);
 }
 
@@ -1376,7 +1380,8 @@ const SHOP_CSS = `
 @media (max-width: 1200px) {
   .sp-grid--uniform { grid-template-columns: repeat(3, 1fr); }
   .sp-cat-cards { grid-template-columns: repeat(3, 1fr); }
-  .sp-featured { gap: 20px; }
+  .sp-featured { gap: 16px; }
+  .sp-masonry--3 { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 860px) {
@@ -1413,18 +1418,20 @@ const SHOP_CSS = `
   }
   .sp-masonry-lg .sp-card-img-wrap { aspect-ratio: 3/4; }
 
-  .sp-grid--uniform { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .sp-grid--uniform { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
-  .sp-card-img-wrap { border-radius: 6px; margin-bottom: 10px; }
+  .sp-card { max-width: none; }
+  .sp-card-img-wrap { border-radius: 6px; margin-bottom: 8px; max-height: 200px; }
+  .sp-masonry-lg .sp-card-img-wrap { max-height: 200px; }
   .sp-qa {
     transform: translateY(0) !important;
     opacity: 1 !important;
-    height: 40px;
+    height: 36px;
     font-size: 10px;
   }
   .sp-card-name { font-size: 13px; }
   .sp-card-price { font-size: 14px; }
-  .sp-card-cat { font-size: 9px; margin-bottom: 5px; }
+  .sp-card-cat { font-size: 9px; margin-bottom: 4px; }
 
   .sp-trust-section { padding: 48px 20px; }
   .sp-trust-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
@@ -1449,9 +1456,9 @@ const SHOP_CSS = `
   .sp-results { padding: 12px 16px 0; }
   .sp-grid-wrap { padding: 12px 16px 48px; }
 
-  .sp-masonry-row { gap: 10px; margin-bottom: 10px; }
+  .sp-masonry-row { gap: 8px; margin-bottom: 8px; }
   .sp-grid--uniform { gap: 8px; }
-  .sp-card-img-wrap { margin-bottom: 8px; }
+  .sp-card-img-wrap { margin-bottom: 6px; max-height: 180px; }
   .sp-card-name { font-size: 12px; line-height: 1.3; }
   .sp-card-price { font-size: 13px; }
   .sp-card-cat { font-size: 8px; margin-bottom: 4px; }
