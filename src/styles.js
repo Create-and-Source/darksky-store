@@ -907,7 +907,7 @@ body.has-announcement .sp-bar { top: 104px; }
 }
 .event-card:hover .event-card-img img { transform: scale(1.05); }
 .event-card-date {
-  position: absolute; top: 16px; left: 16px;
+  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
   background: var(--gold-gradient);
   color: var(--bg);
   padding: 8px 14px; text-align: center;

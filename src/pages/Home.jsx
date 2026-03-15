@@ -436,18 +436,18 @@ export default function Home({ onAddToCart }) {
                       style={{
                         position: 'absolute',
                         inset: 0,
-                        background: 'linear-gradient(135deg, rgba(12,12,42,0.5) 0%, rgba(26,16,64,0.4) 50%, rgba(14,14,40,0.5) 100%)',
+                        background: 'rgba(4,4,12,0.35)',
                         zIndex: 1,
                       }}
                     />
-                    <span style={{ position: 'relative', zIndex: 2, fontSize: 28, color: 'var(--gold)', opacity: 0.4, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>✦</span>
 
-                    {/* Date badge — gold gradient, sharp edges */}
+                    {/* Date badge — gold gradient, centered */}
                     <div
                       style={{
                         position: 'absolute',
                         top: 16,
-                        left: 16,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
                         background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
                         color: '#04040c',
                         padding: '10px 12px 8px',

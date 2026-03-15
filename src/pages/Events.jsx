@@ -184,11 +184,10 @@ export default function Events() {
                       src={['/images/darksky/milky-way.jpg', '/images/darksky/andromeda.jpg', '/images/darksky/nebula.jpg', '/images/darksky/comet-neowise.jpg', '/images/darksky/bubble-nebula.jpg', '/images/darksky/crescent-nebula.jpg'][i % 6]}
                       alt={`Night sky backdrop for ${event.title}`}
                       loading="lazy"
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }}
                     />
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(4,4,12,0.4)', zIndex: 1 }} />
-                    <span style={{ fontSize: 32, color: 'var(--gold)', opacity: 0.3, position: 'relative', zIndex: 2 }}>✦</span>
-                    <div className="event-card-date" style={{ position: 'relative', zIndex: 2 }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(4,4,12,0.35)', zIndex: 1 }} />
+                    <div className="event-card-date" style={{ position: 'relative', zIndex: 2, left: '50%', transform: 'translateX(-50%)' }}>
                       <div className="event-card-date-day">{event.day}</div>
                       <div className="event-card-date-month">{event.month}</div>
                     </div>
