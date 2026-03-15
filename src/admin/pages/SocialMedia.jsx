@@ -162,7 +162,14 @@ export default function SocialMedia() {
   const [, setTick] = useState(0);
   useEffect(() => subscribe(() => setTick(t => t + 1)), []);
   useEffect(() => { initSeedPosts(); setAllPosts(loadPosts()); }, []);
-  useEffect(() => { gallerySupabase.from('gallery_images').select('id, image_url, url, storage_path, prompt').order('created_at', { ascending: false }).limit(12).then(({ data }) => setGalleryImages(data || [])); }, []);
+  useEffect(() => {
+    gallerySupabase.from('gallery_images').select('*').order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        console.log('SocialMedia gallery fetch:', data?.length, 'images', error);
+        if (data && data.length > 0) console.log('SM gallery first image keys:', Object.keys(data[0]));
+        setGalleryImages(data || []);
+      });
+  }, []);
 
   // ── Step 1 helpers ──
   const selectSource = (type) => { setSourceType(type); setSourceId(''); setSourceData(null); if (type === 'custom') setContext(''); else if (type === 'donation') { const r = fundraising.raised / 100, g = fundraising.goal / 100, pct = g > 0 ? Math.round((r / g) * 100) : 0; setContext(`Fundraising: $${(r/1e6).toFixed(1)}M of $${(g/1e6).toFixed(1)}M (${pct}%).`); } };

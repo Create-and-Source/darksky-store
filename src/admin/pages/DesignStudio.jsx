@@ -205,10 +205,10 @@ export default function DesignStudio() {
       <div style={{
         background: 'linear-gradient(180deg, #F5F3EF 0%, #FAFAF8 100%)',
         borderBottom: `1px solid ${C.border}`,
-        padding: '8px 0 40px',
-        marginBottom: 32,
+        padding: '8px 0 24px',
+        marginBottom: 24,
       }}>
-        <div style={{ marginBottom: 24 }}>
+        <div style={{ marginBottom: 16 }}>
           <h1 style={{ font: `600 24px ${FONT}`, color: C.text, margin: '0 0 6px' }}>Design Studio</h1>
           <p style={{ font: `400 14px ${FONT}`, color: C.text2, margin: 0 }}>
             Generate AI artwork for products, backgrounds, and marketing. Powered by Desert Vision Studio.
@@ -223,13 +223,13 @@ export default function DesignStudio() {
             onChange={e => setPrompt(e.target.value)}
             placeholder="A rattlesnake coiled on warm sandstone beneath a lightning storm..."
             disabled={generating}
-            rows={3}
+            rows={2}
             style={{
-              width: '100%', padding: '16px 18px',
+              width: '100%', padding: '12px 14px',
               background: '#FFFFFF', border: `1.5px solid ${generating ? C.muted : C.border}`,
-              borderRadius: 10, font: `400 15px ${FONT}`, color: C.text,
+              borderRadius: 8, font: `400 14px ${FONT}`, color: C.text,
               outline: 'none', resize: 'vertical', transition: 'border-color 0.2s, box-shadow 0.2s',
-              boxSizing: 'border-box', lineHeight: 1.6,
+              boxSizing: 'border-box', lineHeight: 1.5,
               opacity: generating ? 0.5 : 1,
             }}
             onFocus={e => { e.target.style.borderColor = C.gold; e.target.style.boxShadow = `0 0 0 3px ${C.gold}15`; }}
@@ -238,7 +238,7 @@ export default function DesignStudio() {
         </div>
 
         {/* Style pills */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 14 }}>
           <span style={{ ...labelStyle, alignSelf: 'center', marginRight: 4 }}>Style</span>
           {STYLES.map(s => (
             <button
@@ -384,7 +384,7 @@ export default function DesignStudio() {
 
         {/* Grid */}
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="ds-gallery-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }} className="ds-gallery-grid">
             {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : filtered.length === 0 ? (
@@ -395,7 +395,7 @@ export default function DesignStudio() {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="ds-gallery-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }} className="ds-gallery-grid">
             {filtered.map(img => (
               <div
                 key={img.id}
@@ -407,7 +407,7 @@ export default function DesignStudio() {
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = C.shadowHover; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = C.shadow; }}
               >
-                <div style={{ aspectRatio: '1', overflow: 'hidden', background: '#f0ede8', position: 'relative' }}>
+                <div style={{ height: 200, overflow: 'hidden', background: '#f0ede8', position: 'relative' }}>
                   <img
                     src={getImageUrl(img)}
                     alt={img.prompt || 'Generated artwork'}
@@ -420,8 +420,8 @@ export default function DesignStudio() {
                     onClick={e => { e.stopPropagation(); toggleFavorite(img); }}
                     title={img.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
                     style={{
-                      position: 'absolute', top: 8, right: 8,
-                      width: 32, height: 32, borderRadius: '50%',
+                      position: 'absolute', top: 6, right: 6,
+                      width: 28, height: 28, borderRadius: '50%',
                       background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(4px)',
                       border: 'none', cursor: 'pointer',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -437,25 +437,25 @@ export default function DesignStudio() {
                   {/* Category badge */}
                   {img.category && (
                     <span style={{
-                      position: 'absolute', bottom: 8, left: 8,
-                      padding: '3px 10px', borderRadius: 100,
+                      position: 'absolute', bottom: 6, left: 6,
+                      padding: '2px 8px', borderRadius: 100,
                       background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(4px)',
-                      font: `600 9px ${MONO}`, letterSpacing: 0.8, textTransform: 'uppercase',
+                      font: `600 8px ${MONO}`, letterSpacing: 0.6, textTransform: 'uppercase',
                       color: C.gold,
                     }}>{img.category}</span>
                   )}
                 </div>
-                <div style={{ padding: '12px 14px' }}>
+                <div style={{ padding: '8px 10px' }}>
                   <p style={{
-                    font: `400 13px ${FONT}`, color: C.text, margin: '0 0 6px',
-                    lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2,
+                    font: `400 12px ${FONT}`, color: C.text, margin: '0 0 4px',
+                    lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 1,
                     WebkitBoxOrient: 'vertical', overflow: 'hidden',
                   }}>
                     {img.prompt || 'Untitled'}
                   </p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ font: `400 11px ${FONT}`, color: C.muted }}>{relativeTime(img.created_at)}</span>
-                    {img.style && <span style={{ font: `400 10px ${MONO}`, color: C.muted, letterSpacing: 0.5 }}>{img.style}</span>}
+                    <span style={{ font: `400 10px ${FONT}`, color: C.muted }}>{relativeTime(img.created_at)}</span>
+                    {img.style && <span style={{ font: `400 9px ${MONO}`, color: C.muted, letterSpacing: 0.5 }}>{img.style}</span>}
                   </div>
                 </div>
               </div>
