@@ -83,7 +83,9 @@ src/
         ├── Donations.jsx       # Donation tracking, fundraising progress, donor management
         ├── Facility.jsx        # Facility calendar (5 IDSDC spaces), booking CRUD
         ├── Visitors.jsx        # Daily visitor tracking, 30-day trend chart
-        └── Volunteers.jsx      # Volunteer roster, hours logging, certifications
+        ├── Volunteers.jsx      # Volunteer roster, hours logging, certifications
+        └── DesignStudio.jsx    # AI image generator + gallery (Supabase Desert Vision Studio)
+    ├── supabaseGallery.js      # Supabase client for Desert Vision Studio (gallery_images table)
 ```
 
 ## Routes
@@ -420,7 +422,19 @@ VideoDivider components (Home, About, Education) accept `titleEditable` and `sub
 | Communications | Email, Content |
 | Reporting | Reports |
 
+| Creative | Design Studio |
+
 Hidden pages (code exists, not in sidebar/routes): Transfers, Purchase Orders, QuickBooks, Facility, Visitors, Volunteers. These routes redirect to /admin.
+
+### Design Studio
+
+AI image generation + gallery page at `/admin/design-studio`. Connects to external Supabase project (Desert Vision Studio):
+- **Generator**: Prompt input, style selector (Painterly/Realistic/Action Shot/Watercolor/Abstract/Dreamy), Generate + Surprise Me buttons
+- **Edge Function**: `POST /functions/v1/generate-image` with `{ prompt, style, surprise }` — takes 10-30s
+- **Preview**: Shows generated image with Download, Copy URL, Generate Another actions
+- **Gallery**: Fetches from `gallery_images` table, 3-col grid, favorite toggle, category filter, search, image detail modal
+- **Supabase client**: `src/admin/supabaseGallery.js` — separate from localStorage store
+- **Access**: Admin + Gift Shop Manager roles only
 
 ### IDSDC Facility Spaces
 

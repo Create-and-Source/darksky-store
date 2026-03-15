@@ -35,6 +35,7 @@ const Content = lazy(() => import('./admin/pages/Content'));
 const Reports = lazy(() => import('./admin/pages/Reports'));
 const QuickBooks = lazy(() => import('./admin/pages/QuickBooks'));
 const Donations = lazy(() => import('./admin/pages/Donations'));
+const DesignStudio = lazy(() => import('./admin/pages/DesignStudio'));
 const Facility = lazy(() => import('./admin/pages/Facility'));
 const Visitors = lazy(() => import('./admin/pages/Visitors'));
 const Volunteers = lazy(() => import('./admin/pages/Volunteers'));
@@ -217,6 +218,7 @@ export default function App() {
               <Route path="reports" element={<Reports />} />
               <Route path="quickbooks" element={<Navigate to="/admin/reports" replace />} />
               <Route path="donations" element={<Donations />} />
+              <Route path="design-studio" element={<DesignStudio />} />
               <Route path="facility" element={<Navigate to="/admin" replace />} />
               <Route path="visitors" element={<Navigate to="/admin" replace />} />
               <Route path="volunteers" element={<Navigate to="/admin" replace />} />
