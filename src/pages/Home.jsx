@@ -63,7 +63,7 @@ function LazyVideo({ src, className = '', style = {}, ...props }) {
 }
 
 /* ── Video Divider Section ── */
-function VideoDivider({ src, title, subtitle, titleEditable, subtitleEditable }) {
+function VideoDivider({ src, title, subtitle, titleEditable, subtitleEditable, videoStyle = {} }) {
   const ref = useRef(null);
   const [offset, setOffset] = useState(0);
 
@@ -90,7 +90,7 @@ function VideoDivider({ src, title, subtitle, titleEditable, subtitleEditable })
         <LazyVideo
           src={src}
           className="vid-divider-video"
-          style={{ transform: `translateY(${offset}px)` }}
+          style={{ transform: `translateY(${offset}px)`, ...videoStyle }}
           autoPlay
           muted
           loop
@@ -370,6 +370,7 @@ export default function Home({ onAddToCart }) {
         subtitle="Nocturnal wildlife thrives under dark skies"
         titleEditable="home-vid1-title"
         subtitleEditable="home-vid1-subtitle"
+        videoStyle={{ objectPosition: 'top center' }}
       />
 
       {/* ══════════════════════════════════════
