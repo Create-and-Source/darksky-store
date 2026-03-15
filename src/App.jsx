@@ -33,6 +33,10 @@ const Emails = lazy(() => import('./admin/pages/Emails'));
 const Content = lazy(() => import('./admin/pages/Content'));
 const Reports = lazy(() => import('./admin/pages/Reports'));
 const QuickBooks = lazy(() => import('./admin/pages/QuickBooks'));
+const Donations = lazy(() => import('./admin/pages/Donations'));
+const Facility = lazy(() => import('./admin/pages/Facility'));
+const Visitors = lazy(() => import('./admin/pages/Visitors'));
+const Volunteers = lazy(() => import('./admin/pages/Volunteers'));
 
 const CART_KEY = 'ds_store_cart';
 
@@ -210,6 +214,10 @@ export default function App() {
               <Route path="content" element={<Content />} />
               <Route path="reports" element={<Reports />} />
               <Route path="quickbooks" element={<QuickBooks />} />
+              <Route path="donations" element={<Donations />} />
+              <Route path="facility" element={<Facility />} />
+              <Route path="visitors" element={<Visitors />} />
+              <Route path="volunteers" element={<Volunteers />} />
             </Route>
             <Route path="*" element={
               <div style={{ padding: '180px 64px 120px', textAlign: 'center', background: 'var(--bg)' }}>

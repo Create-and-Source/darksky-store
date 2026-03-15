@@ -23,6 +23,11 @@ const KEYS = {
   ticketReservations: 'ds_ticket_reservations',
   movementHistory: 'ds_movement_history',
   products: 'ds_products',
+  donations: 'ds_donations',
+  facilityBookings: 'ds_facility_bookings',
+  visitors: 'ds_visitors',
+  volunteers: 'ds_volunteers',
+  fundraising: 'ds_fundraising',
 };
 
 // ── HELPERS ──
@@ -53,6 +58,11 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.ticketReservations)) set(KEYS.ticketReservations, []);
   if (!localStorage.getItem(KEYS.movementHistory)) set(KEYS.movementHistory, DEFAULT_MOVEMENTS);
   if (!localStorage.getItem(KEYS.products)) set(KEYS.products, MOCK_PRODUCTS);
+  if (!localStorage.getItem(KEYS.donations)) set(KEYS.donations, DEFAULT_DONATIONS);
+  if (!localStorage.getItem(KEYS.facilityBookings)) set(KEYS.facilityBookings, DEFAULT_FACILITY_BOOKINGS);
+  if (!localStorage.getItem(KEYS.visitors)) set(KEYS.visitors, DEFAULT_VISITORS);
+  if (!localStorage.getItem(KEYS.volunteers)) set(KEYS.volunteers, DEFAULT_VOLUNTEERS);
+  if (!localStorage.getItem(KEYS.fundraising)) set(KEYS.fundraising, DEFAULT_FUNDRAISING);
 }
 
 // ═══════ PRODUCTS (storefront catalog) ═══════
@@ -461,6 +471,87 @@ const DEFAULT_CONTENT = {
   membership: { title: 'Join the Dark Sky Community', subtitle: 'Support our mission to protect and celebrate the night sky' },
 };
 
+// ═══════ DONATIONS ═══════
+export const getDonations = () => get(KEYS.donations, []);
+export const getDonation = (id) => getDonations().find(d => d.id === id);
+export function addDonation(donation) {
+  const all = getDonations();
+  const newD = { id: genId('DON'), ...donation, createdDate: new Date().toISOString().slice(0,10) };
+  all.unshift(newD);
+  set(KEYS.donations, all);
+  return newD;
+}
+export function updateDonation(id, changes) {
+  set(KEYS.donations, getDonations().map(d => d.id === id ? { ...d, ...changes } : d));
+}
+export function deleteDonation(id) {
+  set(KEYS.donations, getDonations().filter(d => d.id !== id));
+}
+
+// ═══════ FACILITY BOOKINGS ═══════
+export const getFacilityBookings = () => get(KEYS.facilityBookings, []);
+export const getFacilityBooking = (id) => getFacilityBookings().find(b => b.id === id);
+export function addFacilityBooking(booking) {
+  const all = getFacilityBookings();
+  const newB = { id: genId('FBK'), ...booking, createdDate: new Date().toISOString().slice(0,10) };
+  all.unshift(newB);
+  set(KEYS.facilityBookings, all);
+  return newB;
+}
+export function updateFacilityBooking(id, changes) {
+  set(KEYS.facilityBookings, getFacilityBookings().map(b => b.id === id ? { ...b, ...changes } : b));
+}
+export function deleteFacilityBooking(id) {
+  set(KEYS.facilityBookings, getFacilityBookings().filter(b => b.id !== id));
+}
+
+// ═══════ VISITORS ═══════
+export const getVisitors = () => get(KEYS.visitors, []);
+export function addVisitorDay(day) {
+  const all = getVisitors();
+  const existing = all.findIndex(v => v.date === day.date);
+  if (existing >= 0) { all[existing] = { ...all[existing], ...day }; }
+  else { all.unshift(day); }
+  set(KEYS.visitors, all);
+}
+export function updateVisitorDay(date, changes) {
+  const all = getVisitors();
+  const idx = all.findIndex(v => v.date === date);
+  if (idx >= 0) { all[idx] = { ...all[idx], ...changes }; set(KEYS.visitors, all); }
+}
+
+// ═══════ VOLUNTEERS ═══════
+export const getVolunteers = () => get(KEYS.volunteers, []);
+export const getVolunteer = (id) => getVolunteers().find(v => v.id === id);
+export function addVolunteer(vol) {
+  const all = getVolunteers();
+  const newV = { id: genId('VOL'), ...vol, createdDate: new Date().toISOString().slice(0,10) };
+  all.unshift(newV);
+  set(KEYS.volunteers, all);
+  return newV;
+}
+export function updateVolunteer(id, changes) {
+  set(KEYS.volunteers, getVolunteers().map(v => v.id === id ? { ...v, ...changes } : v));
+}
+export function deleteVolunteer(id) {
+  set(KEYS.volunteers, getVolunteers().filter(v => v.id !== id));
+}
+
+// ═══════ FUNDRAISING ═══════
+export const getFundraising = () => get(KEYS.fundraising, DEFAULT_FUNDRAISING);
+export function updateFundraising(changes) {
+  set(KEYS.fundraising, { ...getFundraising(), ...changes });
+}
+
+// ═══════ IDSDC FACILITY SPACES ═══════
+export const FACILITY_SPACES = [
+  { id: 'observatory', name: 'Dark Sky Observatory', capacity: 30, color: '#4A7FBF' },
+  { id: 'planetarium', name: 'Craig & Ruth Gimbel Planetarium', capacity: 65, color: '#7C6BAF' },
+  { id: 'theater', name: 'Inspiration Theater', capacity: 150, color: '#C5A55A' },
+  { id: 'exhibit-hall', name: 'Night Sky Exhibit Hall', capacity: null, color: '#3D8C6F' },
+  { id: 'einstein', name: 'Einstein Exploration Station', capacity: null, color: '#D4943A' },
+];
+
 const DEFAULT_MOVEMENTS = {
   'INV013': [
     { date: '2026-03-11', type: 'Transfer', ref: 'TRF-0089', location: 'Gift Shop', change: 20, note: 'Transfer received' },
@@ -471,3 +562,86 @@ const DEFAULT_MOVEMENTS = {
     { date: '2026-03-11', type: 'Sale', ref: 'ORD-2399', location: 'Gift Shop', change: -1, note: 'POS sale' },
   ],
 };
+
+// ═══════ NONPROFIT SEED DATA ═══════
+
+const DEFAULT_DONATIONS = [
+  { id: 'DON-001', donor: 'Fountain Hills Community Foundation', email: 'grants@fhcf.org', amount: 500000, type: 'grant', campaign: 'Capital Campaign', date: '2026-01-15', taxDeductible: true, acknowledged: true, notes: 'Annual operating grant' },
+  { id: 'DON-002', donor: 'Robert & Carol Thompson', email: 'rthompson@email.com', amount: 250000, type: 'one-time', campaign: 'Capital Campaign', date: '2026-02-01', taxDeductible: true, acknowledged: true, notes: 'Observatory naming rights contribution' },
+  { id: 'DON-003', donor: 'Arizona Science Foundation', email: 'info@azscience.org', amount: 100000, type: 'grant', campaign: 'Education Fund', date: '2026-02-14', taxDeductible: true, acknowledged: true, notes: 'STEM education grant — Year 1 of 3' },
+  { id: 'DON-004', donor: 'Michael & Susan Park', email: 'mpark@email.com', amount: 50000, type: 'recurring', campaign: 'General', date: '2026-02-28', taxDeductible: true, acknowledged: true, notes: 'Monthly $50,000 pledge — 2026' },
+  { id: 'DON-005', donor: 'Desert Starlight LLC', email: 'info@desertstarlight.com', amount: 25000, type: 'one-time', campaign: 'Dark Sky Preservation', date: '2026-03-01', taxDeductible: true, acknowledged: false, notes: 'Corporate sponsorship — Spring Gala' },
+  { id: 'DON-006', donor: 'Patricia Hernandez', email: 'phernandez@email.com', amount: 5000, type: 'one-time', campaign: 'General', date: '2026-03-05', taxDeductible: true, acknowledged: false, notes: 'Board member annual gift' },
+  { id: 'DON-007', donor: 'Scottsdale Astronomy Club', email: 'treasurer@scottsdaleastro.org', amount: 2500, type: 'one-time', campaign: 'Education Fund', date: '2026-03-10', taxDeductible: true, acknowledged: false, notes: 'Club fundraiser proceeds' },
+  { id: 'DON-008', donor: 'Anonymous', email: '', amount: 1000, type: 'one-time', campaign: 'General', date: '2026-03-12', taxDeductible: true, acknowledged: false, notes: 'Online donation' },
+];
+
+const DEFAULT_FUNDRAISING = {
+  goal: 2900000000, // $29M in cents
+  raised: 2720000000, // $27.2M in cents
+};
+
+const _today = new Date();
+const _dayMs = 86400000;
+const _weekday = (d) => ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+const _dateStr = (d) => d.toISOString().slice(0,10);
+
+const DEFAULT_FACILITY_BOOKINGS = (() => {
+  const bookings = [];
+  const spaces = ['observatory','planetarium','theater','exhibit-hall','einstein'];
+  const names = [
+    { org: 'Coconino Elementary', contact: 'Mrs. Rodriguez', type: 'field-trip', space: 'planetarium', time: '09:00', endTime: '11:00', attendees: 45 },
+    { org: 'Flagstaff Middle School', contact: 'Mr. Chen', type: 'field-trip', space: 'exhibit-hall', time: '10:00', endTime: '14:00', attendees: 60 },
+    { org: 'Scottsdale Astronomy Club', contact: 'Dr. Patel', type: 'community', space: 'observatory', time: '20:00', endTime: '23:00', attendees: 25 },
+    { org: 'Desert Starlight LLC', contact: 'Sarah Kim', type: 'corporate', space: 'theater', time: '18:00', endTime: '21:00', attendees: 80 },
+    { org: 'Martinez Wedding', contact: 'Elena Martinez', type: 'private', space: 'theater', time: '17:00', endTime: '22:00', attendees: 120 },
+    { org: 'Public — Planetarium Show', contact: 'Staff', type: 'public', space: 'planetarium', time: '14:00', endTime: '15:00', attendees: 50 },
+    { org: 'Prescott USD', contact: 'Dr. Patel', type: 'field-trip', space: 'einstein', time: '09:30', endTime: '12:30', attendees: 35 },
+    { org: 'Public — Star Party', contact: 'Staff', type: 'public', space: 'observatory', time: '20:30', endTime: '23:30', attendees: 30 },
+    { org: 'Arizona State University', contact: 'Prof. Williams', type: 'community', space: 'theater', time: '19:00', endTime: '21:00', attendees: 100 },
+    { org: 'Maintenance', contact: 'Facilities', type: 'maintenance', space: 'planetarium', time: '08:00', endTime: '12:00', attendees: 0 },
+    { org: 'Girl Scouts Troop 412', contact: 'Troop Leader Kim', type: 'field-trip', space: 'exhibit-hall', time: '13:00', endTime: '16:00', attendees: 20 },
+    { org: 'Public — Night Hike', contact: 'Staff', type: 'public', space: 'observatory', time: '19:00', endTime: '21:00', attendees: 15 },
+  ];
+  names.forEach((n, i) => {
+    const dayOffset = Math.floor(i / 2); // spread across this week
+    const d = new Date(_today); d.setDate(d.getDate() + dayOffset);
+    bookings.push({
+      id: `FBK-${String(i+1).padStart(3,'0')}`,
+      organization: n.org, contact: n.contact, email: `${n.contact.split(' ')[0].toLowerCase()}@email.com`,
+      space: n.space, date: _dateStr(d), startTime: n.time, endTime: n.endTime,
+      attendees: n.attendees, type: n.type,
+      status: i < 8 ? 'Confirmed' : i < 10 ? 'Pending' : 'Tentative',
+      notes: '',
+    });
+  });
+  return bookings;
+})();
+
+const DEFAULT_VISITORS = (() => {
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(_today); d.setDate(d.getDate() - i);
+    const dow = d.getDay();
+    const isWeekend = dow === 0 || dow === 6;
+    const base = isWeekend ? 140 : 75;
+    const total = base + Math.floor(Math.random() * 60);
+    const members = Math.floor(total * (0.15 + Math.random() * 0.1));
+    const children = Math.floor(total * (0.1 + Math.random() * 0.15));
+    const groups = dow >= 1 && dow <= 5 ? Math.floor(Math.random() * 3) : 0;
+    days.push({
+      date: _dateStr(d), total, members, general: total - members - children,
+      children, groups, peakHour: isWeekend ? '14:00' : '11:00',
+    });
+  }
+  return days;
+})();
+
+const DEFAULT_VOLUNTEERS = [
+  { id: 'VOL-001', name: 'Carlos Reyes', email: 'creyes@email.com', phone: '(480) 555-0101', role: 'Telescope Operator', status: 'Active', startDate: '2025-09-15', hoursThisMonth: 24, totalHours: 156, certifications: ['Telescope Operation', 'First Aid'], availability: ['Fri','Sat'], notes: 'Experienced amateur astronomer' },
+  { id: 'VOL-002', name: 'Linda Foster', email: 'lfoster@email.com', phone: '(480) 555-0102', role: 'Greeter', status: 'Active', startDate: '2025-10-01', hoursThisMonth: 16, totalHours: 98, certifications: ['First Aid'], availability: ['Wed','Thu','Sat'], notes: 'Retired teacher, great with visitors' },
+  { id: 'VOL-003', name: 'Kevin Nguyen', email: 'knguyen@email.com', phone: '(480) 555-0103', role: 'Education Assistant', status: 'Active', startDate: '2025-11-01', hoursThisMonth: 20, totalHours: 72, certifications: ['Background Check','CPR'], availability: ['Mon','Wed','Fri'], notes: 'ASU astronomy grad student' },
+  { id: 'VOL-004', name: 'Diane Martinez', email: 'dmartinez@email.com', phone: '(480) 555-0104', role: 'Gift Shop Helper', status: 'Active', startDate: '2026-01-10', hoursThisMonth: 12, totalHours: 36, certifications: ['POS Training'], availability: ['Sat','Sun'], notes: 'Weekend availability only' },
+  { id: 'VOL-005', name: 'Tom Bradley', email: 'tbradley@email.com', phone: '(480) 555-0105', role: 'Trail Guide', status: 'On Leave', startDate: '2025-10-15', hoursThisMonth: 0, totalHours: 110, certifications: ['Wilderness First Aid','Desert Ecology'], availability: ['Fri','Sat','Sun'], notes: 'On medical leave until April' },
+  { id: 'VOL-006', name: 'Priya Sharma', email: 'psharma@email.com', phone: '(480) 555-0106', role: 'Event Support', status: 'Active', startDate: '2026-02-01', hoursThisMonth: 8, totalHours: 18, certifications: ['First Aid'], availability: ['Thu','Fri','Sat'], notes: 'New volunteer, eager and reliable' },
+];

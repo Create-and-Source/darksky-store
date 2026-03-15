@@ -19,17 +19,35 @@ export const useToast = () => useContext(ToastContext);
 const RoleContext = createContext('manager');
 export const useRole = () => useContext(RoleContext);
 
-const ROLE_NAMES = { manager: 'Tovah', staff: 'Josie', volunteer: 'Volunteer' };
-const ROLE_AVATARS = { manager: 'T', staff: 'J', volunteer: 'V' };
+const ROLE_NAMES = {
+  manager: 'Tovah', staff: 'Josie', volunteer: 'Volunteer',
+  executive_director: 'Nancy', treasurer: 'David',
+  education_director: 'Maria', visitor_services: 'Alex', board_member: 'Patricia',
+};
+const ROLE_AVATARS = {
+  manager: 'T', staff: 'J', volunteer: 'V',
+  executive_director: 'N', treasurer: 'D',
+  education_director: 'M', visitor_services: 'A', board_member: 'P',
+};
 const ROLE_BADGE_COLORS = {
   manager: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
   staff: { bg: 'rgba(59,130,246,0.1)', text: '#3B82F6' },
   volunteer: { bg: 'rgba(16,185,129,0.1)', text: '#10B981' },
+  executive_director: { bg: 'rgba(124,107,175,0.12)', text: '#7C6BAF' },
+  treasurer: { bg: 'rgba(212,175,55,0.12)', text: '#D4AF37' },
+  education_director: { bg: 'rgba(59,130,246,0.1)', text: '#3B82F6' },
+  visitor_services: { bg: 'rgba(61,140,111,0.1)', text: '#3D8C6F' },
+  board_member: { bg: 'rgba(196,91,91,0.1)', text: '#C45B5B' },
 };
 
 // Routes each role can access (path suffixes after /admin)
 const ROLE_ALLOWED_ROUTES = {
   manager: null, // all
+  executive_director: null, // all
+  treasurer: ['', '/donations', '/reports', '/quickbooks', '/orders'],
+  education_director: ['', '/events', '/facility', '/volunteers', '/visitors', '/reports'],
+  visitor_services: ['', '/visitors', '/facility', '/inventory', '/orders', '/volunteers'],
+  board_member: ['', '/donations', '/reports', '/visitors'],
   staff: ['', '/inventory', '/receive', '/transfers', '/orders'],
   volunteer: ['', '/inventory', '/orders'],
 };
@@ -53,30 +71,78 @@ const Icons = {
   help: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
   search: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
   chevronDown: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6,9 12,15 18,9"/></svg>,
+  donations: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>,
+  facility: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>,
+  visitors: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
+  volunteers: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>,
 };
 
-const navItems = [
-  { to: '/admin', icon: Icons.dashboard, label: 'Dashboard', end: true },
-  { to: '/admin/inventory', icon: Icons.inventory, label: 'Inventory' },
-  { to: '/admin/receive', icon: Icons.receive, label: 'Receive' },
-  { to: '/admin/transfers', icon: Icons.transfer, label: 'Transfers' },
-  { to: '/admin/purchase-orders', icon: Icons.purchase, label: 'Purchase Orders' },
-  { to: '/admin/orders', icon: Icons.orders, label: 'Orders' },
-  { to: '/admin/events', icon: Icons.events, label: 'Events' },
-  { to: '/admin/emails', icon: Icons.email, label: 'Email' },
-  { to: '/admin/content', icon: Icons.content, label: 'Content' },
-  { to: '/admin/reports', icon: Icons.reports, label: 'Reports' },
+const navSections = [
+  {
+    label: 'Overview',
+    items: [
+      { to: '/admin', icon: Icons.dashboard, label: 'Dashboard', end: true },
+    ],
+  },
+  {
+    label: 'Programs & Events',
+    items: [
+      { to: '/admin/events', icon: Icons.events, label: 'Events' },
+      { to: '/admin/facility', icon: Icons.facility, label: 'Facility' },
+    ],
+  },
+  {
+    label: 'Gift Shop',
+    items: [
+      { to: '/admin/orders', icon: Icons.orders, label: 'Orders' },
+      { to: '/admin/inventory', icon: Icons.inventory, label: 'Inventory' },
+      { to: '/admin/receive', icon: Icons.receive, label: 'Receive' },
+      { to: '/admin/transfers', icon: Icons.transfer, label: 'Transfers' },
+      { to: '/admin/purchase-orders', icon: Icons.purchase, label: 'Purchase Orders' },
+    ],
+  },
+  {
+    label: 'Community',
+    items: [
+      { to: '/admin/donations', icon: Icons.donations, label: 'Donations' },
+      { to: '/admin/visitors', icon: Icons.visitors, label: 'Visitors' },
+      { to: '/admin/volunteers', icon: Icons.volunteers, label: 'Volunteers' },
+    ],
+  },
+  {
+    label: 'Communications',
+    items: [
+      { to: '/admin/emails', icon: Icons.email, label: 'Email' },
+      { to: '/admin/content', icon: Icons.content, label: 'Content' },
+    ],
+  },
+  {
+    label: 'Reporting',
+    items: [
+      { to: '/admin/reports', icon: Icons.reports, label: 'Reports' },
+      { to: '/admin/quickbooks', icon: Icons.quickbooks, label: 'QuickBooks' },
+    ],
+  },
 ];
+
+// Flatten for backward compat
+const navItems = navSections.flatMap(s => s.items);
 
 // Role-based nav filtering
 const ROLE_NAV = {
-  manager: null, // null means ALL pages
+  manager: null,
+  executive_director: null,
+  treasurer: ['Dashboard', 'Donations', 'Reports', 'QuickBooks', 'Orders'],
+  education_director: ['Dashboard', 'Events', 'Facility', 'Volunteers', 'Visitors', 'Reports'],
+  visitor_services: ['Dashboard', 'Visitors', 'Facility', 'Inventory', 'Orders', 'Volunteers'],
+  board_member: ['Dashboard', 'Donations', 'Reports', 'Visitors'],
   staff: ['Dashboard', 'Inventory', 'Receive', 'Transfers', 'Orders'],
   volunteer: ['Dashboard', 'Inventory', 'Orders'],
 };
 const READONLY_LABELS = {
   staff: ['Orders'],
   volunteer: ['Inventory', 'Orders'],
+  board_member: ['Donations', 'Reports', 'Visitors'],
 };
 
 // Breadcrumb labels
@@ -92,9 +158,18 @@ const breadcrumbMap = {
   '/admin/content': 'Content',
   '/admin/reports': 'Reports',
   '/admin/quickbooks': 'QuickBooks',
+  '/admin/donations': 'Donations',
+  '/admin/facility': 'Facility',
+  '/admin/visitors': 'Visitors',
+  '/admin/volunteers': 'Volunteers',
 };
 
-const ROLE_LABELS = { manager: 'Manager', staff: 'Staff', volunteer: 'Volunteer' };
+const ROLE_LABELS = {
+  manager: 'Manager', staff: 'Gift Shop Staff', volunteer: 'Volunteer',
+  executive_director: 'Executive Director', treasurer: 'Treasurer',
+  education_director: 'Education Director', visitor_services: 'Visitor Services',
+  board_member: 'Board Member',
+};
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -298,47 +373,40 @@ export default function AdminLayout() {
           </div>
 
           <nav className="admin-sidebar-nav">
-            <div className="admin-nav-section">
-              <div className="admin-nav-label">Management</div>
-              {filteredNavItems.map(item => {
-                const isReadOnly = (READONLY_LABELS[role] || []).includes(item.label);
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.end}
-                    className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-                    onClick={closeSidebar}
-                    title={item.label}
-                  >
-                    {item.icon}
-                    <span style={{ flex: 1 }}>{item.label}</span>
-                    {isReadOnly && (
-                      <span style={{
-                        fontSize: 10, padding: '2px 6px', borderRadius: 4,
-                        background: 'rgba(100,116,139,0.1)', color: '#64748B',
-                        fontWeight: 500, letterSpacing: '0.5px', textTransform: 'uppercase',
-                      }}>View</span>
-                    )}
-                  </NavLink>
-                );
-              })}
-            </div>
-            {/* Only show integrations for manager */}
-            {role === 'manager' && (
-              <div className="admin-nav-section">
-                <div className="admin-nav-label">Integrations</div>
-                <NavLink
-                  to="/admin/quickbooks"
-                  className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-                  onClick={closeSidebar}
-                >
-                  {Icons.quickbooks}
-                  QuickBooks
-                  <span className="admin-nav-badge" style={{ background: 'rgba(212,175,55,0.12)', color: '#d4af37', fontSize: 12, padding: '2px 7px' }}>New</span>
-                </NavLink>
-              </div>
-            )}
+            {navSections.map(section => {
+              const sectionItems = allowedLabels
+                ? section.items.filter(item => allowedLabels.includes(item.label))
+                : section.items;
+              if (sectionItems.length === 0) return null;
+              return (
+                <div className="admin-nav-section" key={section.label}>
+                  <div className="admin-nav-label">{section.label}</div>
+                  {sectionItems.map(item => {
+                    const isReadOnly = (READONLY_LABELS[role] || []).includes(item.label);
+                    return (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        end={item.end}
+                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        onClick={closeSidebar}
+                        title={item.label}
+                      >
+                        {item.icon}
+                        <span style={{ flex: 1 }}>{item.label}</span>
+                        {isReadOnly && (
+                          <span style={{
+                            fontSize: 10, padding: '2px 6px', borderRadius: 4,
+                            background: 'rgba(100,116,139,0.1)', color: '#64748B',
+                            fontWeight: 500, letterSpacing: '0.5px', textTransform: 'uppercase',
+                          }}>View</span>
+                        )}
+                      </NavLink>
+                    );
+                  })}
+                </div>
+              );
+            })}
           </nav>
 
           <div className="admin-sidebar-footer">
@@ -458,7 +526,7 @@ export default function AdminLayout() {
                       font: "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                       color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px',
                     }}>Switch Role</div>
-                    {['manager', 'staff', 'volunteer'].map(r => (
+                    {['executive_director', 'treasurer', 'board_member', 'manager', 'education_director', 'visitor_services', 'staff', 'volunteer'].map(r => (
                       <button
                         key={r}
                         onClick={() => switchRole(r)}

@@ -78,7 +78,11 @@ src/
         ├── Emails.jsx          # Email composer with templates, audience targeting
         ├── Content.jsx         # Page content editor, announcement bar
         ├── Reports.jsx         # Sales, inventory, membership, event analytics + CSV export
-        └── QuickBooks.jsx      # QB export (CSV), sync log, auto-export settings
+        ├── QuickBooks.jsx      # QB export (CSV), sync log, auto-export settings
+        ├── Donations.jsx       # Donation tracking, fundraising progress, donor management
+        ├── Facility.jsx        # Facility calendar (5 IDSDC spaces), booking CRUD
+        ├── Visitors.jsx        # Daily visitor tracking, 30-day trend chart
+        └── Volunteers.jsx      # Volunteer roster, hours logging, certifications
 ```
 
 ## Routes
@@ -108,6 +112,10 @@ src/
 | `/admin/content` | Content | CMS page editing |
 | `/admin/reports` | Reports | Analytics & reports |
 | `/admin/quickbooks` | QuickBooks | Accounting export |
+| `/admin/donations` | Donations | Donation tracking + fundraising progress |
+| `/admin/facility` | Facility | Facility calendar (5 IDSDC spaces) |
+| `/admin/visitors` | Visitors | Daily visitor counts + trend chart |
+| `/admin/volunteers` | Volunteers | Volunteer roster + hours logging |
 | `*` | 404 | "Lost in Space" page |
 
 ## localStorage Keys
@@ -131,6 +139,11 @@ src/
 | `ds_ticket_reservations` | Array | Empty [] | Event ticket reservations |
 | `ds_movement_history` | Object | store.js (2 products) | Stock movement audit log per product |
 | `ds_products` | Array | products.js (67 products) | Storefront product catalog |
+| `ds_donations` | Array | store.js (8 donations) | Donation records with donor, amount, type, campaign |
+| `ds_facility_bookings` | Array | store.js (12 bookings) | Facility space bookings across 5 IDSDC spaces |
+| `ds_visitors` | Array | store.js (30 days) | Daily visitor counts (total, members, children, groups) |
+| `ds_volunteers` | Array | store.js (6 volunteers) | Volunteer roster with hours, certifications, availability |
+| `ds_fundraising` | Object | store.js | Fundraising goal ($29M) and raised ($27.2M) in cents |
 
 ### Storefront Cart (managed by `App.jsx`)
 
@@ -389,9 +402,35 @@ VideoDivider components (Home, About, Education) accept `titleEditable` and `sub
 
 | Role | Access |
 |------|--------|
-| Manager | All admin pages, edit mode pencil on store |
-| Staff | Dashboard, Inventory, Receive, Transfers, Orders (read-only) |
+| Executive Director (Nancy) | All admin pages |
+| Manager (Tovah) | All admin pages, edit mode pencil on store |
+| Treasurer (David) | Dashboard, Donations, Reports, QuickBooks, Orders |
+| Education Director (Maria) | Dashboard, Events, Facility, Volunteers, Visitors, Reports |
+| Visitor Services (Alex) | Dashboard, Visitors, Facility, Inventory, Orders, Volunteers |
+| Board Member (Patricia) | Dashboard (read-only summary), Donations, Reports, Visitors |
+| Gift Shop Staff (Josie) | Dashboard, Inventory, Receive, Transfers, Orders (read-only) |
 | Volunteer | Dashboard, Inventory (read-only), Orders (read-only) |
+
+### Admin Sidebar Sections
+
+| Section | Pages |
+|---------|-------|
+| Overview | Dashboard |
+| Programs & Events | Events, Facility |
+| Gift Shop | Orders, Inventory, Receive, Transfers, Purchase Orders |
+| Community | Donations, Visitors, Volunteers |
+| Communications | Email, Content |
+| Reporting | Reports, QuickBooks |
+
+### IDSDC Facility Spaces
+
+| Space | Capacity | Color |
+|-------|----------|-------|
+| Dark Sky Observatory | 30 | Blue |
+| Craig & Ruth Gimbel Planetarium | 65 | Purple |
+| Inspiration Theater | 150 | Gold |
+| Night Sky Exhibit Hall | Varies | Green |
+| Einstein Exploration Station | Varies | Orange |
 
 ### Admin Toggle (Nav)
 

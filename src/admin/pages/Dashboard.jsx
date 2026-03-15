@@ -7,6 +7,7 @@ import {
   getStockStatus, formatPrice, subscribe,
   getPurchaseOrders, getTransfers,
   getSmartTransferSuggestions, getPredictiveAlerts, addTransfer, addPurchaseOrder,
+  getDonations, getFacilityBookings, getVisitors, getVolunteers, getFundraising,
 } from '../data/store';
 
 // ── Design Tokens ──
@@ -809,12 +810,18 @@ function StaffDashboard() {
 function ManagerDashboard() {
   const navigate = useNavigate();
   const addToast = useToast();
+  const role = useRole();
   const orders = getOrders();
   const inventory = getInventory();
   const members = getMembers();
   const events = getEvents();
   const purchaseOrders = getPurchaseOrders();
   const transfers = getTransfers();
+  const donations = getDonations();
+  const facilityBookings = getFacilityBookings();
+  const visitors = getVisitors();
+  const volunteers = getVolunteers();
+  const fundraising = getFundraising();
 
   const today = new Date().toISOString().slice(0, 10);
   const [chartPeriod, setChartPeriod] = useState(30);
@@ -945,26 +952,75 @@ function ManagerDashboard() {
   const tierCounts = {};
   members.forEach(m => { tierCounts[m.tier] = (tierCounts[m.tier] || 0) + 1; });
 
+  // Mission metrics
+  const thisMonth = today.slice(0, 7);
+  const thisMonthVisitors = visitors.filter(v => v.date.startsWith(thisMonth)).reduce((s, v) => s + v.total, 0);
+  const thisMonthEvents = events.filter(e => e.date.startsWith(thisMonth) && e.status === 'Published').length;
+  const totalDonations = donations.reduce((s, d) => s + d.amount, 0);
+  const totalTicketsSold = events.reduce((s, e) => s + (e.ticketsSold || 0), 0);
+  const fundraisingPct = fundraising.goal > 0 ? Math.round((fundraising.raised / fundraising.goal) * 100) : 0;
+  const fmtM = (cents) => `$${(cents / 100 / 1000000).toFixed(1)}M`;
+  const volunteerHours = volunteers.filter(v => v.status === 'Active').reduce((s, v) => s + v.hoursThisMonth, 0);
+
+  // This week events + bookings
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // Monday
+  const weekDays = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart); d.setDate(d.getDate() + i);
+    const ds = d.toISOString().slice(0, 10);
+    const dayEvents = events.filter(e => e.date === ds && e.status === 'Published');
+    const dayBookings = facilityBookings.filter(b => b.date === ds);
+    weekDays.push({ date: ds, day: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i], events: dayEvents, bookings: dayBookings, isToday: ds === today });
+  }
+
+  // Revenue by source for donut
+  const donationTotal = donations.reduce((s, d) => s + d.amount * 100, 0); // to cents
+  const giftShopRev = revenue30;
+  const ticketRev = events.reduce((s, e) => s + (e.ticketsSold || 0) * (e.price || 0), 0);
+  const memberRev = members.length * 7500; // rough avg
+
   return (
     <div>
       {/* Greeting */}
       <div className="ds-greeting" style={{
-        paddingTop: 8, marginBottom: 32,
+        paddingTop: 8, marginBottom: 24,
         opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(12px)',
         transition: 'all 0.6s ease',
         width: '100%',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 4 }}>
           <h1 className="ds-greeting-heading" style={{ fontFamily: FONT, fontSize: 28, fontWeight: 600, color: C.text, letterSpacing: '-0.02em', margin: 0, flex: 1, minWidth: 0 }}>
-            {getGreeting()}, Tovah
+            {getGreeting()}, {localStorage.getItem('ds_user_name') || 'Tovah'}
           </h1>
           <span className="ds-greeting-date" style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, whiteSpace: 'nowrap' }}>
             {formatTodayDate()}
           </span>
         </div>
-        <div className="ds-greeting-login" style={{ fontFamily: FONT, fontSize: 12, fontWeight: 400, color: C.muted, marginTop: 4 }}>
-          Last login: 2 hours ago
+        <div style={{ fontFamily: FONT, fontSize: 13, color: C.text2, marginTop: 6 }}>
+          This week: {weekDays.reduce((s, d) => s + d.events.length, 0)} events, {totalTicketsSold} tickets sold, {members.length} members, {formatPrice(revenue30)} gift shop, ${totalDonations.toLocaleString()} donations
         </div>
+      </div>
+
+      {/* Mission Metrics */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }} className="ds-mission-metrics">
+        {[
+          { label: 'Visitors This Month', value: thisMonthVisitors.toLocaleString(), color: C.gold },
+          { label: 'Active Members', value: members.length, sub: Object.entries(tierCounts).map(([t,c]) => `${c} ${t}`).join(', '), color: '#3D8C6F' },
+          { label: 'Events This Month', value: thisMonthEvents, sub: `${volunteerHours} volunteer hours`, color: '#4A7FBF' },
+          { label: 'Fundraising', value: fmtM(fundraising.raised), sub: `of ${fmtM(fundraising.goal)} goal`, color: '#7C6BAF', pct: fundraisingPct },
+        ].map((m, i) => (
+          <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 18px', boxShadow: C.shadow }}>
+            <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 8 }}>{m.label}</div>
+            <div style={{ font: `600 26px ${FONT}`, color: m.color, marginBottom: 4 }}>{m.value}</div>
+            {m.sub && <div style={{ font: `400 12px ${FONT}`, color: C.muted }}>{m.sub}</div>}
+            {m.pct !== undefined && (
+              <div style={{ marginTop: 8, height: 4, background: '#E8E5DF', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ width: `${Math.min(m.pct, 100)}%`, height: '100%', background: m.color, borderRadius: 2, transition: 'width 1s ease' }} />
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* Attention Cards */}
@@ -998,8 +1054,8 @@ function ManagerDashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }} className="ds-quick-actions">
           <QuickAction icon={Icon.receive} label="Receive Shipment" onClick={() => navigate('/admin/receive')} delay={200} />
           <QuickAction icon={Icon.calendar} label="Create Event" onClick={() => navigate('/admin/events')} delay={300} />
-          <QuickAction icon={Icon.mail} label="Send Email" onClick={() => navigate('/admin/emails')} delay={400} />
-          <QuickAction icon={Icon.chart} label="View Reports" onClick={() => navigate('/admin/reports')} delay={500} />
+          <QuickAction icon={Icon.cart} label="Record Donation" onClick={() => navigate('/admin/donations')} delay={400} />
+          <QuickAction icon={Icon.chart} label="Schedule Facility" onClick={() => navigate('/admin/facility')} delay={500} />
         </div>
       </div>
 
@@ -1448,6 +1504,86 @@ function ManagerDashboard() {
 }
 
 // ════════════════════════════════════════════
+// BOARD MEMBER DASHBOARD — read-only summary
+// ════════════════════════════════════════════
+function BoardMemberDashboard() {
+  const navigate = useNavigate();
+  const donations = getDonations();
+  const members = getMembers();
+  const events = getEvents();
+  const visitors = getVisitors();
+  const fundraising = getFundraising();
+  const orders = getOrders();
+
+  const today = new Date().toISOString().slice(0, 10);
+  const thisMonth = today.slice(0, 7);
+  const fmtM = (cents) => `$${(cents / 100 / 1000000).toFixed(1)}M`;
+  const fundraisingPct = fundraising.goal > 0 ? Math.round((fundraising.raised / fundraising.goal) * 100) : 0;
+  const totalDonations = donations.reduce((s, d) => s + d.amount, 0);
+  const thisMonthVisitors = visitors.filter(v => v.date.startsWith(thisMonth)).reduce((s, v) => s + v.total, 0);
+  const upcomingEvents = events.filter(e => e.date >= today && e.status === 'Published').length;
+  const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 24, boxShadow: C.shadow };
+  const labelStyle = { font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 8 };
+
+  return (
+    <div>
+      <div style={{ paddingTop: 8, marginBottom: 24 }}>
+        <h1 style={{ font: `600 28px ${FONT}`, color: C.text, margin: 0 }}>{getGreeting()}, Patricia</h1>
+        <div style={{ font: `400 14px ${FONT}`, color: C.text2, marginTop: 4 }}>Board Member Dashboard</div>
+      </div>
+
+      {/* Fundraising Progress — big and prominent */}
+      <div style={{ ...cardStyle, marginBottom: 24, textAlign: 'center', padding: '32px 24px' }}>
+        <div style={labelStyle}>Capital Campaign Progress</div>
+        <div style={{ font: `600 42px ${FONT}`, color: '#7C6BAF', margin: '8px 0' }}>{fmtM(fundraising.raised)}</div>
+        <div style={{ font: `400 16px ${FONT}`, color: C.text2, marginBottom: 16 }}>of {fmtM(fundraising.goal)} goal</div>
+        <div style={{ height: 10, background: '#E8E5DF', borderRadius: 5, overflow: 'hidden', maxWidth: 500, margin: '0 auto' }}>
+          <div style={{ width: `${Math.min(fundraisingPct, 100)}%`, height: '100%', background: 'linear-gradient(90deg, #7C6BAF, #9B8EC4)', borderRadius: 5, transition: 'width 1.2s ease' }} />
+        </div>
+        <div style={{ font: `600 14px ${FONT}`, color: '#7C6BAF', marginTop: 8 }}>{fundraisingPct}% complete</div>
+      </div>
+
+      {/* Summary cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        {[
+          { label: 'Total Revenue (YTD)', value: formatPrice(totalRevenue), color: C.gold },
+          { label: 'Visitors This Month', value: thisMonthVisitors.toLocaleString(), color: '#3D8C6F' },
+          { label: 'Active Members', value: members.length, color: '#4A7FBF' },
+          { label: 'Upcoming Events', value: upcomingEvents, color: '#D4943A' },
+        ].map((m, i) => (
+          <div key={i} style={cardStyle}>
+            <div style={labelStyle}>{m.label}</div>
+            <div style={{ font: `600 26px ${FONT}`, color: m.color }}>{m.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Donations summary */}
+      <div style={{ ...cardStyle, marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={labelStyle}>Recent Donations</div>
+          <button onClick={() => navigate('/admin/donations')} style={{ background: 'none', border: 'none', color: C.gold, cursor: 'pointer', font: `500 13px ${FONT}` }}>View All</button>
+        </div>
+        {donations.slice(0, 5).map(d => (
+          <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+            <div>
+              <div style={{ font: `500 14px ${FONT}`, color: C.text }}>{d.donor}</div>
+              <div style={{ font: `400 12px ${FONT}`, color: C.muted }}>{d.campaign} — {d.date}</div>
+            </div>
+            <div style={{ font: `600 15px ${FONT}`, color: C.gold }}>${d.amount.toLocaleString()}</div>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={() => navigate('/admin/reports')} style={{ width: '100%', padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>
+        View Full Reports
+      </button>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════
 // MAIN DASHBOARD — switches by role
 // ════════════════════════════════════════════
 export default function Dashboard() {
@@ -1460,5 +1596,7 @@ export default function Dashboard() {
 
   if (role === 'volunteer') return <VolunteerDashboard />;
   if (role === 'staff') return <StaffDashboard />;
+  if (role === 'board_member') return <BoardMemberDashboard />;
+  // executive_director, treasurer, education_director, visitor_services, manager all get full dashboard
   return <ManagerDashboard />;
 }
