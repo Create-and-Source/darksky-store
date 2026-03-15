@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
 import { getProducts, getEvents as getStoreEvents, getFundraising, addContact } from '../admin/data/store';
 
 /* ── Helpers ── */
@@ -37,7 +36,7 @@ function VideoDivider({ src, title, subtitle }) {
     <div className="vid-divider">
       <div className="vid-divider-clip"><LazyVideo src={src} className="vid-divider-video" autoPlay muted loop playsInline /></div>
       <div className="vid-divider-overlay-top" /><div className="vid-divider-overlay-bottom" />
-      <div className="vid-divider-content"><RevealSection><h2 className="vid-divider-title">{title}</h2><p className="vid-divider-sub">{subtitle}</p></RevealSection></div>
+      <div className="vid-divider-content"><div className="vid-divider-box"><h2 className="vid-divider-title">{title}</h2><p className="vid-divider-sub">{subtitle}</p></div></div>
     </div>
   );
 }
@@ -135,9 +134,6 @@ export default function Home({ onAddToCart }) {
   const raised = fundraising.raised / 100;
   const goal = fundraising.goal / 100;
   const pct = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
-
-  // Filter products: prioritize adult items, no infant/baby
-  const featured = PRODUCTS.filter(p => p.images?.length > 0 && !(p.title || '').toLowerCase().includes('infant') && !(p.title || '').toLowerCase().includes('baby')).slice(0, 6);
 
   const handleNotify = (e) => {
     e.preventDefault();
@@ -347,16 +343,36 @@ export default function Home({ onAddToCart }) {
 
       <SectionSep />
 
-      {/* ═══ 9 — SHOP PREVIEW ═══ */}
+      {/* ═══ 9 — SHOP CATEGORIES ═══ */}
       <section className="section" style={{ background: 'var(--bg)' }} data-section="Products">
         <RevealSection className="section-header">
           <div className="label section-label">// Gift Shop</div>
           <h2 className="section-title">Take the Night Sky <em>Home</em></h2>
         </RevealSection>
-        <div className="grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-          {featured.slice(0, 6).map((p, i) => (
-            <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} delay={Math.min(i * 60, 300)} badge={i === 0 ? 'Bestseller' : i === 2 ? 'Staff Pick' : null} />
-          ))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }} className="home-shop-cats">
+          {['Apparel', 'Kids', 'Outerwear', 'Gifts', 'Tanks'].map((cat, i) => {
+            const catItems = PRODUCTS.filter(p => p.category === cat);
+            const heroImg = catItems.find(p => p.images?.[0] && !(p.title || '').toLowerCase().includes('infant'))?.images?.[0] || catItems[0]?.images?.[0];
+            return (
+              <RevealSection key={cat} delay={i * 80}>
+                <button onClick={() => navigate(`/shop?cat=${cat}`)} style={{
+                  width: '100%', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: 'var(--r)', padding: 0,
+                  cursor: 'pointer', overflow: 'hidden', transition: 'all 0.4s var(--ease)', textAlign: 'center',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'none'; }}>
+                  <div style={{ height: 180, background: '#eae7e0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    {heroImg && <img src={heroImg} alt={cat} loading="lazy" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />}
+                  </div>
+                  <div style={{ padding: '16px 12px 20px' }}>
+                    <div style={{ fontFamily: '"Playfair Display", serif', fontSize: 22, fontWeight: 500, color: 'var(--text)', marginBottom: 4 }}>{cat}</div>
+                    <div style={{ font: '400 12px "JetBrains Mono", monospace', color: 'var(--gold)', letterSpacing: '0.08em' }}>{catItems.length} items</div>
+                  </div>
+                </button>
+              </RevealSection>
+            );
+          })}
         </div>
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <button className="btn-ghost" onClick={() => navigate('/shop')}>Shop All →</button>
@@ -411,11 +427,13 @@ export default function Home({ onAddToCart }) {
         .vid-divider-overlay-top { position: absolute; top: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-overlay-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 3; text-align: center; padding: 0 24px; }
+        .vid-divider-box { background: rgba(4,4,12,0.7); padding: 24px 48px; border-radius: 8px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         .vid-divider-title { font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif; font-style: italic; color: #fff; margin: 0 0 12px; text-shadow: 0 2px 24px rgba(0,0,0,0.6); }
         .vid-divider-sub { font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif; color: rgba(255,255,255,0.7); margin: 0; text-shadow: 0 1px 12px rgba(0,0,0,0.5); }
         @media (max-width: 1100px) {
           .home-facility-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .home-endorsements-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .home-shop-cats { grid-template-columns: repeat(3, 1fr) !important; }
         }
         @media (max-width: 768px) {
           .vid-divider { height: 250px; }
@@ -427,6 +445,7 @@ export default function Home({ onAddToCart }) {
           .home-facts-grid > div > div { border-right: none !important; border-bottom: 1px solid var(--border); }
           .home-facts-grid > div:last-child > div { border-bottom: none; }
           .home-endorsements-grid { grid-template-columns: 1fr !important; }
+          .home-shop-cats { grid-template-columns: repeat(2, 1fr) !important; }
         }
       `}</style>
     </div>

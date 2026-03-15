@@ -64,10 +64,10 @@ function VideoDivider({ src, title, subtitle, titleEditable, subtitleEditable })
       <div className="vid-divider-overlay-top" />
       <div className="vid-divider-overlay-bottom" />
       <div className="vid-divider-content">
-        <RevealSection>
+        <div className="vid-divider-box">
           <h2 className="vid-divider-title" {...(titleEditable ? {'data-editable': titleEditable} : {})}>{title}</h2>
           <p className="vid-divider-sub" {...(subtitleEditable ? {'data-editable': subtitleEditable} : {})}>{subtitle}</p>
-        </RevealSection>
+        </div>
       </div>
     </div>
   );
@@ -418,6 +418,7 @@ export default function About() {
           text-align: center;
           padding: 0 24px;
         }
+        .vid-divider-box { background: rgba(4,4,12,0.7); padding: 24px 48px; border-radius: 8px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         .vid-divider-title {
           font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif;
           font-style: italic;
