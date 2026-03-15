@@ -40,7 +40,7 @@ function FAQItem({ q, a }) {
         maxHeight: open ? 300 : 0, overflow: 'hidden',
         transition: 'max-height 0.35s cubic-bezier(.16,1,.3,1)',
       }}>
-        <p style={{ font: '300 14px/1.8 DM Sans', color: 'var(--muted)', paddingBottom: 24 }}>{a}</p>
+        <p style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', paddingBottom: 24 }}>{a}</p>
       </div>
     </div>
   );
@@ -360,7 +360,7 @@ export default function FieldTrips() {
             >
               <div style={{ marginBottom: 20 }}>{item.icon}</div>
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 19, fontWeight: 400, marginBottom: 12, color: 'var(--text)' }}>{item.title}</h3>
-              <p style={{ font: '300 13px/1.75 DM Sans', color: 'var(--muted)' }}>{item.desc}</p>
+              <p style={{ font: '300 17px/1.75 DM Sans', color: 'var(--muted)' }}>{item.desc}</p>
             </div>
           ))}
         </div>
@@ -378,7 +378,7 @@ export default function FieldTrips() {
           <h2 data-editable="ft-programs-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1 }}>
             Choose Your <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Program</em>
           </h2>
-          <p data-editable="ft-programs-subtitle" style={{ font: '300 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '16px auto 0' }}>
+          <p data-editable="ft-programs-subtitle" style={{ font: '300 18px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '16px auto 0' }}>
             Flexible options for every schedule and group size.
           </p>
         </div>
@@ -451,7 +451,7 @@ export default function FieldTrips() {
               display: 'flex', flexDirection: 'column',
             }}>
               <div style={{ color: 'var(--gold)', fontSize: 32, fontFamily: 'Playfair Display, serif', marginBottom: 16, lineHeight: 1 }}>"</div>
-              <p style={{ font: '300 14px/1.8 DM Sans', color: 'var(--muted)', flex: 1, marginBottom: 24 }}>
+              <p style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', flex: 1, marginBottom: 24 }}>
                 {t.quote}
               </p>
               <div>
@@ -482,7 +482,7 @@ export default function FieldTrips() {
             <h2 data-editable="ft-booking-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1, marginBottom: 12 }}>
               Booking <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Inquiry</em>
             </h2>
-            <p style={{ font: '300 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '0 auto' }}>
+            <p style={{ font: '300 18px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '0 auto' }}>
               Fill out the form below and our education coordinator will respond within 2 business days with available dates and a customized proposal.
             </p>
           </div>
@@ -498,7 +498,7 @@ export default function FieldTrips() {
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 400, marginBottom: 12 }}>
                 Inquiry Submitted
               </h3>
-              <p style={{ font: '300 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 420, margin: '0 auto 32px' }}>
+              <p style={{ font: '300 18px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 420, margin: '0 auto 32px' }}>
                 Thank you, {form.contact}! Our education coordinator will review your request and respond to {form.email} within 2 business days.
               </p>
               <button

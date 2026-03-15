@@ -157,7 +157,7 @@ export default function Membership() {
                 <div className="mem-tier-name" data-editable={`mem-tier-name-${i}`}>{tier.name}</div>
                 <div className="mem-tier-price" data-editable={`mem-tier-price-${i}`} style={{ ...goldGradientStyle, fontSize: 36 }}>{tier.price}</div>
                 <div className="mem-tier-period" data-editable={`mem-tier-period-${i}`}>{tier.period}</div>
-                <p data-editable={`mem-tier-desc-${i}`} style={{ font: '300 13px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 24 }}>{tier.desc}</p>
+                <p data-editable={`mem-tier-desc-${i}`} style={{ font: '300 17px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 24 }}>{tier.desc}</p>
                 <div className="mem-tier-divider" />
                 {tier.benefits.map(b => (
                   <div key={b} className="mem-benefit">
@@ -234,7 +234,7 @@ export default function Membership() {
               transition: 'border-color 0.3s',
             }}>
               <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, marginBottom: 12 }}>{q}</div>
-              <p style={{ font: '300 14px/1.8 "Plus Jakarta Sans"', color: 'var(--text2)' }}>{a}</p>
+              <p style={{ font: '300 18px/1.8 "Plus Jakarta Sans"', color: 'var(--text2)' }}>{a}</p>
             </div>
           ))}
         </section>

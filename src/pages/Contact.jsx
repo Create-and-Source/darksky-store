@@ -155,7 +155,7 @@ export default function Contact() {
                 <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 400, marginBottom: 12 }}>
                   Message Sent
                 </h3>
-                <p style={{ font: '300 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 380, margin: '0 auto 32px' }}>
+                <p style={{ font: '300 18px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 380, margin: '0 auto 32px' }}>
                   Thank you, {form.name}! We'll get back to you at {form.email} as soon as possible.
                 </p>
                 <button

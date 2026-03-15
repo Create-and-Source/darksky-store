@@ -169,12 +169,12 @@ export default function Donate() {
           </div>
 
           {form.honorOf && (
-            <p style={{ font: '300 15px/1.6 "Plus Jakarta Sans", sans-serif', color: 'var(--text2)', marginBottom: 24 }}>
+            <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans", sans-serif', color: 'var(--text2)', marginBottom: 24 }}>
               Your gift was made in honor of <em style={{ color: 'var(--text)' }}>{form.honorOf}</em>.
             </p>
           )}
 
-          <p style={{ font: '300 13px/1.6 "Plus Jakarta Sans", sans-serif', color: 'var(--muted)', marginBottom: 40 }}>
+          <p style={{ font: '300 17px/1.7 "Plus Jakarta Sans", sans-serif', color: 'var(--muted)', marginBottom: 40 }}>
             A tax receipt will be sent to {form.email}. The International Dark Sky Discovery Center is a 501(c)(3) nonprofit organization.
           </p>
 

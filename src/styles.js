@@ -15,8 +15,8 @@ export const GLOBAL_CSS = `
   --gold-glow: rgba(212,175,55,0.25);
   --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%);
   --text: #F0EDE6;
-  --text2: #908D9A;
-  --muted: #5C5870;
+  --text2: #C8C4D0;
+  --muted: #8A8698;
   --success: #4ADE80;
   --warning: #FBBF24;
   --r: 3px;
@@ -31,7 +31,9 @@ body {
   color: var(--text);
   font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
   font-weight: 300;
-  line-height: 1.7;
+  font-size: 18px;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -108,8 +110,8 @@ body::before {
 /* ═══ BUTTONS ═══ */
 .btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
-  font: 500 13px 'Plus Jakarta Sans'; letter-spacing: 0.06em;
-  padding: 15px 38px; border-radius: 100px;
+  font: 500 15px 'Plus Jakarta Sans'; letter-spacing: 0.06em;
+  padding: 16px 40px; border-radius: 100px;
   background: var(--gold-gradient);
   background-size: 200% 200%;
   background-position: 0% 50%;
@@ -126,8 +128,8 @@ body::before {
 
 .btn-ghost {
   display: inline-flex; align-items: center; justify-content: center;
-  font: 500 13px 'Plus Jakarta Sans'; letter-spacing: 0.06em;
-  padding: 15px 38px; border-radius: 100px;
+  font: 500 15px 'Plus Jakarta Sans'; letter-spacing: 0.06em;
+  padding: 16px 40px; border-radius: 100px;
   background: transparent; color: var(--text);
   border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
   transition: all 0.35s var(--ease); text-decoration: none;
@@ -313,7 +315,7 @@ body.has-announcement .sp-bar { top: 104px; }
 }
 .hero-h1 em { font-style: italic; color: var(--gold); }
 .hero-sub {
-  font: 300 18px/1.6 'Plus Jakarta Sans'; color: var(--text2);
+  font: 300 20px/1.7 'Plus Jakarta Sans'; color: var(--text2);
   letter-spacing: 0.04em; margin-bottom: 44px;
 }
 .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
@@ -370,8 +372,8 @@ body.has-announcement .sp-bar { top: 104px; }
 }
 .section-title em { font-style: italic; color: var(--gold); }
 .section-subtitle {
-  font: 300 16px/1.7 'Plus Jakarta Sans'; color: var(--text2);
-  max-width: 520px; margin-top: 20px;
+  font: 300 20px/1.7 'Plus Jakarta Sans'; color: var(--text2);
+  max-width: 580px; margin-top: 20px;
 }
 
 /* ═══ PRODUCT GRID ═══ */
@@ -702,7 +704,7 @@ body.has-announcement .sp-bar { top: 104px; }
 .mem-tier-divider { height: 1px; background: var(--border); margin-bottom: 28px; }
 .mem-benefit {
   display: flex; align-items: flex-start; gap: 12px;
-  font: 300 14px/1.6 'Plus Jakarta Sans'; color: var(--text2); margin-bottom: 14px;
+  font: 300 17px/1.7 'Plus Jakarta Sans'; color: var(--text2); margin-bottom: 14px;
 }
 .mem-benefit-icon { color: var(--gold); font-size: 12px; flex-shrink: 0; margin-top: 4px; }
 .mem-btn {
@@ -735,7 +737,7 @@ body.has-announcement .sp-bar { top: 104px; }
 .mem-perk:hover { background: rgba(255,255,255,0.04); }
 .mem-perk-icon { font-size: 28px; margin-bottom: 20px; display: block; }
 .mem-perk-title { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 10px; }
-.mem-perk-desc { font: 300 13px/1.75 'Plus Jakarta Sans'; color: var(--text2); }
+.mem-perk-desc { font: 300 17px/1.7 'Plus Jakarta Sans'; color: var(--text2); }
 
 /* ═══ MISSION BAND ═══ */
 .mission {
@@ -800,8 +802,8 @@ body.has-announcement .sp-bar { top: 104px; }
   font-style: italic; color: var(--text); margin-bottom: 16px;
 }
 .footer-tagline {
-  font: 300 13px/1.75 'Plus Jakarta Sans'; color: var(--text2);
-  max-width: 280px; margin-bottom: 24px;
+  font: 300 15px/1.7 'Plus Jakarta Sans'; color: var(--text2);
+  max-width: 320px; margin-bottom: 24px;
 }
 .footer-social { display: flex; gap: 12px; }
 .footer-social a {
@@ -818,7 +820,7 @@ body.has-announcement .sp-bar { top: 104px; }
 }
 .footer-links { display: flex; flex-direction: column; gap: 14px; }
 .footer-links a, .footer-links button {
-  font: 300 13px 'Plus Jakarta Sans'; color: var(--text2); text-decoration: none;
+  font: 300 15px 'Plus Jakarta Sans'; color: var(--text2); text-decoration: none;
   background: none; border: none; cursor: pointer; text-align: left;
   transition: color 0.2s; padding: 0; position: relative;
 }
@@ -827,7 +829,7 @@ body.has-announcement .sp-bar { top: 104px; }
   padding-top: 32px; border-top: 1px solid var(--border);
   display: flex; justify-content: space-between; align-items: center;
 }
-.footer-copy { font: 300 11px 'Plus Jakarta Sans'; color: var(--muted); }
+.footer-copy { font: 300 14px 'Plus Jakarta Sans'; color: var(--muted); }
 .footer-powered {
   font: 400 10px 'JetBrains Mono'; color: var(--muted);
   letter-spacing: 0.08em; opacity: 0.5;
@@ -856,7 +858,7 @@ body.has-announcement .sp-bar { top: 104px; }
 .about-card-title {
   font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 12px;
 }
-.about-card-desc { font: 300 14px/1.8 'Plus Jakarta Sans'; color: var(--text2); }
+.about-card-desc { font: 300 17px/1.7 'Plus Jakarta Sans'; color: var(--text2); }
 .about-stats {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
   border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
@@ -925,7 +927,7 @@ body.has-announcement .sp-bar { top: 104px; }
   font-family: 'Playfair Display', serif; font-size: 22px;
   margin-bottom: 10px; line-height: 1.25;
 }
-.event-card-desc { font: 300 13px/1.7 'Plus Jakarta Sans'; color: var(--text2); margin-bottom: 16px; }
+.event-card-desc { font: 300 17px/1.7 'Plus Jakarta Sans'; color: var(--text2); margin-bottom: 16px; }
 .event-card-meta {
   font: 400 11px 'JetBrains Mono'; color: var(--muted); letter-spacing: 0.08em;
 }
@@ -951,7 +953,7 @@ body.has-announcement .sp-bar { top: 104px; }
 .edu-program-title {
   font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 16px;
 }
-.edu-program-desc { font: 300 15px/1.8 'Plus Jakarta Sans'; color: var(--text2); margin-bottom: 28px; }
+.edu-program-desc { font: 300 18px/1.7 'Plus Jakarta Sans'; color: var(--text2); margin-bottom: 28px; }
 
 /* ═══ STARS CANVAS ═══ */
 .stars-canvas { position: absolute; inset: 0; display: block; }

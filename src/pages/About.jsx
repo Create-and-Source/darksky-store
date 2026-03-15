@@ -214,7 +214,7 @@ export default function About() {
 
         <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
           <RevealSection delay={100}>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', marginBottom: 40, fontWeight: 300 }} data-editable="about-story-p1">
+            <p style={{ fontSize: 18, lineHeight: 1.8, color: 'var(--text2)', marginBottom: 40, fontWeight: 300 }} data-editable="about-story-p1">
               The International Dark Sky Discovery Center was born from a simple observation: the night sky is disappearing. Light pollution now affects 80% of the world's population, and a generation of children is growing up without ever seeing the Milky Way.
             </p>
           </RevealSection>
@@ -255,7 +255,7 @@ export default function About() {
           </RevealSection>
 
           <RevealSection delay={300}>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', fontWeight: 300 }} data-editable="about-story-p2">
+            <p style={{ fontSize: 18, lineHeight: 1.8, color: 'var(--text2)', fontWeight: 300 }} data-editable="about-story-p2">
               Nestled in the Sonoran Desert outside Fountain Hills, Arizona, the Discovery Center sits beneath some of the darkest, most pristine skies in the continental United States. Our 22,000-square-foot facility serves as a beacon for astronomy education, dark sky advocacy, and scientific research.
             </p>
           </RevealSection>

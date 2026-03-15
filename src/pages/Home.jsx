@@ -221,7 +221,7 @@ export default function Home({ onAddToCart }) {
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(4,4,12,0.15) 0%, rgba(4,4,12,0.85) 100%)' }} />
                 <div style={{ position: 'relative', zIndex: 1, padding: '32px 24px', width: '100%' }}>
                   <h3 style={{ font: '500 clamp(18px, 2vw, 22px)/1.2 "Playfair Display", serif', color: '#fff', marginBottom: 8 }}>{f.title}</h3>
-                  <p style={{ font: '300 13px/1.6 "Plus Jakarta Sans"', color: 'var(--gold)', margin: 0, opacity: 0.85 }}>{f.desc}</p>
+                  <p style={{ font: '300 17px/1.7 "Plus Jakarta Sans"', color: 'var(--gold)', margin: 0, opacity: 0.85 }}>{f.desc}</p>
                 </div>
               </div>
             </RevealSection>
@@ -241,7 +241,7 @@ export default function Home({ onAddToCart }) {
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, color: '#fff', marginBottom: 8, lineHeight: 1.15 }}>
               The First Photo From Our <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Telescope</em>
             </h2>
-            <p style={{ font: '300 15px/1.6 "Plus Jakarta Sans"', color: 'rgba(255,255,255,0.7)', maxWidth: 520, margin: 0 }}>
+            <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'rgba(255,255,255,0.7)', maxWidth: 520, margin: 0 }}>
               Captured by the PlaneWave CDK700 — the largest telescope in the Greater Phoenix area.
             </p>
           </RevealSection>
@@ -270,13 +270,13 @@ export default function Home({ onAddToCart }) {
             <RevealSection key={i} delay={i * 120}>
               <div style={{ padding: '48px 32px', textAlign: 'center', borderRight: i < 2 ? '1px solid var(--border)' : 'none' }}>
                 <div style={{ font: '400 clamp(40px, 5vw, 64px) "Playfair Display", serif', fontStyle: 'italic', marginBottom: 16, ...goldGrad }}>{f.stat}</div>
-                <p style={{ font: '300 14px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', margin: 0 }}>{f.text}</p>
+                <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', margin: 0 }}>{f.text}</p>
               </div>
             </RevealSection>
           ))}
         </div>
         <RevealSection delay={400}>
-          <p style={{ font: '300 15px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', textAlign: 'center', maxWidth: 700, margin: '40px auto 0' }}>
+          <p style={{ font: '300 20px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', textAlign: 'center', maxWidth: 700, margin: '40px auto 0' }}>
             With nearly 5 million people just 30 minutes away, we're building something that doesn't exist anywhere else.
           </p>
         </RevealSection>
@@ -308,7 +308,7 @@ export default function Home({ onAddToCart }) {
                   <div style={{ padding: '28px 24px' }}>
                     <div style={{ font: '400 10px "JetBrains Mono"', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--gold)', marginBottom: 12 }}>{ev.cat}</div>
                     <h3 style={{ font: '500 20px/1.3 "Playfair Display", serif', color: 'var(--text)', margin: '0 0 10px' }}>{ev.title}</h3>
-                    <p style={{ font: '300 13px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', margin: '0 0 16px' }}>{ev.desc}</p>
+                    <p style={{ font: '300 17px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', margin: '0 0 16px' }}>{ev.desc}</p>
                     <div style={{ font: '400 11px "JetBrains Mono"', color: 'var(--muted)', letterSpacing: '0.04em' }}>{ev.meta}</div>
                   </div>
                 </div>
@@ -334,7 +334,7 @@ export default function Home({ onAddToCart }) {
             <RevealSection key={i} delay={i * 80}>
               <div style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 'var(--r)', padding: '32px 28px', minHeight: 200, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ font: '400 28px "Playfair Display", serif', color: 'var(--gold)', marginBottom: 12, lineHeight: 1, opacity: 0.4 }}>"</div>
-                <p style={{ font: '300 14px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', fontStyle: 'italic', flex: 1, margin: '0 0 20px' }}>{e.quote}</p>
+                <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', fontStyle: 'italic', flex: 1, margin: '0 0 20px' }}>{e.quote}</p>
                 <div>
                   <div style={{ font: '500 14px "Plus Jakarta Sans"', color: 'var(--text)', marginBottom: 2 }}>{e.name}</div>
                   <div style={{ font: '400 11px "JetBrains Mono"', color: 'var(--gold)', letterSpacing: '0.04em' }}>{e.title}</div>
