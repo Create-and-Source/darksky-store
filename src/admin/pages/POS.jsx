@@ -47,7 +47,7 @@ export default function POS() {
 
   // Filter products
   const filtered = products.filter(p => {
-    const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase());
     const matchCat = category === 'All' || p.category === category;
     return matchSearch && matchCat;
   });
@@ -79,15 +79,52 @@ export default function POS() {
   const tax = Math.round(afterDiscount * TAX_RATE);
   const total = afterDiscount + tax;
 
-  // Member lookup
-  const lookupMember = () => {
-    if (!memberEmail.trim()) return;
+  // Member lookup — supports email, member ID, or QR code scan
+  const lookupMember = (input) => {
+    const q = (input || memberEmail).trim().toLowerCase();
+    if (!q) return;
     const members = getMembers();
-    const found = members.find(m => m.email.toLowerCase() === memberEmail.trim().toLowerCase() && m.status === 'Active');
+    // Try email match, then ID match, then name match
+    const found = members.find(m => m.status === 'Active' && (
+      m.email.toLowerCase() === q ||
+      (m.id || '').toLowerCase() === q ||
+      q.includes(m.id?.toLowerCase() || '') ||
+      m.name.toLowerCase().includes(q)
+    ));
     setMember(found || null);
     setMemberLookupDone(true);
     if (found) toast(`Member found: ${found.name} (${found.tier})`, 'success');
-    else toast('No active member found with that email', 'warning');
+    else toast('No member found — try email, name, or scan QR', 'warning');
+  };
+
+  // Scan QR/barcode via camera
+  const [scanning, setScanning] = useState(false);
+  const videoRef = useRef(null);
+  const startScan = async () => {
+    setScanning(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      if (videoRef.current) { videoRef.current.srcObject = stream; videoRef.current.play(); }
+      // Auto-stop after 10 seconds
+      setTimeout(() => stopScan(), 10000);
+    } catch { toast('Camera not available', 'error'); setScanning(false); }
+  };
+  const stopScan = () => {
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(t => t.stop());
+      videoRef.current.srcObject = null;
+    }
+    setScanning(false);
+  };
+  const simulateScan = () => {
+    // Demo: simulate scanning a member QR code
+    stopScan();
+    const members = getMembers();
+    if (members.length > 0) {
+      const m = members[0];
+      setMemberEmail(m.id);
+      lookupMember(m.id);
+    }
   };
 
   // Charge
@@ -180,7 +217,7 @@ export default function POS() {
             <input
               ref={searchRef}
               type="text"
-              placeholder="Search products..."
+              placeholder="Search or scan barcode..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ ...inputStyle, paddingLeft: 38, width: '100%', boxSizing: 'border-box' }}
@@ -337,17 +374,30 @@ export default function POS() {
                 </label>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <input
-                    type="email"
-                    placeholder="Member email..."
+                    type="text"
+                    placeholder="Email, name, or scan QR..."
                     value={memberEmail}
                     onChange={e => { setMemberEmail(e.target.value); setMemberLookupDone(false); setMember(null); }}
                     onKeyDown={e => e.key === 'Enter' && lookupMember()}
                     style={{ ...inputStyle, flex: 1, fontSize: 13 }}
                   />
-                  <button onClick={lookupMember} style={{ ...btnStyle, background: C.bg, border: `1px solid ${C.border}`, color: C.text, padding: '8px 14px', fontSize: 12 }}>
+                  <button onClick={() => lookupMember()} style={{ ...btnStyle, background: C.bg, border: `1px solid ${C.border}`, color: C.text, padding: '8px 14px', fontSize: 12 }}>
                     Lookup
                   </button>
+                  <button onClick={scanning ? simulateScan : startScan} style={{ ...btnStyle, background: scanning ? C.success : C.gold, border: 'none', color: '#fff', padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                    {scanning ? 'Tap to Scan' : 'Scan'}
+                  </button>
                 </div>
+                {scanning && (
+                  <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', position: 'relative', background: '#000' }}>
+                    <video ref={videoRef} style={{ width: '100%', height: 120, objectFit: 'cover' }} />
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: '60%', height: 2, background: C.gold, opacity: 0.8, animation: 'posScanLine 2s ease-in-out infinite' }} />
+                    </div>
+                    <button onClick={simulateScan} style={{ position: 'absolute', bottom: 8, right: 8, padding: '4px 12px', background: C.gold, color: '#fff', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>Simulate Scan</button>
+                  </div>
+                )}
                 {memberLookupDone && member && (
                   <div style={{ marginTop: 6, padding: '6px 10px', background: `${C.success}10`, borderRadius: 6, fontSize: 12, color: C.success, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20,6 9,17 4,12"/></svg>
@@ -473,6 +523,7 @@ export default function POS() {
           </div>
         )}
       </div>
+      <style>{`@keyframes posScanLine { 0%, 100% { transform: translateY(-20px); opacity: 0.3; } 50% { transform: translateY(20px); opacity: 1; } }`}</style>
     </div>
   );
 }

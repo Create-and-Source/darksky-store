@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import Barcode from 'react-barcode';
 import { useToast } from '../AdminLayout';
 import PageTour from '../components/PageTour';
 import { getProducts, subscribe } from '../data/store';
@@ -204,7 +205,7 @@ export default function Products() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                  {['', 'Name', 'Category', 'Type', 'Price', ''].map((h, i) => (
+                  {['', 'Name', 'Category', 'Type', 'Price', 'Barcode', ''].map((h, i) => (
                     <th key={i} style={{
                       padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600,
                       color: C.text2, fontFamily: MONO, textTransform: 'uppercase', letterSpacing: '0.05em',
@@ -250,6 +251,13 @@ export default function Products() {
                     </td>
                     <td style={{ padding: '8px 14px', fontSize: 13, fontWeight: 600, color: C.text, fontFamily: MONO }}>
                       {formatPrice(p.price)}
+                    </td>
+                    <td style={{ padding: '4px 14px' }}>
+                      {p.type === 'physical' ? (
+                        <Barcode value={p.id} width={1} height={30} fontSize={8} margin={0} displayValue={false} />
+                      ) : (
+                        <span style={{ fontSize: 10, color: C.muted }}>—</span>
+                      )}
                     </td>
                     <td style={{ padding: '8px 14px', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>

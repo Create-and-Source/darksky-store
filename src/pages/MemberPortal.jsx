@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import QRCodeLib from 'qrcode';
 import {
   getMembers, getOrders, getDonations, getEvents, formatPrice, subscribe,
 } from '../admin/data/store';
@@ -8,19 +9,17 @@ const FONT = "'Playfair Display', serif";
 const BODY = "'Plus Jakarta Sans', sans-serif";
 const MONO = "'JetBrains Mono', 'SF Mono', monospace";
 
-function QRCode() {
-  // Deterministic 8x8 grid for visual QR look
-  const cells = useMemo(() => {
-    const seed = [1,0,1,1,0,1,0,0, 0,1,0,0,1,0,1,1, 1,1,1,0,0,1,1,0, 0,0,1,1,1,0,0,1, 1,0,0,1,0,1,1,0, 0,1,1,0,1,1,0,1, 1,0,1,1,0,0,1,0, 0,1,0,0,1,1,0,1];
-    return seed;
-  }, []);
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 2, width: 64, height: 64 }}>
-      {cells.map((c, i) => (
-        <div key={i} style={{ background: c ? '#F0EDE6' : '#04040c', borderRadius: 1 }} />
-      ))}
-    </div>
-  );
+function MemberQR({ memberId }) {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    if (canvasRef.current && memberId) {
+      QRCodeLib.toCanvas(canvasRef.current, memberId, {
+        width: 80, margin: 1,
+        color: { dark: '#F0EDE6', light: '#00000000' },
+      });
+    }
+  }, [memberId]);
+  return <canvas ref={canvasRef} style={{ width: 80, height: 80 }} />;
 }
 
 const BENEFITS = [
@@ -139,7 +138,7 @@ export default function MemberPortal() {
                     <div className="mp-card-since">Member Since March 2026</div>
                     <div className="mp-card-id">ID: IDSDC-2026-0042</div>
                   </div>
-                  <QRCode />
+                  <MemberQR memberId="IDSDC-2026-0042" />
                 </div>
               </div>
             </div>
