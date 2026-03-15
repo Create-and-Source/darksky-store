@@ -110,9 +110,19 @@ export const getOrders = () => get(KEYS.orders, []);
 export const getOrder = (id) => getOrders().find(o => o.id === id);
 export function addOrder(order) {
   const orders = getOrders();
+  // Flatten nested customer/shipping objects for Orders.jsx compatibility
+  const cust = order.customer || {};
+  const ship = order.shipping || {};
+  const customerName = typeof cust === 'string' ? cust : `${cust.firstName || ''} ${cust.lastName || ''}`.trim();
+  const customerEmail = typeof cust === 'string' ? order.email : cust.email;
+  const address = typeof ship === 'string' ? ship : [ship.address1, ship.address2, ship.city, ship.state, ship.zip].filter(Boolean).join(', ');
   const newOrder = {
     id: `ORD-${String(2402 + orders.filter(o => o.id.startsWith('ORD')).length).padStart(4,'0')}`,
     ...order,
+    customer: customerName,
+    email: customerEmail,
+    address,
+    shipping: order.shippingCost != null ? order.shippingCost : (typeof order.shipping === 'number' ? order.shipping : 0),
     date: new Date().toISOString().slice(0,10),
     status: 'Processing',
     channel: 'Online',

@@ -260,7 +260,7 @@ Cart icon in Nav opens CartDrawer slide-out (shows items, qty, totals)
     ↓
 /checkout — Checkout.jsx form validates
     ↓
-addOrder(orderData) from store.js
+addOrder(orderData) from store.js — flattens nested customer/shipping objects to strings
     ↓
 clearCart() removes ds_store_cart from localStorage
     ↓
@@ -269,6 +269,22 @@ Order appears in /admin/orders
 adjustStock() decreases gift shop inventory
     ↓
 addMovement() creates audit trail
+```
+
+### Event Reservation Flow
+
+```
+Customer clicks "Reserve Spot" on event card (Events.jsx)
+    ↓
+Modal: name, email, ticket qty
+    ↓
+addReservation({ eventId, eventTitle, name, email, qty }) from store.js
+    ↓
+Reservation saved to ds_ticket_reservations
+    ↓
+updateEvent() increments ticketsSold → spots remaining bar updates
+    ↓
+Reservation visible in /admin/events (EventsAdmin.jsx)
 ```
 
 ### Edit Mode Flow
@@ -323,6 +339,7 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 - Checkout → admin orders flow (connected via store.js)
 - Cart clears from localStorage after successful checkout
 - Events admin → public events page (connected via ds_events)
+- Event reservations: store Events page "Reserve Spot" → addReservation() → ds_ticket_reservations → admin EventsAdmin
 - Shop → products from localStorage (connected via ds_products)
 - Membership page reads member count from localStorage
 - Inventory adjustments on order placement

@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getEvents } from '../admin/data/store';
+import { getEvents, addReservation } from '../admin/data/store';
 
 function RevealSection({ children, className = '', delay = 0 }) {
   const ref = useRef(null);
@@ -33,6 +33,7 @@ function mapAdminEvent(e) {
   const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const spotsLeft = e.capacity ? Math.max(0, Math.round(((e.capacity - (e.ticketsSold || 0)) / e.capacity) * 100)) : null;
   return {
+    id: e.id,
     day: String(d.getDate()).padStart(2, '0'),
     month: months[d.getMonth()],
     cat: CAT_MAP[e.category] || e.category,
@@ -41,6 +42,8 @@ function mapAdminEvent(e) {
     meta: `${e.time ? formatTime(e.time) : ''} · ${e.location || ''}`.replace(/^ · /, ''),
     spots: spotsLeft,
     almostFull: spotsLeft !== null && spotsLeft <= 20,
+    capacity: e.capacity,
+    ticketsSold: e.ticketsSold || 0,
   };
 }
 
@@ -54,6 +57,28 @@ function formatTime(t) {
 export default function Events() {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('All');
+  const [reserveEvent, setReserveEvent] = useState(null);
+  const [resForm, setResForm] = useState({ name: '', email: '', qty: 1 });
+  const [resSuccess, setResSuccess] = useState(false);
+  const [, setTick] = useState(0);
+
+  const handleReserve = () => {
+    if (!resForm.name.trim() || !resForm.email.trim()) return;
+    addReservation({
+      eventId: reserveEvent.id,
+      eventTitle: reserveEvent.title,
+      name: resForm.name.trim(),
+      email: resForm.email.trim(),
+      qty: resForm.qty,
+    });
+    setResSuccess(true);
+    setTick(t => t + 1); // re-render to update spots
+    setTimeout(() => {
+      setReserveEvent(null);
+      setResSuccess(false);
+      setResForm({ name: '', email: '', qty: 1 });
+    }, 2000);
+  };
 
   const adminEvents = getEvents().filter(e => e.status === 'Published');
   const EVENTS = adminEvents.map(mapAdminEvent);
@@ -161,7 +186,7 @@ export default function Events() {
                     <span className="event-card-meta">{event.meta}</span>
 
                     {/* Spots remaining progress bar */}
-                    {event.spots && (
+                    {event.spots !== null && (
                       <div style={{ marginTop: 16 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                           <span style={{ font: '500 10px "JetBrains Mono", monospace', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)' }}>
@@ -189,6 +214,16 @@ export default function Events() {
                         </div>
                       </div>
                     )}
+
+                    {event.spots !== null && event.spots > 0 && (
+                      <button
+                        className="btn-primary"
+                        onClick={(e) => { e.stopPropagation(); setReserveEvent(event); setResForm({ name: '', email: '', qty: 1 }); setResSuccess(false); }}
+                        style={{ marginTop: 16, width: '100%', padding: '12px 24px', fontSize: 11 }}
+                      >
+                        Reserve Spot
+                      </button>
+                    )}
                   </div>
                 </div>
               </RevealSection>
@@ -210,6 +245,80 @@ export default function Events() {
           </div>
         </div>
       </RevealSection>
+
+      {/* Reservation Modal */}
+      {reserveEvent && (
+        <>
+          <div onClick={() => { setReserveEvent(null); setResSuccess(false); }} style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000,
+            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+          }} />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            background: 'var(--bg2, #0a0a1a)', border: '1px solid var(--border)',
+            borderRadius: 'var(--r, 3px)', padding: 36, width: 400, maxWidth: '90vw', zIndex: 1001,
+          }}>
+            {resSuccess ? (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>✦</div>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, marginBottom: 8 }}>
+                  Reserved!
+                </h3>
+                <p style={{ font: '300 14px "Plus Jakarta Sans"', color: 'var(--text2)' }}>
+                  Your spot for {reserveEvent.title} is confirmed.
+                </p>
+              </div>
+            ) : (
+              <>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, marginBottom: 4 }}>
+                  Reserve a Spot
+                </h3>
+                <p style={{ font: '300 13px "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 24 }}>
+                  {reserveEvent.title} &middot; {reserveEvent.month} {reserveEvent.day}
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div>
+                    <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Name</label>
+                    <input
+                      value={resForm.name} onChange={e => setResForm(f => ({ ...f, name: e.target.value }))}
+                      placeholder="Your name"
+                      style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Email</label>
+                    <input
+                      value={resForm.email} onChange={e => setResForm(f => ({ ...f, email: e.target.value }))}
+                      placeholder="you@example.com" type="email"
+                      style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Tickets</label>
+                    <select
+                      value={resForm.qty} onChange={e => setResForm(f => ({ ...f, qty: Number(e.target.value) }))}
+                      style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none', cursor: 'pointer', boxSizing: 'border-box' }}
+                    >
+                      {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                    <button className="btn-ghost" onClick={() => { setReserveEvent(null); setResSuccess(false); }} style={{ flex: 1 }}>Cancel</button>
+                    <button
+                      className="btn-primary"
+                      onClick={handleReserve}
+                      disabled={!resForm.name.trim() || !resForm.email.trim()}
+                      style={{ flex: 1, opacity: (!resForm.name.trim() || !resForm.email.trim()) ? 0.4 : 1 }}
+                    >
+                      Confirm Reservation
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
