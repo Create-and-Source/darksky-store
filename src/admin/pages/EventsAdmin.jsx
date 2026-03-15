@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '../AdminLayout';
 import Wizard from '../components/Wizard';
 import HelpBubble, { LabelWithHelp } from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 import { undoable } from '../components/UndoSystem';
 import {
   getEvents, addEvent, updateEvent, deleteEvent,
@@ -264,6 +265,12 @@ export default function EventsAdmin() {
   if (view === 'list') {
     return (
       <>
+        <PageTour storageKey="ds_tour_events" steps={[
+          { target: '#tour-events-list', title: 'Event List', text: 'All your events are shown here as cards. Click Edit to modify or View Tickets to check reservations.' },
+          { target: '#tour-events-create', title: 'Create Event', text: 'Click this button to create a new event using a step-by-step wizard.' },
+          { target: '#tour-events-tickets', title: 'Ticket Tracking', text: 'Each event card shows a progress bar with tickets sold vs. capacity.' },
+        ]} />
+
         <div className="admin-page-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             <div>
@@ -274,7 +281,7 @@ export default function EventsAdmin() {
               <p className="admin-page-subtitle">Create and manage your star parties, shows, and workshops. Published events appear on your website.</p>
             </div>
           </div>
-          <button className="admin-btn admin-btn-gold admin-btn-lg" onClick={openCreate} style={{ height: 48 }}>
+          <button id="tour-events-create" className="admin-btn admin-btn-gold admin-btn-lg" onClick={openCreate} style={{ height: 48 }}>
             + New Event
           </button>
         </div>
@@ -313,7 +320,7 @@ export default function EventsAdmin() {
             )}
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
+          <div id="tour-events-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
             {filtered.map(evt => {
               const sold = evt.ticketsSold || 0;
               const cap = evt.capacity || 30;
@@ -367,7 +374,7 @@ export default function EventsAdmin() {
                   </div>
 
                   {/* Ticket progress */}
-                  <div style={{ marginBottom: 16 }}>
+                  <div id="tour-events-tickets" style={{ marginBottom: 16 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                       <span style={{ font: '400 13px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B' }}>
                         {sold} / {cap} tickets sold

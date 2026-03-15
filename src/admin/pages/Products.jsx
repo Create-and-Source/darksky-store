@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '../AdminLayout';
+import PageTour from '../components/PageTour';
 import { getProducts, subscribe } from '../data/store';
 
 // ── Design Tokens ──
@@ -128,6 +129,11 @@ export default function Products() {
 
   return (
     <div style={{ fontFamily: FONT, padding: '24px 32px', maxWidth: 1200, margin: '0 auto' }}>
+      <PageTour storageKey="ds_tour_products" steps={[
+        { target: '#tour-products-table', title: 'Product List', text: 'All your products are listed here with images, categories, types, and prices.' },
+        { target: '#tour-products-add', title: 'Add Product', text: 'Click here to add a new product to your catalog, or use the tabs to switch to the add/edit form.' },
+      ]} />
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
@@ -137,7 +143,7 @@ export default function Products() {
           </p>
         </div>
         {tab === 'list' && (
-          <button onClick={startAdd} style={{ ...btnStyle, background: C.gold, color: '#fff', padding: '10px 20px' }}>
+          <button id="tour-products-add" onClick={startAdd} style={{ ...btnStyle, background: C.gold, color: '#fff', padding: '10px 20px' }}>
             + Add Product
           </button>
         )}
@@ -194,7 +200,7 @@ export default function Products() {
           </div>
 
           {/* Table */}
-          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden', boxShadow: C.shadow }}>
+          <div id="tour-products-table" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden', boxShadow: C.shadow }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${C.border}` }}>

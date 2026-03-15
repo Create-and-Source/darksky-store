@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../AdminLayout';
 import HelpBubble from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 import {
   getOrders, getInventory, getMembers, getEvents,
   formatPrice, getStockStatus, subscribe,
@@ -317,7 +318,7 @@ export default function Reports() {
   };
 
   const csvBtn = (onClick) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div id="tour-reports-export" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
       <button onClick={onClick} className="admin-btn admin-btn-ghost admin-btn-sm" style={{ padding: '6px 12px' }}>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         CSV
@@ -336,13 +337,19 @@ export default function Reports() {
 
   return (
     <>
+      <PageTour storageKey="ds_tour_reports" steps={[
+        { target: '#tour-reports-period', title: 'Time Period', text: 'Switch between 7-day, 30-day, and 90-day views. All charts and stats update automatically.' },
+        { target: '#tour-reports-stats', title: 'Revenue Stats', text: 'Key business metrics at a glance -- total revenue, order counts, members, and average order value.' },
+        { target: '#tour-reports-export', title: 'Export', text: 'Download CSV files of your data to open in Excel or import into QuickBooks.' },
+      ]} />
+
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title" style={{ color: '#1E293B' }}>Reports</h1>
           <p className="admin-page-subtitle" style={{ color: '#64748B' }}>Business overview — calculated from real data</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 0, border: '1px solid #E2E8F0', borderRadius: 6, overflow: 'hidden' }}>
+          <div id="tour-reports-period" style={{ display: 'flex', gap: 0, border: '1px solid #E2E8F0', borderRadius: 6, overflow: 'hidden' }}>
             {RANGES.map(r => (
               <button key={r.id} onClick={() => setRange(r.id)} style={{
                 padding: '10px 16px', font: `500 14px ${FONT}`,
@@ -364,7 +371,7 @@ export default function Reports() {
       </SummaryCard>
 
       {/* TOP STATS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 }} className="reports-stats-6">
+      <div id="tour-reports-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 }} className="reports-stats-6">
         <div style={panelStyle}>
           <div style={{ font: `500 13px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8', marginBottom: 6 }}>Total Revenue</div>
           <div style={{ font: `600 22px ${FONT}`, color: '#D4AF37' }}>{fmt(totalRevenue)}</div>

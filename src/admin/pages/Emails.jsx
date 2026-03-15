@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useToast } from '../AdminLayout';
 import Wizard from '../components/Wizard';
 import HelpBubble, { LabelWithHelp } from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 import {
   getEmails, addEmail, getMembers, getOrders, getEvents, getReservations, subscribe,
 } from '../data/store';
@@ -275,7 +276,7 @@ export default function Emails() {
           <LabelWithHelp help="Templates save time. Pick one and customize it." style={labelStyle}>
             Template
           </LabelWithHelp>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+          <div id="tour-emails-templates" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
             {Object.entries(TEMPLATES).map(([key, tpl]) => (
               <button
                 key={key}
@@ -437,6 +438,11 @@ export default function Emails() {
 
   return (
     <>
+      <PageTour storageKey="ds_tour_emails" steps={[
+        { target: '#tour-emails-compose', title: 'Compose', text: 'Use the step-by-step wizard to pick an audience, choose a template, and write your email.' },
+        { target: '#tour-emails-templates', title: 'Templates', text: 'Pick a pre-written template to get started quickly, or start from scratch.' },
+      ]} />
+
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title" style={{ display: 'flex', alignItems: 'center' }}>
@@ -465,7 +471,7 @@ export default function Emails() {
 
       {/* COMPOSE TAB */}
       {tab === 'compose' && (
-        <div style={{ maxWidth: 800 }}>
+        <div id="tour-emails-compose" style={{ maxWidth: 800 }}>
           <Wizard
             steps={wizardSteps}
             onComplete={() => setConfirmModal(true)}

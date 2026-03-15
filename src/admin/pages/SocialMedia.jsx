@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useToast } from '../AdminLayout';
+import PageTour from '../components/PageTour';
 import { getEvents, getProducts, getFundraising, subscribe } from '../data/store';
 import { gallerySupabase, GENERATE_URL, SUPABASE_ANON_KEY } from '../supabaseGallery';
 
@@ -579,6 +580,11 @@ export default function SocialMedia() {
 
   return (
     <div>
+      <PageTour storageKey="ds_tour_social" steps={[
+        { target: '#tour-social-accounts', title: 'Connected Accounts', text: 'See which social platforms are connected. Click Connect or Disconnect to manage them.' },
+        { target: '#tour-social-create', title: 'Create Post', text: 'Use the step-by-step wizard to pick a content source, write copy, and publish across platforms.' },
+      ]} />
+
       {/* Page header + tabs */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div>
@@ -593,7 +599,7 @@ export default function SocialMedia() {
       </div>
 
       {/* ═══ CONNECTED ACCOUNTS ═══ */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 24 }} className="sm-conn-grid">
+      <div id="tour-social-accounts" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 24 }} className="sm-conn-grid">
         {PLATFORMS.map(p => {
           const key = p.toLowerCase();
           const info = PLATFORM_ICONS[key];
@@ -621,7 +627,7 @@ export default function SocialMedia() {
       </div>
 
       {/* ═══ CREATE TAB ═══ */}
-      {tab === 'create' && (
+      {tab === 'create' && (<div id="tour-social-create">
         <>
           <StepDots />
 
@@ -918,7 +924,7 @@ export default function SocialMedia() {
             </div>
           )}
         </>
-      )}
+      </div>)}
 
       {/* ═══ HISTORY TAB ═══ */}
       {tab === 'history' && (

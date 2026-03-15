@@ -5,6 +5,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { gallerySupabase, GENERATE_URL, SUPABASE_ANON_KEY } from '../supabaseGallery';
 import { useToast } from '../AdminLayout';
+import PageTour from '../components/PageTour';
 
 const C = { bg: '#FAFAF8', card: '#FFFFFF', border: '#E8E5DF', gold: '#C5A55A', text: '#1A1A2E', text2: '#7C7B76', muted: '#B5B3AD', success: '#3D8C6F', warning: '#D4943A', danger: '#C45B5B', shadow: '0 1px 3px rgba(0,0,0,0.04)', shadowHover: '0 8px 24px rgba(0,0,0,0.1)' };
 const FONT = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -201,6 +202,11 @@ export default function DesignStudio() {
 
   return (
     <div>
+      <PageTour storageKey="ds_tour_design" steps={[
+        { target: '#tour-design-prompt', title: 'Prompt', text: 'Describe the artwork you want to generate. Pick a style and click Generate.' },
+        { target: '#tour-design-gallery', title: 'Gallery', text: 'Browse all your generated artwork. Filter by category, search by prompt, and favorite your best images.' },
+      ]} />
+
       {/* ═══ GENERATOR SECTION ═══ */}
       <div style={{
         background: 'linear-gradient(180deg, #F5F3EF 0%, #FAFAF8 100%)',
@@ -216,7 +222,7 @@ export default function DesignStudio() {
         </div>
 
         {/* Prompt */}
-        <div style={{ marginBottom: 20 }}>
+        <div id="tour-design-prompt" style={{ marginBottom: 20 }}>
           <textarea
             ref={promptRef}
             value={prompt}
@@ -337,7 +343,7 @@ export default function DesignStudio() {
       </div>
 
       {/* ═══ GALLERY SECTION ═══ */}
-      <div>
+      <div id="tour-design-gallery">
         {/* Gallery header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <div>

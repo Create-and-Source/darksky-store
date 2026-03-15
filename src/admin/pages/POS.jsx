@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '../AdminLayout';
+import PageTour from '../components/PageTour';
 import {
   getProducts, getMembers, addOrder, adjustStock, addMovement,
   getHeldSales, addHeldSale, removeHeldSale, formatPrice, subscribe,
@@ -162,8 +163,14 @@ export default function POS() {
 
   return (
     <div style={{ fontFamily: FONT, display: 'flex', height: 'calc(100vh - 56px)', overflow: 'hidden' }}>
+      <PageTour storageKey="ds_tour_pos" steps={[
+        { target: '#tour-pos-products', title: 'Product Grid', text: 'Browse and tap products to add them to the current sale.' },
+        { target: '#tour-pos-cart', title: 'Cart', text: 'Items you add appear here. Adjust quantities, apply member discounts, and choose a payment method.' },
+        { target: '#tour-pos-checkout', title: 'Checkout', text: 'When ready, tap the Charge button to complete the sale.' },
+      ]} />
+
       {/* ── LEFT: Products ── */}
-      <div style={{ flex: '0 0 65%', display: 'flex', flexDirection: 'column', borderRight: `1px solid ${C.border}`, overflow: 'hidden' }}>
+      <div id="tour-pos-products" style={{ flex: '0 0 65%', display: 'flex', flexDirection: 'column', borderRight: `1px solid ${C.border}`, overflow: 'hidden' }}>
         {/* Search + Filters */}
         <div style={{ padding: '16px 20px 12px', borderBottom: `1px solid ${C.border}`, background: C.card }}>
           <div style={{ position: 'relative', marginBottom: 12 }}>
@@ -249,7 +256,7 @@ export default function POS() {
       </div>
 
       {/* ── RIGHT: Cart ── */}
-      <div style={{ flex: '0 0 35%', display: 'flex', flexDirection: 'column', background: C.card, overflow: 'hidden' }}>
+      <div id="tour-pos-cart" style={{ flex: '0 0 35%', display: 'flex', flexDirection: 'column', background: C.card, overflow: 'hidden' }}>
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}` }}>
           {[['current', 'Current Sale'], ['held', `Held Sales${heldSales.length ? ` (${heldSales.length})` : ''}`]].map(([key, label]) => (
@@ -394,6 +401,7 @@ export default function POS() {
 
               {/* Action Buttons */}
               <button
+                id="tour-pos-checkout"
                 onClick={handleCharge}
                 disabled={cart.length === 0}
                 style={{

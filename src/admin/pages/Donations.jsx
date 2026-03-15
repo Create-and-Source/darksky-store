@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getDonations, addDonation, updateDonation, deleteDonation, getFundraising, formatPrice, subscribe } from '../data/store';
 import { useToast, useRole } from '../AdminLayout';
 import HelpBubble from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 
 const C = { bg: '#FAFAF8', card: '#FFFFFF', border: '#E8E5DF', gold: '#C5A55A', text: '#1A1A2E', text2: '#7C7B76', muted: '#B5B3AD', success: '#3D8C6F', warning: '#D4943A', danger: '#C45B5B', shadow: '0 1px 3px rgba(0,0,0,0.04)' };
 const FONT = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -84,6 +85,12 @@ export default function Donations() {
 
   return (
     <div style={{ fontFamily: FONT, color: C.text }}>
+      <PageTour storageKey="ds_tour_donations" steps={[
+        { target: '#tour-donations-table', title: 'Donation List', text: 'All recorded donations appear here, sorted by date. You can send thank-you notes from this table.' },
+        { target: '#tour-donations-progress', title: 'Fundraising Progress', text: 'Track how close you are to your fundraising goal with this progress bar.' },
+        { target: '#tour-donations-add', title: 'Record Donation', text: 'Click this button to log a new donation from a donor, grant, or recurring gift.' },
+      ]} />
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -95,7 +102,7 @@ export default function Donations() {
             Export CSV
           </button>
           {!isReadOnly && (
-            <button onClick={() => setShowModal(true)} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: C.gold, color: '#fff', cursor: 'pointer', fontFamily: FONT, fontSize: 13, fontWeight: 600 }}>
+            <button id="tour-donations-add" onClick={() => setShowModal(true)} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: C.gold, color: '#fff', cursor: 'pointer', fontFamily: FONT, fontSize: 13, fontWeight: 600 }}>
               + Record Donation
             </button>
           )}
@@ -118,7 +125,7 @@ export default function Donations() {
       </div>
 
       {/* Fundraising Progress */}
-      <div style={{ ...cardStyle, marginBottom: 24 }}>
+      <div id="tour-donations-progress" style={{ ...cardStyle, marginBottom: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <p style={labelStyle}>Fundraising Progress</p>
           <span style={{ fontFamily: MONO, fontSize: 13, color: C.text2 }}>{pct.toFixed(1)}%</span>
@@ -132,7 +139,7 @@ export default function Donations() {
       </div>
 
       {/* Donation Table */}
-      <div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
+      <div id="tour-donations-table" style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: FONT, fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid ' + C.border }}>

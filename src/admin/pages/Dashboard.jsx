@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HelpBubble from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 import { useToast, useRole } from '../AdminLayout';
 import {
   getOrders, getInventory, getMembers, getEvents,
@@ -1065,11 +1066,18 @@ function ManagerDashboard() {
         </div>
       </div>
 
+      <PageTour storageKey="ds_tour_dashboard" steps={[
+        { target: '.ds-greeting', title: 'Your Dashboard', text: 'This is your command center. It shows a real-time summary of everything happening at the Discovery Center — revenue, events, members, and donations.' },
+        { target: '#tour-announcement', title: 'Announcement Bar', text: 'Control the gold banner at the top of the public website. Type your message, toggle it on or off, and hit Save. Visitors see it immediately.' },
+        { target: '#tour-metrics', title: 'Mission Metrics', text: 'Four key performance indicators updated in real-time: visitor count, active members, events this month, and fundraising progress toward the $29M goal.' },
+        { target: '#tour-actions', title: 'Quick Actions', text: 'One-click shortcuts to the tasks you do most. Receive a shipment, create an event, record a donation, or jump to reports.' },
+      ]} />
+
       {/* Announcement Bar */}
-      <AnnouncementBar />
+      <div id="tour-announcement"><AnnouncementBar /></div>
 
       {/* Mission Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }} className="ds-mission-metrics">
+      <div id="tour-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }} className="ds-mission-metrics">
         {[
           { label: 'Visitors This Month', value: thisMonthVisitors.toLocaleString(), color: C.gold },
           { label: 'Active Members', value: members.length, sub: Object.entries(tierCounts).map(([t,c]) => `${c} ${t}`).join(', '), color: '#3D8C6F' },
@@ -1090,6 +1098,7 @@ function ManagerDashboard() {
       </div>
 
       {/* Attention Cards */}
+      <div id="tour-attention"></div>
       {attentionCards.length > 0 && (
         <div className="ds-attention-section" style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -1115,7 +1124,7 @@ function ManagerDashboard() {
       )}
 
       {/* Quick Actions */}
-      <div className="ds-section" style={{ marginBottom: 32 }}>
+      <div id="tour-actions" className="ds-section" style={{ marginBottom: 32 }}>
         <div style={{ ...labelStyle, marginBottom: 12 }}>Quick Actions</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }} className="ds-quick-actions">
           <QuickAction icon={Icon.receive} label="Receive Shipment" onClick={() => navigate('/admin/receive')} delay={200} />

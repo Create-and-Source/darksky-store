@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getOrders, updateOrder, formatPrice, subscribe } from '../data/store';
 import { useToast } from '../AdminLayout';
 import HelpBubble from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 
 const statusClass = { Paid: 'badge-green', Processing: 'badge-blue', Shipped: 'badge-purple', Delivered: 'badge-gray' };
 const channelClass = { Online: 'badge-blue', POS: 'badge-gold' };
@@ -64,6 +65,12 @@ export default function Orders() {
 
   return (
     <>
+      <PageTour storageKey="ds_tour_orders" steps={[
+        { target: '#tour-orders-filters', title: 'Filters', text: 'Filter orders by status or sales channel to quickly find what you need.' },
+        { target: '#tour-orders-table', title: 'Order List', text: 'All customer orders appear here. Click any row to view full details.' },
+        { target: '#tour-orders-detail', title: 'Order Details', text: 'Click an order row to open a detail panel where you can update status and add tracking.' },
+      ]} />
+
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -75,7 +82,7 @@ export default function Orders() {
       </div>
 
       <div className="admin-table-wrap">
-        <div className="admin-filters">
+        <div className="admin-filters" id="tour-orders-filters">
           <div className="admin-filter-search" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             <input
               className="admin-input"
@@ -103,7 +110,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: 'auto' }} id="tour-orders-table">
           <table className="admin-table">
             <thead>
               <tr>
@@ -137,6 +144,7 @@ export default function Orders() {
       </div>
 
       {/* Order Detail Drawer */}
+      <div id="tour-orders-detail" />
       {selectedOrder && (
         <>
           <div className="admin-drawer-overlay" onClick={() => setSelected(null)} />

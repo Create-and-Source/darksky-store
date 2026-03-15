@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getInventory, getMovements, adjustStock, formatPrice, getStockStatus, subscribe, getSalesVelocity } from '../data/store';
 import { useToast } from '../AdminLayout';
 import HelpBubble from '../components/HelpBubble';
+import PageTour from '../components/PageTour';
 
 const statusLabel = { in: 'In Stock', low: 'Low Stock', out: 'Out of Stock' };
 const statusClass = { in: 'badge-green', low: 'badge-yellow', out: 'badge-red' };
@@ -93,6 +94,12 @@ export default function Inventory() {
 
   return (
     <>
+      <PageTour storageKey="ds_tour_inventory" steps={[
+        { target: '#tour-inventory-search', title: 'Search & Filter', text: 'Search by product name, SKU, or category. Use the tabs to filter by location or stock status.' },
+        { target: '#tour-inventory-table', title: 'Stock Overview', text: 'View all products with warehouse and gift shop quantities, sales velocity, and days of stock remaining.' },
+        { target: '#tour-inventory-status', title: 'Stock Status', text: 'Yellow badges mean stock is low. Red badges mean out of stock. Click a row for details.' },
+      ]} />
+
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -108,7 +115,7 @@ export default function Inventory() {
       </div>
 
       <div className="admin-table-wrap">
-        <div className="admin-filters">
+        <div className="admin-filters" id="tour-inventory-search">
           <div className="admin-filter-search" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             <input
               className="admin-input"
@@ -154,7 +161,7 @@ export default function Inventory() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: 'auto' }} id="tour-inventory-table">
           <table className="admin-table">
             <thead>
               <tr>
@@ -208,7 +215,7 @@ export default function Inventory() {
                         <span style={{ fontSize: 13, color: '#94A3B8' }}>—</span>
                       )}
                     </td>
-                    <td>
+                    <td id="tour-inventory-status">
                       <span className={`badge ${statusClass[status]}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                         {statusLabel[status]}
                         {status === 'out' && <HelpBubble text="This item has zero units. You need to receive more or order from your vendor." />}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast, useRole } from '../AdminLayout';
+import PageTour from '../components/PageTour';
 import {
   getStaff, getTimesheets, getPayrollHistory,
   updateTimesheets, addPayrollRecord, formatPrice, subscribe,
@@ -102,13 +103,18 @@ export default function Payroll() {
 
   return (
     <div style={{ fontFamily: FONT, color: C.text }}>
+      <PageTour storageKey="ds_tour_payroll" steps={[
+        { target: '#tour-payroll-roster', title: 'Staff Roster', text: 'View all staff members with their roles, departments, and pay rates. Click a row for details.' },
+        { target: '#tour-payroll-tabs', title: 'Tabs', text: 'Switch between the staff roster, timesheets, payroll export, and HR documents.' },
+      ]} />
+
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 4px' }}>Staff & Time</h1>
         <p style={{ fontSize: 14, color: C.text2, margin: 0 }}>Staff roster, timesheets, and hours export. Syncs with your payroll provider.</p>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${C.border}`, marginBottom: 24 }}>
+      <div id="tour-payroll-tabs" style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${C.border}`, marginBottom: 24 }}>
         {TABS.map((t, i) => (
           <button key={t} onClick={() => setTab(i)} style={{
             fontFamily: FONT, fontSize: 13, fontWeight: tab === i ? 600 : 400,
@@ -121,7 +127,7 @@ export default function Payroll() {
 
       {/* Tab 0: Staff Roster */}
       {tab === 0 && (
-        <div style={cardStyle}>
+        <div id="tour-payroll-roster" style={cardStyle}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
