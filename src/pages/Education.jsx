@@ -167,6 +167,14 @@ export default function Education() {
 
       <SectionSep />
 
+      <VideoDivider
+        src="/videos/darksky/scorpion.mp4"
+        title="Science You Can See"
+        subtitle="From UV-glowing scorpions to migrating birds, dark skies reveal what daylight hides."
+      />
+
+      <SectionSep />
+
       {/* ── IMPACT STATS ── */}
       <RevealSection>
         <div style={{
@@ -216,6 +224,14 @@ export default function Education() {
         subtitle="Education programs for every age and background"
         titleEditable="edu-vid-title"
         subtitleEditable="edu-vid-subtitle"
+      />
+
+      <SectionSep />
+
+      <VideoDivider
+        src="/videos/darksky/tarantula.mp4"
+        title="The Desert Comes Alive"
+        subtitle="After sunset, a hidden world emerges. Our programs bring students face-to-face with it."
       />
 
       <SectionSep />

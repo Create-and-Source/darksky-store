@@ -192,6 +192,14 @@ export default function About() {
 
       <SectionSep />
 
+      <VideoDivider
+        src="/videos/darksky/gila.mp4"
+        title="Protecting What Lives in the Dark"
+        subtitle="Dark sky preservation isn't just about stars — it's about the ecosystems that depend on natural darkness."
+      />
+
+      <SectionSep />
+
       {/* ── IMPACT STATS ── */}
       <RevealSection>
         <div className="about-stats">
