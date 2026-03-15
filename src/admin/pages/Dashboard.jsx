@@ -1598,7 +1598,7 @@ export default function Dashboard() {
   }, []);
 
   if (role === 'shop_staff') return <StaffDashboard />;
-  if (role === 'reports') return <BoardMemberDashboard />;
-  // admin and shop_manager get full dashboard
+  if (role === 'reports' || role === 'treasurer' || role === 'board') return <BoardMemberDashboard />;
+  // executive_director, shop_manager, education_director, social_media, visitor_services, volunteer_coordinator, payroll all get full dashboard
   return <ManagerDashboard />;
 }
