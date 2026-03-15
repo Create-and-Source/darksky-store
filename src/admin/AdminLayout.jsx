@@ -150,7 +150,7 @@ const ROLE_NAV = {
   executive_director: null,
   admin: null,
   treasurer: ['Dashboard', 'Donations', 'Reports', 'Staff & Time', 'QuickBooks'],
-  shop_manager: ['Dashboard', 'POS', 'Products', 'Orders', 'Inventory', 'Receive', 'Transfers'],
+  shop_manager: ['Dashboard', 'POS', 'Products', 'Orders', 'Inventory', 'Purchase Orders', 'Receive', 'Transfers'],
   shop_staff: ['Dashboard', 'POS', 'Orders', 'Inventory', 'Receive'],
   visitor_services: ['Dashboard', 'POS', 'Events', 'Reports'],
   education_director: ['Dashboard', 'Events', 'Field Trips', 'Donations', 'Reports'],
