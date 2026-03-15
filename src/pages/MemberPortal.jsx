@@ -177,7 +177,7 @@ export default function MemberPortal() {
                     {ev.memberFree ? (
                       <span className="member">FREE for members</span>
                     ) : ev.price ? (
-                      <><span style={{ textDecoration: 'line-through', color: '#5C5870' }}>{formatPrice(ev.price)}</span> <span className="member">{formatPrice(Math.round(ev.price * 0.85))} member</span></>
+                      <span>{formatPrice(ev.price)}</span>
                     ) : (
                       <span style={{ color: '#4ADE80' }}>Free</span>
                     )}
