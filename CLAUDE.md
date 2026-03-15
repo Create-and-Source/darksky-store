@@ -106,22 +106,19 @@ src/
 | `/contact` | Contact | Contact form |
 | `/donate` | Donate | Public donation page with fundraising progress, amount presets, confirmation |
 | `/field-trips` | FieldTrips | Field trip booking |
-| `/admin` | Dashboard | Admin dashboard (lazy loaded) |
-| `/admin/inventory` | Inventory | Stock management |
-| `/admin/receive` | Receive | Receive shipments |
-| `/admin/transfers` | Transfers | Warehouse ↔ Gift Shop |
-| `/admin/purchase-orders` | PurchaseOrders | Purchase order management |
-| `/admin/orders` | Orders | Order management |
-| `/admin/events` | EventsAdmin | Event management |
-| `/admin/emails` | Emails | Email campaigns |
-| `/admin/content` | Content | CMS page editing |
-| `/admin/reports` | Reports | Analytics & reports |
-| `/admin/quickbooks` | QuickBooks | Accounting export |
-| `/admin/donations` | Donations | Donation tracking + fundraising progress |
-| `/admin/facility` | Facility | Facility calendar (5 IDSDC spaces) |
-| `/admin/visitors` | Visitors | Daily visitor counts + trend chart |
-| `/admin/volunteers` | Volunteers | Volunteer roster + hours logging |
+| `/admin` | Dashboard | Admin dashboard with mission metrics, announcement bar |
+| `/admin/orders` | Orders | Order management (online + POS) |
+| `/admin/inventory` | Inventory | Stock management with filters, CSV export |
+| `/admin/receive` | Receive | Multi-step stock receiving wizard |
+| `/admin/events` | EventsAdmin | Event CRUD, ticket tracking, check-in |
+| `/admin/donations` | Donations | Donation tracking + fundraising progress ($27.2M/$29M) |
+| `/admin/emails` | Emails | Email composer with templates |
+| `/admin/social-media` | SocialMedia | AI social post creator (copy templates, poster generator, publish simulation) |
+| `/admin/design-studio` | DesignStudio | AI image generator + Supabase gallery browser |
+| `/admin/reports` | Reports | Sales, inventory, membership, event analytics + CSV export |
 | `*` | 404 | "Lost in Space" page |
+
+**Hidden admin routes** (code exists, routes redirect to `/admin`): `/admin/transfers`, `/admin/purchase-orders`, `/admin/content`, `/admin/quickbooks`, `/admin/facility`, `/admin/visitors`, `/admin/volunteers`
 
 ## localStorage Keys
 
@@ -161,8 +158,10 @@ src/
 | Key | Type | Description |
 |-----|------|-------------|
 | `ds_user_name` | String | Current user display name (e.g. "Nancy") |
-| `ds_user_role` | String | Current role: "manager", "staff", or "volunteer" |
-| `ds_admin_role` | String | Admin role (mirrors ds_user_role) |
+| `ds_user_role` | String | Store-side role flag ("manager" enables edit mode pencil) |
+| `ds_admin_role` | String | Admin role: "admin", "shop_manager", "shop_staff", or "reports" |
+| `ds_social_connections` | Object | Mock social media platform connections (instagram/facebook/x/linkedin: boolean) |
+| `ds_social_posts` | Array | Social media drafts, scheduled posts, and published posts |
 | `darksky_admin_onboarded` | Boolean | Whether admin tour has been completed |
 | `ds_help_chat_seen` | Boolean | Whether help chat has been opened |
 | `ds_pwa_dismissed` | Boolean | Whether PWA install prompt was dismissed |
@@ -405,14 +404,14 @@ VideoDivider components (Home, About, Education) accept `titleEditable` and `sub
 
 ### Admin Roles
 
-| Role | User | Access |
-|------|------|--------|
-| Admin (Nancy) | N | All 9 visible pages |
-| Gift Shop Manager (Tovah) | T | Dashboard, Orders, Inventory, Receive, Events, Content, Email |
-| Gift Shop Staff (Josie) | J | Dashboard, Orders, Inventory (read-only), Receive |
-| Reports (Patricia) | P | Dashboard (read-only), Reports, Donations (read-only) |
+| Role | User | Avatar | Access |
+|------|------|--------|--------|
+| Admin | Nancy | N | All 10 visible pages |
+| Gift Shop Manager | Tovah | T | Dashboard, Orders, Inventory, Receive, Events, Email, Social Media, Design Studio |
+| Gift Shop Staff | Josie | J | Dashboard, Orders, Inventory (read-only), Receive |
+| Reports | Patricia | P | Dashboard (read-only), Reports, Donations (read-only) |
 
-### Admin Sidebar Sections (Demo)
+### Admin Sidebar Sections
 
 | Section | Pages |
 |---------|-------|
@@ -420,12 +419,11 @@ VideoDivider components (Home, About, Education) accept `titleEditable` and `sub
 | Gift Shop | Orders, Inventory, Receive |
 | Programs | Events |
 | Community | Donations |
+| Creative | Design Studio |
 | Communications | Email, Social Media |
 | Reporting | Reports |
 
-| Creative | Design Studio |
-
-Hidden pages (code exists, not in sidebar/routes): Transfers, Purchase Orders, QuickBooks, Facility, Visitors, Volunteers, Content. These routes redirect to /admin. Announcement bar controls moved to Dashboard.
+Hidden pages (code exists, routes redirect to `/admin`): Transfers, Purchase Orders, Content, QuickBooks, Facility, Visitors, Volunteers. Announcement bar controls on Dashboard.
 
 ### Design Studio
 
@@ -436,6 +434,24 @@ AI image generation + gallery page at `/admin/design-studio`. Connects to extern
 - **Gallery**: Fetches from `gallery_images` table, 3-col grid, favorite toggle, category filter, search, image detail modal
 - **Supabase client**: `src/admin/supabaseGallery.js` — separate from localStorage store
 - **Access**: Admin + Gift Shop Manager roles only
+
+### Social Media
+
+AI social post creator at `/admin/social-media`. 3-step wizard:
+- **Step 1**: Pick source — event, product, custom, or donation campaign. Auto-fills context from localStorage data.
+- **Step 2 (left)**: Copy templates per platform (Instagram/Facebook/X/LinkedIn). Formatted dates/times, smart hashtags, product vibes. Editable textareas with copy buttons.
+- **Step 2 (right)**: Media — Photo mode (upload/generate/gallery) or Poster mode (canvas-rendered event flyers with 4 templates: Bold/Minimal/Split/Story, 4 color schemes, gallery backgrounds, exports 1080px PNG).
+- **Step 3**: Phone-frame preview, per-platform publish simulation (2s delay), Schedule datetime picker, Save Draft.
+- **Connected Accounts**: Mock Instagram/Facebook/X/LinkedIn connection status (`ds_social_connections`)
+- **Drafts & History**: Tab view with All/Drafts/Scheduled/Published filters, edit/duplicate/delete (`ds_social_posts`)
+- **Supabase**: Uses same `gallerySupabase` client as Design Studio for gallery picker + image generation
+- **Access**: Admin + Gift Shop Manager roles only
+
+### Navigation
+
+Desktop nav (>1024px): Home, About, Events, Membership, Shop + Donate (ghost button) + Join (filled button) + Admin toggle.
+Mobile nav (<=1024px): Hamburger menu with Home, About, Events, Membership, Shop, Education, Field Trips, Contact + full-width Donate/Join buttons.
+Education removed from desktop nav to prevent crowding; accessible from mobile menu and homepage.
 
 ### IDSDC Facility Spaces
 
@@ -504,32 +520,33 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 - Product catalog from Printify (67 products with real images and prices)
 - Cart persists in localStorage (`ds_store_cart`) — survives page reload
 - CartDrawer slide-out opens on cart icon click (Nav), shows items/totals
-- Checkout → admin orders flow (connected via store.js)
+- Checkout → admin orders flow (connected via store.js — addOrder, adjustStock, addMovement)
 - Cart clears from localStorage after successful checkout
-- Events admin → public events page (connected via ds_events)
+- Events admin → public events page (connected via ds_events, filtered by Published)
 - Event reservations: store Events page "Reserve Spot" → addReservation() → ds_ticket_reservations → admin EventsAdmin
 - Shop → products from localStorage (connected via ds_products)
 - Membership page reads member count from localStorage
 - Inventory adjustments on order placement
-- CSV exports in Reports and QuickBooks pages
+- CSV exports in Reports page
 - Public /donate page → addDonation() → ds_donations → /admin/donations (same flow as checkout → orders)
 - Donations also increment ds_fundraising.raised via updateFundraising()
 - Donations tracking (CRUD, fundraising progress, acknowledgment workflow)
-- Facility bookings (CRUD, weekly calendar, 5 IDSDC spaces)
-- Visitor tracking (daily counts, 30-day trend chart)
-- Volunteer management (roster, hours logging, certifications)
-- Role-based access (8 roles with different sidebar/dashboard views)
+- Design Studio: real Supabase connection to Desert Vision Studio — fetches gallery_images, generates images via Edge Function, toggles favorites
+- Social Media: template-based copy generation, Canvas API poster renderer (exports real 1080x1080 PNG), mock connected accounts, draft/publish/schedule system
+- Role-based access (4 roles with different sidebar and dashboard views)
+- Edit mode: DOM-based CMS via data-editable attributes, publish/revisions to localStorage
 
 ### Mock / Placeholder
 - Payment processing (Square placeholder — "coming soon")
 - Email sending (Emails page stores locally, doesn't actually send)
-- QuickBooks connection (CSV export only, no live API)
 - Contact form (no backend to receive submissions)
 - Field trip booking form (no backend)
 - Newsletter signup in footer (no backend)
 - PWA service worker (minimal caching)
-- Help chatbot (keyword-matching from helpKnowledge.js, no AI API — instant responses with synonym expansion, role-aware suggestions, "Related:" follow-up links)
+- Help chatbot (keyword-matching from helpKnowledge.js, no AI API)
 - Authentication (localStorage flags, no real auth)
+- Social media "Connected Accounts" (mock OAuth — toggles localStorage flag)
+- Social media "Publish" (2-second delay simulation, no actual API calls)
 
 ### Hardcoded Data (not from localStorage)
 
