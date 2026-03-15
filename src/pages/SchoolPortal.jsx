@@ -34,21 +34,22 @@ export default function SchoolPortal() {
   const [auth, setAuth] = useState(() => {
     try { return JSON.parse(localStorage.getItem('ds_school_auth')); } catch { return null; }
   });
-  const [email, setEmail] = useState('');
+  const [selectedSchool, setSelectedSchool] = useState('');
   const [error, setError] = useState('');
   const [reviewText, setReviewText] = useState({});
   const [reviewSubmitted, setReviewSubmitted] = useState({});
 
+  const allTrips = getFieldTrips();
+  const schoolNames = [...new Set(allTrips.filter(t => t.school).map(t => t.school))].sort();
+
   const login = (e) => {
     e.preventDefault();
     setError('');
-    const trips = getFieldTrips();
-    const schoolTrips = trips.filter(t => t.email && t.email.toLowerCase() === email.trim().toLowerCase());
-    if (schoolTrips.length === 0) {
-      setError('No trips found for this email. Contact info@darkskycenter.org');
+    if (!selectedSchool) {
+      setError('Please select your school.');
       return;
     }
-    const data = { email: email.trim().toLowerCase(), school: schoolTrips[0].school };
+    const data = { school: selectedSchool };
     localStorage.setItem('ds_school_auth', JSON.stringify(data));
     setAuth(data);
   };
@@ -56,7 +57,7 @@ export default function SchoolPortal() {
   const signOut = () => {
     localStorage.removeItem('ds_school_auth');
     setAuth(null);
-    setEmail('');
+    setSelectedSchool('');
     setError('');
   };
 
@@ -99,22 +100,28 @@ export default function SchoolPortal() {
             <label style={{
               display: 'block', font: `500 12px ${FONT}`, textTransform: 'uppercase',
               letterSpacing: '0.5px', color: '#94A3B8', marginBottom: 8,
-            }}>School Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => { setEmail(e.target.value); setError(''); }}
-              placeholder="contact@school.org"
+            }}>Select Your School</label>
+            <select
+              value={selectedSchool}
+              onChange={e => { setSelectedSchool(e.target.value); setError(''); }}
               required
               style={{
                 width: '100%', padding: '14px 16px', height: 48, background: '#FFFFFF',
                 border: `1px solid ${error ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: 10,
-                font: `400 15px ${FONT}`, color: C.text, outline: 'none',
+                font: `400 15px ${FONT}`, color: selectedSchool ? C.text : C.muted, outline: 'none',
                 transition: 'border-color 0.2s', boxSizing: 'border-box', marginBottom: 8,
+                cursor: 'pointer', appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M2 4l4 4 4-4'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center',
               }}
               onFocus={e => e.target.style.borderColor = C.gold}
               onBlur={e => e.target.style.borderColor = error ? '#FCA5A5' : '#E2E8F0'}
-            />
+            >
+              <option value="">Choose a school...</option>
+              {schoolNames.map(name => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
             {error && (
               <p style={{ font: `400 13px ${FONT}`, color: '#DC2626', margin: '4px 0 12px' }}>{error}</p>
             )}
@@ -153,7 +160,7 @@ export default function SchoolPortal() {
 
   // Portal view
   const trips = getFieldTrips().filter(
-    t => t.email && t.email.toLowerCase() === auth.email.toLowerCase()
+    t => t.school && t.school === auth.school
   );
 
   return (

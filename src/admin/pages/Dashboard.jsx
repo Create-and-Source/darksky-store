@@ -1605,16 +1605,37 @@ function RoleDashHeader({ subtitle }) {
   return (
     <div style={{ paddingTop: 8, marginBottom: 24 }}>
       <h1 style={{ font: `600 28px ${FONT}`, color: C.text, margin: 0 }}>{getGreeting()}, {localStorage.getItem('ds_user_name') || 'Team'}</h1>
-      <div style={{ font: `400 14px ${FONT}`, color: C.text2, marginTop: 4 }}>{subtitle}</div>
+      <div style={{ font: `500 15px ${FONT}`, color: C.text2, marginTop: 4 }}>{subtitle}</div>
+      <div style={{ width: 32, height: 2, background: `linear-gradient(90deg, ${C.gold}, #D4AF37)`, borderRadius: 1, marginTop: 12 }} />
     </div>
   );
 }
 
 function MiniStatCard({ label, value, color = C.gold }) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 18px', boxShadow: C.shadow }}>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F7F4 100%)',
+        borderTop: `3px solid ${color}`,
+        border: `1px solid ${C.border}`,
+        borderTopWidth: 3,
+        borderTopColor: color,
+        borderRadius: 14,
+        padding: '20px 18px',
+        boxShadow: hovered ? '0 6px 20px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.03)' : '0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)',
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+        transition: 'all 0.25s ease',
+        cursor: 'default',
+      }}
+    >
       <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 6 }}>{label}</div>
-      <div style={{ font: `600 26px ${FONT}`, color }}>{value}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, opacity: 0.15, flexShrink: 0 }} />
+        <div style={{ font: `600 26px ${FONT}`, color }}>{value}</div>
+      </div>
     </div>
   );
 }
@@ -1629,7 +1650,7 @@ function EducationDashboard() {
   const newTrips = fieldTrips.filter(t => t.status === 'New').length;
   const confirmedTrips = fieldTrips.filter(t => t.status === 'Confirmed');
   const totalStudents = fieldTrips.filter(t => t.status === 'Confirmed' || t.status === 'Completed').reduce((s, t) => s + (t.students || 0), 0);
-  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow };
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)' };
   return (
     <div>
       <RoleDashHeader subtitle="Education & Programs Dashboard" />
@@ -1641,7 +1662,7 @@ function EducationDashboard() {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div style={cardStyle}>
-          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Next Events</div>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}><span style={{ color: C.gold, fontSize: 8, marginRight: 6 }}>●</span>Next Events</div>
           {upcoming.slice(0, 5).map(e => (
             <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
               <div><div style={{ font: `500 14px ${FONT}`, color: C.text }}>{e.title}</div><div style={{ font: `400 12px ${MONO}`, color: C.text2 }}>{e.date} · {e.location}</div></div>
@@ -1650,7 +1671,7 @@ function EducationDashboard() {
           ))}
         </div>
         <div style={cardStyle}>
-          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Upcoming Field Trips</div>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}><span style={{ color: C.gold, fontSize: 8, marginRight: 6 }}>●</span>Upcoming Field Trips</div>
           {fieldTrips.filter(t => t.status === 'Confirmed' || t.status === 'New' || t.status === 'Contacted').length === 0 ? <p style={{ font: `400 14px ${FONT}`, color: C.muted }}>No upcoming trips.</p> :
             fieldTrips.filter(t => t.status !== 'Completed' && t.status !== 'Cancelled').slice(0, 5).map(t => (
               <div key={t.id} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1664,9 +1685,9 @@ function EducationDashboard() {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => navigate('/admin/field-trips')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Manage Field Trips</button>
-        <button onClick={() => navigate('/admin/events')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Events</button>
-        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Reports</button>
+        <button onClick={() => navigate('/admin/field-trips')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 10, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 14px rgba(212,175,55,0.3)', transition: 'all 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>Manage Field Trips</button>
+        <button onClick={() => navigate('/admin/events')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>Events</button>
+        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>Reports</button>
       </div>
     </div>
   );
@@ -1683,7 +1704,7 @@ function SocialMediaDashboard() {
   const drafts = posts.filter(p => p.status === 'draft').length;
   const scheduled = posts.filter(p => p.status === 'scheduled').length;
   const connected = Object.values(connections).filter(Boolean).length;
-  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow };
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)' };
   return (
     <div>
       <RoleDashHeader subtitle="Marketing & Communications Dashboard" />
@@ -1694,9 +1715,9 @@ function SocialMediaDashboard() {
         <MiniStatCard label="Connected Accounts" value={`${connected}/4`} />
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => navigate('/admin/social-media')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Create Post</button>
-        <button onClick={() => navigate('/admin/design-studio')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Design Studio</button>
-        <button onClick={() => navigate('/admin/emails')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Email Campaigns</button>
+        <button onClick={() => navigate('/admin/social-media')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 10, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 14px rgba(212,175,55,0.3)', transition: 'all 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>Create Post</button>
+        <button onClick={() => navigate('/admin/design-studio')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>Design Studio</button>
+        <button onClick={() => navigate('/admin/emails')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>Email Campaigns</button>
       </div>
     </div>
   );
@@ -1722,9 +1743,9 @@ function VisitorServicesDashboard() {
         <MiniStatCard label="Members Today" value={todayVisitors?.members || 0} color={C.success} />
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => navigate('/admin/pos')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Open POS</button>
-        <button onClick={() => navigate('/admin/events')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Today's Events</button>
-        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Reports</button>
+        <button onClick={() => navigate('/admin/pos')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 10, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 14px rgba(212,175,55,0.3)', transition: 'all 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>Open POS</button>
+        <button onClick={() => navigate('/admin/events')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>Today's Events</button>
+        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>Reports</button>
       </div>
     </div>
   );
@@ -1751,8 +1772,8 @@ function VolunteerCoordDashboard() {
         <MiniStatCard label="Upcoming Events" value={upcoming} />
         <MiniStatCard label="Certifications" value={totalCerts} />
       </div>
-      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow, marginBottom: 16 }}>
-        <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Volunteer Roster</div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)', marginBottom: 16 }}>
+        <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}><span style={{ color: C.gold, fontSize: 8, marginRight: 6 }}>●</span>Volunteer Roster</div>
         {volunteers.map(v => (
           <div key={v.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
             <div><div style={{ font: `500 14px ${FONT}`, color: C.text }}>{v.name}</div><div style={{ font: `400 12px ${MONO}`, color: C.text2 }}>{v.role} · {(v.availability || []).join(', ')}</div></div>
@@ -1760,7 +1781,7 @@ function VolunteerCoordDashboard() {
           </div>
         ))}
       </div>
-      <button onClick={() => navigate('/admin/events')} style={{ width: '100%', padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>View Events</button>
+      <button onClick={() => navigate('/admin/events')} style={{ width: '100%', padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>View Events</button>
     </div>
   );
 }
@@ -1777,17 +1798,18 @@ function BoardDashboard() {
   const pct = fundraising.goal > 0 ? Math.round((fundraising.raised / fundraising.goal) * 100) : 0;
   const upcoming = events.filter(e => e.date >= today && e.status === 'Published').length;
   const totalDonated = donations.reduce((s, d) => s + d.amount, 0);
-  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 24, boxShadow: C.shadow };
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24, boxShadow: '0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)' };
   return (
     <div>
+      <style>{`@keyframes shimmerBar { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }`}</style>
       <RoleDashHeader subtitle="Board of Directors Dashboard" />
       {/* Fundraising — big and prominent */}
-      <div style={{ ...cardStyle, textAlign: 'center', padding: '36px 24px', marginBottom: 24 }}>
-        <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 8 }}>Capital Campaign</div>
+      <div style={{ ...cardStyle, textAlign: 'center', padding: '36px 24px', marginBottom: 24, boxShadow: '0 8px 32px rgba(212,175,55,0.08)' }}>
+        <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 8 }}><span style={{ color: C.gold, fontSize: 8, marginRight: 6 }}>●</span>Capital Campaign</div>
         <div style={{ font: `600 42px ${FONT}`, color: C.gold, margin: '8px 0' }}>{fmtM(fundraising.raised)}</div>
         <div style={{ font: `400 16px ${FONT}`, color: C.text2, marginBottom: 16 }}>of {fmtM(fundraising.goal)} goal</div>
         <div style={{ height: 10, background: '#E8E5DF', borderRadius: 5, overflow: 'hidden', maxWidth: 500, margin: '0 auto' }}>
-          <div style={{ width: `${Math.min(pct, 100)}%`, height: '100%', background: `linear-gradient(90deg, ${C.gold}, #D4AF37)`, borderRadius: 5, transition: 'width 1s ease' }} />
+          <div style={{ width: `${Math.min(pct, 100)}%`, height: '100%', background: `linear-gradient(90deg, ${C.gold}, #D4AF37, #E5C76B, #D4AF37, ${C.gold})`, backgroundSize: '200% 100%', animation: 'shimmerBar 3s ease infinite', borderRadius: 5, transition: 'width 1s ease' }} />
         </div>
         <div style={{ font: `600 14px ${FONT}`, color: C.gold, marginTop: 8 }}>{pct}% complete</div>
       </div>
@@ -1797,7 +1819,7 @@ function BoardDashboard() {
         <MiniStatCard label="Total Donated (YTD)" value={`$${totalDonated.toLocaleString()}`} />
         <MiniStatCard label="Recent Donations" value={donations.length} />
       </div>
-      <button onClick={() => navigate('/admin/board-meeting')} style={{ width: '100%', padding: 16, background: C.gold, border: 'none', borderRadius: 8, font: `600 15px ${FONT}`, color: '#fff', cursor: 'pointer', marginBottom: 12 }}>Open Board Meeting View</button>
+      <button onClick={() => navigate('/admin/board-meeting')} style={{ width: '100%', padding: 16, background: C.gold, border: 'none', borderRadius: 10, font: `600 15px ${FONT}`, color: '#fff', cursor: 'pointer', marginBottom: 12, boxShadow: '0 4px 14px rgba(212,175,55,0.3)', transition: 'all 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>Open Board Meeting View</button>
       <p style={{ font: `400 13px ${FONT}`, color: C.muted, textAlign: 'center' }}>Full-screen presentation mode for board meetings and projector display.</p>
     </div>
   );
@@ -1820,8 +1842,8 @@ function PayrollDashboard() {
         <MiniStatCard label="Active Staff" value={staff.filter(s => s.status === 'Active').length} color={C.success} />
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => navigate('/admin/payroll')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Manage Staff & Time</button>
-        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Reports</button>
+        <button onClick={() => navigate('/admin/payroll')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 10, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 14px rgba(212,175,55,0.3)', transition: 'all 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>Manage Staff & Time</button>
+        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>Reports</button>
       </div>
     </div>
   );
@@ -1838,7 +1860,7 @@ function ShopManagerDashboard() {
   const posOrders = orders.filter(o => o.channel === 'POS');
   const lowStock = inventory.filter(i => { const s = getStockStatus(i); return s === 'low' || s === 'out'; });
   const totalItems = inventory.reduce((s, i) => s + (i.giftshop || 0) + (i.warehouse || 0), 0);
-  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow };
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)' };
   return (
     <div>
       <RoleDashHeader subtitle="Gift Shop Manager Dashboard" />
@@ -1850,7 +1872,7 @@ function ShopManagerDashboard() {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <div style={cardStyle}>
-          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Recent Orders</div>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}><span style={{ color: C.gold, fontSize: 8, marginRight: 6 }}>●</span>Recent Orders</div>
           {orders.slice(0, 5).map(o => (
             <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
               <div><span style={{ font: `500 13px ${FONT}`, color: C.text }}>{o.id}</span> <span style={{ font: `400 11px ${MONO}`, color: C.text2, marginLeft: 8 }}>{o.channel || 'Online'}</span></div>
@@ -1859,7 +1881,7 @@ function ShopManagerDashboard() {
           ))}
         </div>
         <div style={cardStyle}>
-          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Low Stock Alerts</div>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}><span style={{ color: C.gold, fontSize: 8, marginRight: 6 }}>●</span>Low Stock Alerts</div>
           {lowStock.length === 0 ? <p style={{ font: `400 13px ${FONT}`, color: C.success }}>All items stocked.</p> :
             lowStock.slice(0, 5).map(i => (
               <div key={i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1870,9 +1892,9 @@ function ShopManagerDashboard() {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => navigate('/admin/pos')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Open POS</button>
-        <button onClick={() => navigate('/admin/orders')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>All Orders</button>
-        <button onClick={() => navigate('/admin/inventory')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Inventory</button>
+        <button onClick={() => navigate('/admin/pos')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 10, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 14px rgba(212,175,55,0.3)', transition: 'all 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>Open POS</button>
+        <button onClick={() => navigate('/admin/orders')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>All Orders</button>
+        <button onClick={() => navigate('/admin/inventory')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#F8F7F4'; e.currentTarget.style.borderColor = '#C5A55A'; }} onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.borderColor = C.border; }}>Inventory</button>
       </div>
     </div>
   );
