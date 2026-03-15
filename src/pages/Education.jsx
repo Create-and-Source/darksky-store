@@ -40,7 +40,7 @@ function LazyVideo({ src, className = '', style = {}, ...props }) {
   );
 }
 
-function VideoDivider({ src, title, subtitle }) {
+function VideoDivider({ src, title, subtitle, titleEditable, subtitleEditable }) {
   const ref = useRef(null);
   const [offset, setOffset] = useState(0);
   useEffect(() => {
@@ -69,8 +69,8 @@ function VideoDivider({ src, title, subtitle }) {
       <div className="vid-divider-overlay-bottom" />
       <div className="vid-divider-content">
         <RevealSection>
-          <h2 className="vid-divider-title">{title}</h2>
-          <p className="vid-divider-sub">{subtitle}</p>
+          <h2 className="vid-divider-title" {...(titleEditable ? {'data-editable': titleEditable} : {})}>{title}</h2>
+          <p className="vid-divider-sub" {...(subtitleEditable ? {'data-editable': subtitleEditable} : {})}>{subtitle}</p>
         </RevealSection>
       </div>
     </div>
@@ -102,9 +102,9 @@ export default function Education() {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div data-page="education">
       {/* ── HERO ── */}
-      <section className="edu-hero" style={{ position: 'relative', overflow: 'hidden' }}>
+      <section className="edu-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
         <img
           src="/images/darksky/meteor-shower.jpg"
           alt="Meteor shower streaking across the desert sky"
@@ -112,9 +112,9 @@ export default function Education() {
         />
         <RevealSection>
           <div className="section-header" style={{ position: 'relative', zIndex: 1 }}>
-            <span className="section-label label">// Education &amp; Outreach</span>
-            <h1 className="section-title">Inspiring the Next Generation of <em>Stargazers</em></h1>
-            <p className="section-subtitle" style={{ lineHeight: 1.7 }}>
+            <span className="section-label label" data-editable="edu-hero-label">// Education &amp; Outreach</span>
+            <h1 className="section-title" data-editable="edu-hero-title">Inspiring the Next Generation of <em>Stargazers</em></h1>
+            <p className="section-subtitle" data-editable="edu-hero-subtitle" style={{ lineHeight: 1.7 }}>
               From field trips to professional development, our education programs connect learners of all ages with the science and wonder of the night sky.
             </p>
           </div>
@@ -153,9 +153,9 @@ export default function Education() {
                   <span className="label" style={{ opacity: 0.4, position: 'relative', zIndex: 2 }}>{program.label}</span>
                 </div>
                 <div className="edu-program-content" style={i % 2 === 1 ? { direction: 'ltr' } : undefined}>
-                  <span className="label">{program.label}</span>
-                  <h3 className="edu-program-title">{program.title}</h3>
-                  <p className="edu-program-desc" style={{ lineHeight: 1.7 }}>{program.desc}</p>
+                  <span className="label" data-editable={`edu-prog-label-${i}`}>{program.label}</span>
+                  <h3 className="edu-program-title" data-editable={`edu-prog-title-${i}`}>{program.title}</h3>
+                  <p className="edu-program-desc" data-editable={`edu-prog-desc-${i}`} style={{ lineHeight: 1.7 }}>{program.desc}</p>
                   <button className="btn-outline" style={{ marginTop: 24, alignSelf: 'flex-start' }}>{program.cta}</button>
                 </div>
               </div>
@@ -182,7 +182,7 @@ export default function Education() {
                 textAlign: 'center',
                 borderRight: i < STATS.length - 1 ? '1px solid var(--border)' : 'none',
               }}>
-                <div style={{
+                <div data-editable={`edu-stat-number-${i}`} style={{
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
                   fontSize: 48,
                   fontWeight: 300,
@@ -192,7 +192,7 @@ export default function Education() {
                 }}>
                   {s.number}
                 </div>
-                <div style={{
+                <div data-editable={`edu-stat-label-${i}`} style={{
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: 11,
                   textTransform: 'uppercase',
@@ -214,6 +214,8 @@ export default function Education() {
         src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/education-hero.mp4"
         title="Learning Under the Stars"
         subtitle="Education programs for every age and background"
+        titleEditable="edu-vid-title"
+        subtitleEditable="edu-vid-subtitle"
       />
 
       <SectionSep />
@@ -227,10 +229,10 @@ export default function Education() {
             loading="lazy"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.1, zIndex: 0, pointerEvents: 'none' }}
           />
-          <blockquote className="mission-quote" style={{ position: 'relative', zIndex: 1 }}>
+          <blockquote className="mission-quote" data-editable="edu-cta-quote" style={{ position: 'relative', zIndex: 1 }}>
             "Every child should see the <em>Milky Way.</em>"
           </blockquote>
-          <span className="mission-attr" style={{ position: 'relative', zIndex: 1 }}>// Our founding principle</span>
+          <span className="mission-attr" data-editable="edu-cta-attr" style={{ position: 'relative', zIndex: 1 }}>// Our founding principle</span>
           <div style={{ display: 'flex', gap: 16, marginTop: 40, justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
             <button className="btn-primary" onClick={() => navigate('/membership')}>Support Our Mission</button>
             <button className="btn-ghost" onClick={() => navigate('/membership')}>Become a Member</button>
@@ -241,8 +243,8 @@ export default function Education() {
       {/* ── Video divider styles ── */}
       <style>{`
         .vid-divider { position: relative; height: 400px; overflow: hidden; }
-        .vid-divider-clip { position: absolute; inset: -60px 0; overflow: hidden; }
-        .vid-divider-video { width: 100%; height: calc(100% + 120px); object-fit: cover; transition: opacity 0.8s ease; }
+        .vid-divider-clip { position: absolute; inset: -60px 0; overflow: hidden; pointer-events: none; }
+        .vid-divider-video { width: 100%; height: calc(100% + 120px); object-fit: cover; transition: opacity 0.8s ease; pointer-events: none; }
         .vid-divider-overlay-top { position: absolute; top: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-overlay-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 3; text-align: center; padding: 0 24px; }

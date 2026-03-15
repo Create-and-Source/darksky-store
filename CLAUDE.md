@@ -312,24 +312,65 @@ On every page load: MutationObserver applies published text from ds_site_publish
     to matching [data-editable] elements
 ```
 
+#### How it works (EditModeDOM component)
+
+1. `edit-mode-active` class toggled on `document.body` when editing
+2. CSS in EditMode.jsx styles `[data-editable]` elements: dashed gold outline on hover, solid gold on editing
+3. Capture-phase click handler on document finds `[data-editable]` elements, sets `contentEditable=true`
+4. Blur handler saves `innerHTML` to draft changes via `setText()`, shows "Saved" toast
+5. MutationObserver applies published text from `ds_site_published` to matching elements on page load/navigation
+6. `[data-section]` elements get injected control bars for visibility toggling
+7. All pages have `data-page` attribute on root div for section scoping
+
 #### Editable elements (data-editable keys)
 
-| Page | Key | Element |
-|------|-----|---------|
-| Home | home-hero-label | Hero label text |
-| Home | home-hero-subtitle | Hero subtitle |
+| Page | Key Pattern | Elements |
+|------|-------------|----------|
+| Home | home-hero-label, home-hero-title, home-hero-subtitle | Hero text |
 | Home | home-discover-label, home-discover-title | Discover section |
 | Home | home-collection-label, home-collection-title | Products section |
 | Home | home-events-label, home-events-title | Events section |
-| Home | home-shop-label, home-shop-title | Shop section |
+| Home | home-shop-label, home-shop-title | Categories section |
 | Home | home-membership-label, home-membership-title, home-membership-subtitle | Membership section |
 | Home | home-mission-quote, home-mission-attr | Mission quote band |
+| Home | home-stat-value-{i}, home-stat-label-{i} | Stats (4 each) |
+| Home | home-event-cat-{i}, home-event-title-{i}, home-event-desc-{i}, home-event-meta-{i} | Event cards (3 each) |
+| Home | home-vid1-title, home-vid1-subtitle, home-vid2-*, home-vid3-* | Video divider text |
 | About | about-hero-label, about-hero-title, about-hero-subtitle | Hero |
-| About | about-story-label, about-story-title, about-story-p1, about-story-p2 | Our Story |
+| About | about-story-label, about-story-title, about-story-p1, about-story-p2, about-story-quote | Our Story |
+| About | about-offering-title-{i}, about-offering-desc-{i} | Offering cards (4 each) |
+| About | about-stat-number-{i}, about-stat-label-{i} | Stats (4 each) |
+| About | about-vid-title, about-vid-subtitle | Video divider text |
+| About | about-cta-quote, about-cta-attr | CTA section |
 | Events | events-hero-label, events-hero-title, events-hero-subtitle | Hero |
+| Events | events-cta-quote, events-cta-attr | CTA section |
 | Membership | mem-hero-label, mem-hero-title, mem-hero-subtitle | Hero |
+| Membership | mem-tier-name-{i}, mem-tier-price-{i}, mem-tier-period-{i}, mem-tier-desc-{i} | Tier cards (3 each) |
 | Membership | mem-perks-label, mem-perks-title | Perks section |
+| Membership | mem-perk-title-{i}, mem-perk-desc-{i} | Perk cards (4 each) |
 | Membership | mem-faq-label, mem-faq-title | FAQ section |
+| Membership | mem-cta-label, mem-cta-quote, mem-cta-attr | CTA section |
+| Shop | shop-hero-label, shop-hero-title, shop-hero-subtitle | Hero |
+| Shop | shop-trust-label-{i}, shop-trust-sub-{i} | Trust items (4 each) |
+| Education | edu-hero-label, edu-hero-title, edu-hero-subtitle | Hero |
+| Education | edu-prog-label-{i}, edu-prog-title-{i}, edu-prog-desc-{i} | Programs (4 each) |
+| Education | edu-stat-number-{i}, edu-stat-label-{i} | Stats (4 each) |
+| Education | edu-vid-title, edu-vid-subtitle | Video divider text |
+| Education | edu-cta-quote, edu-cta-attr | CTA section |
+| FieldTrips | ft-hero-label, ft-hero-title, ft-hero-subtitle | Hero |
+| FieldTrips | ft-includes-label, ft-includes-title | What's Included |
+| FieldTrips | ft-programs-label, ft-programs-title, ft-programs-subtitle | Programs |
+| FieldTrips | ft-testimonials-label, ft-testimonials-title | Testimonials |
+| FieldTrips | ft-booking-label, ft-booking-title | Booking form |
+| FieldTrips | ft-faq-label, ft-faq-title | FAQ |
+| FieldTrips | ft-cta-label, ft-cta-quote | CTA section |
+| Contact | contact-hero-label, contact-hero-title, contact-hero-subtitle | Hero |
+| Contact | contact-form-label, contact-form-title | Form section |
+| Contact | contact-info-label | Info sidebar |
+
+#### Video divider editability
+
+VideoDivider components (Home, About, Education) accept `titleEditable` and `subtitleEditable` props that add `data-editable` to the title/subtitle elements. The `.vid-divider-video` and `.vid-divider-clip` elements have `pointer-events: none` so clicks pass through to the text overlay.
 
 ### Admin Roles
 

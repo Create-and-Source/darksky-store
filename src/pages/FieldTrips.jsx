@@ -257,7 +257,7 @@ export default function FieldTrips() {
   };
 
   return (
-    <div>
+    <div data-page="field-trips">
       {/* Success Toast */}
       {successToast && (
         <div style={{
@@ -280,14 +280,14 @@ export default function FieldTrips() {
         borderBottom: '1px solid var(--border)',
       }} className="ft-hero">
         <div ref={heroRef} className="reveal" style={{ position: 'relative', zIndex: 2 }}>
-          <div className="label" style={{ marginBottom: 20 }}>// Education Programs</div>
-          <h1 style={{
+          <div className="label" data-editable="ft-hero-label" style={{ marginBottom: 20 }}>// Education Programs</div>
+          <h1 data-editable="ft-hero-title" style={{
             fontFamily: 'Playfair Display, serif', fontSize: 'clamp(40px, 6vw, 76px)',
             fontWeight: 400, lineHeight: 1, marginBottom: 24, letterSpacing: '-0.02em',
           }}>
             Inspiring the Next <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Generation</em>
           </h1>
-          <p style={{
+          <p data-editable="ft-hero-subtitle" style={{
             font: '300 18px/1.8 DM Sans', color: 'var(--muted)',
             maxWidth: 580, margin: '0 auto 40px',
           }}>
@@ -312,8 +312,8 @@ export default function FieldTrips() {
       {/* What's Included */}
       <section className="section">
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div className="label" style={{ marginBottom: 16 }}>// What's Included</div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1 }}>
+          <div className="label" data-editable="ft-includes-label" style={{ marginBottom: 16 }}>// What's Included</div>
+          <h2 data-editable="ft-includes-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1 }}>
             A Complete <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Learning Experience</em>
           </h2>
         </div>
@@ -348,11 +348,11 @@ export default function FieldTrips() {
         borderBottom: '1px solid var(--border)',
       }} className="ft-programs-section">
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div className="label" style={{ marginBottom: 16 }}>// Programs</div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1 }}>
+          <div className="label" data-editable="ft-programs-label" style={{ marginBottom: 16 }}>// Programs</div>
+          <h2 data-editable="ft-programs-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1 }}>
             Choose Your <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Program</em>
           </h2>
-          <p style={{ font: '300 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '16px auto 0' }}>
+          <p data-editable="ft-programs-subtitle" style={{ font: '300 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '16px auto 0' }}>
             Flexible options for every schedule and group size.
           </p>
         </div>
@@ -407,8 +407,8 @@ export default function FieldTrips() {
       {/* Testimonials */}
       <section className="section">
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div className="label" style={{ marginBottom: 16 }}>// What Teachers Say</div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1 }}>
+          <div className="label" data-editable="ft-testimonials-label" style={{ marginBottom: 16 }}>// What Teachers Say</div>
+          <h2 data-editable="ft-testimonials-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1 }}>
             Trusted by <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Educators</em>
           </h2>
         </div>
@@ -445,8 +445,8 @@ export default function FieldTrips() {
       }} className="ft-inquiry-section">
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div className="label" style={{ marginBottom: 16 }}>// Book a Visit</div>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1, marginBottom: 12 }}>
+            <div className="label" data-editable="ft-booking-label" style={{ marginBottom: 16 }}>// Book a Visit</div>
+            <h2 data-editable="ft-booking-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1, marginBottom: 12 }}>
               Booking <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Inquiry</em>
             </h2>
             <p style={{ font: '300 15px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '0 auto' }}>
@@ -586,8 +586,8 @@ export default function FieldTrips() {
       <section className="section" style={{ borderTop: '1px solid var(--border)' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div className="label" style={{ marginBottom: 16 }}>// Planning Your Visit</div>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400 }}>
+            <div className="label" data-editable="ft-faq-label" style={{ marginBottom: 16 }}>// Planning Your Visit</div>
+            <h2 data-editable="ft-faq-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400 }}>
               Frequently Asked <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Questions</em>
             </h2>
           </div>
@@ -597,8 +597,8 @@ export default function FieldTrips() {
 
       {/* CTA */}
       <div className="mission">
-        <div className="label" style={{ marginBottom: 24 }}>// Get in Touch</div>
-        <blockquote className="mission-quote" style={{ fontSize: 'clamp(22px, 3vw, 40px)' }}>
+        <div className="label" data-editable="ft-cta-label" style={{ marginBottom: 24 }}>// Get in Touch</div>
+        <blockquote className="mission-quote" data-editable="ft-cta-quote" style={{ fontSize: 'clamp(22px, 3vw, 40px)' }}>
           Questions? Reach our education coordinator directly at<br />
           <em>info@darkskycenter.org</em>
         </blockquote>

@@ -55,7 +55,7 @@ function LazyVideo({ src, className = '', style = {}, ...props }) {
 }
 
 /* ── Video Divider Section ── */
-function VideoDivider({ src, title, subtitle }) {
+function VideoDivider({ src, title, subtitle, titleEditable, subtitleEditable }) {
   const ref = useRef(null);
   const [offset, setOffset] = useState(0);
 
@@ -93,8 +93,8 @@ function VideoDivider({ src, title, subtitle }) {
       <div className="vid-divider-overlay-bottom" />
       <div className="vid-divider-content">
         <RevealSection>
-          <h2 className="vid-divider-title">{title}</h2>
-          <p className="vid-divider-sub">{subtitle}</p>
+          <h2 className="vid-divider-title" {...(titleEditable ? {'data-editable': titleEditable} : {})}>{title}</h2>
+          <p className="vid-divider-sub" {...(subtitleEditable ? {'data-editable': subtitleEditable} : {})}>{subtitle}</p>
         </RevealSection>
       </div>
     </div>
@@ -126,7 +126,7 @@ export default function About() {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div data-page="about">
       {/* ── HERO ── */}
       <section className="about-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
         <img
@@ -179,8 +179,8 @@ export default function About() {
                     item.icon
                   )}
                 </div>
-                <h3 className="about-card-title">{item.title}</h3>
-                <p className="about-card-desc">{item.desc}</p>
+                <h3 className="about-card-title" data-editable={`about-offering-title-${i}`}>{item.title}</h3>
+                <p className="about-card-desc" data-editable={`about-offering-desc-${i}`}>{item.desc}</p>
               </div>
             </RevealSection>
           ))}
@@ -194,6 +194,8 @@ export default function About() {
         src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/observatory-hero.mp4"
         title="22,000 Square Feet of Wonder"
         subtitle="Now open in Fountain Hills, Arizona"
+        titleEditable="about-vid-title"
+        subtitleEditable="about-vid-subtitle"
       />
 
       <SectionSep />
@@ -204,8 +206,8 @@ export default function About() {
           {STATS.map((s, i) => (
             <RevealSection key={s.label} delay={i * 100}>
               <div className="about-stat">
-                <div className="about-stat-number" style={goldGradientStyle}>{s.number}</div>
-                <div className="about-stat-label">{s.label}</div>
+                <div className="about-stat-number" data-editable={`about-stat-number-${i}`} style={goldGradientStyle}>{s.number}</div>
+                <div className="about-stat-label" data-editable={`about-stat-label-${i}`}>{s.label}</div>
               </div>
             </RevealSection>
           ))}
@@ -262,7 +264,7 @@ export default function About() {
                   pointerEvents: 'none',
                 }}
               />
-              <blockquote style={{
+              <blockquote data-editable="about-story-quote" style={{
                 fontFamily: "'Playfair Display', serif",
                 fontSize: 24,
                 fontStyle: 'italic',
@@ -317,10 +319,10 @@ export default function About() {
               pointerEvents: 'none',
             }}
           />
-          <blockquote className="mission-quote" style={{ position: 'relative', zIndex: 1 }}>
+          <blockquote className="mission-quote" data-editable="about-cta-quote" style={{ position: 'relative', zIndex: 1 }}>
             "The cosmos is within us. We are made of <em>star-stuff.</em>"
           </blockquote>
-          <span className="mission-attr" style={{ position: 'relative', zIndex: 1 }}>// Carl Sagan</span>
+          <span className="mission-attr" data-editable="about-cta-attr" style={{ position: 'relative', zIndex: 1 }}>// Carl Sagan</span>
           <div style={{ display: 'flex', gap: 16, marginTop: 40, justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
             <button className="btn-primary" onClick={() => navigate('/membership')}>Become a Member</button>
             <button className="btn-ghost" onClick={() => navigate('/events')}>Explore Events</button>
@@ -339,12 +341,14 @@ export default function About() {
           position: absolute;
           inset: -60px 0;
           overflow: hidden;
+          pointer-events: none;
         }
         .vid-divider-video {
           width: 100%;
           height: calc(100% + 120px);
           object-fit: cover;
           transition: opacity 0.8s ease;
+          pointer-events: none;
         }
         .vid-divider-overlay-top {
           position: absolute;

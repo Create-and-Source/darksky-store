@@ -88,7 +88,7 @@ export default function Events() {
     : EVENTS.filter(e => e.cat === activeCategory);
 
   return (
-    <div>
+    <div data-page="events">
       {/* ── HERO ── */}
       <section className="events-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
         <img
@@ -150,7 +150,7 @@ export default function Events() {
       </RevealSection>
 
       {/* ── EVENTS GRID ── */}
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section" data-section="EventsGrid" style={{ paddingTop: 0 }}>
         {filtered.length === 0 ? (
           <RevealSection>
             <div style={{
@@ -249,10 +249,10 @@ export default function Events() {
       {/* ── CTA ── */}
       <RevealSection>
         <div className="mission">
-          <blockquote className="mission-quote">
+          <blockquote className="mission-quote" data-editable="events-cta-quote">
             "The universe is under no obligation to make sense to you. <em>We make it accessible.</em>"
           </blockquote>
-          <span className="mission-attr">// Dark Sky Discovery Center</span>
+          <span className="mission-attr" data-editable="events-cta-attr">// Dark Sky Discovery Center</span>
           <div style={{ display: 'flex', gap: 16, marginTop: 40, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="btn-primary" onClick={() => navigate('/membership')}>Become a Member</button>
             <button className="btn-ghost" onClick={() => navigate('/shop')}>Visit the Shop</button>

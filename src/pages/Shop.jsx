@@ -104,20 +104,20 @@ export default function Shop({ onAddToCart }) {
   };
 
   return (
-    <div className="sp">
+    <div className="sp" data-page="shop">
       {/* ═══ HERO ═══ */}
-      <div className="sp-hero">
+      <div className="sp-hero" data-section="Hero">
         <img
           src="/images/darksky/desert-night-sky.png"
           alt="Desert landscape under a canopy of stars"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.1, zIndex: 0, pointerEvents: 'none' }}
         />
         <div className="sp-hero-glow" />
-        <div className="sp-hero-label">// The Collection</div>
-        <h1 className="sp-hero-title">
+        <div className="sp-hero-label" data-editable="shop-hero-label">// The Collection</div>
+        <h1 className="sp-hero-title" data-editable="shop-hero-title">
           Take the Night <em>Home</em>
         </h1>
-        <p className="sp-hero-sub">
+        <p className="sp-hero-sub" data-editable="shop-hero-subtitle">
           Every purchase supports dark sky preservation
         </p>
         <div className="sp-search-wrap">
@@ -262,7 +262,7 @@ export default function Shop({ onAddToCart }) {
       </div>
 
       {/* ═══ TRUST / HELP SECTION ═══ */}
-      <div className="sp-trust-section">
+      <div className="sp-trust-section" data-section="Trust">
         <div className="sp-trust-grid">
           {TRUST.map((t, i) => (
             <div key={i} className="sp-trust-item">
@@ -271,8 +271,8 @@ export default function Shop({ onAddToCart }) {
                   <path d={t.icon}/>{t.icon2 && <path d={t.icon2}/>}
                 </svg>
               </div>
-              <div className="sp-trust-label">{t.label}</div>
-              <div className="sp-trust-sub">{t.sub}</div>
+              <div className="sp-trust-label" data-editable={`shop-trust-label-${i}`}>{t.label}</div>
+              <div className="sp-trust-sub" data-editable={`shop-trust-sub-${i}`}>{t.sub}</div>
             </div>
           ))}
         </div>

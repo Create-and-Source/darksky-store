@@ -84,7 +84,7 @@ export default function Membership() {
   const stats = [`${memberCount}+ Members`, '4 Events/Month', '10-20% Savings'];
 
   return (
-    <div>
+    <div data-page="membership">
       {/* Hero */}
       <div className="mem-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
         <img
@@ -111,15 +111,15 @@ export default function Membership() {
 
       {/* Tiers */}
       <RevealSection>
-        <div className="mem-tiers">
+        <div className="mem-tiers" data-section="Tiers">
           {TIERS.map((tier, i) => (
             <RevealSection key={tier.name} delay={i * 120}>
               <div className={`mem-tier ${tier.featured ? 'featured' : ''}`}>
                 {tier.badge && <div className="mem-tier-badge">{tier.badge}</div>}
-                <div className="mem-tier-name">{tier.name}</div>
-                <div className="mem-tier-price" style={{ ...goldGradientStyle, fontSize: 36 }}>{tier.price}</div>
-                <div className="mem-tier-period">{tier.period}</div>
-                <p style={{ font: '300 13px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 24 }}>{tier.desc}</p>
+                <div className="mem-tier-name" data-editable={`mem-tier-name-${i}`}>{tier.name}</div>
+                <div className="mem-tier-price" data-editable={`mem-tier-price-${i}`} style={{ ...goldGradientStyle, fontSize: 36 }}>{tier.price}</div>
+                <div className="mem-tier-period" data-editable={`mem-tier-period-${i}`}>{tier.period}</div>
+                <p data-editable={`mem-tier-desc-${i}`} style={{ font: '300 13px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 24 }}>{tier.desc}</p>
                 <div className="mem-tier-divider" />
                 {tier.benefits.map(b => (
                   <div key={b} className="mem-benefit">
@@ -155,8 +155,8 @@ export default function Membership() {
               <RevealSection key={perk.title} delay={i * 100}>
                 <div className="mem-perk">
                   <div className="mem-perk-icon">{perk.icon}</div>
-                  <div className="mem-perk-title">{perk.title}</div>
-                  <p className="mem-perk-desc" style={{ fontWeight: 300, lineHeight: 1.7 }}>{perk.desc}</p>
+                  <div className="mem-perk-title" data-editable={`mem-perk-title-${i}`}>{perk.title}</div>
+                  <p className="mem-perk-desc" data-editable={`mem-perk-desc-${i}`} style={{ fontWeight: 300, lineHeight: 1.7 }}>{perk.desc}</p>
                 </div>
               </RevealSection>
             ))}
@@ -166,7 +166,7 @@ export default function Membership() {
 
       {/* FAQ */}
       <RevealSection>
-        <section className="section" style={{ borderTop: '1px solid var(--border)', maxWidth: 800, margin: '0 auto' }}>
+        <section className="section" data-section="FAQ" style={{ borderTop: '1px solid var(--border)', maxWidth: 800, margin: '0 auto' }}>
           <div className="label" style={{ marginBottom: 20 }} data-editable="mem-faq-label">// Common Questions</div>
           <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400, marginBottom: 48 }} data-editable="mem-faq-title">
             Frequently Asked <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Questions</em>
@@ -202,12 +202,12 @@ export default function Membership() {
           loading="lazy"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.1, zIndex: 0, pointerEvents: 'none' }}
         />
-        <div className="label" style={{ marginBottom: 24, position: 'relative', zIndex: 1 }}>// Join Us</div>
-        <blockquote className="mission-quote" style={{ position: 'relative', zIndex: 1 }}>
+        <div className="label" data-editable="mem-cta-label" style={{ marginBottom: 24, position: 'relative', zIndex: 1 }}>// Join Us</div>
+        <blockquote className="mission-quote" data-editable="mem-cta-quote" style={{ position: 'relative', zIndex: 1 }}>
           "The universe is under no obligation to make sense to you.<br/>
           <em>We are.</em>"
         </blockquote>
-        <div className="mission-attr" style={{ marginBottom: 40, position: 'relative', zIndex: 1 }}>// Neil deGrasse Tyson</div>
+        <div className="mission-attr" data-editable="mem-cta-attr" style={{ marginBottom: 40, position: 'relative', zIndex: 1 }}>// Neil deGrasse Tyson</div>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <button className="btn-primary" style={{ marginRight: 16, animation: 'breatheGlow 3s ease-in-out infinite' }}>Join as Explorer — $49/yr</button>
           <button className="btn-ghost">View All Tiers</button>

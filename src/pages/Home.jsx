@@ -63,7 +63,7 @@ function LazyVideo({ src, className = '', style = {}, ...props }) {
 }
 
 /* ── Video Divider Section ── */
-function VideoDivider({ src, title, subtitle }) {
+function VideoDivider({ src, title, subtitle, titleEditable, subtitleEditable }) {
   const ref = useRef(null);
   const [offset, setOffset] = useState(0);
 
@@ -101,8 +101,8 @@ function VideoDivider({ src, title, subtitle }) {
       <div className="vid-divider-overlay-bottom" />
       <div className="vid-divider-content">
         <RevealSection>
-          <h2 className="vid-divider-title">{title}</h2>
-          <p className="vid-divider-sub">{subtitle}</p>
+          <h2 className="vid-divider-title" {...(titleEditable ? {'data-editable': titleEditable} : {})}>{title}</h2>
+          <p className="vid-divider-sub" {...(subtitleEditable ? {'data-editable': subtitleEditable} : {})}>{subtitle}</p>
         </RevealSection>
       </div>
     </div>
@@ -164,7 +164,7 @@ function AnimatedHeadline({ visible }) {
   };
 
   return (
-    <h1 className="hero-h1">
+    <h1 className="hero-h1" data-editable="home-hero-title">
       {line1.map(w => renderWord(w))}
       <br />
       {line2.map(w => renderWord(w))}
@@ -196,7 +196,7 @@ export default function Home({ onAddToCart }) {
   const featured = PRODUCTS.filter(p => p.images.length > 0).slice(0, 8);
 
   return (
-    <div>
+    <div data-page="home">
 
       {/* ══════════════════════════════════════
           1 — HERO (with desert-night-sky video background)
@@ -315,7 +315,7 @@ export default function Home({ onAddToCart }) {
                     borderRight: i < STATS.length - 1 ? '1px solid var(--border)' : 'none',
                   }}
                 >
-                  <div style={{
+                  <div data-editable={`home-stat-value-${i}`} style={{
                     font: '300 44px "Plus Jakarta Sans", sans-serif',
                     lineHeight: 1,
                     marginBottom: 12,
@@ -323,7 +323,7 @@ export default function Home({ onAddToCart }) {
                   }}>
                     {s.value}
                   </div>
-                  <div style={{ font: '400 11px "JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--text2)' }}>
+                  <div data-editable={`home-stat-label-${i}`} style={{ font: '400 11px "JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--text2)' }}>
                     {s.label}
                   </div>
                 </div>
@@ -368,6 +368,8 @@ export default function Home({ onAddToCart }) {
         src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/owl.mp4"
         title="Where the Wild Things Wake"
         subtitle="Nocturnal wildlife thrives under dark skies"
+        titleEditable="home-vid1-title"
+        subtitleEditable="home-vid1-subtitle"
       />
 
       {/* ══════════════════════════════════════
@@ -461,16 +463,16 @@ export default function Home({ onAddToCart }) {
 
                   {/* Card body */}
                   <div style={{ padding: '28px 24px' }}>
-                    <div style={{ font: '400 10px "JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--gold)', marginBottom: 12 }}>
+                    <div data-editable={`home-event-cat-${i}`} style={{ font: '400 10px "JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--gold)', marginBottom: 12 }}>
                       {ev.cat}
                     </div>
-                    <h3 style={{ font: '500 20px/1.3 "Playfair Display", serif', color: 'var(--text)', margin: '0 0 10px' }}>
+                    <h3 data-editable={`home-event-title-${i}`} style={{ font: '500 20px/1.3 "Playfair Display", serif', color: 'var(--text)', margin: '0 0 10px' }}>
                       {ev.title}
                     </h3>
-                    <p style={{ font: '300 13px/1.7 "Plus Jakarta Sans", sans-serif', color: 'var(--text2)', margin: '0 0 16px' }}>
+                    <p data-editable={`home-event-desc-${i}`} style={{ font: '300 13px/1.7 "Plus Jakarta Sans", sans-serif', color: 'var(--text2)', margin: '0 0 16px' }}>
                       {ev.desc}
                     </p>
-                    <div style={{ font: '400 11px "JetBrains Mono", monospace', color: 'var(--muted)', letterSpacing: '0.04em' }}>
+                    <div data-editable={`home-event-meta-${i}`} style={{ font: '400 11px "JetBrains Mono", monospace', color: 'var(--muted)', letterSpacing: '0.04em' }}>
                       {ev.meta}
                     </div>
                   </div>
@@ -492,6 +494,8 @@ export default function Home({ onAddToCart }) {
         src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/scorpion-uv.mp4"
         title="See What Others Can't"
         subtitle="UV scorpion tours, night hikes, and desert ecology"
+        titleEditable="home-vid2-title"
+        subtitleEditable="home-vid2-subtitle"
       />
 
       {/* ══════════════════════════════════════
@@ -501,6 +505,8 @@ export default function Home({ onAddToCart }) {
         src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/milky-way.mp4"
         title="Discover the Cosmos"
         subtitle="22,000 square feet dedicated to the night sky"
+        titleEditable="home-vid3-title"
+        subtitleEditable="home-vid3-subtitle"
       />
 
       {/* ══════════════════════════════════════
@@ -736,12 +742,14 @@ export default function Home({ onAddToCart }) {
           position: absolute;
           inset: -60px 0;
           overflow: hidden;
+          pointer-events: none;
         }
         .vid-divider-video {
           width: 100%;
           height: calc(100% + 120px);
           object-fit: cover;
           transition: opacity 0.8s ease;
+          pointer-events: none;
         }
         .vid-divider-overlay-top {
           position: absolute;

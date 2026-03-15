@@ -95,7 +95,7 @@ export default function Contact() {
   };
 
   return (
-    <div>
+    <div data-page="contact">
       {/* Hero */}
       <div style={{
         position: 'relative', padding: '120px 64px 80px', textAlign: 'center',
@@ -104,14 +104,14 @@ export default function Contact() {
         overflow: 'hidden',
       }} className="contact-hero">
         <div ref={heroRef} className="reveal" style={{ position: 'relative', zIndex: 2 }}>
-          <div className="label" style={{ marginBottom: 20 }}>// Contact</div>
-          <h1 style={{
+          <div className="label" data-editable="contact-hero-label" style={{ marginBottom: 20 }}>// Contact</div>
+          <h1 data-editable="contact-hero-title" style={{
             fontFamily: 'Playfair Display, serif', fontSize: 'clamp(40px, 6vw, 72px)',
             fontWeight: 400, lineHeight: 1, marginBottom: 20, letterSpacing: '-0.02em',
           }}>
             Get in <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Touch</em>
           </h1>
-          <p style={{
+          <p data-editable="contact-hero-subtitle" style={{
             font: '300 17px/1.8 DM Sans', color: 'var(--muted)',
             maxWidth: 480, margin: '0 auto',
           }}>
@@ -165,8 +165,8 @@ export default function Contact() {
               </div>
             ) : (
               <>
-                <div className="label" style={{ marginBottom: 16 }}>// Send a Message</div>
-                <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 400, marginBottom: 32 }}>
+                <div className="label" data-editable="contact-form-label" style={{ marginBottom: 16 }}>// Send a Message</div>
+                <h2 data-editable="contact-form-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 400, marginBottom: 32 }}>
                   We'd Love to <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Hear</em> From You
                 </h2>
 
@@ -247,7 +247,7 @@ export default function Contact() {
 
           {/* Info Side */}
           <div style={{ padding: '48px 36px', background: 'var(--bg2, #09091f)' }} className="contact-info-side">
-            <div className="label" style={{ marginBottom: 24 }}>// Contact Info</div>
+            <div className="label" data-editable="contact-info-label" style={{ marginBottom: 24 }}>// Contact Info</div>
 
             {/* Opening Note */}
             <div style={{
