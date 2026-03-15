@@ -5,8 +5,13 @@ const NAV_LINKS = [
   { path: '/', label: 'Home' },
   { path: '/about', label: 'About' },
   { path: '/events', label: 'Events' },
+  { path: '/education', label: 'Education', dropdown: [
+    { path: '/education', label: 'Programs' },
+    { path: '/field-trips', label: 'Field Trips' },
+  ]},
   { path: '/membership', label: 'Membership' },
   { path: '/shop', label: 'Shop' },
+  { path: '/contact', label: 'Contact' },
 ];
 
 const MOBILE_LINKS = [
@@ -23,6 +28,7 @@ const MOBILE_LINKS = [
 export default function Nav({ cartCount, onCartClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(null);
   const [adminOn, setAdminOn] = useState(() => localStorage.getItem('ds_user_role') === 'manager');
   const navigate = useNavigate();
   const location = useLocation();
@@ -66,8 +72,19 @@ export default function Nav({ cartCount, onCartClick }) {
         </div>
 
         <div className="nav-center">
-          {NAV_LINKS.map(({ path, label }) => (
-            <a key={path} className={isActive(path)} onClick={() => go(path)}>{label}</a>
+          {NAV_LINKS.map(({ path, label, dropdown }) => (
+            dropdown ? (
+              <div key={path} className="nav-dropdown-wrap" onMouseEnter={() => setDropdownOpen(path)} onMouseLeave={() => setDropdownOpen(null)}>
+                <a className={isActive(path)} onClick={() => go(path)}>{label}</a>
+                {dropdownOpen === path && (
+                  <div className="nav-dropdown">
+                    {dropdown.map(d => (
+                      <a key={d.path} onClick={() => { go(d.path); setDropdownOpen(null); }}>{d.label}</a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : <a key={path} className={isActive(path)} onClick={() => go(path)}>{label}</a>
           ))}
         </div>
 
@@ -216,6 +233,40 @@ export default function Nav({ cartCount, onCartClick }) {
       </div>
 
       <style>{`
+        .nav-dropdown-wrap {
+          position: relative;
+        }
+        .nav-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(4,4,12,0.95);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 6px;
+          padding: 6px 0;
+          min-width: 140px;
+          z-index: 300;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .nav-dropdown a {
+          display: block;
+          padding: 10px 20px;
+          font: 500 11px 'Plus Jakarta Sans', sans-serif !important;
+          letter-spacing: 0.12em !important;
+          text-transform: uppercase;
+          color: var(--text2) !important;
+          cursor: pointer;
+          transition: color 0.2s, background 0.2s;
+          white-space: nowrap;
+        }
+        .nav-dropdown a:hover {
+          color: var(--gold) !important;
+          background: rgba(255,255,255,0.04);
+        }
+        .nav-dropdown a::before { display: none !important; }
         .nav-donate {
           font: 500 11px 'Plus Jakarta Sans', sans-serif;
           letter-spacing: 0.08em;

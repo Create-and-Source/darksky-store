@@ -57,13 +57,15 @@ export default function Footer() {
             </div>
           </div>
           <div>
-            <div className="footer-col-title">Programs</div>
+            <div className="footer-col-title">Explore</div>
             <div className="footer-links">
-              <button onClick={() => navigate('/events')}>Upcoming Events</button>
-              <button onClick={() => navigate('/membership')}>Membership</button>
-              <button onClick={() => navigate('/education')}>Field Trips</button>
-              <button onClick={() => navigate('/education')}>Workshops</button>
               <button onClick={() => navigate('/about')}>About Us</button>
+              <button onClick={() => navigate('/events')}>Events</button>
+              <button onClick={() => navigate('/education')}>Education</button>
+              <button onClick={() => navigate('/field-trips')}>Field Trips</button>
+              <button onClick={() => navigate('/membership')}>Membership</button>
+              <button onClick={() => navigate('/contact')}>Contact</button>
+              <button onClick={() => navigate('/donate')}>Donate</button>
             </div>
           </div>
           <div>
