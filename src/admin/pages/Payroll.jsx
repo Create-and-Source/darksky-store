@@ -26,7 +26,7 @@ const MONO = "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace";
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const TABS = ['Staff Roster', 'Time Sheets', 'Payroll Export', 'Documents'];
+const TABS = ['Staff Roster', 'Time Sheets', 'Export to Payroll', 'Documents'];
 
 const DOCUMENTS = [
   { name: 'Employee Handbook (2026)', type: 'PDF', date: '2026-01-15' },
@@ -58,14 +58,11 @@ export default function Payroll() {
   };
 
   const handleExportCSV = () => {
-    const rows = [['Staff', 'Hours', 'Rate', 'Gross', 'Taxes (22%)', 'Net']];
+    const rows = [['Staff', 'Role', 'Pay Period', 'Hours', 'Rate']];
     timesheets.forEach(ts => {
       const s = staff.find(st => st.id === ts.staffId);
       const totalH = ts.hours.reduce((a, b) => a + b, 0);
-      const rate = s?.payRate || 0;
-      const gross = totalH * rate;
-      const tax = Math.round(gross * 0.22);
-      rows.push([ts.name, totalH, formatPrice(rate), formatPrice(gross), formatPrice(tax), formatPrice(gross - tax)]);
+      rows.push([ts.name, s?.role || '', 'Mar 1-15 2026', totalH, s?.payRate ? formatPrice(s.payRate) : 'Salary']);
     });
     const csv = rows.map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -76,23 +73,17 @@ export default function Payroll() {
     toast('CSV exported');
   };
 
-  const handleMarkPaid = () => {
+  const handleSubmitToPayroll = () => {
     const totalH = timesheets.reduce((s, ts) => s + ts.hours.reduce((a, b) => a + b, 0), 0);
-    // rough total
-    let gross = 0;
-    timesheets.forEach(ts => {
-      const s = staff.find(st => st.id === ts.staffId);
-      const h = ts.hours.reduce((a, b) => a + b, 0);
-      gross += h * (s?.payRate || 0);
-    });
     addPayrollRecord({
       period: 'Mar 1-15, 2026',
-      total: gross - Math.round(gross * 0.22),
-      status: 'Paid',
+      totalHours: totalH,
+      staffCount: timesheets.length,
+      status: 'Submitted',
       date: new Date().toISOString().slice(0, 10),
-      paidAt: new Date().toISOString().slice(0, 10),
+      submittedAt: new Date().toISOString().slice(0, 10),
     });
-    toast('Payroll marked as paid');
+    toast('Hours submitted to payroll provider');
   };
 
   const cardStyle = {
@@ -112,8 +103,8 @@ export default function Payroll() {
   return (
     <div style={{ fontFamily: FONT, color: C.text }}>
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 4px' }}>Payroll & HR</h1>
-        <p style={{ fontSize: 14, color: C.text2, margin: 0 }}>Staff roster, timesheets, and payroll management</p>
+        <h1 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 4px' }}>Staff & Time</h1>
+        <p style={{ fontSize: 14, color: C.text2, margin: 0 }}>Staff roster, timesheets, and hours export. Syncs with your payroll provider.</p>
       </div>
 
       {/* Tabs */}
@@ -233,23 +224,26 @@ export default function Payroll() {
         </div>
       )}
 
-      {/* Tab 2: Payroll Export */}
+      {/* Tab 2: Export to Payroll */}
       {tab === 2 && (
         <>
-          <div style={cardStyle}>
+          <div style={{ ...cardStyle, marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '12px 16px', background: '#F8F7F4', borderRadius: 6, border: `1px solid ${C.border}` }}>
+              <span style={{ fontSize: 18 }}>&#128279;</span>
+              <span style={{ fontFamily: FONT, fontSize: 13, color: C.text2 }}>Approved hours export to your payroll provider (QuickBooks Payroll, Gusto, ADP, or similar). We track time — they handle taxes, withholdings, and payments.</span>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <div>
-                <span style={{ fontFamily: MONO, fontSize: 11, color: C.text2, textTransform: 'uppercase', letterSpacing: 1 }}>Pay Period: March 1-15, 2026</span>
-              </div>
+              <span style={{ fontFamily: MONO, fontSize: 11, color: C.text2, textTransform: 'uppercase', letterSpacing: 1 }}>Pay Period: March 1-15, 2026</span>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={handleExportCSV} style={{
                   fontFamily: FONT, fontSize: 13, fontWeight: 600, color: C.text,
                   background: 'none', border: `1px solid ${C.border}`, borderRadius: 6, padding: '8px 16px', cursor: 'pointer',
-                }}>Export CSV</button>
-                <button onClick={handleMarkPaid} style={{
+                }}>Download CSV</button>
+                <button onClick={handleSubmitToPayroll} style={{
                   fontFamily: FONT, fontSize: 13, fontWeight: 600, color: '#fff',
                   background: C.gold, border: 'none', borderRadius: 6, padding: '8px 16px', cursor: 'pointer',
-                }}>Mark as Paid</button>
+                }}>Submit to Payroll Provider</button>
               </div>
             </div>
 
@@ -257,89 +251,68 @@ export default function Payroll() {
               <thead>
                 <tr>
                   <th style={thStyle}>Staff</th>
+                  <th style={thStyle}>Role</th>
                   <th style={{ ...thStyle, textAlign: 'right' }}>Hours</th>
                   <th style={{ ...thStyle, textAlign: 'right' }}>Rate</th>
-                  <th style={{ ...thStyle, textAlign: 'right' }}>Gross</th>
-                  <th style={{ ...thStyle, textAlign: 'right' }}>Taxes (22%)</th>
-                  <th style={{ ...thStyle, textAlign: 'right' }}>Net</th>
+                  <th style={{ ...thStyle, textAlign: 'center' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {timesheets.map(ts => {
                   const s = staff.find(st => st.id === ts.staffId);
                   const totalH = ts.hours.reduce((a, b) => a + b, 0);
-                  const rate = s?.payRate || 0;
-                  const gross = totalH * rate;
-                  const tax = Math.round(gross * 0.22);
-                  const net = gross - tax;
                   return (
                     <tr key={ts.staffId}>
                       <td style={{ ...tdStyle, fontWeight: 600 }}>{ts.name}</td>
-                      <td style={{ ...tdStyle, textAlign: 'right', fontFamily: MONO, fontSize: 12 }}>{totalH}</td>
-                      <td style={{ ...tdStyle, textAlign: 'right', fontFamily: MONO, fontSize: 12 }}>{formatPrice(rate)}</td>
-                      <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 600 }}>{formatPrice(gross)}</td>
-                      <td style={{ ...tdStyle, textAlign: 'right', color: C.danger }}>{formatPrice(tax)}</td>
-                      <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: C.success }}>{formatPrice(net)}</td>
+                      <td style={{ ...tdStyle, color: C.text2 }}>{s?.role || ''}</td>
+                      <td style={{ ...tdStyle, textAlign: 'right', fontFamily: MONO, fontSize: 13, fontWeight: 700, color: C.gold }}>{totalH}</td>
+                      <td style={{ ...tdStyle, textAlign: 'right', fontFamily: MONO, fontSize: 12 }}>{s?.payRate ? formatPrice(s.payRate) + '/hr' : 'Salary'}</td>
+                      <td style={{ ...tdStyle, textAlign: 'center' }}>
+                        <span style={{ fontFamily: MONO, fontSize: 11, padding: '3px 8px', borderRadius: 4, background: ts.status === 'Approved' ? '#E8F5E9' : '#FFF8E1', color: ts.status === 'Approved' ? C.success : C.warning }}>{ts.status}</span>
+                      </td>
                     </tr>
                   );
                 })}
               </tbody>
               <tfoot>
                 <tr>
-                  <td style={{ ...tdStyle, fontWeight: 700, borderTop: `2px solid ${C.border}` }}>Total</td>
-                  <td style={{ ...tdStyle, textAlign: 'right', fontFamily: MONO, fontSize: 12, fontWeight: 700, borderTop: `2px solid ${C.border}` }}>
+                  <td style={{ ...tdStyle, fontWeight: 700, borderTop: `2px solid ${C.border}` }} colSpan={2}>Total Hours</td>
+                  <td style={{ ...tdStyle, textAlign: 'right', fontFamily: MONO, fontSize: 14, fontWeight: 700, color: C.gold, borderTop: `2px solid ${C.border}` }}>
                     {timesheets.reduce((s, ts) => s + ts.hours.reduce((a, b) => a + b, 0), 0)}
                   </td>
-                  <td style={{ ...tdStyle, borderTop: `2px solid ${C.border}` }}></td>
-                  {(() => {
-                    let totalGross = 0;
-                    timesheets.forEach(ts => {
-                      const s = staff.find(st => st.id === ts.staffId);
-                      totalGross += ts.hours.reduce((a, b) => a + b, 0) * (s?.payRate || 0);
-                    });
-                    const totalTax = Math.round(totalGross * 0.22);
-                    return (
-                      <>
-                        <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, borderTop: `2px solid ${C.border}` }}>{formatPrice(totalGross)}</td>
-                        <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: C.danger, borderTop: `2px solid ${C.border}` }}>{formatPrice(totalTax)}</td>
-                        <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: C.gold, fontSize: 15, borderTop: `2px solid ${C.border}` }}>{formatPrice(totalGross - totalTax)}</td>
-                      </>
-                    );
-                  })()}
+                  <td style={{ ...tdStyle, borderTop: `2px solid ${C.border}` }} colSpan={2}></td>
                 </tr>
               </tfoot>
             </table>
           </div>
 
-          {/* History */}
-          <div style={{ ...cardStyle, marginTop: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 16px' }}>Payroll History</h3>
+          {/* Submission History */}
+          <div style={cardStyle}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 16px' }}>Submission History</h3>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
                   <th style={thStyle}>Period</th>
-                  <th style={{ ...thStyle, textAlign: 'right' }}>Total</th>
                   <th style={thStyle}>Status</th>
-                  <th style={thStyle}>Paid</th>
+                  <th style={thStyle}>Submitted</th>
                 </tr>
               </thead>
               <tbody>
                 {payrollHistory.map((p, i) => (
                   <tr key={i}>
                     <td style={{ ...tdStyle, fontWeight: 600 }}>{p.period}</td>
-                    <td style={{ ...tdStyle, textAlign: 'right', fontFamily: MONO, fontSize: 12 }}>{formatPrice(p.total || 0)}</td>
                     <td style={tdStyle}>
                       <span style={{
                         fontFamily: MONO, fontSize: 11, padding: '3px 8px', borderRadius: 4,
-                        background: p.status === 'Paid' ? '#E8F5E9' : '#FFF8E1',
-                        color: p.status === 'Paid' ? C.success : C.warning,
-                      }}>{p.status}</span>
+                        background: (p.status === 'Paid' || p.status === 'Submitted') ? '#E8F5E9' : '#FFF8E1',
+                        color: (p.status === 'Paid' || p.status === 'Submitted') ? C.success : C.warning,
+                      }}>{p.status === 'Paid' ? 'Submitted' : p.status}</span>
                     </td>
-                    <td style={{ ...tdStyle, fontFamily: MONO, fontSize: 12, color: C.text2 }}>{p.paidAt || '\u2014'}</td>
+                    <td style={{ ...tdStyle, fontFamily: MONO, fontSize: 12, color: C.text2 }}>{p.paidAt || p.submittedAt || '\u2014'}</td>
                   </tr>
                 ))}
                 {payrollHistory.length === 0 && (
-                  <tr><td colSpan={4} style={{ ...tdStyle, color: C.muted, textAlign: 'center' }}>No payroll records yet.</td></tr>
+                  <tr><td colSpan={3} style={{ ...tdStyle, color: C.muted, textAlign: 'center' }}>No submissions yet.</td></tr>
                 )}
               </tbody>
             </table>

@@ -134,7 +134,7 @@ const navSections = [
     label: 'Reporting',
     items: [
       { to: '/admin/reports', icon: Icons.reports, label: 'Reports' },
-      { to: '/admin/payroll', icon: Icons.quickbooks, label: 'Payroll' },
+      { to: '/admin/payroll', icon: Icons.quickbooks, label: 'Staff & Time' },
     ],
   },
 ];
@@ -146,14 +146,14 @@ const navItems = navSections.flatMap(s => s.items);
 const ROLE_NAV = {
   executive_director: null,
   admin: null,
-  treasurer: ['Dashboard', 'Donations', 'Reports', 'Payroll'],
+  treasurer: ['Dashboard', 'Donations', 'Reports', 'Staff & Time'],
   shop_manager: ['Dashboard', 'POS', 'Products', 'Orders', 'Inventory', 'Receive', 'Transfers'],
   shop_staff: ['Dashboard', 'POS', 'Orders', 'Inventory', 'Receive'],
   visitor_services: ['Dashboard', 'POS', 'Events', 'Reports'],
   education_director: ['Dashboard', 'Events', 'Reports'],
   social_media: ['Dashboard', 'Design Studio', 'Social Media', 'Email'],
   volunteer_coordinator: ['Dashboard', 'Events', 'Reports'],
-  payroll: ['Dashboard', 'Payroll', 'Reports'],
+  payroll: ['Dashboard', 'Staff & Time', 'Reports'],
   board: ['Dashboard'],
 };
 const READONLY_LABELS = {
@@ -181,7 +181,7 @@ const breadcrumbMap = {
   '/admin/facility': 'Facility',
   '/admin/visitors': 'Visitors',
   '/admin/volunteers': 'Volunteers',
-  '/admin/payroll': 'Payroll',
+  '/admin/payroll': 'Staff & Time',
   '/admin/pos': 'Point of Sale',
   '/admin/products': 'Products',
   '/admin/board-meeting': 'Board Meeting',
