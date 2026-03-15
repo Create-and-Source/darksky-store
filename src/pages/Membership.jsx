@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { getMembers } from '../admin/data/store';
+import { getMembers, addMember } from '../admin/data/store';
 
 const goldGradientStyle = {
   background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
@@ -80,8 +80,22 @@ function RevealSection({ children, className = '', delay = 0 }) {
 }
 
 export default function Membership() {
+  const [selectedTier, setSelectedTier] = useState(null);
+  const [form, setForm] = useState({ name: '', email: '', phone: '' });
+  const [submitted, setSubmitted] = useState(false);
+  const [, setTick] = useState(0);
+
   const memberCount = getMembers().length;
   const stats = [`${memberCount}+ Members`, '4 Events/Month', '10-20% Savings'];
+
+  const handleJoin = (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim()) return;
+    addMember({ name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim(), tier: selectedTier.name });
+    setSubmitted(true);
+    setTick(t => t + 1);
+    setTimeout(() => { setSelectedTier(null); setSubmitted(false); setForm({ name: '', email: '', phone: '' }); }, 2500);
+  };
 
   return (
     <div data-page="membership">
@@ -128,6 +142,7 @@ export default function Membership() {
                   </div>
                 ))}
                 <button
+                  onClick={() => { setSelectedTier(tier); setSubmitted(false); setForm({ name: '', email: '', phone: '' }); }}
                   className={`mem-btn ${tier.featured ? 'mem-btn-gold' : 'mem-btn-ghost'}`}
                   style={tier.featured ? {
                     background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
@@ -209,10 +224,70 @@ export default function Membership() {
         </blockquote>
         <div className="mission-attr" data-editable="mem-cta-attr" style={{ marginBottom: 40, position: 'relative', zIndex: 1 }}>// Neil deGrasse Tyson</div>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <button className="btn-primary" style={{ marginRight: 16, animation: 'breatheGlow 3s ease-in-out infinite' }}>Join as Explorer — $49/yr</button>
-          <button className="btn-ghost">View All Tiers</button>
+          <button className="btn-primary" onClick={() => { setSelectedTier(TIERS[0]); setSubmitted(false); setForm({ name: '', email: '', phone: '' }); }} style={{ marginRight: 16, animation: 'breatheGlow 3s ease-in-out infinite' }}>Join as Explorer — $49/yr</button>
+          <button className="btn-ghost" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>View All Tiers</button>
         </div>
       </div>
+
+      {/* Join Modal */}
+      {selectedTier && (
+        <>
+          <div onClick={() => { if (!submitted) { setSelectedTier(null); } }} style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000,
+            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+          }} />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            background: 'var(--bg, #04040c)', border: '1px solid var(--border)',
+            borderRadius: 'var(--r, 3px)', padding: 36, width: 420, maxWidth: '90vw', zIndex: 1001,
+          }}>
+            {submitted ? (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <div style={{ fontSize: 48, marginBottom: 16, color: 'var(--gold)' }}>✦</div>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 400, marginBottom: 8 }}>
+                  Welcome to the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>{selectedTier.name}</em> family!
+                </h3>
+                <p style={{ font: '300 14px "Plus Jakarta Sans"', color: 'var(--text2)' }}>
+                  A confirmation has been sent to {form.email}.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, fontStyle: 'italic', color: 'var(--gold)', marginBottom: 4 }}>{selectedTier.name}</div>
+                  <div style={{ font: '600 28px "Plus Jakarta Sans"', ...goldGradientStyle }}>{selectedTier.price}</div>
+                  <div style={{ font: '300 13px "Plus Jakarta Sans"', color: 'var(--text2)' }}>{selectedTier.period}</div>
+                </div>
+                <form onSubmit={handleJoin}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
+                    <div>
+                      <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Name *</label>
+                      <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your full name" required
+                        style={{ width: '100%', padding: '12px 14px', background: 'rgba(10,10,26,0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 'var(--r, 3px)', font: '400 14px "Plus Jakarta Sans"', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Email *</label>
+                      <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="you@example.com" required
+                        style={{ width: '100%', padding: '12px 14px', background: 'rgba(10,10,26,0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 'var(--r, 3px)', font: '400 14px "Plus Jakarta Sans"', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Phone <span style={{ opacity: 0.4 }}>(optional)</span></label>
+                      <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(555) 000-0000"
+                        style={{ width: '100%', padding: '12px 14px', background: 'rgba(10,10,26,0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 'var(--r, 3px)', font: '400 14px "Plus Jakarta Sans"', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button type="button" onClick={() => setSelectedTier(null)} className="btn-ghost" style={{ flex: 1 }}>Cancel</button>
+                    <button type="submit" className="btn-primary" style={{ flex: 1, opacity: (!form.name.trim() || !form.email.trim()) ? 0.5 : 1 }}>
+                      Join — {selectedTier.price}/yr
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
