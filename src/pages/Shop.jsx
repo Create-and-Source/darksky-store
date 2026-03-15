@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { PRODUCTS } from '../data/products';
+import { getProducts } from '../admin/data/store';
 
 const CATS = ['All', 'Apparel', 'Kids', 'Outerwear', 'Tanks', 'Gifts'];
 
@@ -13,9 +13,6 @@ const SORT_OPTIONS = [
 
 const fmt = (cents) => cents ? `$${(cents / 100).toFixed(2)}` : '$\u2014';
 
-const BESTSELLER_IDS = new Set(PRODUCTS.filter(p => p.images.length > 0).slice(0, 4).map(p => p.id));
-const NEW_IDS = new Set(PRODUCTS.slice(-6).map(p => p.id));
-
 const TRUST = [
   { icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2', icon2: 'M12 3a4 4 0 100 8 4 4 0 000-8z', label: 'Print on Demand', sub: 'Made just for you' },
   { icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', label: 'Secure Checkout', sub: '256-bit SSL encryption' },
@@ -26,6 +23,9 @@ const TRUST = [
 export default function Shop({ onAddToCart }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const PRODUCTS = getProducts();
+  const BESTSELLER_IDS = new Set(PRODUCTS.filter(p => p.images.length > 0).slice(0, 4).map(p => p.id));
+  const NEW_IDS = new Set(PRODUCTS.slice(-6).map(p => p.id));
   const initialCat = searchParams.get('cat') || 'All';
   const initialSort = searchParams.get('sort') || 'default';
   const [activeCat, setActiveCat] = useState(initialCat);

@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { getMembers } from '../admin/data/store';
 
 const goldGradientStyle = {
   background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
@@ -79,6 +80,9 @@ function RevealSection({ children, className = '', delay = 0 }) {
 }
 
 export default function Membership() {
+  const memberCount = getMembers().length;
+  const stats = [`${memberCount}+ Members`, '4 Events/Month', '10-20% Savings'];
+
   return (
     <div>
       {/* Hero */}
@@ -91,7 +95,7 @@ export default function Membership() {
           Become part of a community dedicated to preserving the night sky. Members enjoy exclusive discounts, private events, and early access to our rarest pieces.
         </p>
         <div style={{ marginTop: 40, display: 'flex', gap: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {['300+ Members', '4 Events/Month', '10-20% Savings'].map(stat => (
+          {stats.map(stat => (
             <div key={stat} style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, marginBottom: 4, fontStyle: 'italic', ...goldGradientStyle }}>{stat.split(' ')[0]}</div>
               <div style={{ font: '400 11px JetBrains Mono', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)' }}>{stat.split(' ').slice(1).join(' ')}</div>

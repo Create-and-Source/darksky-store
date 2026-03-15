@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PRODUCTS } from '../data/products';
+import { getProducts } from '../admin/data/store';
 import ProductCard from '../components/ProductCard';
 
 const fmt = (cents) => cents ? `$${(cents / 100).toFixed(2)}` : 'Price on request';
@@ -15,6 +15,7 @@ const goldGradientStyle = {
 export default function ProductDetail({ onAddToCart }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const PRODUCTS = getProducts();
   const product = PRODUCTS.find(p => p.id === id);
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);

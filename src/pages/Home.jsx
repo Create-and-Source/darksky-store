@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { PRODUCTS } from '../data/products';
+import { getProducts } from '../admin/data/store';
 
 /* ── Reveal-on-scroll wrapper ── */
 function RevealSection({ children, className = '', delay = 0 }) {
@@ -96,6 +96,7 @@ const goldGradientStyle = {
 
 /* ────────────────────────────────────────── */
 export default function Home({ onAddToCart }) {
+  const PRODUCTS = getProducts();
   const navigate = useNavigate();
   const [heroVis, setHeroVis] = useState(false);
 

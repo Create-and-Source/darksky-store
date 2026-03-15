@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getEvents } from '../admin/data/store';
 
 function RevealSection({ children, className = '', delay = 0 }) {
   const ref = useRef(null);
@@ -16,20 +17,46 @@ function RevealSection({ children, className = '', delay = 0 }) {
   return <div ref={ref} className={`reveal ${className}`} style={{ transitionDelay: `${delay}ms` }}>{children}</div>;
 }
 
+// Map admin event categories to storefront filter categories
+const CAT_MAP = {
+  'Star Party': 'Stargazing',
+  'Special Event': 'Special Events',
+  'Kids Program': 'Kids & Family',
+  'Workshop': 'Workshops',
+  'Planetarium Show': 'Special Events',
+};
+
 const CATEGORIES = ['All', 'Stargazing', 'Workshops', 'Kids & Family', 'Special Events'];
 
-const EVENTS = [
-  { day: '22', month: 'MAR', cat: 'Stargazing', title: 'Full Moon Observatory Night', desc: 'Guided telescope viewing of the March full moon and spring constellations with our resident astronomers.', meta: '8:00 PM · Observatory Deck' },
-  { day: '29', month: 'MAR', cat: 'Kids & Family', title: 'Junior Astronomer Saturday', desc: 'Hands-on activities for ages 5-12. Build a constellation viewer and learn to navigate by the stars.', meta: '10:00 AM · Education Wing', spots: 72 },
-  { day: '05', month: 'APR', cat: 'Workshops', title: 'Astrophotography Basics', desc: 'Capture the Milky Way with your camera. All skill levels welcome. Tripods and star trackers provided.', meta: '7:30 PM · Education Center' },
-  { day: '12', month: 'APR', cat: 'Stargazing', title: 'Messier Marathon', desc: 'Attempt to observe all 110 Messier objects in a single night. Hot cocoa and blankets provided.', meta: '7:00 PM · Telescope Park', spots: 55 },
-  { day: '18', month: 'APR', cat: 'Special Events', title: 'Dark Sky Gala 2026', desc: 'Annual fundraiser under the stars. Dinner, drinks, and a private planetarium show.', meta: '6:00 PM · Main Pavilion', spots: 92, almostFull: true },
-  { day: '26', month: 'APR', cat: 'Workshops', title: 'Telescope Building Workshop', desc: 'Build your own 6-inch Dobsonian telescope from scratch. Take it home and start observing.', meta: '9:00 AM · Workshop Bay' },
-];
+function mapAdminEvent(e) {
+  const d = new Date(e.date + 'T00:00:00');
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const spotsLeft = e.capacity ? Math.max(0, Math.round(((e.capacity - (e.ticketsSold || 0)) / e.capacity) * 100)) : null;
+  return {
+    day: String(d.getDate()).padStart(2, '0'),
+    month: months[d.getMonth()],
+    cat: CAT_MAP[e.category] || e.category,
+    title: e.title,
+    desc: e.description,
+    meta: `${e.time ? formatTime(e.time) : ''} · ${e.location || ''}`.replace(/^ · /, ''),
+    spots: spotsLeft,
+    almostFull: spotsLeft !== null && spotsLeft <= 20,
+  };
+}
+
+function formatTime(t) {
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hr = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${hr}:${String(m).padStart(2, '0')} ${ampm}`;
+}
 
 export default function Events() {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('All');
+
+  const adminEvents = getEvents().filter(e => e.status === 'Published');
+  const EVENTS = adminEvents.map(mapAdminEvent);
 
   const filtered = activeCategory === 'All'
     ? EVENTS

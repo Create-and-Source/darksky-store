@@ -5,6 +5,7 @@ import Stars from './components/Stars';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
 import { EditModeProvider, EditToggleButton, EditBanner } from './components/EditMode';
+import { initStore } from './admin/data/store';
 import Home from './pages/Home';
 import About from './pages/About';
 import Events from './pages/Events';
@@ -95,6 +96,9 @@ function CustomCursor() {
     </>
   );
 }
+
+// Seed localStorage with demo data on first load (before any page reads it)
+initStore();
 
 export default function App() {
   const [cart, setCart] = useState([]);

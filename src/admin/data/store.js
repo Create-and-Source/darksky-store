@@ -5,6 +5,7 @@
 // ══════════════════════════════════════════
 
 import { INVENTORY as MOCK_INV, ORDERS as MOCK_ORD, PURCHASE_ORDERS as MOCK_PO, TRANSFERS as MOCK_TRF, VENDORS } from './mockData';
+import { PRODUCTS as MOCK_PRODUCTS } from '../../data/products';
 
 const KEYS = {
   inventory: 'ds_inventory',
@@ -21,6 +22,7 @@ const KEYS = {
   announcement: 'ds_announcement',
   ticketReservations: 'ds_ticket_reservations',
   movementHistory: 'ds_movement_history',
+  products: 'ds_products',
 };
 
 // ── HELPERS ──
@@ -50,7 +52,11 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.announcement)) set(KEYS.announcement, { text: 'International Dark Sky Discovery Center · Opening Fall 2026 · Fountain Hills, AZ', active: true });
   if (!localStorage.getItem(KEYS.ticketReservations)) set(KEYS.ticketReservations, []);
   if (!localStorage.getItem(KEYS.movementHistory)) set(KEYS.movementHistory, DEFAULT_MOVEMENTS);
+  if (!localStorage.getItem(KEYS.products)) set(KEYS.products, MOCK_PRODUCTS);
 }
+
+// ═══════ PRODUCTS (storefront catalog) ═══════
+export const getProducts = () => get(KEYS.products, []);
 
 // ═══════ INVENTORY ═══════
 export const getInventory = () => get(KEYS.inventory, []);
