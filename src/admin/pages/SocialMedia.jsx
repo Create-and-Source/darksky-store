@@ -42,18 +42,56 @@ async function downloadImage(url, filename) {
   try { const r = await fetch(url); const blob = await r.blob(); const u = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = u; a.download = filename || 'darksky.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u); } catch { window.open(url, '_blank'); }
 }
 
-// ── Image prompt builder (unchanged) ──
-function extractActivities(desc) {
-  const a = [];
-  if (desc.includes('rocket')) a.push('building model rockets');
-  if (desc.includes('planet')) a.push('learning about planets');
-  if (desc.includes('planetarium')) a.push('planetarium show');
-  if (desc.includes('telescope')) a.push('looking through telescopes');
-  if (desc.includes('build') || desc.includes('craft')) a.push('hands-on science activities');
-  if (desc.includes('lunch')) a.push('outdoor lunch');
-  return a.length > 0 ? a.join(', ') : 'hands-on space science activities';
+// ── Date/time formatters ──
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  const [h, m] = timeStr.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  return `${h > 12 ? h - 12 : h === 0 ? 12 : h}:${String(m).padStart(2, '0')} ${ampm}`;
+}
+function getShortDesc(desc) {
+  if (!desc) return '';
+  const sentences = desc.split(/(?<=[.!?])\s+/);
+  const short = sentences.slice(0, 2).join(' ');
+  return short.length > 200 ? short.slice(0, 197) + '...' : short;
+}
+function getOneLiner(desc) {
+  if (!desc) return '';
+  const first = desc.split(/[.!?]/)[0];
+  return first.length > 120 ? first.slice(0, 117) + '...' : first + '.';
+}
+function getEventHashtag(ev) {
+  const t = ((ev?.title || '') + ' ' + (ev?.category || '')).toLowerCase();
+  if (t.includes('star party') || t.includes('stargazing')) return 'StarParty';
+  if (t.includes('photo')) return 'Astrophotography';
+  if (t.includes('kids') || t.includes('camp') || t.includes('family')) return 'KidsSTEM';
+  if (t.includes('pour') || t.includes('gala') || t.includes('drink')) return 'PlanetsAndPours';
+  if (t.includes('planetarium')) return 'Planetarium';
+  if (t.includes('workshop')) return 'AstronomyWorkshop';
+  return 'DarkSkyEvent';
+}
+function getProductVibe(p) {
+  const n = (p?.title || '').toLowerCase();
+  if (n.includes('hoodie') || n.includes('jacket') || n.includes('sweat')) return 'Layer up for your next star party. Designed for nights under the Milky Way.';
+  if (n.includes('tee') || n.includes('shirt') || n.includes('tank')) return 'Wear the night sky. Perfect for observatory visits and everyday adventures.';
+  if (n.includes('mug') || n.includes('cup')) return 'Start every morning with a reminder to look up.';
+  if (n.includes('poster') || n.includes('print') || n.includes('art')) return 'Bring the cosmos into your home.';
+  if (n.includes('hat') || n.includes('beanie') || n.includes('cap')) return 'Top off your look with a piece of the night sky.';
+  return 'Designed for dark sky lovers and stargazers.';
+}
+function getSpotsText(ev) {
+  if (!ev?.capacity) return 'Limited capacity \u2014 reserve early.';
+  const left = ev.capacity - (ev.ticketsSold || 0);
+  if (left < 10) return `Only ${left} spots left \u2014 almost sold out!`;
+  return `Only ${ev.capacity} spots available \u2014 don't miss out!`;
 }
 
+// ── Image prompt builder — reads full event data ──
 function buildImagePrompt(sourceType, sourceData, fundraisingData) {
   if (sourceType === 'custom') return '';
   if (sourceType === 'product' && sourceData) {
@@ -64,49 +102,199 @@ function buildImagePrompt(sourceType, sourceData, fundraisingData) {
   }
   if (sourceType === 'donation') { const p = fundraisingData?.goal > 0 ? Math.round((fundraisingData.raised / fundraisingData.goal) * 100) : 94; return `Aerial view of a modern science center under construction at golden hour, Arizona desert, ${p} percent complete`; }
   if (sourceType !== 'event' || !sourceData) return '';
-  const title = (sourceData.title || '').toLowerCase(), desc = (sourceData.description || '').toLowerCase(), c = title + ' ' + desc;
-  if (c.includes('kids') || c.includes('camp') || c.includes('children')) { if (c.includes('rocket')) return 'Children launching model rockets in the Arizona desert, science camp, blue sky'; return `Children at a space science camp, ${extractActivities(desc)}, bright sunny day, Fountain Hills Arizona`; }
-  if (c.includes('star party') || c.includes('stargazing') || c.includes('new moon')) return 'Silhouettes around telescopes under the Milky Way, Sonoran Desert, observatory dome, Fountain Hills';
-  if (c.includes('astrophotography') || c.includes('photography')) return 'Photographer with camera on tripod capturing the Milky Way, long exposure, desert';
-  if (c.includes('meteor') || c.includes('shower')) return 'Meteors streaking across a desert sky, people on blankets, saguaro silhouettes';
-  if (c.includes('planet') || c.includes('jupiter') || c.includes('saturn')) return 'Jupiter and Saturn in a dark desert sky, observatory dome, telescope pointed skyward';
-  if (c.includes('planetarium') || c.includes('show') || c.includes('dome')) return 'Inside a planetarium dome, projected stars, silhouetted audience, blue-purple lighting';
-  if (c.includes('workshop') || c.includes('class') || c.includes('learn')) return 'People in a modern science classroom, astronomy charts, warm lighting';
-  if (c.includes('drink') || c.includes('pour') || c.includes('wine') || c.includes('beer')) return 'People with craft drinks under stars on a desert patio, string lights, telescope';
-  if (c.includes('wildlife') || c.includes('nocturnal')) return 'Nocturnal desert animals under a starry sky, nature walk at dusk';
-  return `${sourceData.title} at the International Dark Sky Discovery Center, Fountain Hills Arizona, desert, evening, astronomy`;
+
+  const desc = (sourceData.description || '').toLowerCase();
+  const title = (sourceData.title || '').toLowerCase();
+  const elements = [], setting = [];
+  // People
+  if (desc.includes('kids') || desc.includes('children') || desc.includes('ages 5') || desc.includes('ages 6')) elements.push('excited children');
+  else if (desc.includes('21+') || desc.includes('adult')) elements.push('adults');
+  else if (desc.includes('family')) elements.push('families');
+  else elements.push('people');
+  // Activities
+  if (desc.includes('telescope') || desc.includes('viewing')) elements.push('looking through telescopes');
+  if (desc.includes('craft') && (desc.includes('beer') || desc.includes('drink'))) elements.push('enjoying craft drinks');
+  if (desc.includes('wine')) elements.push('with wine glasses');
+  if (desc.includes('rocket') || desc.includes('launch')) elements.push('launching model rockets');
+  if (desc.includes('planetarium')) elements.push('inside an immersive planetarium dome');
+  if (desc.includes('camera') || desc.includes('photography')) elements.push('with cameras on tripods');
+  if (desc.includes('blanket') || desc.includes('lie back')) elements.push('lying on blankets looking up');
+  if (desc.includes('uv') || desc.includes('scorpion')) elements.push('with UV flashlights');
+  // Celestial
+  if (desc.includes('saturn')) elements.push("Saturn's rings visible");
+  if (desc.includes('jupiter')) elements.push('Jupiter bright overhead');
+  if (desc.includes('milky way')) elements.push('Milky Way arching overhead');
+  if (desc.includes('meteor')) elements.push('meteors streaking across the sky');
+  // Setting
+  if (desc.includes('amphitheater') || desc.includes('patio')) setting.push('on an outdoor desert patio');
+  else if (desc.includes('observatory') || desc.includes('deck')) setting.push('on the observatory deck');
+  else if (desc.includes('classroom') || desc.includes('education center')) setting.push('in a modern science center');
+  else setting.push('under the stars in the Sonoran Desert');
+  // Mood
+  const mood = [];
+  if (desc.includes('music') || desc.includes('acoustic')) mood.push('live acoustic music');
+  if (desc.includes('string light') || title.includes('pour') || desc.includes('intimate')) mood.push('warm string lights, intimate atmosphere');
+  if (title.includes('kids') || title.includes('camp')) mood.push('bright and fun educational atmosphere');
+
+  return `${elements.join(', ')} ${setting.join(', ')}, Fountain Hills Arizona${mood.length ? ', ' + mood.join(', ') : ''}`;
 }
 
-// ── Copy templates (unchanged) ──
-const HASHTAG_POOL = ['#DarkSky', '#FountainHills', '#StarParty', '#Astronomy', '#Arizona', '#NightSky', '#DarkSkyDiscovery', '#STEM', '#SonoranDesert', '#StargazingAZ', '#ArizonaNights', '#DarkSkyPreservation', '#ScienceEducation', '#Observatory'];
-function pickHashtags(n) { return [...HASHTAG_POOL].sort(() => Math.random() - 0.5).slice(0, n).join(' '); }
-
+// ── Copy templates — polished, post-ready ──
 function generateTemplatePosts(sourceType, sourceData, selectedPlatforms, fundraising) {
-  const posts = [], ev = sourceData, title = ev?.title || '', desc = ev?.description || '', shortDesc = desc.length > 120 ? desc.slice(0, 117) + '...' : desc;
-  const price = ev?.price ? fmt(ev.price) : 'Free', date = ev?.date || '', time = ev?.time || '', location = ev?.location || 'IDSDC, Fountain Hills', capacity = ev?.capacity || '', category = ev?.category || '';
-  const r = fundraising?.raised ? fundraising.raised / 100 : 0, g = fundraising?.goal ? fundraising.goal / 100 : 29000000, pct = g > 0 ? Math.round((r / g) * 100) : 0;
+  const posts = [], ev = sourceData;
+  const title = ev?.title || '', desc = ev?.description || '', price = ev?.price ? fmt(ev.price) : 'Free';
+  const date = ev?.date || '', time = ev?.time || '', location = ev?.location || 'IDSDC, Fountain Hills';
+  const capacity = ev?.capacity || '', category = ev?.category || '';
+  const fDate = formatDate(date), fTime = formatTime(time);
+  const shortD = getShortDesc(desc), oneLiner = getOneLiner(desc);
+  const r = fundraising?.raised ? fundraising.raised / 100 : 0, g = fundraising?.goal ? fundraising.goal / 100 : 29000000;
+  const pct = g > 0 ? Math.round((r / g) * 100) : 0;
   const raisedStr = `$${(r / 1e6).toFixed(1)}M`, goalStr = `$${(g / 1e6).toFixed(1)}M`;
+
   for (const platform of selectedPlatforms) {
     const p = platform.toLowerCase(); let text = '';
     if (sourceType === 'event') {
-      if (p === 'instagram') text = `${title}\n\n${desc}\n\n${date}${time ? ' at ' + time : ''}\n${location}\n${price !== 'Free' ? price : 'Members: FREE'}\n\nSpots are limited${capacity ? ' \u2014 only ' + capacity + ' available' : ''}.\n\nLink in bio to reserve your spot.\n\n${pickHashtags(8)}`;
-      else if (p === 'facebook') text = `Mark your calendars!\n\n${title} is happening ${date}${time ? ' at ' + time : ''}.\n\n${desc}\n\nTickets: ${price} | Members: FREE\n${capacity ? 'Only ' + capacity + ' spots available.\n' : ''}\nReserve: darkskycenter.org/events`;
-      else if (p === 'x') text = `${title} \u2014 ${date}. ${shortDesc.slice(0, 100)}${capacity ? ' Limited to ' + capacity + ' spots.' : ''} #DarkSky #FountainHills #StarParty`;
-      else if (p === 'linkedin') text = `We're excited to announce ${title} at the International Dark Sky Discovery Center.\n\n${desc}\n\n${date}\nFountain Hills, AZ\n\n${pickHashtags(5)}`;
+      const htag = getEventHashtag(ev);
+      if (p === 'instagram') text = `${title}\n\n${shortD}\n\n${fDate}${fTime ? ' at ' + fTime : ''}\n${location}\n${price !== 'Free' ? price : 'Members: FREE'}\n\n${getSpotsText(ev)}\n\nLink in bio to reserve your spot\n\n#DarkSky #FountainHillsAZ #${htag} #Astronomy #Arizona #NightSky #DarkSkyDiscovery #STEM #Stargazing`;
+      else if (p === 'facebook') text = `${title}\n\n${shortD}\n\n${fDate}\n${fTime ? fTime + '\n' : ''}${location}\n${price}${ev?.memberFree ? ' | Members: FREE' : ''}\n\n${getSpotsText(ev)}\n\nReserve your spot: darkskycenter.org/events\n\nThe International Dark Sky Discovery Center is located in Fountain Hills, AZ \u2014 one of only 13 International Dark Sky Communities in the world.`;
+      else if (p === 'x') text = `${title}\n${fDate}${fTime ? ' \u00B7 ' + fTime : ''}\n${oneLiner}\nLimited spots: darkskycenter.org/events\n#DarkSky #FountainHills #${htag}`;
+      else if (p === 'linkedin') text = `We're excited to announce ${title} at the International Dark Sky Discovery Center.\n\n${shortD}\n\nAs one of the last remaining dark sky communities near a major U.S. metro, Fountain Hills offers a unique setting for STEM education and public astronomy.\n\n${fDate}\nFountain Hills, AZ\n\n#DarkSky #STEM #Astronomy #Arizona #Education`;
     } else if (sourceType === 'product') {
-      if (p === 'instagram') text = `New in the shop\n\n${title} \u2014 ${price}\n\n${shortDesc}\n\nEvery purchase supports dark sky education.\n\nShop link in bio.\n\n${pickHashtags(7)}`;
-      else if (p === 'facebook') text = `Take the night sky home.\n\n${title} just dropped.\n\n${price} | ${category}\n\n${desc}\n\nShop: darkskycenter.org/shop`;
-      else if (p === 'x') text = `${title} \u2014 ${price}. ${shortDesc.slice(0, 80)} #DarkSky #GiftShop`;
-      else if (p === 'linkedin') text = `Mission-driven retail: ${title} (${price}). Every purchase supports STEM education at the IDSDC.\n\n${pickHashtags(5)}`;
+      const vibe = getProductVibe(ev);
+      if (p === 'instagram') text = `New in the gift shop\n\n${title} \u2014 ${price}\n\n${vibe}\n\nEvery purchase supports dark sky education and preservation at the International Dark Sky Discovery Center.\n\nShop link in bio\n\n#DarkSkyGiftShop #SpaceGifts #Astronomy #FountainHillsAZ #ShopWithPurpose #DarkSky #NightSky #MuseumShop`;
+      else if (p === 'facebook') text = `Take the night sky home.\n\n${title} just dropped in our gift shop.\n\n${price} | ${category}\n\n${vibe}\n\nEvery purchase directly supports the International Dark Sky Discovery Center's mission to preserve the night sky and inspire future scientists.\n\nShop now: darkskycenter.org/shop`;
+      else if (p === 'x') text = `${title} \u2014 ${price}\n${vibe.slice(0, 100)}\nEvery purchase supports dark sky preservation.\n#DarkSky #GiftShop`;
+      else if (p === 'linkedin') text = `Our gift shop isn't just merchandise \u2014 it's mission-driven retail.\n\n${title} (${price}) is part of our growing collection of astronomy-inspired products. Every purchase supports STEM education and dark sky preservation at the International Dark Sky Discovery Center in Fountain Hills, AZ.\n\n#DarkSky #NonProfit #STEM #SocialEnterprise #Arizona`;
     } else if (sourceType === 'donation') {
-      if (p === 'instagram') text = `We're ${pct}% of the way to our ${goalStr} goal.\n\n${raisedStr} raised so far.\n\nLink in bio to donate.\n\n${pickHashtags(7)}`;
-      else if (p === 'facebook') text = `${raisedStr} of our ${goalStr} goal \u2014 ${pct}%.\n\nHelp us reach our goal: darkskycenter.org/donate\n\nEvery gift is tax-deductible.`;
-      else if (p === 'x') text = `${raisedStr} of ${goalStr} raised. Help us build the IDSDC. #DarkSky #Donate`;
-      else if (p === 'linkedin') text = `The IDSDC has raised ${raisedStr} of our ${goalStr} campaign (${pct}%). Learn how to support: darkskycenter.org/donate\n\n${pickHashtags(5)}`;
+      if (p === 'instagram') text = `We're ${pct}% of the way to our ${goalStr} goal.\n\n${raisedStr} raised so far \u2014 thanks to people like you who believe the night sky is worth protecting.\n\nEvery dollar brings us closer to opening the International Dark Sky Discovery Center in Fountain Hills, AZ.\n\nLink in bio to donate\n\n#DarkSky #Donate #FountainHillsAZ #Nonprofit #STEM #Astronomy #SupportScience`;
+      else if (p === 'facebook') text = `We're so close.\n\n${raisedStr} of our ${goalStr} goal \u2014 ${pct}% of the way there.\n\nThe International Dark Sky Discovery Center will be a world-class STEM education facility with the largest telescope in Greater Phoenix, an immersive planetarium, and programs that connect people to the night sky.\n\nHelp us reach our goal: darkskycenter.org/donate\n\nEvery gift is tax-deductible. The night sky belongs to everyone.`;
+      else if (p === 'x') text = `${raisedStr} of ${goalStr} raised.\nHelp us build the International Dark Sky Discovery Center. Every dollar protects the night sky.\n#DarkSky #Donate`;
+      else if (p === 'linkedin') text = `The International Dark Sky Discovery Center has raised ${raisedStr} of our ${goalStr} capital campaign goal (${pct}%).\n\nThis world-class facility in Fountain Hills, AZ will house the largest telescope in Greater Phoenix, an immersive planetarium, and STEM programs serving 15,000+ students annually.\n\nLearn how your organization can support our mission: darkskycenter.org/donate\n\n#DarkSky #NonProfit #STEM #Astronomy #Arizona`;
     }
     posts.push({ platform: p, text });
   }
   return posts;
+}
+
+// ── Poster canvas renderer ──
+const POSTER_TEMPLATES = [
+  { id: 'bold', name: 'Bold', desc: 'Dark bg, centered text' },
+  { id: 'minimal', name: 'Minimal', desc: 'Photo bg, overlay text' },
+  { id: 'split', name: 'Split', desc: 'Text left, photo right' },
+  { id: 'story', name: 'Story', desc: '9:16 vertical' },
+];
+
+const POSTER_COLORS = [
+  { id: 'dark-gold', name: 'Dark & Gold', bg: '#04040c', accent: '#D4AF37', text: '#F0EDE6' },
+  { id: 'night-sky', name: 'Night Sky', bg: '#0a0a2e', accent: '#8B9DC3', text: '#E8E5DF' },
+  { id: 'desert', name: 'Desert Warm', bg: '#2c1810', accent: '#C5885A', text: '#F0EDE6' },
+  { id: 'clean', name: 'Clean White', bg: '#FAFAF8', accent: '#D4AF37', text: '#1A1A2E' },
+];
+
+async function renderPoster(template, colors, fields, bgImageUrl) {
+  const isStory = template === 'story';
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = colors.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Load bg image if provided
+  if (bgImageUrl && (template === 'minimal' || template === 'split')) {
+    try {
+      const img = new Image(); img.crossOrigin = 'anonymous';
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = bgImageUrl; });
+      if (template === 'minimal') {
+        ctx.drawImage(img, 0, 0, W, H);
+        ctx.fillStyle = 'rgba(4,4,12,0.65)'; ctx.fillRect(0, 0, W, H);
+      } else {
+        ctx.drawImage(img, W / 2, 0, W / 2, H);
+      }
+    } catch { /* bg image failed, solid color fallback */ }
+  }
+
+  // Accent line
+  ctx.fillStyle = colors.accent;
+  if (template === 'bold') { ctx.fillRect(W / 2 - 60, 200, 120, 3); }
+  else if (template === 'story') { ctx.fillRect(40, 120, W - 80, 3); }
+
+  // Text
+  ctx.textAlign = template === 'split' ? 'left' : 'center';
+  const tx = template === 'split' ? 80 : W / 2;
+
+  // Title
+  ctx.fillStyle = colors.text;
+  ctx.font = `bold ${isStory ? 72 : 64}px serif`;
+  const titleY = template === 'bold' ? 340 : template === 'story' ? 240 : template === 'minimal' ? H / 2 - 80 : 260;
+  wrapText(ctx, fields.title || '', tx, titleY, template === 'split' ? W / 2 - 120 : W - 160, isStory ? 84 : 76);
+
+  // Date + Time
+  ctx.font = `500 ${isStory ? 36 : 32}px sans-serif`;
+  ctx.fillStyle = colors.accent;
+  const dtY = titleY + (fields.title?.length > 30 ? 180 : 120);
+  ctx.fillText(`${fields.date || ''}${fields.time ? '  \u00B7  ' + fields.time : ''}`, tx, dtY);
+
+  // Location
+  ctx.font = `400 ${isStory ? 30 : 28}px sans-serif`;
+  ctx.fillStyle = colors.text + 'AA';
+  ctx.fillText(fields.location || '', tx, dtY + 50);
+
+  // Price
+  if (fields.price) {
+    ctx.font = `600 ${isStory ? 34 : 30}px sans-serif`;
+    ctx.fillStyle = colors.accent;
+    ctx.fillText(fields.price, tx, dtY + 110);
+  }
+
+  // CTA
+  if (fields.cta) {
+    const ctaY = isStory ? H - 300 : H - 160;
+    ctx.fillStyle = colors.accent;
+    const ctaW = 320, ctaH = 56;
+    const ctaX = template === 'split' ? 80 : (W - ctaW) / 2;
+    roundRect(ctx, ctaX, ctaY, ctaW, ctaH, 28);
+    ctx.fill();
+    ctx.fillStyle = colors.bg;
+    ctx.font = `700 22px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(fields.cta, ctaX + ctaW / 2, ctaY + 37);
+    ctx.textAlign = template === 'split' ? 'left' : 'center';
+  }
+
+  // Branding
+  ctx.fillStyle = colors.text + '66';
+  ctx.font = '400 20px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('International Dark Sky Discovery Center', W / 2, H - 60);
+  ctx.font = '400 16px sans-serif';
+  ctx.fillText('Fountain Hills, AZ', W / 2, H - 32);
+
+  return canvas.toDataURL('image/png');
+}
+
+function wrapText(ctx, text, x, y, maxW, lineH) {
+  const words = text.split(' ');
+  let line = '', ly = y;
+  for (const w of words) {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line.trim(), x, ly); ly += lineH; line = w + ' ';
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, ly);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
 }
 
 const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: C.shadow };
@@ -145,8 +333,14 @@ export default function SocialMedia() {
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState('image');
   const [uploadedFile, setUploadedFile] = useState(null); // { name, size, type, objectUrl, dataUrl }
+  const [mediaMode, setMediaMode] = useState('photo'); // 'photo' | 'poster'
   const [mediaTab, setMediaTab] = useState('upload'); // 'upload' | 'generate' | 'gallery'
   const [galleryImages, setGalleryImages] = useState([]);
+  const [posterTemplate, setPosterTemplate] = useState('bold');
+  const [posterColors, setPosterColors] = useState(POSTER_COLORS[0]);
+  const [posterBgUrl, setPosterBgUrl] = useState('');
+  const [posterPreview, setPosterPreview] = useState('');
+  const [posterFields, setPosterFields] = useState({ title: '', date: '', time: '', location: '', price: '', cta: '' });
   const [activePreviewPlatform, setActivePreviewPlatform] = useState('');
   const [publishedPlatforms, setPublishedPlatforms] = useState(new Set());
   const [publishing, setPublishing] = useState(null); // platform name or 'all'
@@ -175,7 +369,23 @@ export default function SocialMedia() {
   const selectSource = (type) => { setSourceType(type); setSourceId(''); setSourceData(null); if (type === 'custom') setContext(''); else if (type === 'donation') { const r = fundraising.raised / 100, g = fundraising.goal / 100, pct = g > 0 ? Math.round((r / g) * 100) : 0; setContext(`Fundraising: $${(r/1e6).toFixed(1)}M of $${(g/1e6).toFixed(1)}M (${pct}%).`); } };
   const selectEvent = (id) => { const ev = events.find(e => e.id === id); if (!ev) return; setSourceId(id); setSourceData(ev); setContext(`Event: ${ev.title}\nDate: ${ev.date}\nTime: ${ev.time || ''}\nLocation: ${ev.location || ''}\nPrice: ${ev.price ? fmt(ev.price) : 'Free'}\n\n${ev.description || ''}`); };
   const selectProduct = (id) => { const p = products.find(pr => pr.id === id); if (!p) return; setSourceId(id); setSourceData(p); setContext(`Product: ${p.title}\nPrice: ${fmt(p.price)}\nCategory: ${p.category}\n\n${p.description || ''}`); };
-  const goToStep2 = () => { if (!context.trim() && sourceType !== 'custom') { toast('Add context first', 'error'); return; } setImagePrompt(buildImagePrompt(sourceType, sourceData, fundraising)); const tp = generateTemplatePosts(sourceType, sourceData, platforms, fundraising); setPosts(tp); if (tp.length) setActivePreviewPlatform(tp[0].platform); setStep(2); };
+  const goToStep2 = () => {
+    if (!context.trim() && sourceType !== 'custom') { toast('Add context first', 'error'); return; }
+    setImagePrompt(buildImagePrompt(sourceType, sourceData, fundraising));
+    const tp = generateTemplatePosts(sourceType, sourceData, platforms, fundraising);
+    setPosts(tp); if (tp.length) setActivePreviewPlatform(tp[0].platform);
+    // Init poster fields from source
+    const ev = sourceData;
+    setPosterFields({
+      title: ev?.title || sourceType || '',
+      date: ev?.date ? formatDate(ev.date) : '',
+      time: ev?.time ? formatTime(ev.time) : '',
+      location: ev?.location || 'Dark Sky Discovery Center',
+      price: ev?.price ? fmt(ev.price) + (ev?.memberFree ? ' / Members FREE' : '') : '',
+      cta: sourceType === 'event' ? 'Reserve Your Spot' : sourceType === 'product' ? 'Shop Now' : sourceType === 'donation' ? 'Donate Today' : 'Learn More',
+    });
+    setStep(2);
+  };
   const refreshCopy = () => { if (!platforms.length) { toast('Select a platform', 'error'); return; } setPosts(generateTemplatePosts(sourceType, sourceData, platforms, fundraising)); toast('Copy refreshed'); };
   const togglePlatform = (p) => { const next = platforms.includes(p) ? platforms.filter(x => x !== p) : [...platforms, p]; setPlatforms(next); if (step === 2 && sourceType !== 'custom') { const r = generateTemplatePosts(sourceType, sourceData, next, fundraising); setPosts(r); if (r.length && !r.find(x => x.platform === activePreviewPlatform)) setActivePreviewPlatform(r[0].platform); } };
   const updatePostText = (platform, text) => setPosts(prev => prev.map(p => p.platform === platform ? { ...p, text } : p));
@@ -369,63 +579,137 @@ export default function SocialMedia() {
 
                 {/* Right: Media */}
                 <div>
-                  <h3 style={{ font: `600 15px ${FONT}`, color: C.text, margin: '0 0 14px' }}>Post Media</h3>
-                  {/* Media tabs */}
-                  <div style={{ display: 'flex', gap: 0, marginBottom: 14, background: '#F0EDE8', borderRadius: 6, overflow: 'hidden' }}>
-                    {[['upload', 'Upload'], ['generate', 'Generate'], ['gallery', 'Gallery']].map(([k, l]) => (
-                      <button key={k} onClick={() => setMediaTab(k)} style={{ flex: 1, padding: '7px 0', background: mediaTab === k ? C.card : 'transparent', border: 'none', font: `500 11px ${FONT}`, color: mediaTab === k ? C.text : C.muted, cursor: 'pointer', borderRadius: mediaTab === k ? 6 : 0, boxShadow: mediaTab === k ? C.shadow : 'none' }}>{l}</button>
-                    ))}
+                  <h3 style={{ font: `600 15px ${FONT}`, color: C.text, margin: '0 0 10px' }}>Post Media</h3>
+
+                  {/* Photo / Poster toggle */}
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                    <button onClick={() => setMediaMode('photo')} style={{ ...pillBase, padding: '8px 20px', fontSize: 12, flex: 1, background: mediaMode === 'photo' ? C.gold : 'transparent', color: mediaMode === 'photo' ? '#fff' : C.text2, border: mediaMode === 'photo' ? `1px solid ${C.gold}` : `1px solid ${C.border}`, fontWeight: 600 }}>Photo</button>
+                    <button onClick={() => setMediaMode('poster')} style={{ ...pillBase, padding: '8px 20px', fontSize: 12, flex: 1, background: mediaMode === 'poster' ? C.gold : 'transparent', color: mediaMode === 'poster' ? '#fff' : C.text2, border: mediaMode === 'poster' ? `1px solid ${C.gold}` : `1px solid ${C.border}`, fontWeight: 600 }}>Poster</button>
                   </div>
 
-                  {/* Upload */}
-                  {mediaTab === 'upload' && (
-                    <div onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop}
-                      onClick={() => fileInputRef.current?.click()}
-                      style={{ border: `2px dashed ${dragOver ? C.gold : C.border}`, borderRadius: 10, padding: 32, textAlign: 'center', cursor: 'pointer', background: dragOver ? `${C.gold}06` : 'transparent', transition: 'all 0.2s', marginBottom: 14 }}>
-                      <input ref={fileInputRef} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={e => handleFileSelect(e.target.files[0])} />
-                      <div style={{ font: `400 13px ${FONT}`, color: C.muted }}>Drag photos or videos here, or click to browse</div>
+                  {/* ── PHOTO MODE ── */}
+                  {mediaMode === 'photo' && (<>
+                    <div style={{ display: 'flex', gap: 0, marginBottom: 12, background: '#F0EDE8', borderRadius: 6, overflow: 'hidden' }}>
+                      {[['upload', 'Upload'], ['generate', 'Generate'], ['gallery', 'Gallery']].map(([k, l]) => (
+                        <button key={k} onClick={() => setMediaTab(k)} style={{ flex: 1, padding: '6px 0', background: mediaTab === k ? C.card : 'transparent', border: 'none', font: `500 10px ${FONT}`, color: mediaTab === k ? C.text : C.muted, cursor: 'pointer', borderRadius: mediaTab === k ? 6 : 0, boxShadow: mediaTab === k ? C.shadow : 'none' }}>{l}</button>
+                      ))}
                     </div>
-                  )}
-
-                  {/* Generate */}
-                  {mediaTab === 'generate' && (
-                    <div style={{ marginBottom: 14 }}>
-                      <textarea value={imagePrompt} onChange={e => setImagePrompt(e.target.value)} rows={3} style={{ ...inputStyle, fontSize: 12, lineHeight: 1.5, resize: 'vertical', marginBottom: 10 }} placeholder="Describe the image..." />
-                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 10 }}>{IMG_STYLES.map(s => <button key={s} onClick={() => setImageStyle(s)} style={{ ...pillBase, padding: '4px 10px', fontSize: 10, background: imageStyle === s ? C.gold : 'transparent', color: imageStyle === s ? '#fff' : C.text2, border: imageStyle === s ? `1px solid ${C.gold}` : `1px solid ${C.border}` }}>{s}</button>)}</div>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <button onClick={() => generateImage(false)} disabled={generatingImage} style={{ ...pillBase, padding: '8px 18px', background: generatingImage ? C.muted : C.gold, color: '#fff', fontSize: 11, fontWeight: 600 }}>{generatingImage ? 'Creating...' : 'Generate'}</button>
-                        <button onClick={() => generateImage(true)} disabled={generatingImage} style={{ ...pillBase, padding: '8px 14px', background: 'transparent', color: C.text2, border: `1px solid ${C.border}`, fontSize: 11 }}>Surprise Me</button>
+                    {mediaTab === 'upload' && (
+                      <div onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+                        onClick={() => fileInputRef.current?.click()}
+                        style={{ border: `2px dashed ${dragOver ? C.gold : C.border}`, borderRadius: 8, padding: 24, textAlign: 'center', cursor: 'pointer', background: dragOver ? `${C.gold}06` : 'transparent', marginBottom: 12 }}>
+                        <input ref={fileInputRef} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={e => handleFileSelect(e.target.files[0])} />
+                        <div style={{ font: `400 12px ${FONT}`, color: C.muted }}>Drag or click to upload</div>
                       </div>
-                      {generatingImage && <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}><div style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${C.border}`, borderTopColor: C.gold, animation: 'smSpin 0.8s linear infinite' }} /><span style={{ font: `400 12px ${FONT}`, color: C.text2 }}>Creating artwork...</span></div>}
-                    </div>
-                  )}
+                    )}
+                    {mediaTab === 'generate' && (
+                      <div style={{ marginBottom: 12 }}>
+                        <textarea value={imagePrompt} onChange={e => setImagePrompt(e.target.value)} rows={2} style={{ ...inputStyle, fontSize: 12, lineHeight: 1.4, resize: 'vertical', marginBottom: 8 }} placeholder="Describe the image..." />
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>{IMG_STYLES.map(s => <button key={s} onClick={() => setImageStyle(s)} style={{ ...pillBase, padding: '3px 8px', fontSize: 9, background: imageStyle === s ? C.gold : 'transparent', color: imageStyle === s ? '#fff' : C.text2, border: imageStyle === s ? `1px solid ${C.gold}` : `1px solid ${C.border}` }}>{s}</button>)}</div>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button onClick={() => generateImage(false)} disabled={generatingImage} style={{ ...pillBase, padding: '7px 16px', background: generatingImage ? C.muted : C.gold, color: '#fff', fontSize: 11, fontWeight: 600 }}>{generatingImage ? 'Creating...' : 'Generate'}</button>
+                          <button onClick={() => generateImage(true)} disabled={generatingImage} style={{ ...pillBase, padding: '7px 12px', background: 'transparent', color: C.text2, border: `1px solid ${C.border}`, fontSize: 11 }}>Surprise</button>
+                        </div>
+                        {generatingImage && <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}><div style={{ width: 16, height: 16, borderRadius: '50%', border: `2px solid ${C.border}`, borderTopColor: C.gold, animation: 'smSpin 0.8s linear infinite' }} /><span style={{ font: `400 11px ${FONT}`, color: C.text2 }}>Creating...</span></div>}
+                      </div>
+                    )}
+                    {mediaTab === 'gallery' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, marginBottom: 12 }}>
+                        {galleryImages.map(img => (
+                          <button key={img.id} onClick={() => pickGallery(img)} style={{ padding: 0, border: '2px solid transparent', borderRadius: 5, overflow: 'hidden', cursor: 'pointer', background: '#f0ede8', aspectRatio: '1' }} onMouseEnter={e => e.currentTarget.style.borderColor = C.gold} onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}>
+                            <img src={img.image_url || img.url || img.storage_path || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          </button>
+                        ))}
+                        {!galleryImages.length && <p style={{ font: `400 11px ${FONT}`, color: C.muted, gridColumn: '1/-1', textAlign: 'center', padding: 16 }}>No gallery images</p>}
+                      </div>
+                    )}
+                    {mediaUrl && (
+                      <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 12 }}>
+                        {mediaType === 'video' ? <video src={mediaUrl} controls style={{ width: '100%', maxHeight: 200, display: 'block', background: '#000' }} />
+                        : <img src={mediaUrl} alt="Selected" style={{ width: '100%', maxHeight: 220, objectFit: 'contain', background: '#f0ede8', display: 'block' }} />}
+                        <div style={{ padding: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
+                          {uploadedFile && <span style={{ font: `400 10px ${FONT}`, color: C.muted, flex: 1 }}>{uploadedFile.name}</span>}
+                          <button onClick={clearMedia} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: 'transparent', color: C.danger, border: `1px solid ${C.border}` }}>Remove</button>
+                        </div>
+                      </div>
+                    )}
+                  </>)}
 
-                  {/* Gallery */}
-                  {mediaTab === 'gallery' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 14 }}>
-                      {galleryImages.map(img => (
-                        <button key={img.id} onClick={() => pickGallery(img)} style={{ padding: 0, border: '2px solid transparent', borderRadius: 6, overflow: 'hidden', cursor: 'pointer', background: '#f0ede8', aspectRatio: '1' }} onMouseEnter={e => e.currentTarget.style.borderColor = C.gold} onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}>
-                          <img src={img.image_url || img.url || img.storage_path || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  {/* ── POSTER MODE ── */}
+                  {mediaMode === 'poster' && (<>
+                    {/* Template selector */}
+                    <label style={labelStyle}>Template</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 12 }}>
+                      {POSTER_TEMPLATES.map(t => (
+                        <button key={t.id} onClick={() => { setPosterTemplate(t.id); setPosterPreview(''); }} style={{
+                          ...cardStyle, padding: '10px 8px', textAlign: 'center', cursor: 'pointer',
+                          border: posterTemplate === t.id ? `2px solid ${C.gold}` : `1px solid ${C.border}`,
+                        }}>
+                          <div style={{ font: `600 11px ${FONT}`, color: posterTemplate === t.id ? C.gold : C.text, marginBottom: 2 }}>{t.name}</div>
+                          <div style={{ font: `400 9px ${FONT}`, color: C.muted }}>{t.desc}</div>
                         </button>
                       ))}
-                      {!galleryImages.length && <p style={{ font: `400 12px ${FONT}`, color: C.muted, gridColumn: '1/-1', textAlign: 'center', padding: 20 }}>No gallery images</p>}
                     </div>
-                  )}
 
-                  {/* Media preview */}
-                  {mediaUrl && (
-                    <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 14 }}>
-                      {mediaType === 'video' ? (
-                        <video src={mediaUrl} controls style={{ width: '100%', maxHeight: 250, display: 'block', background: '#000' }} />
-                      ) : (
-                        <img src={mediaUrl} alt="Selected" style={{ width: '100%', maxHeight: 300, objectFit: 'contain', background: '#f0ede8', display: 'block' }} />
-                      )}
-                      <div style={{ padding: 10, display: 'flex', gap: 6, alignItems: 'center' }}>
-                        {uploadedFile && <span style={{ font: `400 11px ${FONT}`, color: C.muted, flex: 1 }}>{uploadedFile.name} ({(uploadedFile.size / 1024 / 1024).toFixed(1)}MB)</span>}
-                        <button onClick={clearMedia} style={{ ...pillBase, padding: '4px 12px', fontSize: 10, background: 'transparent', color: C.danger, border: `1px solid ${C.border}` }}>Remove</button>
-                      </div>
+                    {/* Color scheme */}
+                    <label style={labelStyle}>Color Scheme</label>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+                      {POSTER_COLORS.map(c => (
+                        <button key={c.id} onClick={() => { setPosterColors(c); setPosterPreview(''); }} style={{
+                          ...pillBase, padding: '5px 12px', fontSize: 10,
+                          background: posterColors.id === c.id ? c.bg : 'transparent',
+                          color: posterColors.id === c.id ? c.text : C.text2,
+                          border: posterColors.id === c.id ? `2px solid ${c.accent}` : `1px solid ${C.border}`,
+                        }}>{c.name}</button>
+                      ))}
                     </div>
-                  )}
+
+                    {/* Background image for minimal/split */}
+                    {(posterTemplate === 'minimal' || posterTemplate === 'split') && (
+                      <div style={{ marginBottom: 12 }}>
+                        <label style={labelStyle}>Background Image</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4 }}>
+                          {galleryImages.slice(0, 10).map(img => (
+                            <button key={img.id} onClick={() => { setPosterBgUrl(img.image_url || img.url || img.storage_path || ''); setPosterPreview(''); }}
+                              style={{ padding: 0, border: posterBgUrl === (img.image_url || img.url || img.storage_path) ? `2px solid ${C.gold}` : '2px solid transparent', borderRadius: 4, overflow: 'hidden', cursor: 'pointer', background: '#f0ede8', aspectRatio: '1' }}>
+                              <img src={img.image_url || img.url || img.storage_path || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Editable fields */}
+                    <label style={labelStyle}>Poster Text</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                      {[['title', 'Title'], ['date', 'Date'], ['time', 'Time'], ['location', 'Location'], ['price', 'Price'], ['cta', 'Button Text']].map(([k, l]) => (
+                        <input key={k} value={posterFields[k]} onChange={e => { setPosterFields(prev => ({ ...prev, [k]: e.target.value })); setPosterPreview(''); }}
+                          placeholder={l} style={{ ...inputStyle, padding: '8px 10px', fontSize: 12 }} />
+                      ))}
+                    </div>
+
+                    {/* Generate poster */}
+                    <button onClick={async () => {
+                      try {
+                        const dataUrl = await renderPoster(posterTemplate, posterColors, posterFields, posterBgUrl);
+                        setPosterPreview(dataUrl);
+                        setMediaUrl(dataUrl); setMediaType('image'); setUploadedFile(null);
+                        toast('Poster created!');
+                      } catch (err) { toast('Poster render failed', 'error'); console.error(err); }
+                    }} style={{ ...pillBase, padding: '10px 24px', background: C.gold, color: '#fff', fontSize: 12, fontWeight: 600, marginBottom: 12, width: '100%' }}>
+                      Generate Poster
+                    </button>
+
+                    {posterPreview && (
+                      <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 12 }}>
+                        <img src={posterPreview} alt="Poster preview" style={{ width: '100%', maxHeight: 300, objectFit: 'contain', background: '#1a1a2e', display: 'block' }} />
+                        <div style={{ padding: 8, display: 'flex', gap: 6 }}>
+                          <button onClick={() => { const a = document.createElement('a'); a.href = posterPreview; a.download = `darksky-poster-${posterTemplate}.png`; a.click(); }} style={{ ...pillBase, padding: '4px 12px', fontSize: 10, background: C.gold, color: '#fff' }}>Download Poster</button>
+                          <button onClick={() => { setPosterPreview(''); clearMedia(); }} style={{ ...pillBase, padding: '4px 12px', fontSize: 10, background: 'transparent', color: C.danger, border: `1px solid ${C.border}` }}>Clear</button>
+                        </div>
+                      </div>
+                    )}
+                  </>)}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 20, borderTop: `1px solid ${C.border}`, paddingTop: 16 }}>
