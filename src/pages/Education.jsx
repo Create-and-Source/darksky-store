@@ -41,29 +41,10 @@ function LazyVideo({ src, className = '', style = {}, ...props }) {
 }
 
 function VideoDivider({ src, title, subtitle, titleEditable, subtitleEditable }) {
-  const ref = useRef(null);
-  const [offset, setOffset] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let raf;
-    const onScroll = () => {
-      raf = requestAnimationFrame(() => {
-        const rect = el.getBoundingClientRect();
-        const center = rect.top + rect.height / 2;
-        const viewCenter = window.innerHeight / 2;
-        setOffset((center - viewCenter) * 0.15);
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
-  }, []);
   return (
-    <div ref={ref} className="vid-divider">
+    <div className="vid-divider">
       <div className="vid-divider-clip">
-        <LazyVideo src={src} className="vid-divider-video" style={{ transform: `translateY(${offset}px)` }}
-          autoPlay muted loop playsInline />
+        <LazyVideo src={src} className="vid-divider-video" autoPlay muted loop playsInline />
       </div>
       <div className="vid-divider-overlay-top" />
       <div className="vid-divider-overlay-bottom" />
@@ -259,8 +240,8 @@ export default function Education() {
       {/* ── Video divider styles ── */}
       <style>{`
         .vid-divider { position: relative; height: 400px; overflow: hidden; }
-        .vid-divider-clip { position: absolute; inset: -60px 0; overflow: hidden; pointer-events: none; }
-        .vid-divider-video { width: 100%; height: calc(100% + 120px); object-fit: cover; transition: opacity 0.8s ease; pointer-events: none; }
+        .vid-divider-clip { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        .vid-divider-video { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.8s ease; pointer-events: none; }
         .vid-divider-overlay-top { position: absolute; top: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-overlay-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 3; text-align: center; padding: 0 24px; }
@@ -269,8 +250,8 @@ export default function Education() {
         @media (max-width: 768px) {
           .vid-divider { height: 250px; }
           .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 80px; }
-          .vid-divider-clip { inset: -40px 0; }
-          .vid-divider-video { height: calc(100% + 80px); }
+          .vid-divider-clip { inset: 0; }
+          .vid-divider-video { height: 100%; }
         }
         @media (max-width: 480px) {
           .vid-divider { height: 200px; }

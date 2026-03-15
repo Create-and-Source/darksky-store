@@ -32,19 +32,10 @@ function LazyVideo({ src, className = '', style = {}, ...props }) {
   return <video ref={ref} className={className} style={{ ...style, opacity: loaded ? 1 : 0, transition: 'opacity 0.8s ease' }} src={srcActive} onLoadedData={() => setLoaded(true)} {...props} />;
 }
 
-function VideoDivider({ src, title, subtitle, videoStyle = {} }) {
-  const ref = useRef(null);
-  const [offset, setOffset] = useState(0);
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
-    let raf;
-    const onScroll = () => { raf = requestAnimationFrame(() => { const rect = el.getBoundingClientRect(); setOffset((rect.top + rect.height / 2 - window.innerHeight / 2) * 0.15); }); };
-    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
-    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
-  }, []);
+function VideoDivider({ src, title, subtitle }) {
   return (
-    <div ref={ref} className="vid-divider">
-      <div className="vid-divider-clip"><LazyVideo src={src} className="vid-divider-video" style={{ transform: `translateY(${offset}px)`, ...videoStyle }} autoPlay muted loop playsInline /></div>
+    <div className="vid-divider">
+      <div className="vid-divider-clip"><LazyVideo src={src} className="vid-divider-video" autoPlay muted loop playsInline /></div>
       <div className="vid-divider-overlay-top" /><div className="vid-divider-overlay-bottom" />
       <div className="vid-divider-content"><RevealSection><h2 className="vid-divider-title">{title}</h2><p className="vid-divider-sub">{subtitle}</p></RevealSection></div>
     </div>
@@ -415,8 +406,8 @@ export default function Home({ onAddToCart }) {
         .hero-gradient { z-index: 2; }
         .hero-content { position: relative; z-index: 3; }
         .vid-divider { position: relative; height: 400px; overflow: hidden; }
-        .vid-divider-clip { position: absolute; inset: -60px 0; overflow: hidden; pointer-events: none; }
-        .vid-divider-video { width: 100%; height: calc(100% + 120px); object-fit: cover; pointer-events: none; }
+        .vid-divider-clip { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        .vid-divider-video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
         .vid-divider-overlay-top { position: absolute; top: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-overlay-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 3; text-align: center; padding: 0 24px; }
@@ -429,8 +420,8 @@ export default function Home({ onAddToCart }) {
         @media (max-width: 768px) {
           .vid-divider { height: 250px; }
           .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 80px; }
-          .vid-divider-clip { inset: -40px 0; }
-          .vid-divider-video { height: calc(100% + 80px); }
+          .vid-divider-clip { inset: 0; }
+          .vid-divider-video { height: 100%; }
           .home-facility-grid { grid-template-columns: 1fr !important; }
           .home-facts-grid { grid-template-columns: 1fr !important; }
           .home-facts-grid > div > div { border-right: none !important; border-bottom: 1px solid var(--border); }

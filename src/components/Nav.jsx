@@ -235,6 +235,8 @@ export default function Nav({ cartCount, onCartClick }) {
       <style>{`
         .nav-dropdown-wrap {
           position: relative;
+          display: inline-flex;
+          align-items: center;
         }
         .nav-dropdown {
           position: absolute;

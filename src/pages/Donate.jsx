@@ -19,20 +19,9 @@ function LazyVideo({ src, className = '', style = {}, ...props }) {
 }
 
 function VideoDivider({ src, title, subtitle }) {
-  const ref = useRef(null);
-  const [offset, setOffset] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let raf;
-    const onScroll = () => { raf = requestAnimationFrame(() => { const rect = el.getBoundingClientRect(); setOffset((rect.top + rect.height / 2 - window.innerHeight / 2) * 0.15); }); };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
-  }, []);
   return (
-    <div ref={ref} className="vid-divider">
-      <div className="vid-divider-clip"><LazyVideo src={src} className="vid-divider-video" style={{ transform: `translateY(${offset}px)` }} autoPlay muted loop playsInline /></div>
+    <div className="vid-divider">
+      <div className="vid-divider-clip"><LazyVideo src={src} className="vid-divider-video" autoPlay muted loop playsInline /></div>
       <div className="vid-divider-overlay-top" /><div className="vid-divider-overlay-bottom" />
       <div className="vid-divider-content"><div><h2 className="vid-divider-title">{title}</h2><p className="vid-divider-sub">{subtitle}</p></div></div>
     </div>
@@ -429,14 +418,14 @@ export default function Donate() {
           [data-page="donate"] .donate-amounts button { padding: 14px 4px !important; font-size: 16px !important; }
         }
         .vid-divider { position: relative; height: 400px; overflow: hidden; }
-        .vid-divider-clip { position: absolute; inset: -60px 0; overflow: hidden; pointer-events: none; }
-        .vid-divider-video { width: 100%; height: calc(100% + 120px); object-fit: cover; pointer-events: none; }
+        .vid-divider-clip { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        .vid-divider-video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
         .vid-divider-overlay-top { position: absolute; top: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-overlay-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, var(--bg, #04040c), transparent); z-index: 2; pointer-events: none; }
         .vid-divider-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 3; text-align: center; padding: 0 24px; }
         .vid-divider-title { font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif; font-style: italic; color: #fff; margin: 0 0 12px; text-shadow: 0 2px 24px rgba(0,0,0,0.6); }
         .vid-divider-sub { font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif; color: rgba(255,255,255,0.7); margin: 0; text-shadow: 0 1px 12px rgba(0,0,0,0.5); }
-        @media (max-width: 768px) { .vid-divider { height: 250px; } .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 80px; } .vid-divider-clip { inset: -40px 0; } .vid-divider-video { height: calc(100% + 80px); } }
+        @media (max-width: 768px) { .vid-divider { height: 250px; } .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 80px; } .vid-divider-clip { inset: 0; } .vid-divider-video { height: 100%; } }
       `}</style>
     </div>
   );
