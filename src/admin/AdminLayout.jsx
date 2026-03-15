@@ -35,7 +35,7 @@ const ROLE_BADGE_COLORS = {
 // Routes each role can access (path suffixes after /admin)
 const ROLE_ALLOWED_ROUTES = {
   admin: null, // all
-  shop_manager: ['', '/orders', '/inventory', '/receive', '/events', '/content', '/emails', '/design-studio'],
+  shop_manager: ['', '/orders', '/inventory', '/receive', '/events', '/content', '/emails', '/social-media', '/design-studio'],
   shop_staff: ['', '/orders', '/inventory', '/receive'],
   reports: ['', '/reports', '/donations'],
 };
@@ -60,6 +60,7 @@ const Icons = {
   search: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
   chevronDown: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6,9 12,15 18,9"/></svg>,
   designStudio: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>,
+  socialMedia: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 2L11 13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>,
   donations: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>,
   facility: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>,
   visitors: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
@@ -103,6 +104,7 @@ const navSections = [
     label: 'Communications',
     items: [
       { to: '/admin/emails', icon: Icons.email, label: 'Email' },
+      { to: '/admin/social-media', icon: Icons.socialMedia, label: 'Social Media' },
       { to: '/admin/content', icon: Icons.content, label: 'Content' },
     ],
   },
@@ -120,7 +122,7 @@ const navItems = navSections.flatMap(s => s.items);
 // Role-based nav filtering
 const ROLE_NAV = {
   admin: null, // all
-  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Events', 'Content', 'Email', 'Design Studio'],
+  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Events', 'Content', 'Email', 'Social Media', 'Design Studio'],
   shop_staff: ['Dashboard', 'Orders', 'Inventory', 'Receive'],
   reports: ['Dashboard', 'Reports', 'Donations'],
 };
@@ -144,6 +146,7 @@ const breadcrumbMap = {
   '/admin/quickbooks': 'QuickBooks',
   '/admin/donations': 'Donations',
   '/admin/design-studio': 'Design Studio',
+  '/admin/social-media': 'Social Media',
   '/admin/facility': 'Facility',
   '/admin/visitors': 'Visitors',
   '/admin/volunteers': 'Volunteers',

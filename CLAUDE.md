@@ -84,7 +84,8 @@ src/
         ├── Facility.jsx        # Facility calendar (5 IDSDC spaces), booking CRUD
         ├── Visitors.jsx        # Daily visitor tracking, 30-day trend chart
         ├── Volunteers.jsx      # Volunteer roster, hours logging, certifications
-        └── DesignStudio.jsx    # AI image generator + gallery (Supabase Desert Vision Studio)
+        ├── DesignStudio.jsx    # AI image generator + gallery (Supabase Desert Vision Studio)
+        └── SocialMedia.jsx     # AI social media post creator (3-step wizard, Anthropic + Desert Vision)
     ├── supabaseGallery.js      # Supabase client for Desert Vision Studio (gallery_images table)
 ```
 
@@ -419,7 +420,7 @@ VideoDivider components (Home, About, Education) accept `titleEditable` and `sub
 | Gift Shop | Orders, Inventory, Receive |
 | Programs | Events |
 | Community | Donations |
-| Communications | Email, Content |
+| Communications | Email, Social Media, Content |
 | Reporting | Reports |
 
 | Creative | Design Studio |
