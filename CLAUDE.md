@@ -336,7 +336,7 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 - Field trip booking form (no backend)
 - Newsletter signup in footer (no backend)
 - PWA service worker (minimal caching)
-- Help chatbot (pattern-matching, not LLM-powered)
+- Help chatbot (keyword-matching from helpKnowledge.js, no AI API — instant responses with synonym expansion, role-aware suggestions, "Related:" follow-up links)
 - Authentication (localStorage flags, no real auth)
 
 ### Hardcoded Data (not from localStorage)

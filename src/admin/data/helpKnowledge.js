@@ -329,6 +329,25 @@ export const FEATURES = {
     ],
     tooltips: {},
   },
+
+  roles: {
+    name: 'Admin Roles',
+    route: null,
+    description: 'Three admin roles control who can see and do what: Manager (full access), Staff (day-to-day operations), and Volunteer (read-only basics).',
+    howTo: [
+      'Manager (Tovah/Nancy): Full access to all admin pages — dashboard, inventory, events, email, content, reports, QuickBooks, and Edit Mode.',
+      'Staff (Josie): Can access Dashboard, Inventory, Receive, Transfers, and Orders (read-only). Cannot create events, send emails, edit content, or view financial reports.',
+      'Volunteer: Can access Dashboard and Inventory (read-only) to help customers check stock. Cannot edit anything or see financial data.',
+      'Toggle the admin role via the toggle switch in the Nav bar, or visit /admin to auto-set to Manager.',
+      'The role is stored in localStorage (ds_user_role) — it\'s a demo system, not real authentication.',
+    ],
+    tips: [
+      'The Dashboard adapts to each role — volunteers see a simplified view with quick reference info.',
+      'Staff see a day-to-day operations dashboard without revenue data.',
+      'Managers see the full dashboard with revenue charts, predictive alerts, and smart transfer suggestions.',
+    ],
+    tooltips: {},
+  },
 };
 
 // ── FREQUENTLY ASKED QUESTIONS ──
@@ -467,6 +486,42 @@ export const FAQ = [
     keywords: ['sales', 'this month', 'revenue', 'how much', 'total sales', 'monthly'],
     feature: 'reports',
   },
+  {
+    q: 'What are the different admin roles?',
+    a: 'There are three roles: Manager (full access to everything), Staff (inventory, receiving, transfers, and viewing orders), and Volunteer (read-only inventory and orders to help customers). Go to the Nav bar → Toggle the admin switch to set your role. Pro tip: The dashboard adapts to each role automatically.',
+    keywords: ['role', 'roles', 'permissions', 'access', 'manager', 'staff', 'volunteer', 'who can'],
+    feature: 'roles',
+  },
+  {
+    q: 'How do I view reports?',
+    a: 'Go to Reports (in the sidebar under Analytics). You\'ll see sales totals, top products, membership stats, and event attendance all in one place. Pro tip: Click "Export CSV" on any section to download data for QuickBooks or Excel.',
+    keywords: ['view reports', 'reports', 'analytics', 'see data', 'performance'],
+    feature: 'reports',
+  },
+  {
+    q: 'How do I check inventory?',
+    a: 'Go to Inventory (in the sidebar). Use the search bar to find products by name or SKU. Filter by location (Warehouse vs Gift Shop), category, or stock status. Pro tip: Sort by "Low Stock" to quickly see what needs restocking.',
+    keywords: ['check inventory', 'inventory', 'stock', 'how many', 'look up stock'],
+    feature: 'inventory',
+  },
+  {
+    q: 'How do I view orders?',
+    a: 'Go to Orders (in the sidebar). You\'ll see all online and POS sales with status, customer info, and totals. Use the search bar to find orders by number, customer name, or email. Pro tip: Processing orders need your attention — they haven\'t been shipped yet.',
+    keywords: ['view orders', 'see orders', 'orders page', 'order list'],
+    feature: 'orders',
+  },
+  {
+    q: 'How do I create an event?',
+    a: 'Go to Events → Click "+ New Event" → Fill in the details: title, category (Star Party, Workshop, etc.), date, time, location, and description → Set ticket price and capacity → Set status to "Published" to show it on the website. Pro tip: Use "Duplicate" for recurring events like monthly star parties.',
+    keywords: ['create event', 'new event', 'add event', 'make event', 'set up event'],
+    feature: 'events',
+  },
+  {
+    q: 'How do I send an email?',
+    a: 'Go to Email → Click "Compose Email" → Pick a template or start blank → Write your subject and message → Select recipients (All Customers, Members Only, or a segment) → Click "Send Test" first → Then "Send Email". Pro tip: Always preview with Send Test before sending to everyone.',
+    keywords: ['send email', 'compose email', 'email customers', 'send message', 'newsletter'],
+    feature: 'email',
+  },
 ];
 
 // ── ALL ADMIN ROUTES ──
@@ -495,23 +550,39 @@ export const QUICK_QUESTIONS = [
 
 export const ROLE_QUICK_QUESTIONS = {
   manager: [
-    'How do I create a star party?',
-    'How do I send an email to members?',
-    'Show me this month\'s sales',
-    'How do I create a purchase order?',
+    'How do I create an event?',
+    'How do I view reports?',
+    'How do I edit the website?',
+    'How do I send an email?',
   ],
   staff: [
     'How do I receive a shipment?',
-    'How do I check what\'s running low?',
-    'A customer wants to know their order status',
-    'How do I confirm a transfer?',
+    'How do I check inventory?',
+    'How do I view orders?',
   ],
   volunteer: [
-    'How do I look up if something is in stock?',
-    'A customer wants to buy a membership — what do I tell them?',
-    'What events are happening today?',
-    'Who do I contact if I need help?',
+    'How do I look up stock?',
+    'What events are today?',
+    'Who do I contact for help?',
   ],
+};
+
+// ── SYNONYM MAP ──
+// Maps common synonyms/alternate phrasings to canonical keywords
+const SYNONYMS = {
+  'ship': 'shipment', 'shipping': 'shipment', 'delivery': 'shipment', 'package': 'shipment', 'arrived': 'shipment',
+  'create event': 'new event', 'add event': 'new event', 'make event': 'new event', 'schedule': 'event',
+  'website': 'edit', 'site': 'edit', 'page': 'content', 'text': 'edit', 'announcement': 'content',
+  'check stock': 'inventory', 'stock level': 'inventory', 'look up': 'in stock', 'find product': 'in stock',
+  'low stock': 'running low', 'out of stock': 'running low', 'need to reorder': 'reorder',
+  'send email': 'email', 'newsletter': 'email', 'mail': 'email', 'message': 'email',
+  'move stock': 'transfer', 'restock': 'transfer', 'warehouse to gift shop': 'transfer',
+  'po': 'purchase order', 'vendor order': 'purchase order', 'buy': 'purchase order', 'supplier': 'vendor',
+  'report': 'reports', 'analytics': 'reports', 'data': 'reports', 'stats': 'reports',
+  'accounting': 'quickbooks', 'export': 'csv', 'spreadsheet': 'csv', 'excel': 'csv',
+  'member': 'membership', 'join': 'membership', 'sign up': 'membership', 'tier': 'membership',
+  'roles': 'role', 'permissions': 'role', 'access': 'role', 'manager': 'role', 'staff': 'role', 'volunteer': 'role',
+  'pencil': 'edit mode', 'pencil icon': 'edit mode', 'cms': 'edit mode', 'inline edit': 'edit mode',
 };
 
 // ── CONTEXT-AWARE SUGGESTIONS ──
@@ -633,10 +704,22 @@ function getRoleRedirect(feature, role) {
   return null;
 }
 
+// ── EXPAND QUERY WITH SYNONYMS ──
+function expandQuery(q) {
+  let expanded = q;
+  for (const [syn, canonical] of Object.entries(SYNONYMS)) {
+    if (q.includes(syn) && !q.includes(canonical)) {
+      expanded += ' ' + canonical;
+    }
+  }
+  return expanded;
+}
+
 // ── SMART RESPONSE ENGINE ──
 // Finds the best answer based on the user's question and current page context
 export function findBestResponse(question, currentRoute, role) {
   const q = question.toLowerCase().trim();
+  const qExpanded = expandQuery(q);
 
   // Check FAQ first — keyword matching with scoring
   let bestMatch = null;
@@ -652,11 +735,24 @@ export function findBestResponse(question, currentRoute, role) {
       return { answer: faq.a, feature: faq.feature, isExact: true };
     }
 
-    // Keyword scoring
+    // Keyword scoring against expanded query (includes synonyms)
     for (const kw of faq.keywords) {
-      if (q.includes(kw.toLowerCase())) {
+      const kwLower = kw.toLowerCase();
+      if (qExpanded.includes(kwLower)) {
         score += kw.split(' ').length * 2; // multi-word keywords score higher
       }
+    }
+
+    // Also match against the FAQ question text itself
+    const faqWords = faq.q.toLowerCase().split(/\s+/);
+    const qWords = q.split(/\s+/);
+    const overlap = qWords.filter(w => w.length > 2 && faqWords.includes(w)).length;
+    score += overlap;
+
+    // Also match against feature name and description
+    if (faq.feature && FEATURES[faq.feature]) {
+      const fname = FEATURES[faq.feature].name.toLowerCase();
+      if (qExpanded.includes(fname)) score += 3;
     }
 
     // Boost score if question matches current page context
@@ -672,7 +768,6 @@ export function findBestResponse(question, currentRoute, role) {
   }
 
   if (bestMatch && bestScore >= 2) {
-    // Check role restrictions — redirect warmly if feature is restricted
     const redirect = getRoleRedirect(bestMatch.feature, role);
     if (redirect) {
       return { answer: redirect, feature: bestMatch.feature, isExact: false };
@@ -683,10 +778,12 @@ export function findBestResponse(question, currentRoute, role) {
   // Check feature descriptions for general "what is X" or "tell me about X" questions
   for (const [key, feature] of Object.entries(FEATURES)) {
     const name = feature.name.toLowerCase();
-    if (q.includes(name) || q.includes(key)) {
-      const howToSteps = feature.howTo.slice(0, 3).join(' ');
+    if (qExpanded.includes(name) || qExpanded.includes(key)) {
+      const redirect = getRoleRedirect(key, role);
+      if (redirect) return { answer: redirect, feature: key, isExact: false };
+      const tip = feature.tips[0] ? ` Pro tip: ${feature.tips[0]}` : '';
       return {
-        answer: `${feature.description} Here's how to get started: ${howToSteps}`,
+        answer: `${feature.description} ${feature.route ? `Go to ${feature.name} in the sidebar to get started.` : feature.howTo[0]}${tip}`,
         feature: key,
         isExact: false,
       };
@@ -697,8 +794,9 @@ export function findBestResponse(question, currentRoute, role) {
   if (currentRoute) {
     const pageFeature = Object.values(FEATURES).find(f => f.route === currentRoute);
     if (pageFeature && (q.includes('how') || q.includes('what') || q.includes('help') || q.includes('this'))) {
+      const tip = pageFeature.tips[0] ? ` Pro tip: ${pageFeature.tips[0]}` : '';
       return {
-        answer: `You're on the ${pageFeature.name} page. ${pageFeature.description} ${pageFeature.tips[0] || ''}`,
+        answer: `You're on the ${pageFeature.name} page. ${pageFeature.description}${tip}`,
         feature: Object.keys(FEATURES).find(k => FEATURES[k] === pageFeature),
         isExact: false,
       };
@@ -725,7 +823,7 @@ export function findBestResponse(question, currentRoute, role) {
 
   // Default fallback
   return {
-    answer: "I'm not sure about that — try clicking the ? icon next to that feature for specific help, or email saleem@createandsource.com. You can also ask me about receiving shipments, creating events, managing inventory, or any other admin feature!",
+    answer: "I'm not sure about that. Try clicking the ? icon next to any feature for help, or check the sidebar to find what you need.",
     feature: null,
     isExact: false,
   };

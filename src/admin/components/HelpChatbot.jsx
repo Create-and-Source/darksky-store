@@ -18,7 +18,6 @@ export default function HelpChatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState(getChatHistory);
   const [input, setInput] = useState('');
-  const [typing, setTyping] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [firstVisit, setFirstVisit] = useState(() => !localStorage.getItem(CHAT_SEEN_KEY));
   const [panelSize, setPanelSize] = useState({ w: 400, h: 520 });
@@ -36,7 +35,7 @@ export default function HelpChatbot() {
   // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, typing]);
+  }, [messages]);
 
   // Persist messages
   useEffect(() => {
@@ -97,24 +96,17 @@ export default function HelpChatbot() {
   const sendMessage = useCallback((text) => {
     if (!text.trim()) return;
     const userMsg = { role: 'user', content: text.trim(), time: Date.now() };
-    setMessages(prev => [...prev, userMsg]);
+
+    // Instant response — no typing delay
+    const result = findBestResponse(text, currentRoute, role);
+    const botMsg = { role: 'assistant', content: result.answer, time: Date.now() };
+
+    setMessages(prev => [...prev, userMsg, botMsg]);
     setInput('');
-    setTyping(true);
-    setSuggestions([]);
 
-    // Simulate response delay for natural feel
-    const delay = 400 + Math.random() * 600;
-    setTimeout(() => {
-      const result = findBestResponse(text, currentRoute, role);
-      const botMsg = { role: 'assistant', content: result.answer, time: Date.now() };
-      setMessages(prev => [...prev, botMsg]);
-      setTyping(false);
-
-      // Get follow-up suggestions
-      const followUps = getFollowUpSuggestions(result.feature, currentRoute);
-      // Filter out the question that was just asked
-      setSuggestions(followUps.filter(q => q.toLowerCase() !== text.toLowerCase()).slice(0, 3));
-    }, delay);
+    // Get follow-up suggestions as "Related:" links
+    const followUps = getFollowUpSuggestions(result.feature, currentRoute);
+    setSuggestions(followUps.filter(q => q.toLowerCase() !== text.toLowerCase()).slice(0, 3));
   }, [currentRoute, role]);
 
   const handleSubmit = (e) => {
@@ -305,35 +297,15 @@ export default function HelpChatbot() {
                 </div>
               ))}
 
-              {/* Typing indicator */}
-              {typing && (
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <div style={{
-                    width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                    background: 'linear-gradient(135deg, #D4AF37, #B8941E)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 11, color: '#FFFFFF',
-                  }}>
-                    &#10022;
-                  </div>
-                  <div style={{
-                    padding: '12px 16px', borderRadius: '14px 14px 14px 4px',
-                    background: '#F8F7F4', border: '1px solid #E8E5DE',
-                    display: 'flex', gap: 4, alignItems: 'center',
-                  }}>
-                    <span className="chat-typing-dot" style={{ animationDelay: '0s' }} />
-                    <span className="chat-typing-dot" style={{ animationDelay: '0.2s' }} />
-                    <span className="chat-typing-dot" style={{ animationDelay: '0.4s' }} />
-                  </div>
-                </div>
-              )}
-
-              {/* Suggestion chips */}
-              {suggestions.length > 0 && !typing && (
+              {/* Related suggestion chips */}
+              {suggestions.length > 0 && (
                 <div style={{
                   display: 'flex', flexWrap: 'wrap', gap: 6,
-                  padding: '4px 0',
+                  padding: '4px 0', alignItems: 'center',
                 }}>
+                  {messages.length > 0 && (
+                    <span style={{ font: `600 11px ${FONT}`, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 4 }}>Related:</span>
+                  )}
                   {suggestions.map((q, i) => (
                     <button
                       key={i}
@@ -395,14 +367,14 @@ export default function HelpChatbot() {
               />
               <button
                 type="submit"
-                disabled={!input.trim() || typing}
+                disabled={!input.trim()}
                 style={{
                   width: 44, height: 44, borderRadius: 10, border: 'none',
-                  background: input.trim() && !typing
+                  background: input.trim()
                     ? 'linear-gradient(135deg, #D4AF37 0%, #B8941E 100%)'
                     : '#E2E8F0',
-                  color: input.trim() && !typing ? '#FFFFFF' : '#94A3B8',
-                  cursor: input.trim() && !typing ? 'pointer' : 'default',
+                  color: input.trim() ? '#FFFFFF' : '#94A3B8',
+                  cursor: input.trim() ? 'pointer' : 'default',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'all 0.2s',
                   flexShrink: 0,
