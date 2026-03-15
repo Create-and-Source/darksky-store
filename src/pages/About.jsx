@@ -156,31 +156,23 @@ export default function About() {
 
       <SectionSep />
 
-      {/* ── OFFERINGS GRID ── */}
-      <section className="section">
-        <div className="about-grid">
+      {/* ── OFFERINGS GRID — Full-bleed photo cards ── */}
+      <section className="section" style={{ padding: '0 0' }}>
+        <div className="about-offerings">
           {OFFERINGS.map((item, i) => (
-            <RevealSection key={item.title} delay={i * 100}>
-              <div className="about-card">
-                <div className="about-card-icon">
-                  {item.icon.startsWith('/') ? (
-                    <img
-                      src={item.icon}
-                      alt={item.title}
-                      loading="lazy"
-                      style={{
-                        width: 80,
-                        height: 80,
-                        borderRadius: 12,
-                        objectFit: 'cover',
-                      }}
-                    />
-                  ) : (
-                    item.icon
-                  )}
+            <RevealSection key={item.title} delay={i * 120}>
+              <div className="about-offer">
+                <img
+                  src={item.icon}
+                  alt={item.title}
+                  loading="lazy"
+                  className="about-offer-img"
+                />
+                <div className="about-offer-overlay" />
+                <div className="about-offer-content">
+                  <h3 className="about-offer-title" data-editable={`about-offering-title-${i}`}>{item.title}</h3>
+                  <p className="about-offer-desc" data-editable={`about-offering-desc-${i}`}>{item.desc}</p>
                 </div>
-                <h3 className="about-card-title" data-editable={`about-offering-title-${i}`}>{item.title}</h3>
-                <p className="about-card-desc" data-editable={`about-offering-desc-${i}`}>{item.desc}</p>
               </div>
             </RevealSection>
           ))}
@@ -330,8 +322,78 @@ export default function About() {
         </div>
       </RevealSection>
 
-      {/* ── Video divider styles ── */}
+      {/* ── Offering cards + Video divider styles ── */}
       <style>{`
+        /* ── Offering Cards ── */
+        .about-offerings {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0;
+        }
+        .about-offer {
+          position: relative;
+          min-height: 340px;
+          overflow: hidden;
+          display: flex;
+          align-items: flex-end;
+          border: 1px solid rgba(255,255,255,0.04);
+          cursor: default;
+        }
+        .about-offer-img {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.7s cubic-bezier(.16,1,.3,1);
+        }
+        .about-offer:hover .about-offer-img {
+          transform: scale(1.04);
+        }
+        .about-offer-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            180deg,
+            rgba(4,4,12,0.1) 0%,
+            rgba(4,4,12,0.35) 40%,
+            rgba(4,4,12,0.85) 100%
+          );
+          transition: background 0.4s;
+        }
+        .about-offer:hover .about-offer-overlay {
+          background: linear-gradient(
+            180deg,
+            rgba(4,4,12,0.05) 0%,
+            rgba(4,4,12,0.3) 40%,
+            rgba(4,4,12,0.8) 100%
+          );
+        }
+        .about-offer-content {
+          position: relative;
+          z-index: 1;
+          padding: 40px 36px;
+          width: 100%;
+        }
+        .about-offer-title {
+          font: 500 clamp(22px, 2.5vw, 30px)/1.2 'Playfair Display', serif;
+          color: #fff;
+          margin: 0 0 12px;
+          text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .about-offer-desc {
+          font: 300 14px/1.75 'Plus Jakarta Sans', sans-serif;
+          color: rgba(255,255,255,0.72);
+          margin: 0;
+          max-width: 420px;
+        }
+
+        @media (max-width: 860px) {
+          .about-offerings { grid-template-columns: 1fr; }
+          .about-offer { min-height: 280px; }
+          .about-offer-content { padding: 32px 24px; }
+        }
+
         .vid-divider {
           position: relative;
           height: 400px;

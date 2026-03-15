@@ -43,7 +43,7 @@ src/
 │   └── NotificationBell.jsx    # Admin notification dropdown (low stock, PO arrivals)
 ├── pages/
 │   ├── Home.jsx                # Homepage with video backgrounds, products, events
-│   ├── About.jsx               # About the center (offerings, stats, story)
+│   ├── About.jsx               # About the center (full-bleed photo offering cards, stats, story)
 │   ├── Events.jsx              # Public events (reads from ds_events localStorage)
 │   ├── Education.jsx           # Education programs
 │   ├── Shop.jsx                # Premium editorial shop (hero, staff picks, category cards, masonry grid, lifestyle banners)

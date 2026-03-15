@@ -58,10 +58,10 @@ const TIERS = [
 ];
 
 const PERKS = [
-  { icon: '🌟', title: 'Exclusive Discounts', desc: 'Members enjoy year-round savings on the entire collection, from apparel to fine art prints.' },
-  { icon: '🔭', title: 'Stargazing Events', desc: 'Private and public events under the darkest skies in Arizona, guided by astronomers.' },
-  { icon: '📦', title: 'Early Access', desc: 'First look at new arrivals, limited editions, and seasonal drops before the public.' },
-  { icon: '🌙', title: 'Dark Sky Impact', desc: 'Your membership funds light pollution reduction advocacy and science education programs.' },
+  { icon: '✦', title: 'Exclusive Discounts', desc: 'Members enjoy year-round savings on the entire collection, from apparel to fine art prints.' },
+  { icon: '✦', title: 'Stargazing Events', desc: 'Private and public events under the darkest skies in Arizona, guided by astronomers.' },
+  { icon: '✦', title: 'Early Access', desc: 'First look at new arrivals, limited editions, and seasonal drops before the public.' },
+  { icon: '✦', title: 'Dark Sky Impact', desc: 'Your membership funds light pollution reduction advocacy and science education programs.' },
 ];
 
 function RevealSection({ children, className = '', delay = 0 }) {

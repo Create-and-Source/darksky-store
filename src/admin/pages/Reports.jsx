@@ -359,7 +359,7 @@ export default function Reports() {
 
       {/* Revenue Summary */}
       <SummaryCard>
-        {revenueChangePct !== null && revenueChangePct >= 0 ? '📈 ' : ''}
+        {revenueChangePct !== null && revenueChangePct >= 0 ? '+ ' : ''}
         {revenueSummaryText}
       </SummaryCard>
 
@@ -409,7 +409,7 @@ export default function Reports() {
             {csvBtn(exportTopProducts)}
           </div>
           <SummaryCard>
-            {'⭐ '}{topProductSummaryText}
+            {topProductSummaryText}
           </SummaryCard>
           {topProducts.length === 0 ? (
             <div style={{ padding: 32, textAlign: 'center', color: '#94A3B8', font: `400 14px ${FONT}` }}>No product sales in this period</div>
