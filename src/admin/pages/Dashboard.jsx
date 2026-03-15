@@ -648,7 +648,7 @@ function VolunteerDashboard() {
 }
 
 // ════════════════════════════════════════════
-// STAFF DASHBOARD (Josie)
+// STAFF DASHBOARD (Josi)
 // ════════════════════════════════════════════
 function StaffDashboard() {
   const navigate = useNavigate();
@@ -700,7 +700,7 @@ function StaffDashboard() {
         transition: 'all 0.6s ease',
       }}>
         <h1 style={{ fontFamily: FONT, fontSize: 28, fontWeight: 600, color: C.text, letterSpacing: '-0.02em', margin: '0 0 4px' }}>
-          {getGreeting()}, Josie — here's your day
+          {getGreeting()}, Josi — here's your day
         </h1>
         <p style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, margin: 0 }}>
           {formatTodayDate()}

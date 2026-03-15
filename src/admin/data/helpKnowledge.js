@@ -111,14 +111,14 @@ export const FEATURES = {
       'Go to Transfers → Click "+ New Transfer".',
       'Select where stock is coming from and going to.',
       'Search and add products, then enter quantities for each.',
-      'Add notes (like "Josie requested poster restock").',
+      'Add notes (like "Josi requested poster restock").',
       'Click "Create Transfer" to save it as Pending.',
       'When you ship the items, mark the transfer as "Shipped".',
-      'When Josie receives them at the gift shop, she marks it "Received" and stock updates automatically.',
+      'When Josi receives them at the gift shop, she marks it "Received" and stock updates automatically.',
     ],
     tips: [
       'Check the Dashboard for Smart Transfer suggestions — it knows what the gift shop needs.',
-      'Always add notes so Josie knows what to expect.',
+      'Always add notes so Josi knows what to expect.',
       'You can view all transfer history to see what\'s been moved and when.',
     ],
     tooltips: {
@@ -336,7 +336,7 @@ export const FEATURES = {
     description: 'Three admin roles control who can see and do what: Manager (full access), Staff (day-to-day operations), and Volunteer (read-only basics).',
     howTo: [
       'Manager (Tovah/Nancy): Full access to all admin pages — dashboard, inventory, events, email, content, reports, QuickBooks, and Edit Mode.',
-      'Staff (Josie): Can access Dashboard, Inventory, Receive, Transfers, and Orders (read-only). Cannot create events, send emails, edit content, or view financial reports.',
+      'Staff (Josi): Can access Dashboard, Inventory, Receive, Transfers, and Orders (read-only). Cannot create events, send emails, edit content, or view financial reports.',
       'Volunteer: Can access Dashboard and Inventory (read-only) to help customers check stock. Cannot edit anything or see financial data.',
       'Toggle the admin role via the toggle switch in the Nav bar, or visit /admin to auto-set to Manager.',
       'The role is stored in localStorage (ds_user_role) — it\'s a demo system, not real authentication.',
@@ -384,7 +384,7 @@ export const FAQ = [
   },
   {
     q: 'How do I create a transfer?',
-    a: 'Go to Transfers → Click "+ New Transfer" → Pick where stock is going from and to → Search and add products → Enter quantities → Add notes for Josie → Click "Create Transfer". You can also use the Smart Transfers suggestion on the Dashboard for one-click transfers!',
+    a: 'Go to Transfers → Click "+ New Transfer" → Pick where stock is going from and to → Search and add products → Enter quantities → Add notes for Josi → Click "Create Transfer". You can also use the Smart Transfers suggestion on the Dashboard for one-click transfers!',
     keywords: ['transfer', 'move', 'warehouse', 'gift shop', 'restock gift shop'],
     feature: 'transfers',
   },
@@ -463,7 +463,7 @@ export const FAQ = [
   },
   {
     q: 'Who do I contact if I need help?',
-    a: 'For immediate help, contact Nancy (Manager) at (928) 555-0142. For day-to-day gift shop questions, ask Josie (Staff). You can also use this chat assistant anytime — I\'m always here to help you find your way around the system!',
+    a: 'For immediate help, contact Nancy (Manager) at (928) 555-0142. For day-to-day gift shop questions, ask Josi (Staff). You can also use this chat assistant anytime — I\'m always here to help you find your way around the system!',
     keywords: ['contact', 'help', 'emergency', 'who do i call', 'phone', 'manager'],
     feature: null,
   },
@@ -659,11 +659,11 @@ export function buildSystemPrompt(currentRoute, role) {
 
   const roleLines = {
     manager: 'The current user is a Manager (Tovah/Nancy). They have full access to all features.',
-    staff: `The current user is Staff (Josie). She can: receive shipments, check inventory (gift shop only), confirm transfers, view orders. She CANNOT: create events, send emails, edit content, create purchase orders, view reports, or see financial data. If she asks about a manager-only feature, warmly redirect: "That's a manager function — ask Nancy or Tovah to handle that for you. You can [suggest what they CAN do instead]."`,
-    volunteer: `The current user is a Volunteer. They can: look up inventory to help customers, view orders (read-only). They CANNOT: edit anything, create events, send emails, receive shipments, create POs, or see financial data. If they ask about a restricted feature, warmly redirect: "That's handled by the managers — you can reach Nancy at (928) 555-0142, or ask Tovah or Josie. In the meantime, you can [suggest what they CAN do]." Never make them feel bad for asking.`,
+    staff: `The current user is Staff (Josi). She can: receive shipments, check inventory (gift shop only), confirm transfers, view orders. She CANNOT: create events, send emails, edit content, create purchase orders, view reports, or see financial data. If she asks about a manager-only feature, warmly redirect: "That's a manager function — ask Nancy or Tovah to handle that for you. You can [suggest what they CAN do instead]."`,
+    volunteer: `The current user is a Volunteer. They can: look up inventory to help customers, view orders (read-only). They CANNOT: edit anything, create events, send emails, receive shipments, create POs, or see financial data. If they ask about a restricted feature, warmly redirect: "That's handled by the managers — you can reach Nancy at (928) 555-0142, or ask Tovah or Josi. In the meantime, you can [suggest what they CAN do]." Never make them feel bad for asking.`,
   };
 
-  return `You are the Dark Sky Discovery Center admin assistant. You help Nancy, Josie, and volunteers use the MuseumOS platform. You know everything about every feature. Answer in 1-3 sentences, plain English, no jargon. Always tell them exactly where to click. Be warm and encouraging.
+  return `You are the Dark Sky Discovery Center admin assistant. You help Nancy, Josi, and volunteers use the MuseumOS platform. You know everything about every feature. Answer in 1-3 sentences, plain English, no jargon. Always tell them exactly where to click. Be warm and encouraging.
 
 ${roleLines[role] || roleLines.manager}
 
@@ -688,8 +688,8 @@ function getRoleRedirect(feature, role) {
     if (feature === 'reports') return "Reports are available to managers. You can check inventory levels from the Inventory page to help customers find what they need!";
     if (feature === 'purchaseOrders') return "Purchase orders are created by managers. If you notice something is out of stock, let Nancy or Tovah know so they can reorder it.";
     if (feature === 'content') return "Website editing is a manager function. If you spot something that needs updating, just let Nancy or Tovah know!";
-    if (feature === 'transfers') return "Creating transfers is a manager/staff function. If you think the gift shop needs restocking, let Josie or a manager know!";
-    if (feature === 'receive') return "Receiving shipments is handled by staff and managers. If a delivery arrives, find Josie or call Nancy at (928) 555-0142.";
+    if (feature === 'transfers') return "Creating transfers is a manager/staff function. If you think the gift shop needs restocking, let Josi or a manager know!";
+    if (feature === 'receive') return "Receiving shipments is handled by staff and managers. If a delivery arrives, find Josi or call Nancy at (928) 555-0142.";
     return "That's a manager function. Ask Nancy or Tovah for help, or call (928) 555-0142.";
   }
   if (role === 'staff') {

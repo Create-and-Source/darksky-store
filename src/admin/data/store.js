@@ -48,7 +48,7 @@ export const subscribe = (fn) => { listeners.add(fn); return () => listeners.del
 const notify = () => listeners.forEach(fn => fn());
 
 // ── INIT ──
-const DATA_VERSION = '3.0';
+const DATA_VERSION = '3.1';
 
 export function initStore() {
   // Version check — clear all ds_ keys and re-seed if version mismatch
@@ -705,9 +705,9 @@ export function addHeldSale(sale) { const all = getHeldSales(); all.unshift({ id
 export function removeHeldSale(id) { set(KEYS.heldSales, getHeldSales().filter(s => s.id !== id)); }
 
 const DEFAULT_STAFF = [
-  { id: 'STF-001', name: 'Dr. Jay Herschel', role: 'Executive Director', department: 'Leadership', status: 'Active', hireDate: '2024-01-15', payType: 'Salary', payRate: null, email: 'jay@darkskycenter.org' },
+  { id: 'STF-001', name: 'Dr. J Herschel', role: 'Executive Director', department: 'Leadership', status: 'Active', hireDate: '2024-01-15', payType: 'Salary', payRate: null, email: 'drj@darkskycenter.org' },
   { id: 'STF-002', name: 'Tovah Marx', role: 'Gift Shop Manager', department: 'Operations', status: 'Active', hireDate: '2025-03-01', payType: 'Hourly', payRate: 1800, email: 'tovah@darkskycenter.org' },
-  { id: 'STF-003', name: 'Josie Chen', role: 'Gift Shop Staff', department: 'Operations', status: 'Active', hireDate: '2025-06-15', payType: 'Hourly', payRate: 1500, email: 'josie@darkskycenter.org' },
+  { id: 'STF-003', name: 'Josi Chen', role: 'Gift Shop Staff', department: 'Operations', status: 'Active', hireDate: '2025-06-15', payType: 'Hourly', payRate: 1500, email: 'josi@darkskycenter.org' },
   { id: 'STF-004', name: 'Maria Santos', role: 'Education Director', department: 'Programs', status: 'Active', hireDate: '2025-02-01', payType: 'Salary', payRate: null, email: 'maria@darkskycenter.org' },
   { id: 'STF-005', name: 'Alex Rivera', role: 'Social Media Manager', department: 'Marketing', status: 'Active', hireDate: '2025-04-01', payType: 'Hourly', payRate: 2000, email: 'alex@darkskycenter.org' },
   { id: 'STF-006', name: 'Sam Patel', role: 'Visitor Services', department: 'Front Desk', status: 'Active', hireDate: '2025-05-01', payType: 'Hourly', payRate: 1600, email: 'sam@darkskycenter.org' },
@@ -716,7 +716,7 @@ const DEFAULT_STAFF = [
 
 const DEFAULT_TIMESHEETS = [
   { staffId: 'STF-002', name: 'Tovah Marx', week: '2026-03-09', hours: [8,8,8,8,8,4,0], status: 'Pending' },
-  { staffId: 'STF-003', name: 'Josie Chen', week: '2026-03-09', hours: [0,0,6,6,6,8,8], status: 'Pending' },
+  { staffId: 'STF-003', name: 'Josi Chen', week: '2026-03-09', hours: [0,0,6,6,6,8,8], status: 'Pending' },
   { staffId: 'STF-005', name: 'Alex Rivera', week: '2026-03-09', hours: [8,8,8,8,0,0,0], status: 'Pending' },
   { staffId: 'STF-006', name: 'Sam Patel', week: '2026-03-09', hours: [0,8,8,8,8,8,0], status: 'Pending' },
 ];

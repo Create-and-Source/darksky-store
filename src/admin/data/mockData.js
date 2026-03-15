@@ -78,8 +78,8 @@ export const PURCHASE_ORDERS = [
 
 // ── TRANSFERS ──
 export const TRANSFERS = [
-  { id: 'TRF-0089', from: 'C&S Warehouse', to: 'Dark Sky Gift Shop', status: 'Received', items: [{ name: 'Telescope Enamel Pin', sku: 'DS-PIN-TELE', qty: 20 }, { name: 'Night Sky Field Guide', sku: 'DS-BOOK-GUIDE', qty: 5 }], createdDate: '2026-03-10', shippedDate: '2026-03-10', receivedDate: '2026-03-11', createdBy: 'Tovah', receivedBy: 'Josie', notes: 'Gift shop restock for weekend' },
-  { id: 'TRF-0088', from: 'C&S Warehouse', to: 'Dark Sky Gift Shop', status: 'In Transit', items: [{ name: 'Dark Sky Star Map Poster', sku: 'DS-POST-STAR-24', qty: 10 }, { name: 'Constellation Tote Bag', sku: 'DS-TOTE-CONST', qty: 8 }], createdDate: '2026-03-12', shippedDate: '2026-03-12', receivedDate: null, createdBy: 'Tovah', receivedBy: null, notes: 'Josie requested poster restock' },
+  { id: 'TRF-0089', from: 'C&S Warehouse', to: 'Dark Sky Gift Shop', status: 'Received', items: [{ name: 'Telescope Enamel Pin', sku: 'DS-PIN-TELE', qty: 20 }, { name: 'Night Sky Field Guide', sku: 'DS-BOOK-GUIDE', qty: 5 }], createdDate: '2026-03-10', shippedDate: '2026-03-10', receivedDate: '2026-03-11', createdBy: 'Tovah', receivedBy: 'Josi', notes: 'Gift shop restock for weekend' },
+  { id: 'TRF-0088', from: 'C&S Warehouse', to: 'Dark Sky Gift Shop', status: 'In Transit', items: [{ name: 'Dark Sky Star Map Poster', sku: 'DS-POST-STAR-24', qty: 10 }, { name: 'Constellation Tote Bag', sku: 'DS-TOTE-CONST', qty: 8 }], createdDate: '2026-03-12', shippedDate: '2026-03-12', receivedDate: null, createdBy: 'Tovah', receivedBy: null, notes: 'Josi requested poster restock' },
   { id: 'TRF-0087', from: 'C&S Warehouse', to: 'Dark Sky Gift Shop', status: 'Pending', items: [{ name: 'Observatory Hoodie', sku: 'DS-HOOD-OBS-S', qty: 3 }, { name: 'Observatory Hoodie', sku: 'DS-HOOD-OBS-M', qty: 4 }, { name: 'Observatory Hoodie', sku: 'DS-HOOD-OBS-L', qty: 3 }], createdDate: '2026-03-13', shippedDate: null, receivedDate: null, createdBy: 'Tovah', receivedBy: null, notes: 'Hoodie restock — waiting for PO-0045 to arrive first' },
 ];
 

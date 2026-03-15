@@ -79,7 +79,7 @@ export default function Transfers() {
   };
 
   const markReceived = (id) => {
-    updateTransfer(id, { status: 'Received', receivedDate: new Date().toISOString().slice(0, 10), receivedBy: 'Josie' });
+    updateTransfer(id, { status: 'Received', receivedDate: new Date().toISOString().slice(0, 10), receivedBy: 'Josi' });
     // Refresh selected
     const updated = getTransfers().find(t => t.id === id);
     if (updated) setSelected(updated);
