@@ -420,12 +420,12 @@ VideoDivider components (Home, About, Education) accept `titleEditable` and `sub
 | Gift Shop | Orders, Inventory, Receive |
 | Programs | Events |
 | Community | Donations |
-| Communications | Email, Social Media, Content |
+| Communications | Email, Social Media |
 | Reporting | Reports |
 
 | Creative | Design Studio |
 
-Hidden pages (code exists, not in sidebar/routes): Transfers, Purchase Orders, QuickBooks, Facility, Visitors, Volunteers. These routes redirect to /admin.
+Hidden pages (code exists, not in sidebar/routes): Transfers, Purchase Orders, QuickBooks, Facility, Visitors, Volunteers, Content. These routes redirect to /admin. Announcement bar controls moved to Dashboard.
 
 ### Design Studio
 

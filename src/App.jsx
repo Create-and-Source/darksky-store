@@ -215,7 +215,7 @@ export default function App() {
               <Route path="orders" element={<Orders />} />
               <Route path="events" element={<EventsAdmin />} />
               <Route path="emails" element={<Emails />} />
-              <Route path="content" element={<Content />} />
+              <Route path="content" element={<Navigate to="/admin" replace />} />
               <Route path="reports" element={<Reports />} />
               <Route path="quickbooks" element={<Navigate to="/admin/reports" replace />} />
               <Route path="donations" element={<Donations />} />

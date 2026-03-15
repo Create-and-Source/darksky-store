@@ -8,6 +8,7 @@ import {
   getPurchaseOrders, getTransfers,
   getSmartTransferSuggestions, getPredictiveAlerts, addTransfer, addPurchaseOrder,
   getDonations, getFacilityBookings, getVisitors, getVolunteers, getFundraising,
+  getAnnouncement, updateAnnouncement,
 } from '../data/store';
 
 // ── Design Tokens ──
@@ -804,6 +805,67 @@ function StaffDashboard() {
   );
 }
 
+// ── Announcement Bar Card ──
+function AnnouncementBar() {
+  const addToast = useToast();
+  const ann = getAnnouncement();
+  const [text, setText] = useState(ann.text || '');
+  const [active, setActive] = useState(ann.active ?? true);
+
+  const save = () => {
+    updateAnnouncement({ text: text.trim(), active });
+    addToast('Announcement updated');
+  };
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 12,
+      background: C.card, border: `1px solid ${C.border}`, borderRadius: 10,
+      padding: '10px 16px', marginBottom: 16, boxShadow: C.shadow,
+      flexWrap: 'wrap',
+    }} className="ds-announcement-bar">
+      <span style={{ fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, color: C.text2, whiteSpace: 'nowrap' }}>Announcement</span>
+      <input
+        value={text}
+        onChange={e => setText(e.target.value)}
+        placeholder="Announcement bar text..."
+        style={{
+          flex: 1, minWidth: 200, padding: '7px 10px',
+          background: '#F8F7F4', border: `1px solid ${C.border}`, borderRadius: 6,
+          font: `400 13px ${FONT}`, color: C.text, outline: 'none',
+          transition: 'border-color 0.15s',
+        }}
+        onFocus={e => e.target.style.borderColor = C.gold}
+        onBlur={e => e.target.style.borderColor = C.border}
+      />
+      <button
+        onClick={() => setActive(!active)}
+        style={{
+          width: 36, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer',
+          background: active ? C.gold : C.border, position: 'relative', transition: 'background 0.2s',
+          flexShrink: 0,
+        }}
+        title={active ? 'Turn off' : 'Turn on'}
+      >
+        <span style={{
+          position: 'absolute', top: 2, left: active ? 18 : 2,
+          width: 16, height: 16, borderRadius: '50%', background: '#fff',
+          transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+        }} />
+      </button>
+      <span style={{ font: `400 11px ${FONT}`, color: active ? C.success : C.muted, whiteSpace: 'nowrap' }}>{active ? 'Live' : 'Off'}</span>
+      <button
+        onClick={save}
+        style={{
+          padding: '6px 14px', background: C.gold, color: '#fff', border: 'none',
+          borderRadius: 6, font: `600 11px ${FONT}`, cursor: 'pointer',
+          transition: 'opacity 0.15s', flexShrink: 0,
+        }}
+      >Save</button>
+    </div>
+  );
+}
+
 // ════════════════════════════════════════════
 // MANAGER DASHBOARD (full access)
 // ════════════════════════════════════════════
@@ -1001,6 +1063,9 @@ function ManagerDashboard() {
           This week: {weekDays.reduce((s, d) => s + d.events.length, 0)} events, {totalTicketsSold} tickets sold, {members.length} members, {formatPrice(revenue30)} gift shop, ${totalDonations.toLocaleString()} donations
         </div>
       </div>
+
+      {/* Announcement Bar */}
+      <AnnouncementBar />
 
       {/* Mission Metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }} className="ds-mission-metrics">

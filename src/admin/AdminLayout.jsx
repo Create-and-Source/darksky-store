@@ -105,7 +105,6 @@ const navSections = [
     items: [
       { to: '/admin/emails', icon: Icons.email, label: 'Email' },
       { to: '/admin/social-media', icon: Icons.socialMedia, label: 'Social Media' },
-      { to: '/admin/content', icon: Icons.content, label: 'Content' },
     ],
   },
   {
@@ -122,7 +121,7 @@ const navItems = navSections.flatMap(s => s.items);
 // Role-based nav filtering
 const ROLE_NAV = {
   admin: null, // all
-  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Events', 'Content', 'Email', 'Social Media', 'Design Studio'],
+  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Events', 'Email', 'Social Media', 'Design Studio'],
   shop_staff: ['Dashboard', 'Orders', 'Inventory', 'Receive'],
   reports: ['Dashboard', 'Reports', 'Donations'],
 };
