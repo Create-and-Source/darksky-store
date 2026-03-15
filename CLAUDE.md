@@ -53,6 +53,7 @@ src/
 │   ├── OrderConfirmation.jsx   # Post-checkout confirmation
 │   ├── Membership.jsx          # Membership tiers (reads member count from ds_members)
 │   ├── Contact.jsx             # Contact form
+│   ├── Donate.jsx              # Public donation page → admin donations
 │   └── FieldTrips.jsx          # Field trip programs + booking form
 └── admin/
     ├── AdminLayout.jsx         # Admin shell: sidebar, roles, toast, keyboard shortcuts
@@ -100,6 +101,7 @@ src/
 | `/order-confirmation` | OrderConfirmation | Post-checkout success page |
 | `/membership` | Membership | Membership tiers (member count from `ds_members`) |
 | `/contact` | Contact | Contact form |
+| `/donate` | Donate | Public donation page with fundraising progress, amount presets, confirmation |
 | `/field-trips` | FieldTrips | Field trip booking |
 | `/admin` | Dashboard | Admin dashboard (lazy loaded) |
 | `/admin/inventory` | Inventory | Stock management |
@@ -495,6 +497,8 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 - Membership page reads member count from localStorage
 - Inventory adjustments on order placement
 - CSV exports in Reports and QuickBooks pages
+- Public /donate page → addDonation() → ds_donations → /admin/donations (same flow as checkout → orders)
+- Donations also increment ds_fundraising.raised via updateFundraising()
 - Donations tracking (CRUD, fundraising progress, acknowledgment workflow)
 - Facility bookings (CRUD, weekly calendar, 5 IDSDC spaces)
 - Visitor tracking (daily counts, 30-day trend chart)

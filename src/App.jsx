@@ -19,6 +19,7 @@ import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import Contact from './pages/Contact';
 import FieldTrips from './pages/FieldTrips';
+import Donate from './pages/Donate';
 
 // Admin (lazy loaded)
 const AdminLayout = lazy(() => import('./admin/AdminLayout'));
@@ -202,6 +203,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/field-trips" element={<FieldTrips />} />
             <Route path="/membership" element={<Membership />} />
+            <Route path="/donate" element={<Donate />} />
             <Route path="/admin" element={<Suspense fallback={<div style={{ padding: '120px 64px', textAlign: 'center' }}>Loading admin...</div>}><AdminLayout /></Suspense>}>
               <Route index element={<Dashboard />} />
               <Route path="inventory" element={<Inventory />} />

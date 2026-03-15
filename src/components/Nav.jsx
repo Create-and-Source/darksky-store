@@ -71,6 +71,7 @@ export default function Nav({ cartCount, onCartClick }) {
             {cartCount > 0 && <span className="nav-cart-count">{cartCount}</span>}
           </button>
 
+          <button className="nav-donate" onClick={() => go('/donate')}>Donate</button>
           <button className="nav-join" onClick={() => go('/membership')}>Join</button>
 
           {/* Admin toggle — subtle, right side */}
@@ -128,6 +129,18 @@ export default function Nav({ cartCount, onCartClick }) {
           </button>
         ))}
         <button
+          onClick={() => go('/donate')}
+          style={{
+            opacity: menuOpen ? 1 : 0,
+            transform: menuOpen ? 'none' : 'translateY(20px)',
+            transition: 'opacity 0.4s var(--ease), transform 0.4s var(--ease)',
+            transitionDelay: menuOpen ? `${NAV_LINKS.length * 80}ms` : '0ms',
+            color: 'var(--gold)',
+          }}
+        >
+          Donate
+        </button>
+        <button
           onClick={() => { onCartClick(); setMenuOpen(false); }}
           style={{
             opacity: menuOpen ? 1 : 0,
@@ -175,6 +188,25 @@ export default function Nav({ cartCount, onCartClick }) {
       </div>
 
       <style>{`
+        .nav-donate {
+          font: 500 11px 'Plus Jakarta Sans', sans-serif;
+          letter-spacing: 0.08em;
+          padding: 9px 20px;
+          border-radius: 100px;
+          border: 1px solid var(--gold);
+          color: var(--gold);
+          background: transparent;
+          cursor: pointer;
+          transition: all 0.3s;
+          white-space: nowrap;
+        }
+        .nav-donate:hover {
+          background: rgba(212,175,55,0.1);
+          transform: scale(1.02);
+        }
+        @media (max-width: 860px) {
+          .nav-donate { display: none; }
+        }
         .nav-admin-toggle-wrap {
           display: flex;
           align-items: center;
