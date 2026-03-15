@@ -244,6 +244,14 @@ export default function Checkout({ cart, onOrderComplete }) {
               <span key={m} style={{ padding: '4px 10px', borderRadius: 4, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', font: '500 11px DM Sans', color: 'var(--muted)' }}>{m}</span>
             ))}
           </div>
+          <div style={{
+            background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)',
+            borderRadius: 8, padding: '12px 16px', marginBottom: 12,
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span style={{ font: '400 12px "Plus Jakarta Sans", sans-serif', color: 'var(--gold)' }}>Demo Mode — In production, Square handles payment processing securely.</span>
+          </div>
           <div style={{ display: 'grid', gap: 12 }}>
             <input placeholder="Card number" style={{ ...inputStyle, letterSpacing: '0.1em' }} defaultValue="4242 4242 4242 4242" />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>

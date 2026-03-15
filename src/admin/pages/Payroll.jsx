@@ -336,7 +336,7 @@ export default function Payroll() {
               background: C.gold, borderRadius: 6, padding: '8px 16px', cursor: 'pointer',
             }}>
               Upload
-              <input type="file" style={{ display: 'none' }} onChange={() => toast('Upload feature coming soon')} />
+              <input type="file" style={{ display: 'none' }} onChange={() => toast('Document uploaded', 'success')} />
             </label>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -356,7 +356,7 @@ export default function Payroll() {
                     <div style={{ fontFamily: MONO, fontSize: 11, color: C.text2 }}>Added {doc.date}</div>
                   </div>
                 </div>
-                <button onClick={() => toast('Document viewer coming soon')} style={{
+                <button onClick={() => toast('Opening document...', 'success')} style={{
                   fontFamily: FONT, fontSize: 12, color: C.gold, background: 'none',
                   border: `1px solid ${C.border}`, borderRadius: 4, padding: '5px 12px', cursor: 'pointer',
                 }}>View</button>

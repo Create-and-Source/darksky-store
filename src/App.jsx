@@ -44,6 +44,11 @@ const QuickBooks = lazy(() => import('./admin/pages/QuickBooks'));
 const POS = lazy(() => import('./admin/pages/POS'));
 const FieldTripsAdmin = lazy(() => import('./admin/pages/FieldTripsAdmin'));
 const Products = lazy(() => import('./admin/pages/Products'));
+const PurchaseOrders = lazy(() => import('./admin/pages/PurchaseOrders'));
+const Content = lazy(() => import('./admin/pages/Content'));
+const Facility = lazy(() => import('./admin/pages/Facility'));
+const Visitors = lazy(() => import('./admin/pages/Visitors'));
+const Volunteers = lazy(() => import('./admin/pages/Volunteers'));
 
 const CART_KEY = 'ds_store_cart';
 
@@ -271,11 +276,11 @@ export default function App() {
               <Route path="inventory" element={<Inventory />} />
               <Route path="receive" element={<Receive />} />
               <Route path="transfers" element={<Transfers />} />
-              <Route path="purchase-orders" element={<Navigate to="/admin" replace />} />
+              <Route path="purchase-orders" element={<PurchaseOrders />} />
               <Route path="orders" element={<Orders />} />
               <Route path="events" element={<EventsAdmin />} />
               <Route path="emails" element={<Emails />} />
-              <Route path="content" element={<Navigate to="/admin" replace />} />
+              <Route path="content" element={<Content />} />
               <Route path="reports" element={<Reports />} />
               <Route path="quickbooks" element={<QuickBooks />} />
               <Route path="donations" element={<Donations />} />
@@ -285,9 +290,9 @@ export default function App() {
               <Route path="pos" element={<POS />} />
               <Route path="products" element={<Products />} />
               <Route path="field-trips" element={<FieldTripsAdmin />} />
-              <Route path="facility" element={<Navigate to="/admin" replace />} />
-              <Route path="visitors" element={<Navigate to="/admin" replace />} />
-              <Route path="volunteers" element={<Navigate to="/admin" replace />} />
+              <Route path="facility" element={<Facility />} />
+              <Route path="visitors" element={<Visitors />} />
+              <Route path="volunteers" element={<Volunteers />} />
             </Route>
             <Route path="*" element={
               <div style={{ padding: '180px 64px 120px', textAlign: 'center', background: 'var(--bg)' }}>
