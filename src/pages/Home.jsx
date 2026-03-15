@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { getProducts } from '../admin/data/store';
@@ -26,6 +26,87 @@ function RevealSection({ children, className = '', delay = 0 }) {
 /* ── Section separator ── */
 function SectionSep() {
   return <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent)' }} />;
+}
+
+/* ── Lazy Video — only loads when near viewport ── */
+function LazyVideo({ src, className = '', style = {}, ...props }) {
+  const ref = useRef(null);
+  const [loaded, setLoaded] = useState(false);
+  const [srcActive, setSrcActive] = useState(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setSrcActive(src);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [src]);
+
+  return (
+    <video
+      ref={ref}
+      className={className}
+      style={{ ...style, opacity: loaded ? 1 : 0, transition: 'opacity 0.8s ease' }}
+      src={srcActive}
+      onLoadedData={() => setLoaded(true)}
+      {...props}
+    />
+  );
+}
+
+/* ── Video Divider Section ── */
+function VideoDivider({ src, title, subtitle }) {
+  const ref = useRef(null);
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf;
+    const onScroll = () => {
+      raf = requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        const center = rect.top + rect.height / 2;
+        const viewCenter = window.innerHeight / 2;
+        setOffset((center - viewCenter) * 0.15);
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
+  }, []);
+
+  return (
+    <div ref={ref} className="vid-divider">
+      <div className="vid-divider-clip">
+        <LazyVideo
+          src={src}
+          className="vid-divider-video"
+          style={{ transform: `translateY(${offset}px)` }}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      </div>
+      <div className="vid-divider-overlay-top" />
+      <div className="vid-divider-overlay-bottom" />
+      <div className="vid-divider-content">
+        <RevealSection>
+          <h2 className="vid-divider-title">{title}</h2>
+          <p className="vid-divider-sub">{subtitle}</p>
+        </RevealSection>
+      </div>
+    </div>
+  );
 }
 
 /* ── Marquee items ── */
@@ -99,6 +180,7 @@ export default function Home({ onAddToCart }) {
   const PRODUCTS = getProducts();
   const navigate = useNavigate();
   const [heroVis, setHeroVis] = useState(false);
+  const [heroVideoLoaded, setHeroVideoLoaded] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setHeroVis(true), 100);
@@ -111,9 +193,20 @@ export default function Home({ onAddToCart }) {
     <div>
 
       {/* ══════════════════════════════════════
-          1 — HERO
+          1 — HERO (with desert-night-sky video background)
       ══════════════════════════════════════ */}
       <section className="hero">
+        <video
+          className="hero-video-bg"
+          src="/videos/desert-night-sky.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          onLoadedData={() => setHeroVideoLoaded(true)}
+          style={{ opacity: heroVideoLoaded ? 1 : 0 }}
+        />
+        <div className="hero-video-overlay" />
         <div className="hero-gradient" />
 
         <div className="hero-content">
@@ -247,7 +340,14 @@ export default function Home({ onAddToCart }) {
         </div>
       </section>
 
-      <SectionSep />
+      {/* ══════════════════════════════════════
+          OWL VIDEO DIVIDER
+      ══════════════════════════════════════ */}
+      <VideoDivider
+        src="/videos/owl.mp4"
+        title="Where the Wild Things Wake"
+        subtitle="Nocturnal wildlife thrives under dark skies"
+      />
 
       {/* ══════════════════════════════════════
           5 — UPCOMING EVENTS
@@ -345,7 +445,14 @@ export default function Home({ onAddToCart }) {
         </div>
       </section>
 
-      <SectionSep />
+      {/* ══════════════════════════════════════
+          SCORPION UV VIDEO DIVIDER
+      ══════════════════════════════════════ */}
+      <VideoDivider
+        src="/videos/scorpion-uv.mp4"
+        title="See What Others Can't"
+        subtitle="UV scorpion tours, night hikes, and desert ecology"
+      />
 
       {/* ══════════════════════════════════════
           6 — MISSION QUOTE BAND
@@ -504,6 +611,102 @@ export default function Home({ onAddToCart }) {
           </button>
         </RevealSection>
       </section>
+
+      {/* ── Video styles ── */}
+      <style>{`
+        /* Hero background video */
+        .hero { position: relative; overflow: hidden; }
+        .hero-video-bg {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          z-index: 0;
+          transition: opacity 1.2s ease;
+        }
+        .hero-video-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(4,4,12,0.6);
+          z-index: 1;
+        }
+        .hero-gradient { z-index: 2; }
+        .hero-content { position: relative; z-index: 3; }
+        .hero-scroll { position: relative; z-index: 3; }
+
+        /* Video divider sections */
+        .vid-divider {
+          position: relative;
+          height: 400px;
+          overflow: hidden;
+        }
+        .vid-divider-clip {
+          position: absolute;
+          inset: -60px 0;
+          overflow: hidden;
+        }
+        .vid-divider-video {
+          width: 100%;
+          height: calc(100% + 120px);
+          object-fit: cover;
+          transition: opacity 0.8s ease;
+        }
+        .vid-divider-overlay-top {
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 120px;
+          background: linear-gradient(to bottom, var(--bg, #04040c), transparent);
+          z-index: 2;
+          pointer-events: none;
+        }
+        .vid-divider-overlay-bottom {
+          position: absolute;
+          bottom: 0; left: 0; right: 0;
+          height: 120px;
+          background: linear-gradient(to top, var(--bg, #04040c), transparent);
+          z-index: 2;
+          pointer-events: none;
+        }
+        .vid-divider-content {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 3;
+          text-align: center;
+          padding: 0 24px;
+        }
+        .vid-divider-title {
+          font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif;
+          font-style: italic;
+          color: #fff;
+          margin: 0 0 12px;
+          text-shadow: 0 2px 24px rgba(0,0,0,0.6);
+        }
+        .vid-divider-sub {
+          font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif;
+          color: rgba(255,255,255,0.7);
+          margin: 0;
+          text-shadow: 0 1px 12px rgba(0,0,0,0.5);
+          letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 768px) {
+          .vid-divider { height: 250px; }
+          .vid-divider-overlay-top,
+          .vid-divider-overlay-bottom { height: 80px; }
+          .vid-divider-clip { inset: -40px 0; }
+          .vid-divider-video { height: calc(100% + 80px); }
+        }
+
+        @media (max-width: 480px) {
+          .vid-divider { height: 200px; }
+          .vid-divider-overlay-top,
+          .vid-divider-overlay-bottom { height: 60px; }
+        }
+      `}</style>
 
     </div>
   );
