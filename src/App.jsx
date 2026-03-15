@@ -39,6 +39,8 @@ const DesignStudio = lazy(() => import('./admin/pages/DesignStudio'));
 const SocialMedia = lazy(() => import('./admin/pages/SocialMedia'));
 const BoardMeeting = lazy(() => import('./admin/pages/BoardMeeting'));
 const Payroll = lazy(() => import('./admin/pages/Payroll'));
+const POS = lazy(() => import('./admin/pages/POS'));
+const Products = lazy(() => import('./admin/pages/Products'));
 
 const CART_KEY = 'ds_store_cart';
 
@@ -276,6 +278,8 @@ export default function App() {
               <Route path="design-studio" element={<DesignStudio />} />
               <Route path="social-media" element={<SocialMedia />} />
               <Route path="payroll" element={<Payroll />} />
+              <Route path="pos" element={<POS />} />
+              <Route path="products" element={<Products />} />
               <Route path="facility" element={<Navigate to="/admin" replace />} />
               <Route path="visitors" element={<Navigate to="/admin" replace />} />
               <Route path="volunteers" element={<Navigate to="/admin" replace />} />

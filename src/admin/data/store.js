@@ -33,6 +33,7 @@ const KEYS = {
   payrollHistory: 'ds_payroll_history',
   volunteerHours: 'ds_volunteer_hours',
   volunteerCheckins: 'ds_volunteer_checkins',
+  heldSales: 'ds_held_sales',
 };
 
 // ── HELPERS ──
@@ -88,6 +89,24 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.payrollHistory)) set(KEYS.payrollHistory, DEFAULT_PAYROLL);
   if (!localStorage.getItem(KEYS.volunteerHours)) set(KEYS.volunteerHours, DEFAULT_VOLUNTEER_HOURS);
   if (!localStorage.getItem(KEYS.volunteerCheckins)) set(KEYS.volunteerCheckins, []);
+  if (!localStorage.getItem(KEYS.heldSales)) set(KEYS.heldSales, []);
+  // Seed physical products into ds_products
+  const prods = get(KEYS.products, []);
+  if (!prods.find(p => p.id === 'PHYS-001')) {
+    const physicals = [
+      { id: 'PHYS-001', title: 'Fountain Hills Star Map Poster', price: 2499, images: [], category: 'Gifts', tags: ['poster','star map','fountain hills'], description: 'A detailed star map of the night sky as seen from Fountain Hills, Arizona. Archival quality print on heavyweight paper.', type: 'physical' },
+      { id: 'PHYS-002', title: 'Dark Sky Discovery Center Enamel Pin', price: 1299, images: [], category: 'Gifts', tags: ['pin','enamel','souvenir'], description: 'Gold and navy enamel pin featuring the IDSDC telescope dome logo. Butterfly clutch backing.', type: 'physical' },
+      { id: 'PHYS-003', title: 'Night Sky Field Guide — Arizona Edition', price: 1899, images: [], category: 'Gifts', tags: ['book','field guide','arizona'], description: 'Pocket-sized guide to Arizona night sky objects, constellations, and best viewing locations.', type: 'physical' },
+      { id: 'PHYS-004', title: 'Glow-in-the-Dark Constellation Stickers', price: 699, images: [], category: 'Kids', tags: ['stickers','glow','kids'], description: 'Set of 50 glow-in-the-dark star and constellation stickers for bedroom ceilings.', type: 'physical' },
+      { id: 'PHYS-005', title: 'PlaneWave CDK700 Telescope Model', price: 4999, images: [], category: 'Gifts', tags: ['model','telescope','collectible'], description: '1:50 scale die-cast model of the PlaneWave CDK700 telescope. Display stand included.', type: 'physical' },
+      { id: 'PHYS-006', title: 'Desert Crystal Collection Box', price: 3499, images: [], category: 'Gifts', tags: ['crystals','desert','local'], description: 'Curated box of 6 Arizona desert minerals with identification cards.', type: 'physical' },
+      { id: 'PHYS-007', title: 'Scorpion UV Flashlight', price: 1599, images: [], category: 'Gifts', tags: ['uv','flashlight','scorpion'], description: 'Professional UV flashlight for finding fluorescent scorpions on desert night hikes.', type: 'physical' },
+      { id: 'PHYS-008', title: 'Astronaut Ice Cream 3-Pack', price: 899, images: [], category: 'Kids', tags: ['ice cream','space','kids'], description: 'Freeze-dried ice cream in three flavors: vanilla, chocolate, and strawberry.', type: 'physical' },
+      { id: 'PHYS-009', title: 'Dark Sky Coffee — Midnight Roast', price: 1699, images: [], category: 'Gifts', tags: ['coffee','local','roast'], description: 'Small-batch dark roast coffee from a Scottsdale roaster. 12oz whole bean bag.', type: 'physical' },
+      { id: 'PHYS-010', title: 'Milky Way Photography Print — Signed', price: 8999, images: [], category: 'Gifts', tags: ['print','photography','signed'], description: 'Signed 16x20 print of the Milky Way over Fountain Hills by resident astrophotographer.', type: 'physical' },
+    ];
+    set(KEYS.products, [...prods, ...physicals]);
+  }
 }
 
 // ═══════ PRODUCTS (storefront catalog) ═══════
@@ -681,6 +700,9 @@ export function addVolunteerHour(entry) { const all = getVolunteerHours(); all.u
 export function addVolunteerCheckin(entry) { const all = getVolunteerCheckins(); all.unshift({ id: genId('VC'), ...entry, timestamp: new Date().toISOString() }); set(KEYS.volunteerCheckins, all); }
 export function updateTimesheets(data) { set(KEYS.timesheets, data); }
 export function addPayrollRecord(record) { const all = getPayrollHistory(); all.unshift(record); set(KEYS.payrollHistory, all); }
+export const getHeldSales = () => get(KEYS.heldSales, []);
+export function addHeldSale(sale) { const all = getHeldSales(); all.unshift({ id: genId('HOLD'), ...sale, heldAt: new Date().toISOString() }); set(KEYS.heldSales, all); }
+export function removeHeldSale(id) { set(KEYS.heldSales, getHeldSales().filter(s => s.id !== id)); }
 
 const DEFAULT_STAFF = [
   { id: 'STF-001', name: 'Dr. Jay Herschel', role: 'Executive Director', department: 'Leadership', status: 'Active', hireDate: '2024-01-15', payType: 'Salary', payRate: null, email: 'jay@darkskycenter.org' },

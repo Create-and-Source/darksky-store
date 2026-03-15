@@ -50,9 +50,9 @@ const ROLE_ALLOWED_ROUTES = {
   executive_director: null, // all
   admin: null,
   treasurer: ['', '/donations', '/reports', '/payroll'],
-  shop_manager: ['', '/orders', '/inventory', '/receive', '/transfers'],
-  shop_staff: ['', '/orders', '/inventory', '/receive'],
-  visitor_services: ['', '/events', '/reports'],
+  shop_manager: ['', '/pos', '/products', '/orders', '/inventory', '/receive', '/transfers'],
+  shop_staff: ['', '/pos', '/orders', '/inventory', '/receive'],
+  visitor_services: ['', '/pos', '/events', '/reports'],
   education_director: ['', '/events', '/reports'],
   social_media: ['', '/design-studio', '/social-media', '/emails'],
   volunteer_coordinator: ['', '/events', '/reports'],
@@ -97,6 +97,8 @@ const navSections = [
   {
     label: 'Gift Shop',
     items: [
+      { to: '/admin/pos', icon: Icons.orders, label: 'POS' },
+      { to: '/admin/products', icon: Icons.purchase, label: 'Products' },
       { to: '/admin/orders', icon: Icons.orders, label: 'Orders' },
       { to: '/admin/inventory', icon: Icons.inventory, label: 'Inventory' },
       { to: '/admin/receive', icon: Icons.receive, label: 'Receive' },
@@ -145,9 +147,9 @@ const ROLE_NAV = {
   executive_director: null,
   admin: null,
   treasurer: ['Dashboard', 'Donations', 'Reports', 'Payroll'],
-  shop_manager: ['Dashboard', 'Orders', 'Inventory', 'Receive', 'Transfers'],
-  shop_staff: ['Dashboard', 'Orders', 'Inventory', 'Receive'],
-  visitor_services: ['Dashboard', 'Events', 'Reports'],
+  shop_manager: ['Dashboard', 'POS', 'Products', 'Orders', 'Inventory', 'Receive', 'Transfers'],
+  shop_staff: ['Dashboard', 'POS', 'Orders', 'Inventory', 'Receive'],
+  visitor_services: ['Dashboard', 'POS', 'Events', 'Reports'],
   education_director: ['Dashboard', 'Events', 'Reports'],
   social_media: ['Dashboard', 'Design Studio', 'Social Media', 'Email'],
   volunteer_coordinator: ['Dashboard', 'Events', 'Reports'],
@@ -180,6 +182,8 @@ const breadcrumbMap = {
   '/admin/visitors': 'Visitors',
   '/admin/volunteers': 'Volunteers',
   '/admin/payroll': 'Payroll',
+  '/admin/pos': 'Point of Sale',
+  '/admin/products': 'Products',
   '/admin/board-meeting': 'Board Meeting',
 };
 
