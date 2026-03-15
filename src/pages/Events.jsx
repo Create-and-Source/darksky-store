@@ -92,8 +92,8 @@ export default function Events() {
       {/* ── HERO ── */}
       <section className="events-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
         <img
-          src="/images/darksky/meteor-shower.jpg"
-          alt="Meteor shower streaking across a dark desert sky"
+          src="/images/darksky/astrophotographers.png"
+          alt="Astrophotographers with cameras under the Milky Way"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.15, zIndex: 0, pointerEvents: 'none' }}
         />
         <RevealSection>

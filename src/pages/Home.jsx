@@ -514,8 +514,8 @@ export default function Home({ onAddToCart }) {
       ══════════════════════════════════════ */}
       <div className="mission" data-section="Mission" style={{ position: 'relative', overflow: 'hidden' }}>
         <img
-          src="/images/darksky/comet-neowise.jpg"
-          alt="Comet NEOWISE over the Sonoran Desert"
+          src="/images/darksky/big-dipper.png"
+          alt="Big Dipper constellation over desert mountains"
           loading="lazy"
           style={{
             position: 'absolute',

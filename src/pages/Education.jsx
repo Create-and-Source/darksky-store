@@ -88,7 +88,7 @@ const PROGRAMS = [
   { icon: '✦', img: '/images/darksky/observatory-hero.jpg', label: '01 — Field Trips', title: 'School Field Trips', desc: 'Standards-aligned programs for K-12 students. Planetarium shows, telescope viewing, and hands-on labs. We work with teachers to customize each visit to their curriculum. Free bus subsidies available for Title I schools.', cta: 'Book a Field Trip' },
   { icon: '✦', img: '/images/darksky/nebula.jpg', label: '02 — Workshops', title: 'Public Workshops', desc: 'Weekend and evening workshops for astronomy enthusiasts of all levels. From beginner stargazing to advanced astrophotography, telescope building, and celestial navigation. All materials included.', cta: 'View Schedule' },
   { icon: '✦', img: '/images/darksky/milky-way.jpg', label: '03 — Professional Development', title: 'Teacher Training', desc: 'Multi-day institutes for educators looking to bring astronomy into their classrooms. Earn continuing education credits while learning to teach with real astronomical data and NASA resources.', cta: 'Apply Now' },
-  { icon: '✦', img: '/images/darksky/desert-night-sky.png', label: '04 — Community', title: 'Community Outreach', desc: 'Telescope lending library, dark sky advocacy toolkit, and mobile planetarium visits to underserved communities. We believe everyone deserves access to the night sky.', cta: 'Get Involved' },
+  { icon: '✦', img: '/images/darksky/gila-monster.png', label: '04 — Community', title: 'Community Outreach', desc: 'Telescope lending library, dark sky advocacy toolkit, and mobile planetarium visits to underserved communities. We believe everyone deserves access to the night sky.', cta: 'Get Involved' },
 ];
 
 const STATS = [

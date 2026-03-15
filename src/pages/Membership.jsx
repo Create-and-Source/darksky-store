@@ -102,8 +102,8 @@ export default function Membership() {
       {/* Hero */}
       <div className="mem-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
         <img
-          src="/images/darksky/andromeda.jpg"
-          alt="Andromeda galaxy stretching across the night sky"
+          src="/images/darksky/big-dipper-2.png"
+          alt="Big Dipper with star trails over the Sonoran Desert"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.12, zIndex: 0, pointerEvents: 'none' }}
         />
         <div className="label" style={{ marginBottom: 20, position: 'relative', zIndex: 1 }} data-editable="mem-hero-label">// Membership</div>

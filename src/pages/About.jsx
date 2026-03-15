@@ -111,8 +111,8 @@ const goldGradientStyle = {
 const OFFERINGS = [
   { icon: '/images/darksky/observatory-hero.jpg', title: 'Dark Sky Observatory', desc: 'Home to a 27.5-inch PlaneWave CDK700 — the largest telescope in Greater Phoenix. Open nightly for guided viewing sessions under some of the darkest skies in the American Southwest.' },
   { icon: '/images/darksky/nebula.jpg', title: 'Hyperspace Planetarium', desc: 'A state-of-the-art tilted-dome theater seating 65 guests. Immersive shows transport you from our solar system to the edge of the observable universe.' },
-  { icon: '/images/darksky/saturn.jpg', title: 'Interactive Exhibits', desc: 'Hands-on galleries exploring light pollution, celestial navigation, space exploration, and the cultural significance of the night sky across civilizations.' },
-  { icon: '/images/darksky/milky-way.jpg', title: 'Curated Experiences', desc: 'From stargazing dinners to astrophotography workshops, every visit is designed to create lasting connections with the cosmos.' },
+  { icon: '/images/darksky/gila-monster.png', title: 'Interactive Exhibits', desc: 'Hands-on galleries exploring light pollution, celestial navigation, space exploration, and the cultural significance of the night sky across civilizations.' },
+  { icon: '/images/darksky/butterfly-fountain-hills.png', title: 'Curated Experiences', desc: 'From stargazing dinners to astrophotography workshops, every visit is designed to create lasting connections with the cosmos.' },
 ];
 
 const STATS = [
