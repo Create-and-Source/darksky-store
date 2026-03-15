@@ -101,6 +101,7 @@ const navSections = [
       { to: '/admin/products', icon: Icons.purchase, label: 'Products' },
       { to: '/admin/orders', icon: Icons.orders, label: 'Orders' },
       { to: '/admin/inventory', icon: Icons.inventory, label: 'Inventory' },
+      { to: '/admin/purchase-orders', icon: Icons.purchase, label: 'Purchase Orders' },
       { to: '/admin/receive', icon: Icons.receive, label: 'Receive' },
       { to: '/admin/transfers', icon: Icons.transfer, label: 'Transfers' },
     ],
