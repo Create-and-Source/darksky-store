@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { addContact } from '../admin/data/store';
 
 export default function Footer() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
 
   return (
     <>
@@ -18,15 +20,20 @@ export default function Footer() {
             Monthly updates on events, new arrivals, and dark sky news.
           </p>
         </div>
-        <form className="newsletter-form" onSubmit={e => e.preventDefault()}>
+        <form className="newsletter-form" onSubmit={e => { e.preventDefault(); if (email.trim()) { addContact({ email: email.trim(), source: 'newsletter' }); setSubscribed(true); setEmail(''); } }}>
+          {subscribed ? (
+            <span style={{ font: '500 14px "Plus Jakarta Sans"', color: 'var(--gold)', padding: '14px 0' }}>Subscribed! We'll keep you posted.</span>
+          ) : (<>
           <input
             type="email"
             className="newsletter-input"
             placeholder="your@email.com"
             value={email}
             onChange={e => setEmail(e.target.value)}
+            required
           />
           <button type="submit" className="newsletter-btn">Subscribe</button>
+          </>)}
         </form>
       </div>
 

@@ -100,6 +100,7 @@ export default function Nav({ cartCount, onCartClick }) {
 
           <button className="nav-donate" onClick={() => go('/donate')}>Donate</button>
           <button className="nav-join" onClick={() => go('/membership')}>Join</button>
+          <button className="nav-signin" onClick={() => go('/signin')}>Sign In</button>
 
           {/* Admin toggle — always visible */}
           <div className="nav-admin-toggle-wrap">
@@ -194,6 +195,15 @@ export default function Nav({ cartCount, onCartClick }) {
               cursor: 'pointer',
             }}
           >Join</button>
+          <button
+            onClick={() => go('/signin')}
+            style={{
+              padding: '12px 0', borderRadius: 100, border: '1px solid rgba(255,255,255,0.15)',
+              background: 'transparent', color: 'var(--text2)',
+              font: '400 14px "Plus Jakarta Sans", sans-serif', letterSpacing: '0.04em',
+              cursor: 'pointer',
+            }}
+          >Sign In</button>
         </div>
 
         {/* Mobile admin toggle */}
@@ -284,8 +294,21 @@ export default function Nav({ cartCount, onCartClick }) {
         .nav-donate:hover {
           background: rgba(212,175,55,0.1);
         }
+        .nav-signin {
+          font: 400 11px 'Plus Jakarta Sans', sans-serif;
+          letter-spacing: 0.06em;
+          padding: 8px 16px;
+          border-radius: 100px;
+          border: none;
+          color: var(--text2);
+          background: transparent;
+          cursor: pointer;
+          transition: color 0.2s;
+          white-space: nowrap;
+        }
+        .nav-signin:hover { color: var(--gold); }
         @media (max-width: 1024px) {
-          .nav-donate, .nav-join { display: none !important; }
+          .nav-donate, .nav-join, .nav-signin { display: none !important; }
         }
         .nav-admin-toggle-wrap {
           display: flex;

@@ -116,9 +116,17 @@ src/
 | `/admin/social-media` | SocialMedia | AI social post creator (copy templates, poster generator, publish simulation) |
 | `/admin/design-studio` | DesignStudio | AI image generator + Supabase gallery browser |
 | `/admin/reports` | Reports | Sales, inventory, membership, event analytics + CSV export |
+| `/admin/pos` | POS | Point of sale register (tablet-optimized, split-screen) |
+| `/admin/products` | Products | Product manager (POD + physical inventory) |
+| `/admin/transfers` | Transfers | Warehouse to Gift Shop stock transfers |
+| `/admin/payroll` | Payroll | Staff roster, timesheets, payroll export |
+| `/admin/board-meeting` | BoardMeeting | Full-screen board presentation (standalone dark theme) |
+| `/signin` | SignIn | Role-based sign-in (12 roles, no passwords) |
+| `/member-portal` | MemberPortal | Member dashboard with card, benefits, events |
+| `/volunteer-portal` | VolunteerPortal | Volunteer dashboard with shifts, hours, training |
 | `*` | 404 | "Lost in Space" page |
 
-**Hidden admin routes** (code exists, routes redirect to `/admin`): `/admin/transfers`, `/admin/purchase-orders`, `/admin/content`, `/admin/quickbooks`, `/admin/facility`, `/admin/visitors`, `/admin/volunteers`
+**Hidden admin routes** (routes redirect to `/admin`): `/admin/purchase-orders`, `/admin/content`, `/admin/quickbooks`, `/admin/facility`, `/admin/visitors`, `/admin/volunteers`
 
 ## localStorage Keys
 

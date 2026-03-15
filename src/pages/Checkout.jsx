@@ -237,29 +237,27 @@ export default function Checkout({ cart, onOrderComplete }) {
         <div style={{
           padding: 28, border: '1px solid var(--border)',
           background: 'rgba(201,169,74,0.03)', borderRadius: 'var(--r, 3px)',
-          marginBottom: 32, textAlign: 'center',
+          marginBottom: 32,
         }}>
-          <div style={{
-            width: '100%', padding: '18px 16px', marginBottom: 16,
-            background: 'rgba(255,255,255,0.03)', border: '1px dashed var(--border2, rgba(255,255,255,0.1))',
-            borderRadius: 'var(--r, 3px)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ font: '400 14px DM Sans', color: 'var(--muted)' }}>
-                .... .... .... ....
-              </span>
-              <span style={{ font: '400 12px DM Sans', color: 'var(--muted)' }}>
-                MM / YY &nbsp; CVC
-              </span>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            {['Visa', 'Mastercard', 'Amex', 'Apple Pay'].map(m => (
+              <span key={m} style={{ padding: '4px 10px', borderRadius: 4, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', font: '500 11px DM Sans', color: 'var(--muted)' }}>{m}</span>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gap: 12 }}>
+            <input placeholder="Card number" style={{ ...inputStyle, letterSpacing: '0.1em' }} defaultValue="4242 4242 4242 4242" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <input placeholder="MM / YY" style={inputStyle} defaultValue="12 / 28" />
+              <input placeholder="CVC" style={inputStyle} defaultValue="123" />
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
               <path d="M7 11V7a5 5 0 0110 0v4"/>
             </svg>
-            <span style={{ font: '400 12px DM Sans', color: 'var(--gold)' }}>
-              Card payment powered by Square -- coming soon
+            <span style={{ font: '400 11px DM Sans', color: 'var(--gold)' }}>
+              Secured by 256-bit SSL encryption
             </span>
           </div>
         </div>

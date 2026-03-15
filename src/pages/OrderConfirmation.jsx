@@ -148,7 +148,7 @@ export default function OrderConfirmation() {
         {/* Buttons */}
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button className="btn-primary" onClick={() => navigate('/shop')}>Continue Shopping</button>
-          <button className="btn-ghost" onClick={() => navigate('/')}>Track Your Order</button>
+          <button className="btn-ghost" onClick={() => navigate('/')}>Return Home</button>
         </div>
 
         {/* Membership CTA */}

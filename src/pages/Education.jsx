@@ -137,7 +137,7 @@ export default function Education() {
                   <span className="label" data-editable={`edu-prog-label-${i}`}>{program.label}</span>
                   <h3 className="edu-program-title" data-editable={`edu-prog-title-${i}`}>{program.title}</h3>
                   <p className="edu-program-desc" data-editable={`edu-prog-desc-${i}`} style={{ lineHeight: 1.7 }}>{program.desc}</p>
-                  <button className="btn-outline" style={{ marginTop: 24, alignSelf: 'flex-start' }}>{program.cta}</button>
+                  <button className="btn-outline" onClick={() => navigate(i === 0 ? '/field-trips' : i === 1 ? '/events' : '/contact')} style={{ marginTop: 24, alignSelf: 'flex-start' }}>{program.cta}</button>
                 </div>
               </div>
             </RevealSection>
