@@ -159,8 +159,8 @@ export default function HelpChatbot() {
           className="ds-chat-btn"
           onClick={() => setOpen(true)}
           style={{
-            position: 'fixed', bottom: 16, right: 16, zIndex: 10001,
-            width: 52, height: 52, borderRadius: '50%',
+            position: 'fixed', zIndex: 10001,
+            borderRadius: '50%',
             background: 'linear-gradient(135deg, #D4AF37 0%, #B8941E 100%)',
             border: 'none', cursor: 'pointer',
             boxShadow: '0 4px 20px rgba(212,175,55,0.35)',
@@ -187,7 +187,7 @@ export default function HelpChatbot() {
       {/* Label under button */}
       {!open && (
         <div className="ds-chat-label" style={{
-          position: 'fixed', bottom: 0, right: 16, zIndex: 10001,
+          position: 'fixed', zIndex: 10001,
           width: 52, textAlign: 'center',
           font: `500 9px ${FONT}`, color: '#94A3B8',
           pointerEvents: 'none',
@@ -460,6 +460,16 @@ export default function HelpChatbot() {
 
       {/* Styles */}
       <style>{`
+        .ds-chat-btn {
+          width: 52px;
+          height: 52px;
+          bottom: 16px;
+          right: 16px;
+        }
+        .ds-chat-label {
+          bottom: 0;
+          right: 16px;
+        }
         @keyframes chatPulse {
           0%, 100% { box-shadow: 0 4px 20px rgba(212,175,55,0.35); }
           50% { box-shadow: 0 4px 30px rgba(212,175,55,0.6), 0 0 0 8px rgba(212,175,55,0.12); }
@@ -479,6 +489,21 @@ export default function HelpChatbot() {
           background: #D4AF37;
           display: inline-block;
           animation: chatDotBounce 1.2s ease-in-out infinite;
+        }
+        @media (max-width: 768px) {
+          .ds-chat-btn {
+            width: 44px !important;
+            height: 44px !important;
+            bottom: 80px !important;
+            right: 16px !important;
+          }
+          .ds-chat-btn svg {
+            width: 18px !important;
+            height: 18px !important;
+          }
+          .ds-chat-label {
+            display: none !important;
+          }
         }
         @media (max-width: 600px) {
           /* Ensure input stays above keyboard on mobile */

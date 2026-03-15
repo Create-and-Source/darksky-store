@@ -940,10 +940,10 @@ html, body {
   /* ── MAIN: no sidebar margin ── */
   .admin-main { margin-left: 0; }
 
-  /* ── TOPBAR: compact 48px, single row ── */
+  /* ── TOPBAR: compact 44px, single row ── */
   .admin-hamburger { display: flex !important; }
   .admin-topbar {
-    height: 48px;
+    height: 44px;
     padding: 0 12px;
     gap: 8px;
   }
@@ -958,9 +958,9 @@ html, body {
   .admin-topbar-role-mobile { display: flex !important; }
   .admin-topbar-avatar { width: 28px; height: 28px; font-size: 12px; }
 
-  /* ── CONTENT: tight spacing ── */
+  /* ── CONTENT: tight spacing, 12px sides ── */
   .admin-content {
-    padding: 16px 16px 32px;
+    padding: 12px 12px 32px;
   }
 
   /* ── TYPOGRAPHY ── */
@@ -1292,16 +1292,16 @@ html, body {
     gap: 12px !important;
   }
 
-  /* ── FLOATING BUTTONS: stack vertically, smaller on mobile ── */
+  /* ── FLOATING BUTTONS: above Safari bottom bar, 44px, stacked vertically 8px gap ── */
   .tour-help-btn {
     width: 44px !important;
     height: 44px !important;
     font-size: 18px !important;
-    bottom: 68px !important;
+    bottom: 132px !important;
     right: 16px !important;
   }
   .tour-help-menu {
-    bottom: 120px !important;
+    bottom: 184px !important;
     right: 16px !important;
     max-width: calc(100vw - 32px) !important;
   }
@@ -1311,7 +1311,7 @@ html, body {
    428px — iPhone 14 Pro Max
    ═══════════════════════════════════════ */
 @media (max-width: 428px) {
-  .admin-content { padding: 10px 10px 28px; }
+  .admin-content { padding: 10px 12px 28px; }
   .admin-stats { gap: 6px; }
   .admin-stat { padding: 10px; }
   .admin-stat-value { font-size: 22px; }
@@ -1333,7 +1333,7 @@ html, body {
    ═══════════════════════════════════════ */
 @media (max-width: 390px) {
   .admin-topbar { padding: 0 8px; }
-  .admin-content { padding: 8px 8px 24px; }
+  .admin-content { padding: 8px 12px 24px; }
   .admin-page-title { font-size: 18px; }
   .admin-stat-value { font-size: 20px; }
   .admin-stat-sub { font-size: 11px; }
@@ -1349,7 +1349,7 @@ html, body {
    ═══════════════════════════════════════ */
 @media (max-width: 375px) {
   .admin-topbar { padding: 0 6px; }
-  .admin-content { padding: 6px 6px 20px; }
+  .admin-content { padding: 6px 12px 20px; }
   .admin-stats { gap: 4px; }
   .admin-stat { padding: 8px; }
   .admin-stat-value { font-size: 18px; }

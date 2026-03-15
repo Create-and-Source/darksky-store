@@ -368,7 +368,7 @@ function AttentionCard({ card, navigate, delay = 0 }) {
     <div className="ds-attention-card" style={{
       ...cardBase,
       borderLeft: `3px solid ${borderColor}`,
-      display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap',
+      display: 'flex', alignItems: 'center', gap: 12,
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(6px)',
       transition: 'all 0.4s ease, box-shadow 0.2s ease, transform 0.2s ease',
@@ -381,12 +381,12 @@ function AttentionCard({ card, navigate, delay = 0 }) {
         width: 36, height: 36, borderRadius: 8, flexShrink: 0,
         background: borderColor + '10',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+      }} className="ds-attention-icon">
         {card.icon}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 1 }}>{card.title}</div>
-        <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, wordBreak: 'break-word' }}>{card.description}</div>
+        <div className="ds-attention-title" style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 1 }}>{card.title}</div>
+        <div className="ds-attention-desc" style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, wordBreak: 'break-word' }}>{card.description}</div>
       </div>
       <button
         className="ds-attention-btn"
@@ -396,6 +396,7 @@ function AttentionCard({ card, navigate, delay = 0 }) {
           color: borderColor, border: `1px solid ${borderColor}30`,
           borderRadius: 7, fontFamily: FONT, fontSize: 13, fontWeight: 500,
           cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
+          flexShrink: 0,
         }}
         onMouseEnter={e => { e.target.style.background = borderColor + '22'; }}
         onMouseLeave={e => { e.target.style.background = borderColor + '12'; }}
@@ -947,33 +948,33 @@ function ManagerDashboard() {
   return (
     <div>
       {/* Greeting */}
-      <div style={{
+      <div className="ds-greeting" style={{
         paddingTop: 8, marginBottom: 32,
         opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(12px)',
         transition: 'all 0.6s ease',
         width: '100%',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4 }}>
-          <h1 style={{ fontFamily: FONT, fontSize: 28, fontWeight: 600, color: C.text, letterSpacing: '-0.02em', margin: '0 0 4px', flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 4 }}>
+          <h1 className="ds-greeting-heading" style={{ fontFamily: FONT, fontSize: 28, fontWeight: 600, color: C.text, letterSpacing: '-0.02em', margin: 0, flex: 1, minWidth: 0 }}>
             {getGreeting()}, Tovah
           </h1>
-          <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 400, color: C.muted, whiteSpace: 'nowrap', paddingTop: 6 }}>
-            Last login: 2 hours ago
-          </div>
+          <span className="ds-greeting-date" style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, whiteSpace: 'nowrap' }}>
+            {formatTodayDate()}
+          </span>
         </div>
-        <p style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, margin: 0 }}>
-          {formatTodayDate()}
-        </p>
+        <div className="ds-greeting-login" style={{ fontFamily: FONT, fontSize: 12, fontWeight: 400, color: C.muted, marginTop: 4 }}>
+          Last login: 2 hours ago
+        </div>
       </div>
 
       {/* Attention Cards */}
       {attentionCards.length > 0 && (
-        <div style={{ marginBottom: 32 }}>
+        <div className="ds-attention-section" style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <div style={labelStyle}>Needs Attention</div>
             <HelpBubble text="Tasks that may need action soon. Updates automatically based on orders, inventory, and events." />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="ds-attention-list" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {visibleAttention.map((card, i) => <AttentionCard key={i} card={card} navigate={navigate} delay={100 + i * 100} />)}
           </div>
           {attentionCards.length > 4 && (
@@ -992,7 +993,7 @@ function ManagerDashboard() {
       )}
 
       {/* Quick Actions */}
-      <div style={{ marginBottom: 32 }}>
+      <div className="ds-section" style={{ marginBottom: 32 }}>
         <div style={{ ...labelStyle, marginBottom: 12 }}>Quick Actions</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }} className="ds-quick-actions">
           <QuickAction icon={Icon.receive} label="Receive Shipment" onClick={() => navigate('/admin/receive')} delay={200} />
@@ -1372,20 +1373,64 @@ function ManagerDashboard() {
           .ds-products-channels { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 768px) {
-          .ds-quick-actions { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-          .ds-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-          .ds-products-channels { grid-template-columns: 1fr !important; gap: 10px !important; }
+          /* ── Greeting: compact ── */
+          .ds-greeting { padding-top: 4px !important; margin-bottom: 16px !important; }
+          .ds-greeting-heading { font-size: 24px !important; }
+          .ds-greeting-date { font-size: 12px !important; }
+          .ds-greeting-login { display: none !important; }
+
+          /* ── Sections: tighter margins ── */
+          .ds-attention-section { margin-bottom: 16px !important; }
+          .ds-attention-list { gap: 6px !important; }
+
+          /* ── Attention cards: compact single-line ── */
           .ds-attention-card {
-            flex-direction: column !important;
-            align-items: stretch !important;
-            gap: 10px !important;
-            padding: 14px !important;
+            padding: 10px 12px !important;
+            border-left: none !important;
+            border-top: 2px solid var(--attn-color, #C5A55A) !important;
+            border-radius: 8px !important;
+            gap: 8px !important;
+            align-items: center !important;
+            flex-wrap: nowrap !important;
+          }
+          .ds-attention-icon {
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            border-radius: 4px !important;
+            background: transparent !important;
+          }
+          .ds-attention-icon svg {
+            width: 16px !important;
+            height: 16px !important;
+          }
+          .ds-attention-title {
+            font-size: 13px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .ds-attention-desc {
+            font-size: 12px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
           .ds-attention-btn {
-            width: 100% !important;
-            text-align: center !important;
-            display: block !important;
+            height: 28px !important;
+            padding: 0 10px !important;
+            font-size: 11px !important;
+            flex-shrink: 0 !important;
           }
+
+          /* ── Section margins ── */
+          .ds-section { margin-bottom: 16px !important; }
+
+          /* ── Quick actions & stats ── */
+          .ds-quick-actions { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+          .ds-quick-actions > button { height: 72px !important; min-height: 0 !important; gap: 6px !important; }
+          .ds-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+          .ds-products-channels { grid-template-columns: 1fr !important; gap: 10px !important; }
           .ds-stat-card {
             padding: 14px !important;
           }

@@ -352,9 +352,19 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 - `1200px` — Grid columns reduce (4→3)
 - `1024px` — Checkout stacks, admin content adjusts
 - `860px` — Nav hamburger appears
-- `768px` — 2-column grids, mobile admin sidebar, shop grid 2-col
+- `768px` — 2-column grids, mobile admin sidebar, shop grid 2-col, compact dashboard
 - `560px` — Single column forms
 - `480px` — Smallest mobile adjustments
+
+### Mobile Dashboard Optimizations (768px and below)
+
+- **Topbar**: 44px height (compact)
+- **Content padding**: 12px sides at all breakpoints
+- **Greeting**: 24px heading, date on same line (right-aligned), "Last login" hidden
+- **Attention cards**: compact single-row layout — no icon circles (16px inline icon), 10px padding, title + description truncated on one line each, small right-aligned button, top border instead of left border
+- **Quick Actions**: 72px height buttons (reduced from 100px)
+- **Floating buttons** (help ? and chat): 44px size (down from 52-56px), positioned at bottom: 80px (above Safari chrome), stacked vertically with 8px gap, chat label hidden
+- **Goal**: All "Needs Attention" items + Quick Actions visible above the fold on iPhone
 
 ## Performance Features
 
