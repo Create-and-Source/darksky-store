@@ -282,7 +282,10 @@ export function EditToggleButton() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(!!localStorage.getItem('ds_admin_role'));
+    const check = () => setVisible(localStorage.getItem('ds_user_role') === 'manager');
+    check();
+    window.addEventListener('ds-auth-change', check);
+    return () => window.removeEventListener('ds-auth-change', check);
   }, []);
 
   if (!visible) return null;

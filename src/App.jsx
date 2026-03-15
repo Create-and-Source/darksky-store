@@ -4,6 +4,7 @@ import { GLOBAL_CSS } from './styles';
 import Stars from './components/Stars';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
+import { EditModeProvider, EditToggleButton, EditBanner } from './components/EditMode';
 import Home from './pages/Home';
 import About from './pages/About';
 import Events from './pages/Events';
@@ -131,9 +132,11 @@ export default function App() {
   const isAdmin = location.pathname.startsWith('/admin');
 
   return (
-    <>
+    <EditModeProvider>
       {!isAdmin && <CustomCursor />}
       {!isAdmin && <Stars count={180} className="stars-fixed" />}
+      {!isAdmin && <EditToggleButton />}
+      {!isAdmin && <EditBanner />}
       <div style={{ position: 'relative', zIndex: 1 }}>
         {!isAdmin && <Nav cartCount={cartCount} onCartClick={() => navigate('/cart')} />}
 
@@ -177,6 +180,6 @@ export default function App() {
 
         {!isAdmin && <Footer />}
       </div>
-    </>
+    </EditModeProvider>
   );
 }
