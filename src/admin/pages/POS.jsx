@@ -220,6 +220,21 @@ export default function POS() {
               placeholder="Search or scan barcode..."
               value={search}
               onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && search.trim()) {
+                  const q = search.trim();
+                  const exact = products.find(p => p.id === q || p.id.toLowerCase() === q.toLowerCase());
+                  if (exact) {
+                    addToCart(exact);
+                    setSearch('');
+                    toast(`Added ${exact.title}`, 'success');
+                  } else if (filtered.length === 1) {
+                    addToCart(filtered[0]);
+                    setSearch('');
+                    toast(`Added ${filtered[0].title}`, 'success');
+                  }
+                }
+              }}
               style={{ ...inputStyle, paddingLeft: 38, width: '100%', boxSizing: 'border-box' }}
             />
           </div>
