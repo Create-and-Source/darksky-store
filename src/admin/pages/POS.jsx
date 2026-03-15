@@ -199,7 +199,7 @@ export default function POS() {
   }
 
   return (
-    <div style={{ fontFamily: FONT, display: 'flex', height: 'calc(100vh - 56px)', overflow: 'hidden' }}>
+    <div className="pos-layout" style={{ fontFamily: FONT, display: 'flex', height: 'calc(100vh - 56px)', overflow: 'hidden' }}>
       <PageTour storageKey="ds_tour_pos" steps={[
         { target: '#tour-pos-products', title: 'Product Grid', text: 'Browse and tap products to add them to the current sale.' },
         { target: '#tour-pos-cart', title: 'Cart', text: 'Items you add appear here. Adjust quantities, apply member discounts, and choose a payment method.' },
@@ -207,7 +207,7 @@ export default function POS() {
       ]} />
 
       {/* ── LEFT: Products ── */}
-      <div id="tour-pos-products" style={{ flex: '0 0 65%', display: 'flex', flexDirection: 'column', borderRight: `1px solid ${C.border}`, overflow: 'hidden' }}>
+      <div id="tour-pos-products" className="pos-left" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${C.border}`, overflow: 'hidden' }}>
         {/* Search + Filters */}
         <div style={{ padding: '16px 20px 12px', borderBottom: `1px solid ${C.border}`, background: C.card }}>
           <div style={{ position: 'relative', marginBottom: 12 }}>
@@ -293,7 +293,7 @@ export default function POS() {
       </div>
 
       {/* ── RIGHT: Cart ── */}
-      <div id="tour-pos-cart" style={{ flex: '0 0 35%', display: 'flex', flexDirection: 'column', background: C.card, overflow: 'hidden' }}>
+      <div id="tour-pos-cart" className="pos-right" style={{ flex: '0 0 340px', maxWidth: 400, display: 'flex', flexDirection: 'column', background: C.card, overflow: 'hidden' }}>
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}` }}>
           {[['current', 'Current Sale'], ['held', `Held Sales${heldSales.length ? ` (${heldSales.length})` : ''}`]].map(([key, label]) => (
@@ -523,7 +523,14 @@ export default function POS() {
           </div>
         )}
       </div>
-      <style>{`@keyframes posScanLine { 0%, 100% { transform: translateY(-20px); opacity: 0.3; } 50% { transform: translateY(20px); opacity: 1; } }`}</style>
+      <style>{`
+        @keyframes posScanLine { 0%, 100% { transform: translateY(-20px); opacity: 0.3; } 50% { transform: translateY(20px); opacity: 1; } }
+        @media (max-width: 900px) {
+          .pos-layout { flex-direction: column !important; height: auto !important; overflow: auto !important; }
+          .pos-left { border-right: none !important; border-bottom: 1px solid #E8E5DF; max-height: 50vh; }
+          .pos-right { flex: 1 !important; max-width: none !important; min-height: 50vh; }
+        }
+      `}</style>
     </div>
   );
 }
