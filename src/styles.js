@@ -1099,6 +1099,40 @@ input:focus, select:focus, textarea:focus {
   .ft-includes-grid { grid-template-columns: 1fr !important; }
 }
 
+/* ═══ SMALL PHONE (iPhone SE, iPhone 14, etc.) ═══ */
+@media (max-width: 480px) {
+  .section { padding: 60px 16px; }
+  .section-sm { padding: 40px 16px; }
+  .section-header { margin-bottom: 36px; }
+  .section-title { font-size: clamp(26px, 6vw, 36px); }
+  .hero { padding: 0 16px; }
+  .hero-h1 { font-size: clamp(28px, 7vw, 40px); }
+  .nav { padding: 0 16px; height: 60px; }
+  .nav-logo-text { font-size: 10px; letter-spacing: 0.15em; }
+  .shop-hero { padding: 100px 16px 24px; }
+  .cat-tabs { padding: 0 16px; gap: 4px; }
+  .cat-tab { padding: 14px 16px; font-size: 11px; }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .pd-info { padding: 32px 16px; }
+  .pd-gallery { height: 70vw; }
+  .cart-items { padding: 32px 16px; }
+  .cart-right { padding: 32px 16px; }
+  .mem-hero { padding: 100px 16px 48px; }
+  .mem-tier { padding: 36px 24px; }
+  .about-hero { padding: 100px 16px 60px; }
+  .events-hero { padding: 100px 16px 36px; }
+  .edu-hero { padding: 100px 16px 48px; }
+  .newsletter { padding: 40px 16px; gap: 20px; }
+  .newsletter-input { max-width: none; }
+  .footer { padding: 40px 16px 24px; }
+  .mission { padding: 60px 16px; }
+  .vid-divider { height: 220px; }
+  .vid-divider-box { padding: 16px 20px; }
+  .home-endorsements-grid { grid-template-columns: 1fr !important; }
+  .home-shop-cats { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+  .home-facility-grid { grid-template-columns: 1fr !important; }
+}
+
 /* ═══ REDUCED MOTION ═══ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

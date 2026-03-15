@@ -131,7 +131,7 @@ export default function Membership() {
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.12, zIndex: 0, pointerEvents: 'none' }}
         />
         <div className="label" style={{ marginBottom: 20, position: 'relative', zIndex: 1 }} data-editable="mem-hero-label">// Membership</div>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05, position: 'relative', zIndex: 1 }} data-editable="mem-hero-title">
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05, position: 'relative', zIndex: 1 }} data-editable="mem-hero-title">
           Join the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Observatory</em>
         </h1>
         <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', maxWidth: 520, margin: '0 auto', position: 'relative', zIndex: 1 }} data-editable="mem-hero-subtitle">
