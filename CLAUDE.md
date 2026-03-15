@@ -343,18 +343,51 @@ On every page load: MutationObserver applies published text from ds_site_publish
 
 The nav bar has a small toggle switch (right side). Toggle ON sets `ds_user_role` to `manager`, shows ADMIN badge, pencil icon, and "Dashboard →" link. Toggle OFF returns to customer view. Visiting `/admin` directly auto-sets the manager role.
 
+## Images
+
+Located in `public/images/darksky/` (20 images from the Create-and-Source/darksky repo):
+
+| File | Used In | Description |
+|------|---------|-------------|
+| `andromeda.jpg` | Home events, About CTA, Membership hero | Andromeda galaxy |
+| `milky-way.jpg` | Home events/membership, About offerings, Education programs, Membership CTA | Milky Way |
+| `nebula.jpg` | Home products, About offerings, Education programs, Events cards | Nebula |
+| `observatory-hero.jpg` | About hero/offerings, Education programs | Observatory dome |
+| `meteor-shower.jpg` | Events hero, Education hero | Meteor shower |
+| `comet-neowise.jpg` | Home events/mission, Events cards | Comet NEOWISE |
+| `desert-night-sky.png` | Shop hero, Education programs | Desert landscape |
+| `first-light-nebula.jpg` | About story, Education CTA | Nebula |
+| `bubble-nebula.jpg` | Events cards | Bubble nebula |
+| `crescent-nebula.jpg` | Events cards | Crescent nebula |
+| `saturn.jpg` | About offerings | Saturn |
+| `planet-hero.png` | Home hero | Planet |
+| `logo-white.png` | — | White logo |
+| `kit-fox.jpg`, `scorpion-uv.jpg`, `owl.jpg`, `ringtail.jpg`, `bats.jpg` | — | Wildlife |
+| `planet-gas-giant.png`, `planet-mars.png` | — | Planets |
+
+Image layering pattern: `position: absolute`, low opacity (0.06–0.15), dark overlay `rgba(4,4,12,0.4–0.5)`, `objectFit: 'cover'`, `loading="lazy"`.
+
 ## Videos
 
 Located in `public/videos/`:
 
 | File | Size | Used In | Description |
 |------|------|---------|-------------|
-| `desert-night-sky.mp4` | 22MB | Home hero background | Full-screen behind hero text |
-| `owl.mp4` | 5.3MB | Home divider (Products → Events) | "Where the Wild Things Wake" |
-| `scorpion-uv.mp4` | 5.9MB | Home divider (Events → Mission) | "See What Others Can't" |
+| `hero-space.mp4` | 22MB | Home hero background | Full-screen behind hero text |
 | `hero1-4.mp4` | ~5MB each | Unused | Earlier hero video alternatives |
 
-All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObserver. Dividers have parallax scroll effect.
+### Supabase Videos (streamed from `https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/`)
+
+| File | Used In | Description |
+|------|---------|-------------|
+| `owl.mp4` | Home divider | "Where the Wild Things Wake" |
+| `scorpion-uv.mp4` | Home divider | "See What Others Can't" |
+| `milky-way.mp4` | Home divider | "The Universe in Motion" |
+| `observatory-hero.mp4` | About divider | "35,000 Square Feet of Wonder" |
+| `education-hero.mp4` | Education divider | "Learning Under the Stars" |
+| Other available: `andromeda.mp4`, `bubble-nebula.mp4`, `comet-neowise.mp4`, `crescent-nebula.mp4`, `desert-night-sky.mp4`, `first-light-nebula.mp4`, `meteor-shower.mp4`, `nebula.mp4`, `saturn.mp4`, `kit-fox.mp4`, `bats.mp4`, `ringtail.mp4`, `education-fieldtrip.mp4`, `education-workshop.mp4`, `education-outreach.mp4` | — | Available in Supabase |
+
+All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObserver (LazyVideo component). Dividers have parallax scroll effect (VideoDivider component).
 
 ## What's Real vs Mock
 

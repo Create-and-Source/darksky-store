@@ -86,15 +86,20 @@ export default function Membership() {
   return (
     <div>
       {/* Hero */}
-      <div className="mem-hero" data-section="Hero">
-        <div className="label" style={{ marginBottom: 20 }} data-editable="mem-hero-label">// Membership</div>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05 }} data-editable="mem-hero-title">
+      <div className="mem-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
+        <img
+          src="/images/darksky/andromeda.jpg"
+          alt="Andromeda galaxy stretching across the night sky"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.12, zIndex: 0, pointerEvents: 'none' }}
+        />
+        <div className="label" style={{ marginBottom: 20, position: 'relative', zIndex: 1 }} data-editable="mem-hero-label">// Membership</div>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 400, marginBottom: 20, lineHeight: 1.05, position: 'relative', zIndex: 1 }} data-editable="mem-hero-title">
           Join the <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Observatory</em>
         </h1>
-        <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', maxWidth: 520, margin: '0 auto' }} data-editable="mem-hero-subtitle">
+        <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', maxWidth: 520, margin: '0 auto', position: 'relative', zIndex: 1 }} data-editable="mem-hero-subtitle">
           Become part of a community dedicated to preserving the night sky. Members enjoy exclusive discounts, private events, and early access to our rarest pieces.
         </p>
-        <div style={{ marginTop: 40, display: 'flex', gap: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 40, display: 'flex', gap: 32, justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
           {stats.map(stat => (
             <div key={stat} style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, marginBottom: 4, fontStyle: 'italic', ...goldGradientStyle }}>{stat.split(' ')[0]}</div>
@@ -190,15 +195,23 @@ export default function Membership() {
       </RevealSection>
 
       {/* CTA */}
-      <div className="mission">
-        <div className="label" style={{ marginBottom: 24 }}>// Join Us</div>
-        <blockquote className="mission-quote">
+      <div className="mission" style={{ position: 'relative', overflow: 'hidden' }}>
+        <img
+          src="/images/darksky/milky-way.jpg"
+          alt="Milky Way stretching across the dark desert sky"
+          loading="lazy"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.1, zIndex: 0, pointerEvents: 'none' }}
+        />
+        <div className="label" style={{ marginBottom: 24, position: 'relative', zIndex: 1 }}>// Join Us</div>
+        <blockquote className="mission-quote" style={{ position: 'relative', zIndex: 1 }}>
           "The universe is under no obligation to make sense to you.<br/>
           <em>We are.</em>"
         </blockquote>
-        <div className="mission-attr" style={{ marginBottom: 40 }}>// Neil deGrasse Tyson</div>
-        <button className="btn-primary" style={{ marginRight: 16, animation: 'breatheGlow 3s ease-in-out infinite' }}>Join as Explorer — $49/yr</button>
-        <button className="btn-ghost">View All Tiers</button>
+        <div className="mission-attr" style={{ marginBottom: 40, position: 'relative', zIndex: 1 }}>// Neil deGrasse Tyson</div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <button className="btn-primary" style={{ marginRight: 16, animation: 'breatheGlow 3s ease-in-out infinite' }}>Join as Explorer — $49/yr</button>
+          <button className="btn-ghost">View All Tiers</button>
+        </div>
       </div>
     </div>
   );

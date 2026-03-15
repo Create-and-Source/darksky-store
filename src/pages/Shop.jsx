@@ -107,6 +107,11 @@ export default function Shop({ onAddToCart }) {
     <div className="sp">
       {/* ═══ HERO ═══ */}
       <div className="sp-hero">
+        <img
+          src="/images/darksky/desert-night-sky.png"
+          alt="Desert landscape under a canopy of stars"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.1, zIndex: 0, pointerEvents: 'none' }}
+        />
         <div className="sp-hero-glow" />
         <div className="sp-hero-label">// The Collection</div>
         <h1 className="sp-hero-title">

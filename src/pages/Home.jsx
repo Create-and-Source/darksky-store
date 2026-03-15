@@ -116,6 +116,12 @@ const MARQUEE_ITEMS = [
 ];
 
 /* ── Events data ── */
+const EVENT_IMAGES = [
+  { src: '/images/darksky/milky-way.jpg', alt: 'Milky Way stretching across the night sky' },
+  { src: '/images/darksky/andromeda.jpg', alt: 'Andromeda galaxy captured through a telescope' },
+  { src: '/images/darksky/comet-neowise.jpg', alt: 'Comet NEOWISE blazing across the desert sky' },
+];
+
 const EVENTS = [
   { day: '22', month: 'MAR', cat: 'Stargazing', title: 'Full Moon Observatory Night', desc: 'Guided telescope viewing of the March full moon and spring constellations.', meta: '8:00 PM · Observatory Deck' },
   { day: '05', month: 'APR', cat: 'Workshop', title: 'Astrophotography Basics', desc: 'Learn to capture the Milky Way with your camera. Tripods provided.', meta: '7:30 PM · Education Center' },
@@ -277,7 +283,22 @@ export default function Home({ onAddToCart }) {
       {/* ══════════════════════════════════════
           3 — DISCOVER THE CENTER
       ══════════════════════════════════════ */}
-      <section className="section" style={{ background: 'var(--bg)' }} data-section="Discover">
+      <section className="section" style={{ background: 'var(--bg)', position: 'relative', overflow: 'hidden' }} data-section="Discover">
+        <img
+          src="/images/darksky/observatory-hero.jpg"
+          alt="Observatory under the night sky"
+          loading="lazy"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.08,
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
         <RevealSection className="section-header">
           <div className="label section-label" data-editable="home-discover-label">01 — Discover</div>
           <h2 className="section-title" data-editable="home-discover-title">A Sanctuary for the <em>Night Sky</em></h2>
@@ -344,7 +365,7 @@ export default function Home({ onAddToCart }) {
           OWL VIDEO DIVIDER
       ══════════════════════════════════════ */}
       <VideoDivider
-        src="/videos/owl.mp4"
+        src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/owl.mp4"
         title="Where the Wild Things Wake"
         subtitle="Nocturnal wildlife thrives under dark skies"
       />
@@ -388,18 +409,36 @@ export default function Home({ onAddToCart }) {
                     e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.05)';
                   }}
                 >
-                  {/* Gradient placeholder */}
+                  {/* Event image with gradient overlay */}
                   <div
                     style={{
                       aspectRatio: '16/10',
-                      background: 'linear-gradient(135deg, #0c0c2a 0%, #1a1040 50%, #0e0e28 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                       position: 'relative',
+                      overflow: 'hidden',
                     }}
                   >
-                    <span style={{ fontSize: 28, color: 'var(--gold)', opacity: 0.4 }}>✦</span>
+                    <img
+                      src={EVENT_IMAGES[i].src}
+                      alt={EVENT_IMAGES[i].alt}
+                      loading="lazy"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        zIndex: 0,
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(135deg, rgba(12,12,42,0.5) 0%, rgba(26,16,64,0.4) 50%, rgba(14,14,40,0.5) 100%)',
+                        zIndex: 1,
+                      }}
+                    />
+                    <span style={{ position: 'relative', zIndex: 2, fontSize: 28, color: 'var(--gold)', opacity: 0.4, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>✦</span>
 
                     {/* Date badge — gold gradient, sharp edges */}
                     <div
@@ -412,6 +451,7 @@ export default function Home({ onAddToCart }) {
                         padding: '10px 12px 8px',
                         textAlign: 'center',
                         lineHeight: 1,
+                        zIndex: 2,
                       }}
                     >
                       <div style={{ font: '700 22px "Plus Jakarta Sans", sans-serif', marginBottom: 2 }}>{ev.day}</div>
@@ -449,19 +489,43 @@ export default function Home({ onAddToCart }) {
           SCORPION UV VIDEO DIVIDER
       ══════════════════════════════════════ */}
       <VideoDivider
-        src="/videos/scorpion-uv.mp4"
+        src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/scorpion-uv.mp4"
         title="See What Others Can't"
         subtitle="UV scorpion tours, night hikes, and desert ecology"
       />
 
       {/* ══════════════════════════════════════
+          MILKY WAY VIDEO DIVIDER
+      ══════════════════════════════════════ */}
+      <VideoDivider
+        src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/milky-way.mp4"
+        title="Discover the Cosmos"
+        subtitle="35,000 square feet dedicated to the night sky"
+      />
+
+      {/* ══════════════════════════════════════
           6 — MISSION QUOTE BAND
       ══════════════════════════════════════ */}
-      <div className="mission" data-section="Mission">
-        <blockquote className="mission-quote" data-editable="home-mission-quote">
+      <div className="mission" data-section="Mission" style={{ position: 'relative', overflow: 'hidden' }}>
+        <img
+          src="/images/darksky/comet-neowise.jpg"
+          alt="Comet NEOWISE over the Sonoran Desert"
+          loading="lazy"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.1,
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
+        <blockquote className="mission-quote" data-editable="home-mission-quote" style={{ position: 'relative', zIndex: 1 }}>
           "Spend time under the stars.<br /><em>Take the night sky home.</em>"
         </blockquote>
-        <div className="mission-attr" data-editable="home-mission-attr">// International Dark Sky Discovery Center, Sonoran Desert</div>
+        <div className="mission-attr" data-editable="home-mission-attr" style={{ position: 'relative', zIndex: 1 }}>// International Dark Sky Discovery Center, Sonoran Desert</div>
       </div>
 
       <SectionSep />
@@ -589,8 +653,34 @@ export default function Home({ onAddToCart }) {
         style={{
           background: 'radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.08) 0%, transparent 60%), var(--bg)',
           textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
+        <img
+          src="/images/darksky/milky-way.jpg"
+          alt="Milky Way galaxy arching over the desert landscape"
+          loading="lazy"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.12,
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(4,4,12,0.5)',
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
         <RevealSection>
           <div className="label section-label" style={{ marginBottom: 24 }} data-editable="home-membership-label">05 — Membership</div>
           <h2 className="section-title" style={{ marginBottom: 20 }} data-editable="home-membership-title">Join the <em>Observatory</em></h2>

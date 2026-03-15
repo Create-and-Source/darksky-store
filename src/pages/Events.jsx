@@ -90,9 +90,14 @@ export default function Events() {
   return (
     <div>
       {/* ── HERO ── */}
-      <section className="events-hero" data-section="Hero">
+      <section className="events-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
+        <img
+          src="/images/darksky/meteor-shower.jpg"
+          alt="Meteor shower streaking across a dark desert sky"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.15, zIndex: 0, pointerEvents: 'none' }}
+        />
         <RevealSection>
-          <div className="section-header">
+          <div className="section-header" style={{ position: 'relative', zIndex: 1 }}>
             <span className="section-label label" data-editable="events-hero-label">// Events &amp; Programs</span>
             <h1 className="section-title" data-editable="events-hero-title">Experience the <em>Night Sky</em></h1>
             <p className="section-subtitle" data-editable="events-hero-subtitle" style={{ lineHeight: 1.7 }}>
@@ -172,9 +177,18 @@ export default function Events() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    position: 'relative',
+                    overflow: 'hidden',
                   }}>
-                    <span style={{ fontSize: 32, color: 'var(--gold)', opacity: 0.3 }}>✦</span>
-                    <div className="event-card-date">
+                    <img
+                      src={['/images/darksky/milky-way.jpg', '/images/darksky/andromeda.jpg', '/images/darksky/nebula.jpg', '/images/darksky/comet-neowise.jpg', '/images/darksky/bubble-nebula.jpg', '/images/darksky/crescent-nebula.jpg'][i % 6]}
+                      alt={`Night sky backdrop for ${event.title}`}
+                      loading="lazy"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }}
+                    />
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(4,4,12,0.4)', zIndex: 1 }} />
+                    <span style={{ fontSize: 32, color: 'var(--gold)', opacity: 0.3, position: 'relative', zIndex: 2 }}>✦</span>
+                    <div className="event-card-date" style={{ position: 'relative', zIndex: 2 }}>
                       <div className="event-card-date-day">{event.day}</div>
                       <div className="event-card-date-month">{event.month}</div>
                     </div>

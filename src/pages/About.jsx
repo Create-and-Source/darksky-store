@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function RevealSection({ children, className = '', delay = 0 }) {
@@ -20,6 +20,87 @@ function SectionSep() {
   return <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent)' }} />;
 }
 
+/* ── Lazy Video — only loads when near viewport ── */
+function LazyVideo({ src, className = '', style = {}, ...props }) {
+  const ref = useRef(null);
+  const [loaded, setLoaded] = useState(false);
+  const [srcActive, setSrcActive] = useState(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setSrcActive(src);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [src]);
+
+  return (
+    <video
+      ref={ref}
+      className={className}
+      style={{ ...style, opacity: loaded ? 1 : 0, transition: 'opacity 0.8s ease' }}
+      src={srcActive}
+      onLoadedData={() => setLoaded(true)}
+      {...props}
+    />
+  );
+}
+
+/* ── Video Divider Section ── */
+function VideoDivider({ src, title, subtitle }) {
+  const ref = useRef(null);
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf;
+    const onScroll = () => {
+      raf = requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        const center = rect.top + rect.height / 2;
+        const viewCenter = window.innerHeight / 2;
+        setOffset((center - viewCenter) * 0.15);
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
+  }, []);
+
+  return (
+    <div ref={ref} className="vid-divider">
+      <div className="vid-divider-clip">
+        <LazyVideo
+          src={src}
+          className="vid-divider-video"
+          style={{ transform: `translateY(${offset}px)` }}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      </div>
+      <div className="vid-divider-overlay-top" />
+      <div className="vid-divider-overlay-bottom" />
+      <div className="vid-divider-content">
+        <RevealSection>
+          <h2 className="vid-divider-title">{title}</h2>
+          <p className="vid-divider-sub">{subtitle}</p>
+        </RevealSection>
+      </div>
+    </div>
+  );
+}
+
 const goldGradientStyle = {
   background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
   WebkitBackgroundClip: 'text',
@@ -28,10 +109,10 @@ const goldGradientStyle = {
 };
 
 const OFFERINGS = [
-  { icon: '🔭', title: 'Research Observatory', desc: 'Five research-grade telescopes including a 24-inch Ritchey-Chrétien reflector. Open nightly for guided viewing sessions under some of the darkest skies in the American Southwest.' },
-  { icon: '🌌', title: 'Digital Planetarium', desc: 'A state-of-the-art 4K fulldome theater seating 120 guests. Immersive shows transport you from our solar system to the edge of the observable universe.' },
-  { icon: '🪐', title: 'Interactive Exhibits', desc: 'Hands-on galleries exploring light pollution, celestial navigation, space exploration, and the cultural significance of the night sky across civilizations.' },
-  { icon: '✦', title: 'Curated Experiences', desc: 'From stargazing dinners to astrophotography workshops, every visit is designed to create lasting connections with the cosmos.' },
+  { icon: '/images/darksky/observatory-hero.jpg', title: 'Research Observatory', desc: 'Five research-grade telescopes including a 24-inch Ritchey-Chrétien reflector. Open nightly for guided viewing sessions under some of the darkest skies in the American Southwest.' },
+  { icon: '/images/darksky/nebula.jpg', title: 'Digital Planetarium', desc: 'A state-of-the-art 4K fulldome theater seating 120 guests. Immersive shows transport you from our solar system to the edge of the observable universe.' },
+  { icon: '/images/darksky/saturn.jpg', title: 'Interactive Exhibits', desc: 'Hands-on galleries exploring light pollution, celestial navigation, space exploration, and the cultural significance of the night sky across civilizations.' },
+  { icon: '/images/darksky/milky-way.jpg', title: 'Curated Experiences', desc: 'From stargazing dinners to astrophotography workshops, every visit is designed to create lasting connections with the cosmos.' },
 ];
 
 const STATS = [
@@ -47,9 +128,23 @@ export default function About() {
   return (
     <div>
       {/* ── HERO ── */}
-      <section className="about-hero" data-section="Hero">
+      <section className="about-hero" data-section="Hero" style={{ position: 'relative', overflow: 'hidden' }}>
+        <img
+          src="/images/darksky/observatory-hero.jpg"
+          alt="Observatory dome silhouetted against a star-filled desert sky"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.15,
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
         <RevealSection>
-          <div className="section-header">
+          <div className="section-header" style={{ position: 'relative', zIndex: 1 }}>
             <span className="section-label label" data-editable="about-hero-label">// About the Center</span>
             <h1 className="section-title" data-editable="about-hero-title">Connecting the Night Sky to <em>Life on Earth</em></h1>
             <p className="section-subtitle" data-editable="about-hero-subtitle" style={{ lineHeight: 1.7 }}>
@@ -67,7 +162,23 @@ export default function About() {
           {OFFERINGS.map((item, i) => (
             <RevealSection key={item.title} delay={i * 100}>
               <div className="about-card">
-                <div className="about-card-icon">{item.icon}</div>
+                <div className="about-card-icon">
+                  {item.icon.startsWith('/') ? (
+                    <img
+                      src={item.icon}
+                      alt={item.title}
+                      loading="lazy"
+                      style={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 12,
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    item.icon
+                  )}
+                </div>
                 <h3 className="about-card-title">{item.title}</h3>
                 <p className="about-card-desc">{item.desc}</p>
               </div>
@@ -75,6 +186,15 @@ export default function About() {
           ))}
         </div>
       </section>
+
+      <SectionSep />
+
+      {/* ── VIDEO DIVIDER ── */}
+      <VideoDivider
+        src="https://ssdozdtdcrkaoayzhrsa.supabase.co/storage/v1/object/public/videos/observatory-hero.mp4"
+        title="35,000 Square Feet of Wonder"
+        subtitle="Opening Fall 2026 in Fountain Hills, Arizona"
+      />
 
       <SectionSep />
 
@@ -95,15 +215,30 @@ export default function About() {
       <SectionSep />
 
       {/* ── OUR STORY ── */}
-      <section className="section" style={{ background: 'var(--bg)' }} data-section="Story">
+      <section className="section" style={{ background: 'var(--bg)', position: 'relative', overflow: 'hidden' }} data-section="Story">
+        <img
+          src="/images/darksky/desert-night-sky.png"
+          alt="Desert landscape under a canopy of stars"
+          loading="lazy"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.06,
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
         <RevealSection>
-          <div className="section-header">
+          <div className="section-header" style={{ position: 'relative', zIndex: 1 }}>
             <span className="section-label label" data-editable="about-story-label">// Our Story</span>
             <h2 className="section-title" data-editable="about-story-title">Born from a <em>Mission</em></h2>
           </div>
         </RevealSection>
 
-        <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
           <RevealSection delay={100}>
             <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text2)', marginBottom: 40, fontWeight: 300 }} data-editable="about-story-p1">
               The International Dark Sky Discovery Center was born from a simple observation: the night sky is disappearing. Light pollution now affects 80% of the world's population, and a generation of children is growing up without ever seeing the Milky Way.
@@ -111,19 +246,38 @@ export default function About() {
           </RevealSection>
 
           <RevealSection delay={200}>
-            <blockquote style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: 24,
-              fontStyle: 'italic',
-              color: 'var(--gold)',
-              lineHeight: 1.6,
-              margin: '48px 0',
-              padding: '32px 0',
-              borderTop: '1px solid var(--border)',
-              borderBottom: '1px solid var(--border)',
-            }}>
-              "We believe that reconnecting people with the night sky can change how they see their place in the universe."
-            </blockquote>
+            <div style={{ position: 'relative', overflow: 'hidden' }}>
+              <img
+                src="/images/darksky/first-light-nebula.jpg"
+                alt="First Light Nebula glowing in deep space"
+                loading="lazy"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  opacity: 0.08,
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                }}
+              />
+              <blockquote style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 24,
+                fontStyle: 'italic',
+                color: 'var(--gold)',
+                lineHeight: 1.6,
+                margin: '48px 0',
+                padding: '32px 0',
+                borderTop: '1px solid var(--border)',
+                borderBottom: '1px solid var(--border)',
+                position: 'relative',
+                zIndex: 1,
+              }}>
+                "We believe that reconnecting people with the night sky can change how they see their place in the universe."
+              </blockquote>
+            </div>
           </RevealSection>
 
           <RevealSection delay={300}>
@@ -138,17 +292,115 @@ export default function About() {
 
       {/* ── CTA ── */}
       <RevealSection>
-        <div className="mission">
-          <blockquote className="mission-quote">
+        <div className="mission" style={{ position: 'relative', overflow: 'hidden' }}>
+          <img
+            src="/images/darksky/andromeda.jpg"
+            alt="Andromeda galaxy in stunning detail against the dark cosmos"
+            loading="lazy"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: 0.1,
+              zIndex: 0,
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(4,4,12,0.5)',
+              zIndex: 0,
+              pointerEvents: 'none',
+            }}
+          />
+          <blockquote className="mission-quote" style={{ position: 'relative', zIndex: 1 }}>
             "The cosmos is within us. We are made of <em>star-stuff.</em>"
           </blockquote>
-          <span className="mission-attr">// Carl Sagan</span>
-          <div style={{ display: 'flex', gap: 16, marginTop: 40, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <span className="mission-attr" style={{ position: 'relative', zIndex: 1 }}>// Carl Sagan</span>
+          <div style={{ display: 'flex', gap: 16, marginTop: 40, justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
             <button className="btn-primary" onClick={() => navigate('/membership')}>Become a Member</button>
             <button className="btn-ghost" onClick={() => navigate('/events')}>Explore Events</button>
           </div>
         </div>
       </RevealSection>
+
+      {/* ── Video divider styles ── */}
+      <style>{`
+        .vid-divider {
+          position: relative;
+          height: 400px;
+          overflow: hidden;
+        }
+        .vid-divider-clip {
+          position: absolute;
+          inset: -60px 0;
+          overflow: hidden;
+        }
+        .vid-divider-video {
+          width: 100%;
+          height: calc(100% + 120px);
+          object-fit: cover;
+          transition: opacity 0.8s ease;
+        }
+        .vid-divider-overlay-top {
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 120px;
+          background: linear-gradient(to bottom, var(--bg, #04040c), transparent);
+          z-index: 2;
+          pointer-events: none;
+        }
+        .vid-divider-overlay-bottom {
+          position: absolute;
+          bottom: 0; left: 0; right: 0;
+          height: 120px;
+          background: linear-gradient(to top, var(--bg, #04040c), transparent);
+          z-index: 2;
+          pointer-events: none;
+        }
+        .vid-divider-content {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 3;
+          text-align: center;
+          padding: 0 24px;
+        }
+        .vid-divider-title {
+          font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif;
+          font-style: italic;
+          color: #fff;
+          margin: 0 0 12px;
+          text-shadow: 0 2px 24px rgba(0,0,0,0.6);
+        }
+        .vid-divider-sub {
+          font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif;
+          color: rgba(255,255,255,0.7);
+          margin: 0;
+          text-shadow: 0 1px 12px rgba(0,0,0,0.5);
+          letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 768px) {
+          .vid-divider { height: 250px; }
+          .vid-divider-overlay-top,
+          .vid-divider-overlay-bottom { height: 80px; }
+          .vid-divider-clip { inset: -40px 0; }
+          .vid-divider-video { height: calc(100% + 80px); }
+        }
+
+        @media (max-width: 480px) {
+          .vid-divider { height: 200px; }
+          .vid-divider-overlay-top,
+          .vid-divider-overlay-bottom { height: 60px; }
+        }
+      `}</style>
     </div>
   );
 }
