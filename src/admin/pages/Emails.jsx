@@ -240,9 +240,9 @@ export default function Emails() {
           <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
             Who's this for?
           </h2>
-          <LabelWithHelp help="Choose who receives this email." style={labelStyle}>
+          <div style={labelStyle}>
             Audience
-          </LabelWithHelp>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
             {AUDIENCES.map(a => (
               <button
@@ -272,9 +272,9 @@ export default function Emails() {
           <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
             Pick a starting point
           </h2>
-          <LabelWithHelp help="Templates save time. Pick one and customize it." style={labelStyle}>
+          <div style={labelStyle}>
             Template
-          </LabelWithHelp>
+          </div>
           <div id="tour-emails-templates" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
             {Object.entries(TEMPLATES).map(([key, tpl]) => (
               <button
@@ -310,9 +310,9 @@ export default function Emails() {
           </h2>
 
           <div style={{ marginBottom: 24 }}>
-            <LabelWithHelp help="This is the first thing people see. Keep it short and interesting." style={labelStyle}>
+            <div style={labelStyle}>
               Subject Line
-            </LabelWithHelp>
+            </div>
             <input
               style={{ ...inputStyle, fontSize: 18, padding: '16px 18px', height: 56 }}
               placeholder="What's this email about?"
@@ -322,9 +322,9 @@ export default function Emails() {
           </div>
 
           <div>
-            <LabelWithHelp help="Write the content of your email. Use the toolbar to format text." style={labelStyle}>
+            <div style={labelStyle}>
               Email Body
-            </LabelWithHelp>
+            </div>
             <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 2, padding: '8px 10px',

@@ -520,9 +520,9 @@ export default function EventsAdmin() {
           </h2>
 
           <div style={{ marginBottom: 28 }}>
-            <LabelWithHelp help="This is the event name customers see on the website and their tickets." style={labelStyle}>
+            <div style={labelStyle}>
               Event Name
-            </LabelWithHelp>
+            </div>
             <input
               style={{ ...inputStyle, fontSize: 20, padding: '16px 18px', height: 56 }}
               placeholder="e.g. Friday Night Star Party"
@@ -532,9 +532,9 @@ export default function EventsAdmin() {
           </div>
 
           <div>
-            <LabelWithHelp help="Pick the type that best matches. This helps show it in the right section." style={labelStyle}>
+            <div style={labelStyle}>
               Event Type
-            </LabelWithHelp>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
               {EVENT_TYPES.map(t => (
                 <button
@@ -567,23 +567,23 @@ export default function EventsAdmin() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }} className="evt-form-grid-3">
             <div>
-              <LabelWithHelp help="Pick the date of your event. Customers can only buy tickets for future dates." style={labelStyle}>
+              <div style={labelStyle}>
                 Date
-              </LabelWithHelp>
+              </div>
               <input style={{ ...inputStyle, fontSize: 16 }} type="date" value={form.date} onChange={set('date')} />
               {form.date && <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#D4AF37', marginTop: 6 }}>{fmtDate(form.date)}</p>}
             </div>
             <div>
-              <LabelWithHelp help="What time does the event start?" style={labelStyle}>
+              <div style={labelStyle}>
                 Start Time
-              </LabelWithHelp>
+              </div>
               <input style={{ ...inputStyle, fontSize: 16 }} type="time" value={form.time} onChange={set('time')} />
               {form.time && <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B', marginTop: 6 }}>{fmtTime12(form.time)}</p>}
             </div>
             <div>
-              <LabelWithHelp help="When does the event end? Auto-suggested 2 hours after start." style={labelStyle}>
+              <div style={labelStyle}>
                 End Time
-              </LabelWithHelp>
+              </div>
               <input style={{ ...inputStyle, fontSize: 16 }} type="time" value={form.endTime} onChange={set('endTime')} />
               {form.endTime && <p style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#64748B', marginTop: 6 }}>{fmtTime12(form.endTime)}</p>}
             </div>
@@ -600,9 +600,9 @@ export default function EventsAdmin() {
           </h2>
 
           <div style={{ marginBottom: 28 }}>
-            <LabelWithHelp help="Where is the event held?" style={labelStyle}>
+            <div style={labelStyle}>
               Location
-            </LabelWithHelp>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
               {LOCATION_OPTIONS.map(loc => (
                 <button
@@ -620,9 +620,9 @@ export default function EventsAdmin() {
           </div>
 
           <div>
-            <LabelWithHelp help="Maximum number of people. We stop selling tickets when it's full." style={labelStyle}>
+            <div style={labelStyle}>
               Capacity
-            </LabelWithHelp>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <input
                 style={{ ...inputStyle, width: 140, textAlign: 'center', fontSize: 20, fontWeight: 600 }}
@@ -645,9 +645,9 @@ export default function EventsAdmin() {
           </h2>
 
           <div style={{ marginBottom: 28 }}>
-            <LabelWithHelp help="What customers pay per ticket. Tax is added at checkout." style={labelStyle}>
+            <div style={labelStyle}>
               Price (dollars)
-            </LabelWithHelp>
+            </div>
             <div style={{ position: 'relative', maxWidth: 220 }}>
               <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', font: '400 18px -apple-system, BlinkMacSystemFont, sans-serif' }}>$</span>
               <input
@@ -667,9 +667,9 @@ export default function EventsAdmin() {
             borderRadius: 12,
           }}>
             <div>
-              <LabelWithHelp help="When on, members get in free. Great membership perk!" style={{ font: '500 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 2, display: 'flex', alignItems: 'center' }}>
+              <div style={labelStyle}>
                 Free for Members?
-              </LabelWithHelp>
+              </div>
               <div style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>
                 {form.memberFree ? 'Members attend this event at no charge' : 'Members pay the regular price'}
               </div>
@@ -690,9 +690,9 @@ export default function EventsAdmin() {
           </h2>
 
           <div style={{ marginBottom: 28 }}>
-            <LabelWithHelp help="Write 2-3 sentences about what attendees will experience." style={labelStyle}>
+            <div style={labelStyle}>
               Description
-            </LabelWithHelp>
+            </div>
             <textarea
               style={{ ...inputStyle, minHeight: 160, resize: 'vertical', lineHeight: 1.7, height: 'auto' }}
               placeholder="Describe what guests will experience..."
@@ -707,9 +707,9 @@ export default function EventsAdmin() {
             borderRadius: 12,
           }}>
             <div>
-              <LabelWithHelp help="Featured events appear prominently on the homepage." style={{ font: '500 15px -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 2, display: 'flex', alignItems: 'center' }}>
+              <div style={labelStyle}>
                 Featured Event
-              </LabelWithHelp>
+              </div>
               <div style={{ font: '400 14px -apple-system, BlinkMacSystemFont, sans-serif', color: '#94A3B8' }}>
                 {form.featured ? 'This event is highlighted on the homepage' : 'Standard listing'}
               </div>

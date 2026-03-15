@@ -142,9 +142,9 @@ export default function PurchaseOrders() {
           <h2 style={{ font: '600 22px/1.3 -apple-system, BlinkMacSystemFont, sans-serif', color: '#1E293B', marginBottom: 24 }}>
             Who are you ordering from?
           </h2>
-          <LabelWithHelp help="Pick the vendor you're placing the order with." style={labelStyle}>
+          <div style={labelStyle}>
             Vendor
-          </LabelWithHelp>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
             {VENDORS.map(v => {
               const info = VENDOR_INFO[v.id] || { name: v.name, desc: '', icon: '\uD83D\uDCE6' };
@@ -177,9 +177,9 @@ export default function PurchaseOrders() {
             What do you need?
           </h2>
 
-          <LabelWithHelp help="Search for products and add them to your order. Enter how many you need." style={labelStyle}>
+          <div style={labelStyle}>
             Add Products
-          </LabelWithHelp>
+          </div>
           <input
             style={{ ...inputStyle, marginBottom: 8 }}
             placeholder="Search by name, SKU, or category..."
@@ -285,9 +285,9 @@ export default function PurchaseOrders() {
           </h2>
 
           <div style={{ marginBottom: 24 }}>
-            <LabelWithHelp help="When do you expect this order to arrive?" style={labelStyle}>
+            <div style={labelStyle}>
               Expected Delivery Date
-            </LabelWithHelp>
+            </div>
             <input
               style={{ ...inputStyle, maxWidth: 300 }}
               type="date"
@@ -297,9 +297,9 @@ export default function PurchaseOrders() {
           </div>
 
           <div>
-            <LabelWithHelp help="Any additional notes about this purchase order." style={labelStyle}>
+            <div style={labelStyle}>
               Notes
-            </LabelWithHelp>
+            </div>
             <textarea
               style={{ ...inputStyle, minHeight: 120, resize: 'vertical', lineHeight: 1.7, height: 'auto' }}
               placeholder="PO notes, special instructions, etc..."
@@ -625,9 +625,9 @@ export default function PurchaseOrders() {
               {/* Tracking input for In Production -> Shipped */}
               {selected.status === 'In Production' && (
                 <div style={{ marginTop: 16, marginBottom: 8 }}>
-                  <LabelWithHelp help="Optional tracking number for the shipment." style={labelStyle}>
+                  <div style={labelStyle}>
                     Tracking Number (optional)
-                  </LabelWithHelp>
+                  </div>
                   <input
                     style={inputStyle}
                     placeholder="Enter tracking number..."
