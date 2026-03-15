@@ -162,10 +162,13 @@ export const ADMIN_CSS = `
   flex: 1;
   margin-left: 260px;
   min-height: 100vh;
+  max-width: calc(100vw - 260px);
+  overflow-x: hidden;
   transition: margin-left 0.3s cubic-bezier(.16,1,.3,1);
 }
 .admin-main.expanded {
   margin-left: 0;
+  max-width: 100vw;
 }
 
 .admin-topbar {
