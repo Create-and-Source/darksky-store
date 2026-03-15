@@ -59,19 +59,19 @@ export default function MemberPortal() {
   return (
     <>
       <style>{`
-        .mp-page { min-height: 100vh; background: #04040c; color: #F0EDE6; }
-        .mp-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .mp-logo { font-family: ${FONT}; font-size: 22px; color: #F0EDE6; display: flex; align-items: center; gap: 12px; }
-        .mp-signout { font-family: ${BODY}; font-size: 13px; color: #908D9A; background: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 16px; cursor: pointer; transition: all 0.2s; }
-        .mp-signout:hover { color: #D4AF37; border-color: #D4AF37; }
+        .mp-page { min-height: 100vh; background: #FAFAF8; color: #1A1A2E; }
+        .mp-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-bottom: 1px solid #E8E5DF; background: #FFFFFF; }
+        .mp-logo { font-family: ${FONT}; font-size: 22px; color: #1A1A2E; display: flex; align-items: center; gap: 12px; }
+        .mp-signout { font-family: ${BODY}; font-size: 13px; color: #7C7B76; background: none; border: 1px solid #E8E5DF; border-radius: 6px; padding: 6px 16px; cursor: pointer; transition: all 0.2s; }
+        .mp-signout:hover { color: #C5A55A; border-color: #C5A55A; }
         .mp-body { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
         .mp-section { margin-bottom: 48px; }
-        .mp-label { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin-bottom: 8px; }
-        .mp-title { font-family: ${FONT}; font-size: 24px; font-weight: 600; margin: 0 0 20px; }
+        .mp-label { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #C5A55A; margin-bottom: 8px; }
+        .mp-title { font-family: ${FONT}; font-size: 24px; font-weight: 600; margin: 0 0 20px; color: #1A1A2E; }
 
-        /* Membership Card */
+        /* Membership Card — keep dark for premium feel */
         .mp-card-wrap { display: flex; justify-content: center; margin-bottom: 32px; }
-        .mp-card { width: 100%; max-width: 600px; height: 350px; border-radius: 16px; border: 1px solid rgba(212,175,55,0.3); background: linear-gradient(135deg, #0a0a1a 0%, #0f0f2e 50%, #0a0a1a 100%); position: relative; overflow: hidden; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 40px rgba(212,175,55,0.08); }
+        .mp-card { width: 100%; max-width: 600px; height: 350px; border-radius: 16px; border: 1px solid rgba(212,175,55,0.3); background: linear-gradient(135deg, #1A1A2E 0%, #252548 50%, #1A1A2E 100%); position: relative; overflow: hidden; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 40px rgba(0,0,0,0.12); }
         .mp-card-dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(212,175,55,0.12) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
         .mp-card-top { position: relative; z-index: 1; }
         .mp-card-org { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: #D4AF37; margin-bottom: 24px; }
@@ -82,32 +82,32 @@ export default function MemberPortal() {
 
         /* Benefits */
         .mp-benefits { display: flex; flex-direction: column; gap: 10px; }
-        .mp-benefit { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; }
+        .mp-benefit { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
         .mp-benefit-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
-        .mp-benefit-name { font-family: ${BODY}; font-size: 15px; font-weight: 600; margin: 0; }
-        .mp-benefit-detail { font-family: ${MONO}; font-size: 12px; margin: 2px 0 0; }
+        .mp-benefit-name { font-family: ${BODY}; font-size: 15px; font-weight: 600; margin: 0; color: #1A1A2E; }
+        .mp-benefit-detail { font-family: ${MONO}; font-size: 12px; margin: 2px 0 0; color: #7C7B76; }
 
         /* Events */
         .mp-events { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .mp-event { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 20px; }
-        .mp-event h4 { font-family: ${BODY}; font-size: 15px; font-weight: 600; margin: 0 0 6px; }
-        .mp-event-meta { font-family: ${MONO}; font-size: 11px; color: #908D9A; margin-bottom: 10px; }
-        .mp-event-price { font-family: ${MONO}; font-size: 12px; }
-        .mp-event-price .member { color: #4ADE80; font-weight: 700; }
-        .mp-btn { font-family: ${BODY}; font-size: 13px; font-weight: 600; color: #04040c; background: linear-gradient(135deg, #D4AF37, #E5C76B); border: none; border-radius: 6px; padding: 8px 20px; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
+        .mp-event { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .mp-event h4 { font-family: ${BODY}; font-size: 15px; font-weight: 600; margin: 0 0 6px; color: #1A1A2E; }
+        .mp-event-meta { font-family: ${MONO}; font-size: 11px; color: #7C7B76; margin-bottom: 10px; }
+        .mp-event-price { font-family: ${MONO}; font-size: 12px; color: #7C7B76; }
+        .mp-event-price .member { color: #3D8C6F; font-weight: 700; }
+        .mp-btn { font-family: ${BODY}; font-size: 13px; font-weight: 600; color: #FFFFFF; background: #C5A55A; border: none; border-radius: 6px; padding: 8px 20px; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
         .mp-btn:hover { opacity: 0.85; }
 
         /* Orders */
         .mp-table { width: 100%; border-collapse: collapse; }
-        .mp-table th { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #908D9A; text-align: left; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .mp-table td { font-family: ${BODY}; font-size: 13px; color: #F0EDE6; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .mp-table th { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #7C7B76; text-align: left; padding: 8px 0; border-bottom: 1px solid #E8E5DF; }
+        .mp-table td { font-family: ${BODY}; font-size: 13px; color: #1A1A2E; padding: 10px 0; border-bottom: 1px solid #F0EDE8; }
 
         /* Quick Links */
         .mp-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .mp-link-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 24px; text-align: center; text-decoration: none; color: #F0EDE6; transition: border-color 0.2s; display: block; }
-        .mp-link-card:hover { border-color: #D4AF37; }
+        .mp-link-card { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 24px; text-align: center; text-decoration: none; color: #1A1A2E; transition: border-color 0.2s; display: block; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .mp-link-card:hover { border-color: #C5A55A; }
         .mp-link-icon { font-size: 28px; margin-bottom: 8px; }
-        .mp-link-text { font-family: ${BODY}; font-size: 14px; font-weight: 600; }
+        .mp-link-text { font-family: ${BODY}; font-size: 14px; font-weight: 600; color: #1A1A2E; }
 
         @media (max-width: 600px) {
           .mp-card { height: auto; min-height: 280px; padding: 28px; }

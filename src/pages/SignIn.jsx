@@ -51,32 +51,32 @@ export default function SignIn() {
   const [hoveredIdx, setHoveredIdx] = useState(null);
 
   const handleSelect = (r) => {
-    const adminRole = ROLE_MAP[r.role] || 'staff';
+    const storeRole = ROLE_MAP[r.role] || 'staff'; // for store-side edit mode
     const name = NAME_MAP[r.role] || r.title;
     localStorage.setItem('ds_auth_user', JSON.stringify({ role: r.role, title: r.title, dept: r.dept }));
-    localStorage.setItem('ds_user_role', adminRole);
+    localStorage.setItem('ds_user_role', storeRole);
     localStorage.setItem('ds_user_name', name);
-    localStorage.setItem('ds_admin_role', adminRole);
+    localStorage.setItem('ds_admin_role', r.role); // use actual role key for admin sidebar
     navigate(r.redirect);
   };
 
   return (
     <>
       <style>{`
-        .si-page { min-height: 100vh; background: #04040c; color: #F0EDE6; padding: 60px 24px; display: flex; flex-direction: column; align-items: center; }
-        .si-star { font-size: 36px; color: #D4AF37; margin-bottom: 12px; }
-        .si-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; text-align: center; margin: 0 0 8px; }
-        .si-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; margin: 0 0 48px; }
+        .si-page { min-height: 100vh; background: #FAFAF8; color: #1A1A2E; padding: 60px 24px; display: flex; flex-direction: column; align-items: center; }
+        .si-star { font-size: 36px; color: #C5A55A; margin-bottom: 12px; }
+        .si-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; text-align: center; margin: 0 0 8px; color: #1A1A2E; }
+        .si-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #C5A55A; margin: 0 0 48px; }
         .si-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 960px; width: 100%; }
-        .si-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 24px; cursor: pointer; transition: all 0.25s ease; }
-        .si-card:hover, .si-card.hovered { border-color: #D4AF37; background: rgba(212,175,55,0.04); }
+        .si-card { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 24px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .si-card:hover, .si-card.hovered { border-color: #C5A55A; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .si-emoji { font-size: 32px; margin-bottom: 12px; display: block; }
-        .si-role { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; color: #F0EDE6; margin: 0 0 4px; }
-        .si-dept { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #D4AF37; margin: 0 0 8px; }
-        .si-desc { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #908D9A; margin: 0; line-height: 1.5; }
+        .si-role { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; color: #1A1A2E; margin: 0 0 4px; }
+        .si-dept { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #C5A55A; margin: 0 0 8px; }
+        .si-desc { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #7C7B76; margin: 0; line-height: 1.5; }
         .si-footer { margin-top: 48px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .si-link { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #908D9A; text-decoration: none; transition: color 0.2s; }
-        .si-link:hover { color: #D4AF37; }
+        .si-link { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #7C7B76; text-decoration: none; transition: color 0.2s; }
+        .si-link:hover { color: #C5A55A; }
         @media (max-width: 860px) { .si-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 600px) { .si-grid { grid-template-columns: repeat(2, 1fr); } .si-card { padding: 16px; } .si-role { font-size: 15px; } .si-desc { font-size: 12px; } }
       `}</style>

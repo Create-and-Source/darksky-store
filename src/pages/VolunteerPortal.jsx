@@ -84,43 +84,43 @@ export default function VolunteerPortal() {
   return (
     <>
       <style>{`
-        .vp-page { min-height: 100vh; background: #04040c; color: #F0EDE6; padding: 0; }
-        .vp-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .vp-logo { font-family: ${FONT}; font-size: 22px; color: #F0EDE6; display: flex; align-items: center; gap: 12px; }
-        .vp-signout { font-family: ${BODY}; font-size: 13px; color: #908D9A; background: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 16px; cursor: pointer; transition: all 0.2s; }
-        .vp-signout:hover { color: #D4AF37; border-color: #D4AF37; }
+        .vp-page { min-height: 100vh; background: #FAFAF8; color: #1A1A2E; padding: 0; }
+        .vp-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-bottom: 1px solid #E8E5DF; background: #FFFFFF; }
+        .vp-logo { font-family: ${FONT}; font-size: 22px; color: #1A1A2E; display: flex; align-items: center; gap: 12px; }
+        .vp-signout { font-family: ${BODY}; font-size: 13px; color: #7C7B76; background: none; border: 1px solid #E8E5DF; border-radius: 6px; padding: 6px 16px; cursor: pointer; transition: all 0.2s; }
+        .vp-signout:hover { color: #C5A55A; border-color: #C5A55A; }
         .vp-body { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
         .vp-section { margin-bottom: 48px; }
-        .vp-label { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin-bottom: 8px; }
-        .vp-title { font-family: ${FONT}; font-size: 24px; font-weight: 600; margin: 0 0 20px; }
-        .vp-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 20px; transition: border-color 0.2s; }
-        .vp-card:hover { border-color: rgba(255,255,255,0.1); }
+        .vp-label { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #C5A55A; margin-bottom: 8px; }
+        .vp-title { font-family: ${FONT}; font-size: 24px; font-weight: 600; margin: 0 0 20px; color: #1A1A2E; }
+        .vp-card { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 20px; transition: border-color 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .vp-card:hover { border-color: #D4D0C8; }
         .vp-shifts { display: flex; flex-direction: column; gap: 12px; }
         .vp-shift { display: flex; align-items: center; justify-content: space-between; }
-        .vp-shift-info h4 { font-family: ${BODY}; font-size: 16px; margin: 0 0 4px; font-weight: 600; }
-        .vp-shift-info p { font-family: ${MONO}; font-size: 12px; color: #908D9A; margin: 0; }
-        .vp-btn { font-family: ${BODY}; font-size: 13px; font-weight: 600; color: #04040c; background: linear-gradient(135deg, #D4AF37, #E5C76B); border: none; border-radius: 6px; padding: 8px 20px; cursor: pointer; transition: opacity 0.2s; }
+        .vp-shift-info h4 { font-family: ${BODY}; font-size: 16px; margin: 0 0 4px; font-weight: 600; color: #1A1A2E; }
+        .vp-shift-info p { font-family: ${MONO}; font-size: 12px; color: #7C7B76; margin: 0; }
+        .vp-btn { font-family: ${BODY}; font-size: 13px; font-weight: 600; color: #FFFFFF; background: #C5A55A; border: none; border-radius: 6px; padding: 8px 20px; cursor: pointer; transition: opacity 0.2s; }
         .vp-btn:hover { opacity: 0.85; }
-        .vp-btn-done { background: #4ADE80; cursor: default; }
+        .vp-btn-done { background: #3D8C6F; cursor: default; color: #FFFFFF; }
         .vp-stats { display: flex; gap: 16px; margin-bottom: 24px; }
-        .vp-stat { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 20px; text-align: center; }
-        .vp-stat-val { font-family: ${FONT}; font-size: 32px; color: #D4AF37; font-weight: 700; }
-        .vp-stat-lbl { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #908D9A; margin-top: 4px; }
+        .vp-stat { flex: 1; background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 20px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .vp-stat-val { font-family: ${FONT}; font-size: 32px; color: #C5A55A; font-weight: 700; }
+        .vp-stat-lbl { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #7C7B76; margin-top: 4px; }
         .vp-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .vp-input { font-family: ${BODY}; font-size: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 10px 12px; color: #F0EDE6; outline: none; width: 100%; box-sizing: border-box; }
-        .vp-input:focus { border-color: #D4AF37; }
+        .vp-input { font-family: ${BODY}; font-size: 14px; background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 6px; padding: 10px 12px; color: #1A1A2E; outline: none; width: 100%; box-sizing: border-box; }
+        .vp-input:focus { border-color: #C5A55A; }
         .vp-input-full { grid-column: 1 / -1; }
         .vp-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        .vp-table th { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #908D9A; text-align: left; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .vp-table td { font-family: ${BODY}; font-size: 13px; color: #F0EDE6; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .vp-table th { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #7C7B76; text-align: left; padding: 8px 0; border-bottom: 1px solid #E8E5DF; }
+        .vp-table td { font-family: ${BODY}; font-size: 13px; color: #1A1A2E; padding: 10px 0; border-bottom: 1px solid #F0EDE8; }
         .vp-training { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-        .vp-cert { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 20px; text-align: center; }
-        .vp-cert-name { font-family: ${BODY}; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .vp-cert { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 20px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .vp-cert-name { font-family: ${BODY}; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #1A1A2E; }
         .vp-cert-status { font-family: ${MONO}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        .vp-cert-modules { font-family: ${MONO}; font-size: 11px; color: #908D9A; margin-top: 4px; }
+        .vp-cert-modules { font-family: ${MONO}; font-size: 11px; color: #7C7B76; margin-top: 4px; }
         .vp-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .vp-link-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 24px; text-align: center; text-decoration: none; color: #F0EDE6; transition: border-color 0.2s; display: block; }
-        .vp-link-card:hover { border-color: #D4AF37; }
+        .vp-link-card { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 24px; text-align: center; text-decoration: none; color: #1A1A2E; transition: border-color 0.2s; display: block; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .vp-link-card:hover { border-color: #C5A55A; }
         .vp-link-icon { font-size: 28px; margin-bottom: 8px; }
         .vp-link-text { font-family: ${BODY}; font-size: 14px; font-weight: 600; }
         @media (max-width: 600px) {
