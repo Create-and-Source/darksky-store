@@ -3,6 +3,7 @@ import { getPurchaseOrders, addPurchaseOrder, updatePurchaseOrder, deletePurchas
 import { useToast } from '../AdminLayout';
 import Wizard from '../components/Wizard';
 import { undoable } from '../components/UndoSystem';
+import PageTour from '../components/PageTour';
 
 const statusClass = { Draft: 'badge-gray', Ordered: 'badge-blue', 'In Production': 'badge-purple', Shipped: 'badge-gold', Received: 'badge-green' };
 const STATUS_FLOW = ['Draft', 'Ordered', 'In Production', 'Shipped', 'Received'];
@@ -372,6 +373,12 @@ export default function PurchaseOrders() {
 
   return (
     <>
+      <PageTour storageKey="ds_tour_purchase_orders" steps={[
+        { target: '.admin-page-title', title: 'Purchase Orders', text: 'Track everything you order from vendors — Printify, wholesale suppliers, and local artisans.' },
+        { target: '.admin-btn-gold', title: 'Create a PO', text: 'Click here to start a new purchase order. Pick a vendor, add products, and submit.' },
+        { target: '.admin-table-wrap', title: 'Order Tracking', text: 'Watch orders move from Draft → Ordered → In Production → Shipped → Received. When items arrive, mark them received and inventory updates automatically.' },
+      ]} />
+
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title" style={{ display: 'flex', alignItems: 'center' }}>
