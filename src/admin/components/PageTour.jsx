@@ -24,9 +24,11 @@ export default function PageTour({ steps = [], storageKey }) {
     if (!el) { setRect(null); return; }
     const r = el.getBoundingClientRect();
     setRect({ top: r.top + window.scrollY, left: r.left, width: r.width, height: r.height });
-    // Scroll into view if needed
-    if (r.top < 80 || r.bottom > window.innerHeight - 80) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Scroll so the target top is near the top of viewport (leaving room for bubble below)
+    const targetTop = r.top + window.scrollY;
+    const scrollTo = Math.max(0, targetTop - 100); // 100px from top of viewport
+    if (r.top < 80 || r.top > window.innerHeight - 250) {
+      window.scrollTo({ top: scrollTo, behavior: 'smooth' });
       setTimeout(() => {
         const r2 = el.getBoundingClientRect();
         setRect({ top: r2.top + window.scrollY, left: r2.left, width: r2.width, height: r2.height });
@@ -71,20 +73,26 @@ export default function PageTour({ steps = [], storageKey }) {
     );
   }
 
-  // Bubble position
-  let bubbleStyle = { position: 'absolute', zIndex: 10002 };
+  // Bubble position — FIXED to viewport so it's always visible
+  let bubbleStyle = { position: 'fixed', zIndex: 10002 };
   if (rect) {
-    const below = rect.top + rect.height + 16;
-    const above = rect.top - 16;
-    const centerX = rect.left + rect.width / 2;
-    // Default: below the element, centered
-    bubbleStyle.top = below;
-    bubbleStyle.left = Math.max(16, Math.min(centerX - 180, window.innerWidth - 376));
-    // If too close to bottom, put above
-    if (below + 200 > window.scrollY + window.innerHeight) {
-      bubbleStyle.top = above;
+    const viewRect = {
+      top: rect.top - window.scrollY,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+    };
+    const below = viewRect.top + viewRect.height + 16;
+    const centerX = viewRect.left + viewRect.width / 2;
+    // Default: below the element
+    if (below + 220 < window.innerHeight) {
+      bubbleStyle.top = below;
+    } else {
+      // Put above if no room below
+      bubbleStyle.top = Math.max(16, viewRect.top - 16);
       bubbleStyle.transform = 'translateY(-100%)';
     }
+    bubbleStyle.left = Math.max(16, Math.min(centerX - 180, window.innerWidth - 376));
   } else {
     bubbleStyle.top = '40%';
     bubbleStyle.left = '50%';

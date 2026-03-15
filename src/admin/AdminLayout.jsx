@@ -534,19 +534,19 @@ export default function AdminLayout() {
                   onMouseEnter={e => e.currentTarget.style.background = '#F1F5F9'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <div className="admin-topbar-avatar">{ROLE_AVATARS[role]}</div>
+                  <div className="admin-topbar-avatar">{ROLE_AVATARS[role] || '✦'}</div>
                   <div className="admin-topbar-user-name" style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                    <span style={{ color: '#1E293B', fontWeight: 500, fontSize: 14 }}>{ROLE_NAMES[role]}</span>
-                    <span className="admin-topbar-user-role" style={{ color: '#94A3B8', fontSize: 12 }}>{ROLE_LABELS[role]}</span>
+                    <span style={{ color: '#1E293B', fontWeight: 500, fontSize: 14 }}>{localStorage.getItem('ds_user_name') || ROLE_NAMES[role] || 'Team'}</span>
+                    <span className="admin-topbar-user-role" style={{ color: '#94A3B8', fontSize: 12 }}>{ROLE_LABELS[role] || role}</span>
                   </div>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                     padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
                     letterSpacing: '0.5px', textTransform: 'uppercase',
-                    background: ROLE_BADGE_COLORS[role].bg,
-                    color: ROLE_BADGE_COLORS[role].text,
+                    background: (ROLE_BADGE_COLORS[role] || ROLE_BADGE_COLORS.executive_director).bg,
+                    color: (ROLE_BADGE_COLORS[role] || ROLE_BADGE_COLORS.executive_director).text,
                   }}>
-                    {ROLE_LABELS[role]}
+                    {ROLE_LABELS[role] || role}
                   </span>
                   {Icons.chevronDown}
                 </button>
