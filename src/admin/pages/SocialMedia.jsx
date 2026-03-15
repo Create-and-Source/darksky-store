@@ -368,37 +368,6 @@ async function renderPoster(template, clr, fields, bgUrl) {
   return canvas;
 }
 
-// ── Lifestyle mockup prompts ──
-const LIFESTYLE_SCENES = [
-  { id: 'star-party', name: 'Star Party', prompt: 'at a star party in the Sonoran Desert, Milky Way visible overhead, warm campfire glow' },
-  { id: 'sunset', name: 'Desert Sunset', prompt: 'hiking a desert trail at golden hour, saguaro cactus and warm sunset light' },
-  { id: 'observatory', name: 'Observatory', prompt: 'on the observatory deck at night, telescope nearby, stars filling the sky' },
-  { id: 'coffee', name: 'Morning Coffee', prompt: 'at an outdoor desert cafe, warm morning light, Fountain Hills Arizona' },
-  { id: 'adventure', name: 'Adventure', prompt: 'exploring the desert with binoculars, bright blue sky, red rock landscape' },
-];
-
-function buildLifestylePrompt(product, scene) {
-  const name = (product?.title || product?.name || '').toLowerCase();
-  const sp = scene?.prompt || LIFESTYLE_SCENES[0].prompt;
-  if (name.includes('hoodie') || name.includes('sweatshirt'))
-    return `Young person wearing a dark astronomy-themed hoodie, ${sp}, cozy and relaxed, photographed from behind looking up at the stars, lifestyle photography`;
-  if (name.includes('tee') || name.includes('t-shirt') || name.includes('shirt') || name.includes('tank'))
-    return `Person wearing a dark graphic t-shirt with astronomy design, ${sp}, casual and confident, lifestyle photography, editorial style`;
-  if (name.includes('mug') || name.includes('cup'))
-    return `Hands holding a ceramic mug with astronomy design, steam rising, ${sp}, cozy lifestyle photography, shallow depth of field`;
-  if (name.includes('hat') || name.includes('cap') || name.includes('beanie'))
-    return `Person wearing an astronomy-themed hat, ${sp}, profile view looking at the sky, lifestyle photography`;
-  if (name.includes('poster') || name.includes('print') || name.includes('canvas'))
-    return `Astronomy poster in a modern minimalist room, warm lamp light, desert-themed decor, cozy evening atmosphere, interior lifestyle photography`;
-  if (name.includes('bag') || name.includes('tote'))
-    return `Person carrying a tote bag with astronomy design, ${sp}, casual adventure style, lifestyle photography`;
-  if (name.includes('sticker'))
-    return `Astronomy sticker on a water bottle, ${sp}, outdoor adventure vibes, close-up lifestyle photography`;
-  if (name.includes('phone') || name.includes('case'))
-    return `Person holding phone with astronomy-themed case, ${sp}, screen glow on face, lifestyle photography`;
-  return `Person using ${product?.title || 'product'} outdoors in the Arizona desert at twilight, warm golden light, lifestyle editorial photography`;
-}
-
 const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: C.shadow };
 const pillBase = { padding: '7px 16px', borderRadius: 100, border: 'none', cursor: 'pointer', font: `500 12px ${FONT}`, letterSpacing: '0.02em', transition: 'all 0.15s' };
 const labelStyle = { fontFamily: MONO, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, color: C.text2, marginBottom: 8, display: 'block' };
@@ -437,11 +406,7 @@ export default function SocialMedia() {
   const [uploadedFile, setUploadedFile] = useState(null); // { name, size, type, objectUrl, dataUrl }
   const [mediaMode, setMediaMode] = useState('photo'); // 'photo' | 'poster'
   const [mediaTab, setMediaTab] = useState('upload'); // 'upload' | 'generate' | 'gallery'
-  const [productMediaMode, setProductMediaMode] = useState('product'); // 'product' | 'lifestyle' | 'upload'
-  const [lifestyleScene, setLifestyleScene] = useState(LIFESTYLE_SCENES[0]);
-  const [lifestylePrompt, setLifestylePrompt] = useState('');
-  const [designDescription, setDesignDescription] = useState('');
-  const [analyzing, setAnalyzing] = useState(false);
+  const [productMediaMode, setProductMediaMode] = useState('product'); // 'product' | 'upload'
   const [galleryImages, setGalleryImages] = useState([]);
   const [posterTemplate, setPosterTemplate] = useState('bold');
   const [posterColors, setPosterColors] = useState(POSTER_COLORS[0]);
@@ -549,55 +514,6 @@ export default function SocialMedia() {
   };
 
   const pickGallery = (img) => { const url = img.image_url || img.url || img.storage_path || ''; setMediaUrl(url); setMediaType('image'); setUploadedFile(null); toast('Image selected'); };
-
-  // ── Analyze product with Claude Vision, then generate lifestyle ──
-  const analyzeAndGenerate = async (scene) => {
-    const imgUrl = sourceData?.images?.[0];
-    const sc = scene || lifestyleScene;
-    setAnalyzing(true);
-    setDesignDescription('');
-
-    // Step 1: Try to analyze the product image
-    let desc = '';
-    try {
-      const r = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 300,
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'url', url: imgUrl } },
-              { type: 'text', text: 'Describe the design on this product in extreme detail for an image generation prompt. Focus on: exact imagery/graphics (what is depicted — planets, animals, text, patterns), colors used, art style (cartoon, realistic, vintage, minimalist), placement on the garment, and overall vibe. Be very specific about what the design looks like. Respond with ONLY the design description, no preamble.' }
-            ]
-          }]
-        })
-      });
-      if (!r.ok) throw new Error('API error');
-      const data = await r.json();
-      desc = data.content?.[0]?.text || '';
-    } catch (err) {
-      console.error('Vision analysis failed:', err);
-      toast('Using generic prompt — product analysis unavailable', 'info');
-    }
-
-    setAnalyzing(false);
-
-    if (desc) {
-      setDesignDescription(desc);
-      const fullPrompt = `A person wearing ${desc}, standing ${sc.prompt}, natural pose, lifestyle photography, editorial style, warm natural lighting, the design on the shirt must be clearly visible`;
-      setLifestylePrompt(fullPrompt);
-      // Auto-generate
-      generateImage(false, fullPrompt);
-    } else {
-      // Fallback to generic prompt
-      const fallback = buildLifestylePrompt(sourceData, sc);
-      setLifestylePrompt(fallback);
-      generateImage(false, fallback);
-    }
-  };
 
   // ── Publish simulation ──
   const publishTo = async (platform) => {
@@ -763,18 +679,16 @@ export default function SocialMedia() {
                   {/* ── PHOTO MODE ── */}
                   {mediaMode === 'photo' && (<>
 
-                    {/* Product source: 3-card selector */}
+                    {/* Product source: 2-card selector */}
                     {sourceType === 'product' && (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 12 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginBottom: 12 }}>
                         {[
-                          { id: 'product', label: 'Product Photo', desc: 'Flat mockup' },
-                          { id: 'lifestyle', label: 'Lifestyle Mockup', desc: 'AI-analyzed design' },
+                          { id: 'product', label: 'Product Photo', desc: 'From catalog' },
                           { id: 'upload', label: 'Upload', desc: 'Your file' },
                         ].map(m => (
                           <button key={m.id} onClick={() => {
                             setProductMediaMode(m.id);
                             if (m.id === 'product' && sourceData?.images?.[0]) { setMediaUrl(sourceData.images[0]); setMediaType('image'); setUploadedFile(null); }
-                            if (m.id === 'lifestyle') { const sc = lifestyleScene; setLifestylePrompt(buildLifestylePrompt(sourceData, sc)); setImageStyle('Realistic'); }
                           }} style={{
                             ...cardStyle, padding: '10px 8px', textAlign: 'center', cursor: 'pointer',
                             border: productMediaMode === m.id ? `2px solid ${C.gold}` : `1px solid ${C.border}`,
@@ -791,84 +705,6 @@ export default function SocialMedia() {
                       <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 12 }}>
                         <img src={mediaUrl} alt="Product" onClick={() => setLightboxUrl(mediaUrl)} style={{ width: '100%', maxHeight: 220, objectFit: 'contain', background: '#f0ede8', display: 'block', cursor: 'zoom-in' }} />
                         <div style={{ padding: '6px 8px', font: `400 10px ${FONT}`, color: C.muted }}>Product photo from catalog</div>
-                      </div>
-                    )}
-
-                    {/* Lifestyle Mockup mode — AI-analyzed design */}
-                    {sourceType === 'product' && productMediaMode === 'lifestyle' && (
-                      <div style={{ marginBottom: 12 }}>
-                        {/* Scene selector */}
-                        <label style={labelStyle}>Scene</label>
-                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
-                          {LIFESTYLE_SCENES.map(sc => (
-                            <button key={sc.id} onClick={() => { setLifestyleScene(sc); if (designDescription) { setLifestylePrompt(`A person wearing ${designDescription}, standing ${sc.prompt}, natural pose, lifestyle photography, editorial style, warm lighting, design clearly visible`); } else { setLifestylePrompt(buildLifestylePrompt(sourceData, sc)); } }}
-                              style={{ ...pillBase, padding: '4px 10px', fontSize: 10, background: lifestyleScene.id === sc.id ? C.gold : 'transparent', color: lifestyleScene.id === sc.id ? '#fff' : C.text2, border: lifestyleScene.id === sc.id ? `1px solid ${C.gold}` : `1px solid ${C.border}` }}>{sc.name}</button>
-                          ))}
-                        </div>
-
-                        {/* Design description (if analyzed) */}
-                        {designDescription && (
-                          <div style={{ ...cardStyle, padding: '10px 12px', marginBottom: 10, borderLeft: `3px solid ${C.gold}` }}>
-                            <div style={{ font: `600 9px ${MONO}`, textTransform: 'uppercase', letterSpacing: 1, color: C.gold, marginBottom: 4 }}>Detected Design</div>
-                            <textarea value={designDescription} onChange={e => {
-                              setDesignDescription(e.target.value);
-                              setLifestylePrompt(`A person wearing ${e.target.value}, standing ${lifestyleScene.prompt}, natural pose, lifestyle photography, editorial style, warm lighting, design clearly visible`);
-                            }} rows={3} style={{ ...inputStyle, fontSize: 11, lineHeight: 1.4, resize: 'vertical', background: '#F8F7F4' }} />
-                          </div>
-                        )}
-
-                        {/* Prompt */}
-                        <textarea value={lifestylePrompt} onChange={e => setLifestylePrompt(e.target.value)} rows={3} style={{ ...inputStyle, fontSize: 12, lineHeight: 1.4, resize: 'vertical', marginBottom: 8 }} placeholder="Lifestyle prompt will be built from product analysis..." />
-
-                        {/* Style pills */}
-                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>{IMG_STYLES.map(s => <button key={s} onClick={() => setImageStyle(s)} style={{ ...pillBase, padding: '3px 8px', fontSize: 9, background: imageStyle === s ? C.gold : 'transparent', color: imageStyle === s ? '#fff' : C.text2, border: imageStyle === s ? `1px solid ${C.gold}` : `1px solid ${C.border}` }}>{s}</button>)}</div>
-
-                        {/* Action buttons */}
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                          <button onClick={() => analyzeAndGenerate(lifestyleScene)} disabled={analyzing || generatingImage} style={{ ...pillBase, padding: '7px 16px', background: (analyzing || generatingImage) ? C.muted : C.gold, color: '#fff', fontSize: 11, fontWeight: 600 }}>
-                            {analyzing ? 'Analyzing...' : generatingImage ? 'Generating...' : 'Generate Lifestyle'}
-                          </button>
-                          <button onClick={() => { if (lifestylePrompt) generateImage(false, lifestylePrompt); }} disabled={analyzing || generatingImage || !lifestylePrompt} style={{ ...pillBase, padding: '7px 12px', background: 'transparent', color: C.text2, border: `1px solid ${C.border}`, fontSize: 11 }}>Regenerate</button>
-                          <button onClick={() => { const sc = LIFESTYLE_SCENES[Math.floor(Math.random() * LIFESTYLE_SCENES.length)]; setLifestyleScene(sc); analyzeAndGenerate(sc); }} disabled={analyzing || generatingImage} style={{ ...pillBase, padding: '7px 12px', background: 'transparent', color: C.text2, border: `1px solid ${C.border}`, fontSize: 11 }}>Try Another Scene</button>
-                        </div>
-
-                        {/* Loading states */}
-                        {analyzing && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 14px', background: `${C.gold}06`, borderRadius: 8 }}>
-                            <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${C.border}`, borderTopColor: C.gold, animation: 'smSpin 0.8s linear infinite' }} />
-                            <span style={{ font: `500 12px ${FONT}`, color: C.gold }}>Analyzing product design...</span>
-                          </div>
-                        )}
-                        {!analyzing && generatingImage && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 14px', background: `${C.gold}06`, borderRadius: 8 }}>
-                            <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${C.border}`, borderTopColor: C.gold, animation: 'smSpin 0.8s linear infinite' }} />
-                            <span style={{ font: `500 12px ${FONT}`, color: C.gold }}>Generating lifestyle photo...</span>
-                          </div>
-                        )}
-
-                        {/* Result with comparison */}
-                        {mediaUrl && !generatingImage && !analyzing && mediaUrl !== sourceData?.images?.[0] && (
-                          <div style={{ marginTop: 12 }}>
-                            {/* Side-by-side comparison */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 8, marginBottom: 8 }}>
-                              {sourceData?.images?.[0] && (
-                                <div style={{ ...cardStyle, overflow: 'hidden' }}>
-                                  <img src={sourceData.images[0]} alt="Original" style={{ width: '100%', height: 120, objectFit: 'contain', background: '#f0ede8', display: 'block' }} />
-                                  <div style={{ padding: '4px 6px', font: `400 8px ${MONO}`, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.5, textAlign: 'center' }}>Original</div>
-                                </div>
-                              )}
-                              <div style={{ ...cardStyle, overflow: 'hidden' }}>
-                                <img src={mediaUrl} alt="Lifestyle" onClick={() => setLightboxUrl(mediaUrl)} style={{ width: '100%', height: 120, objectFit: 'cover', background: '#f0ede8', display: 'block', cursor: 'zoom-in' }} />
-                                <div style={{ padding: '4px 6px', font: `400 8px ${MONO}`, color: C.gold, textTransform: 'uppercase', letterSpacing: 0.5, textAlign: 'center' }}>Lifestyle</div>
-                              </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                              <button onClick={() => downloadImage(mediaUrl, `darksky-lifestyle-${(sourceData?.title || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 20)}.png`)} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: C.gold, color: '#fff' }}>Download</button>
-                              <button onClick={() => toast('Selected as post image')} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: 'transparent', color: C.gold, border: `1px solid ${C.gold}` }}>Use This</button>
-                              <button onClick={() => { setProductMediaMode('product'); setDesignDescription(''); if (sourceData?.images?.[0]) setMediaUrl(sourceData.images[0]); }} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: 'transparent', color: C.text2, border: `1px solid ${C.border}` }}>Back to Product Photo</button>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     )}
 
