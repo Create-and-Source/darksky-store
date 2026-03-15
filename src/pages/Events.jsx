@@ -270,7 +270,7 @@ export default function Events() {
           <div style={{
             position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
             background: 'var(--bg2, #0a0a1a)', border: '1px solid var(--border)',
-            borderRadius: 'var(--r, 3px)', padding: 36, width: 400, maxWidth: '90vw', zIndex: 1001,
+            borderRadius: 'var(--r, 3px)', padding: 'clamp(20px, 5vw, 36px)', width: 400, maxWidth: '90vw', zIndex: 1001,
           }}>
             {resSuccess ? (
               <div style={{ textAlign: 'center' }}>

@@ -92,7 +92,7 @@ export default function Donate() {
 
   if (submitted) {
     return (
-      <div style={{ padding: '120px 64px 80px', maxWidth: 700, margin: '0 auto', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
+      <div className="donate-conf" style={{ padding: '120px 64px 80px', maxWidth: 700, margin: '0 auto', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
         {/* Falling stars */}
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
           {[...Array(40)].map((_, i) => (
@@ -242,7 +242,7 @@ export default function Donate() {
             {/* Amount selection */}
             <div style={{ marginBottom: 36 }}>
               <div className="label" style={{ marginBottom: 16 }}>// Select Amount</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 16 }}>
+              <div className="donate-amounts" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 16 }}>
                 {AMOUNTS.map(amt => (
                   <button
                     key={amt}
@@ -379,7 +379,12 @@ export default function Donate() {
       <style>{`
         @media (max-width: 640px) {
           [data-page="donate"] .section { padding: 48px 16px 80px !important; }
-          [data-page="donate"] section:first-child { padding: 120px 24px 80px !important; }
+          [data-page="donate"] section:first-child { padding: 120px 24px 60px !important; }
+          .donate-conf { padding: 80px 24px 60px !important; }
+        }
+        @media (max-width: 480px) {
+          [data-page="donate"] .donate-amounts { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+          [data-page="donate"] .donate-amounts button { padding: 14px 4px !important; font-size: 16px !important; }
         }
       `}</style>
     </div>

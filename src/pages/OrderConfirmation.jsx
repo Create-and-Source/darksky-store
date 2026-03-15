@@ -23,7 +23,7 @@ export default function OrderConfirmation() {
   if (!order) return null;
 
   return (
-    <div style={{ padding: '120px 64px 80px', maxWidth: 700, margin: '0 auto', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
+    <div className="conf-page" style={{ padding: '120px 64px 80px', maxWidth: 700, margin: '0 auto', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
       {/* Falling stars animation */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
         {[...Array(40)].map((_, i) => (
