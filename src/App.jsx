@@ -230,6 +230,8 @@ export default function App() {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
   const isAdmin = location.pathname.startsWith('/admin');
+  const isPortal = ['/volunteer-portal', '/member-portal', '/school-portal', '/signin'].includes(location.pathname);
+  const hideChrome = isAdmin || isPortal;
 
   // Auto-set admin role when visiting /admin directly (if not signed in)
   useEffect(() => {
@@ -243,14 +245,14 @@ export default function App() {
 
   return (
     <EditModeProvider>
-      {!isAdmin && <CustomCursor />}
-      {!isAdmin && <Stars count={180} className="stars-fixed" />}
-      {!isAdmin && <EditToggleButton />}
-      {!isAdmin && <EditBanner />}
+      {!hideChrome && <CustomCursor />}
+      {!hideChrome && <Stars count={180} className="stars-fixed" />}
+      {!hideChrome && <EditToggleButton />}
+      {!hideChrome && <EditBanner />}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        {!isAdmin && <AnnouncementBar />}
-        {!isAdmin && <Nav cartCount={cartCount} onCartClick={() => setDrawerOpen(true)} />}
-        {!isAdmin && <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} cart={cart} onUpdate={updateQty} onRemove={removeItem} />}
+        {!hideChrome && <AnnouncementBar />}
+        {!hideChrome && <Nav cartCount={cartCount} onCartClick={() => setDrawerOpen(true)} />}
+        {!hideChrome && <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} cart={cart} onUpdate={updateQty} onRemove={removeItem} />}
 
         <main>
           <Routes>
@@ -307,7 +309,7 @@ export default function App() {
           </Routes>
         </main>
 
-        {!isAdmin && <Footer />}
+        {!hideChrome && <Footer />}
       </div>
     </EditModeProvider>
   );
