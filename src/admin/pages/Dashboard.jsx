@@ -1511,6 +1511,7 @@ function ManagerDashboard() {
 // ════════════════════════════════════════════
 function BoardMemberDashboard() {
   const navigate = useNavigate();
+  const role = useRole();
   const donations = getDonations();
   const members = getMembers();
   const events = getEvents();
@@ -1532,8 +1533,8 @@ function BoardMemberDashboard() {
   return (
     <div>
       <div style={{ paddingTop: 8, marginBottom: 24 }}>
-        <h1 style={{ font: `600 28px ${FONT}`, color: C.text, margin: 0 }}>{getGreeting()}, {localStorage.getItem('ds_user_name') || 'Board Member'}</h1>
-        <div style={{ font: `400 14px ${FONT}`, color: C.text2, marginTop: 4 }}>Board Member Dashboard</div>
+        <h1 style={{ font: `600 28px ${FONT}`, color: C.text, margin: 0 }}>{getGreeting()}, {localStorage.getItem('ds_user_name') || 'Team'}</h1>
+        <div style={{ font: `400 14px ${FONT}`, color: C.text2, marginTop: 4 }}>{role === 'treasurer' ? 'Finance Dashboard' : role === 'board' ? 'Board Member Dashboard' : 'Reports Dashboard'}</div>
       </div>
 
       {/* Fundraising Progress — big and prominent */}

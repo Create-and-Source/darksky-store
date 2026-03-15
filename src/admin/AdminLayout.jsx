@@ -201,6 +201,12 @@ export default function AdminLayout() {
   const quickSearchInputRef = useRef(null);
   const userDropdownRef = useRef(null);
 
+  // Sync role from localStorage on mount and navigation
+  useEffect(() => {
+    const stored = localStorage.getItem('ds_admin_role');
+    if (stored && stored !== role) setRole(stored);
+  }, [location.pathname]);
+
   // Inject CSS
   useEffect(() => {
     const style = document.createElement('style');
