@@ -1023,12 +1023,6 @@ export default function AdminTour() {
         <PageTour onComplete={() => setPhase('idle')} />
       )}
 
-      {phase === 'idle' && (
-        <HelpButton
-          onReplayTour={handleReplayTour}
-          onTourPage={handleTourPage}
-        />
-      )}
     </>
   );
 }

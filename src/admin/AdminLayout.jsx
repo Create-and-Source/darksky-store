@@ -2,7 +2,6 @@ import { useState, useEffect, createContext, useContext, useCallback, useRef } f
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ADMIN_CSS } from './AdminStyles';
 import AdminTour from './AdminTour';
-import HelpChatbot from './components/HelpChatbot';
 import NotificationBell from '../components/NotificationBell';
 import OfflineBanner from '../components/OfflineBanner';
 import { executeUndo } from './components/UndoSystem';
@@ -617,8 +616,6 @@ export default function AdminLayout() {
         {/* Tour / Onboarding */}
         <AdminTour />
 
-        {/* Help Chatbot */}
-        <HelpChatbot />
 
         {/* Quick Search Modal */}
         {quickSearchOpen && (
