@@ -1751,6 +1751,44 @@ function VolunteerCoordDashboard() {
   );
 }
 
+// ── Board Member Dashboard (minimal, read-only) ──
+function BoardDashboard() {
+  const navigate = useNavigate();
+  const fundraising = getFundraising();
+  const members = getMembers();
+  const donations = getDonations();
+  const events = getEvents();
+  const today = new Date().toISOString().slice(0, 10);
+  const fmtM = (cents) => `$${(cents / 100 / 1000000).toFixed(1)}M`;
+  const pct = fundraising.goal > 0 ? Math.round((fundraising.raised / fundraising.goal) * 100) : 0;
+  const upcoming = events.filter(e => e.date >= today && e.status === 'Published').length;
+  const totalDonated = donations.reduce((s, d) => s + d.amount, 0);
+  const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 24, boxShadow: C.shadow };
+  return (
+    <div>
+      <RoleDashHeader subtitle="Board of Directors Dashboard" />
+      {/* Fundraising — big and prominent */}
+      <div style={{ ...cardStyle, textAlign: 'center', padding: '36px 24px', marginBottom: 24 }}>
+        <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 8 }}>Capital Campaign</div>
+        <div style={{ font: `600 42px ${FONT}`, color: C.gold, margin: '8px 0' }}>{fmtM(fundraising.raised)}</div>
+        <div style={{ font: `400 16px ${FONT}`, color: C.text2, marginBottom: 16 }}>of {fmtM(fundraising.goal)} goal</div>
+        <div style={{ height: 10, background: '#E8E5DF', borderRadius: 5, overflow: 'hidden', maxWidth: 500, margin: '0 auto' }}>
+          <div style={{ width: `${Math.min(pct, 100)}%`, height: '100%', background: `linear-gradient(90deg, ${C.gold}, #D4AF37)`, borderRadius: 5, transition: 'width 1s ease' }} />
+        </div>
+        <div style={{ font: `600 14px ${FONT}`, color: C.gold, marginTop: 8 }}>{pct}% complete</div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <MiniStatCard label="Active Members" value={members.length} color={C.success} />
+        <MiniStatCard label="Upcoming Events" value={upcoming} />
+        <MiniStatCard label="Total Donated (YTD)" value={`$${totalDonated.toLocaleString()}`} />
+        <MiniStatCard label="Recent Donations" value={donations.length} />
+      </div>
+      <button onClick={() => navigate('/admin/board-meeting')} style={{ width: '100%', padding: 16, background: C.gold, border: 'none', borderRadius: 8, font: `600 15px ${FONT}`, color: '#fff', cursor: 'pointer', marginBottom: 12 }}>Open Board Meeting View</button>
+      <p style={{ font: `400 13px ${FONT}`, color: C.muted, textAlign: 'center' }}>Full-screen presentation mode for board meetings and projector display.</p>
+    </div>
+  );
+}
+
 // ── Payroll/HR Dashboard ──
 function PayrollDashboard() {
   const navigate = useNavigate();
@@ -1842,7 +1880,7 @@ export default function Dashboard() {
     case 'shop_manager': return <ShopManagerDashboard />;
     case 'shop_staff': return <StaffDashboard />;
     case 'treasurer': return <BoardMemberDashboard />;
-    case 'board': return <BoardMemberDashboard />;
+    case 'board': return <BoardDashboard />;
     case 'education_director': return <EducationDashboard />;
     case 'social_media': return <SocialMediaDashboard />;
     case 'visitor_services': return <VisitorServicesDashboard />;

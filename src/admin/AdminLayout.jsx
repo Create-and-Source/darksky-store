@@ -202,11 +202,24 @@ export default function AdminLayout() {
   const quickSearchInputRef = useRef(null);
   const userDropdownRef = useRef(null);
 
-  // Sync role from localStorage on mount and navigation
+  // Sync role from localStorage on every render cycle
   useEffect(() => {
     const stored = localStorage.getItem('ds_admin_role');
-    if (stored && stored !== role) setRole(stored);
+    if (stored) setRole(stored);
   }, [location.pathname]);
+
+  // Also listen for storage changes (cross-tab and same-tab)
+  useEffect(() => {
+    const sync = () => {
+      const stored = localStorage.getItem('ds_admin_role');
+      if (stored) setRole(stored);
+    };
+    window.addEventListener('storage', sync);
+    window.addEventListener('ds-auth-change', sync);
+    // Poll for same-tab changes (sign-in writes then navigates)
+    const id = setInterval(sync, 500);
+    return () => { window.removeEventListener('storage', sync); window.removeEventListener('ds-auth-change', sync); clearInterval(id); };
+  }, []);
 
   // Inject CSS
   useEffect(() => {
