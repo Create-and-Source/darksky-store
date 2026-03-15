@@ -55,7 +55,7 @@ export default function Nav({ cartCount, onCartClick }) {
       localStorage.removeItem('ds_admin_role');
       setAdminOn(false);
     } else {
-      localStorage.setItem('ds_user_name', 'Nancy');
+      localStorage.setItem('ds_user_name', 'Executive Director');
       localStorage.setItem('ds_user_role', 'manager');
       localStorage.setItem('ds_admin_role', 'admin');
       setAdminOn(true);

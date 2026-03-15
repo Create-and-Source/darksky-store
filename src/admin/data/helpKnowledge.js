@@ -335,8 +335,8 @@ export const FEATURES = {
     route: null,
     description: 'Three admin roles control who can see and do what: Manager (full access), Staff (day-to-day operations), and Volunteer (read-only basics).',
     howTo: [
-      'Manager (Tovah/Nancy): Full access to all admin pages — dashboard, inventory, events, email, content, reports, QuickBooks, and Edit Mode.',
-      'Staff (Josi): Can access Dashboard, Inventory, Receive, Transfers, and Orders (read-only). Cannot create events, send emails, edit content, or view financial reports.',
+      'Manager (Tovah/Josi): Full access to all admin pages — dashboard, inventory, events, email, content, reports, QuickBooks, and Edit Mode.',
+      'Staff: Can access Dashboard, Inventory, Receive, Transfers, and Orders (read-only). Cannot create events, send emails, edit content, or view financial reports.',
       'Volunteer: Can access Dashboard and Inventory (read-only) to help customers check stock. Cannot edit anything or see financial data.',
       'Toggle the admin role via the toggle switch in the Nav bar, or visit /admin to auto-set to Manager.',
       'The role is stored in localStorage (ds_user_role) — it\'s a demo system, not real authentication.',
@@ -658,12 +658,12 @@ export function buildSystemPrompt(currentRoute, role) {
     : '';
 
   const roleLines = {
-    manager: 'The current user is a Manager (Tovah/Nancy). They have full access to all features.',
-    staff: `The current user is Staff (Josi). She can: receive shipments, check inventory (gift shop only), confirm transfers, view orders. She CANNOT: create events, send emails, edit content, create purchase orders, view reports, or see financial data. If she asks about a manager-only feature, warmly redirect: "That's a manager function — ask Nancy or Tovah to handle that for you. You can [suggest what they CAN do instead]."`,
-    volunteer: `The current user is a Volunteer. They can: look up inventory to help customers, view orders (read-only). They CANNOT: edit anything, create events, send emails, receive shipments, create POs, or see financial data. If they ask about a restricted feature, warmly redirect: "That's handled by the managers — you can reach Nancy at (928) 555-0142, or ask Tovah or Josi. In the meantime, you can [suggest what they CAN do]." Never make them feel bad for asking.`,
+    manager: 'The current user is a Manager (Tovah/Josi). They have full access to all features.',
+    staff: `The current user is Staff. They can: receive shipments, check inventory (gift shop only), confirm transfers, view orders. They CANNOT: create events, send emails, edit content, create purchase orders, view reports, or see financial data. If they ask about a manager-only feature, warmly redirect: "That's a manager function — ask Josi or Tovah to handle that for you. You can [suggest what they CAN do instead]."`,
+    volunteer: `The current user is a Volunteer. They can: look up inventory to help customers, view orders (read-only). They CANNOT: edit anything, create events, send emails, receive shipments, create POs, or see financial data. If they ask about a restricted feature, warmly redirect: "That's handled by the managers — you can reach Josi or Tovah. In the meantime, you can [suggest what they CAN do]." Never make them feel bad for asking.`,
   };
 
-  return `You are the Dark Sky Discovery Center admin assistant. You help Nancy, Josi, and volunteers use the MuseumOS platform. You know everything about every feature. Answer in 1-3 sentences, plain English, no jargon. Always tell them exactly where to click. Be warm and encouraging.
+  return `You are the Dark Sky Discovery Center admin assistant. You help Josi, Nancy, and volunteers use the MuseumOS platform. You know everything about every feature. Answer in 1-3 sentences, plain English, no jargon. Always tell them exactly where to click. Be warm and encouraging.
 
 ${roleLines[role] || roleLines.manager}
 
@@ -683,23 +683,23 @@ const STAFF_RESTRICTED = ['events', 'email', 'content', 'reports', 'quickbooks']
 
 function getRoleRedirect(feature, role) {
   if (role === 'volunteer') {
-    if (feature === 'events') return "Creating events is a manager function. You can view today's events on your dashboard though! If a customer asks about upcoming events, check the Events section on the public website or ask Nancy/Tovah.";
-    if (feature === 'email') return "Sending emails is handled by the managers. If you need to contact a customer, let Nancy or Tovah know and they can help.";
+    if (feature === 'events') return "Creating events is a manager function. You can view today's events on your dashboard though! If a customer asks about upcoming events, check the Events section on the public website or ask Josi or Tovah.";
+    if (feature === 'email') return "Sending emails is handled by the managers. If you need to contact a customer, let Josi or Tovah know and they can help.";
     if (feature === 'reports') return "Reports are available to managers. You can check inventory levels from the Inventory page to help customers find what they need!";
-    if (feature === 'purchaseOrders') return "Purchase orders are created by managers. If you notice something is out of stock, let Nancy or Tovah know so they can reorder it.";
-    if (feature === 'content') return "Website editing is a manager function. If you spot something that needs updating, just let Nancy or Tovah know!";
+    if (feature === 'purchaseOrders') return "Purchase orders are created by managers. If you notice something is out of stock, let Josi or Tovah know so they can reorder it.";
+    if (feature === 'content') return "Website editing is a manager function. If you spot something that needs updating, just let Josi or Tovah know!";
     if (feature === 'transfers') return "Creating transfers is a manager/staff function. If you think the gift shop needs restocking, let Josi or a manager know!";
     if (feature === 'receive') return "Receiving shipments is handled by staff and managers. If a delivery arrives, find Josi or call Nancy at (928) 555-0142.";
-    return "That's a manager function. Ask Nancy or Tovah for help, or call (928) 555-0142.";
+    return "That's a manager function. Ask Josi or Tovah for help, or call (928) 555-0142.";
   }
   if (role === 'staff') {
-    if (feature === 'events') return "Creating events is a manager function. Ask Nancy or Tovah to set those up. You can let them know about event ideas though!";
+    if (feature === 'events') return "Creating events is a manager function. Ask Josi or Tovah to set those up. You can let them know about event ideas though!";
     if (feature === 'email') return "Sending emails is managed by Nancy and Tovah. If you want to suggest an email to customers, just let them know!";
     if (feature === 'reports') return "Reports are available to managers. You can check inventory and orders from your dashboard to see what you need day-to-day.";
-    if (feature === 'purchaseOrders') return "Purchase orders are created by managers. If something needs reordering, flag it to Nancy or Tovah and they'll handle it.";
-    if (feature === 'content') return "Website content is edited by managers. If you spot something that needs changing, just let Nancy or Tovah know!";
-    if (feature === 'quickbooks') return "QuickBooks exports are a manager function. Nancy handles all the accounting and bookkeeping.";
-    return "That's a manager function. Ask Nancy or Tovah for help with that.";
+    if (feature === 'purchaseOrders') return "Purchase orders are created by managers. If something needs reordering, flag it to Josi or Tovah and they'll handle it.";
+    if (feature === 'content') return "Website content is edited by managers. If you spot something that needs changing, just let Josi or Tovah know!";
+    if (feature === 'quickbooks') return "QuickBooks exports are a manager function. Nancy (Treasurer) handles all the accounting and bookkeeping.";
+    return "That's a manager function. Ask Josi or Tovah for help with that.";
   }
   return null;
 }

@@ -322,8 +322,8 @@ export default function AdminLayout() {
 
   // Role switching
   const SWITCH_NAMES = {
-    executive_director: 'Dr. J', treasurer: 'Finance', board: 'Board',
-    shop_manager: 'Nancy', shop_staff: 'Josi', visitor_services: 'Sam',
+    executive_director: 'Dr. J', treasurer: 'Nancy', board: 'Board',
+    shop_manager: 'Josi', shop_staff: 'Staff', visitor_services: 'Sam',
     education_director: 'Maria', social_media: 'Alex',
     volunteer_coordinator: 'Jordan', payroll: 'HR Admin',
   };

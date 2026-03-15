@@ -34,10 +34,10 @@ const ROLE_MAP = {
 
 const NAME_MAP = {
   executive_director: 'Dr. J',
-  treasurer: 'Finance',
+  treasurer: 'Nancy',
   board: 'Board',
-  shop_manager: 'Nancy',
-  shop_staff: 'Josi',
+  shop_manager: 'Josi',
+  shop_staff: 'Staff',
   visitor_services: 'Sam',
   education_director: 'Maria',
   social_media: 'Alex',

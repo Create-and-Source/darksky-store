@@ -342,7 +342,7 @@ export default function QuickBooks() {
       <div className="admin-page-header">
         <div>
           <div className="admin-page-title">QuickBooks Integration</div>
-          <div className="admin-page-subtitle">Export data for Nancy's bookkeeping</div>
+          <div className="admin-page-subtitle">Export data for bookkeeping</div>
         </div>
       </div>
 
