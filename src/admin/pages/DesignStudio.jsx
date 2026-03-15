@@ -11,6 +11,21 @@ const FONT = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 const MONO = "'JetBrains Mono', 'SF Mono', monospace";
 
 const STYLES = ['Painterly', 'Realistic', 'Action Shot', 'Watercolor', 'Abstract', 'Dreamy'];
+
+async function downloadImage(url, filename) {
+  try {
+    const r = await fetch(url);
+    const blob = await r.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename || 'darksky-artwork.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  } catch { window.open(url, '_blank'); }
+}
 const CATEGORIES = ['All', 'Creatures', 'Dark Sky', 'Flora', 'Geology', 'Favorites'];
 
 function relativeTime(dateStr) {
@@ -304,7 +319,7 @@ export default function DesignStudio() {
               </p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <button
-                  onClick={() => window.open(preview.url, '_blank')}
+                  onClick={() => downloadImage(preview.url, `darksky-${(preview.prompt || '').split(/\s+/).slice(0,3).join('-').toLowerCase().replace(/[^a-z0-9-]/g,'')}.png`)}
                   style={{ ...pillBase, padding: '8px 18px', background: C.gold, color: '#fff', fontSize: 12 }}
                 >Download</button>
                 <button
@@ -508,7 +523,7 @@ export default function DesignStudio() {
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <button
-                  onClick={() => window.open(getImageUrl(modal), '_blank')}
+                  onClick={() => downloadImage(getImageUrl(modal), `darksky-${(modal.prompt || '').split(/\s+/).slice(0,3).join('-').toLowerCase().replace(/[^a-z0-9-]/g,'')}.png`)}
                   style={{ ...pillBase, padding: '10px 22px', background: C.gold, color: '#fff', fontSize: 13, fontWeight: 600 }}
                 >Download</button>
                 <button
