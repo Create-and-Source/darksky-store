@@ -463,7 +463,7 @@ export const FAQ = [
   },
   {
     q: 'Who do I contact if I need help?',
-    a: 'For immediate help, contact Nancy (Manager) at (928) 555-0142. For day-to-day gift shop questions, ask Josi (Staff). You can also use this chat assistant anytime — I\'m always here to help you find your way around the system!',
+    a: 'For immediate help, contact the front desk at (480) 555-0100. For day-to-day gift shop questions, ask your shift manager. You can also use this chat assistant anytime — I\'m always here to help you find your way around the system!',
     keywords: ['contact', 'help', 'emergency', 'who do i call', 'phone', 'manager'],
     feature: null,
   },

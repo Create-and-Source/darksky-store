@@ -93,7 +93,7 @@ export default function BoardMeeting() {
       <div className="bm-page">
         <div className="bm-topbar">
           <div className="bm-logo">{'\u2726'} IDSDC</div>
-          <div className="bm-center">Board Report — March 2026</div>
+          <div className="bm-center">Board Report — {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span style={{ fontFamily: MONO, fontSize: 11, color: '#7C7B76' }}>
               {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}

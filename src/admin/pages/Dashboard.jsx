@@ -591,7 +591,7 @@ function VolunteerDashboard() {
           {[
             { icon: Icon.clock(C.gold), label: 'Gift Shop Hours', value: '10:00 AM – 6:00 PM, Mon – Sat' },
             { icon: Icon.user('#7C6BAF'), label: 'Membership Questions', value: 'Direct to darkskycenter.org/membership' },
-            { icon: Icon.phone(), label: 'Emergency Contact', value: 'Nancy (Manager) — (928) 555-0142' },
+            { icon: Icon.phone(), label: 'Emergency Contact', value: 'Front Desk — (480) 555-0100' },
             { icon: Icon.wifi(), label: 'WiFi Password', value: <span>IDSDC-Guest / <span style={{ fontFamily: MONO, fontSize: 12 }}>DarkSky2026!</span></span> },
           ].map((item, i, arr) => (
             <div key={i} style={{
@@ -700,7 +700,7 @@ function StaffDashboard() {
         transition: 'all 0.6s ease',
       }}>
         <h1 style={{ fontFamily: FONT, fontSize: 28, fontWeight: 600, color: C.text, letterSpacing: '-0.02em', margin: '0 0 4px' }}>
-          {getGreeting()}, Josi — here's your day
+          {getGreeting()}, {localStorage.getItem('ds_user_name') || 'Team'} — here's your day
         </h1>
         <p style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, margin: 0 }}>
           {formatTodayDate()}
@@ -1053,7 +1053,7 @@ function ManagerDashboard() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 4 }}>
           <h1 className="ds-greeting-heading" style={{ fontFamily: FONT, fontSize: 28, fontWeight: 600, color: C.text, letterSpacing: '-0.02em', margin: 0, flex: 1, minWidth: 0 }}>
-            {getGreeting()}, {localStorage.getItem('ds_user_name') || 'Tovah'}
+            {getGreeting()}, {localStorage.getItem('ds_user_name') || 'Team'}
           </h1>
           <span className="ds-greeting-date" style={{ fontFamily: FONT, fontSize: 14, fontWeight: 400, color: C.text2, whiteSpace: 'nowrap' }}>
             {formatTodayDate()}
@@ -1532,7 +1532,7 @@ function BoardMemberDashboard() {
   return (
     <div>
       <div style={{ paddingTop: 8, marginBottom: 24 }}>
-        <h1 style={{ font: `600 28px ${FONT}`, color: C.text, margin: 0 }}>{getGreeting()}, Patricia</h1>
+        <h1 style={{ font: `600 28px ${FONT}`, color: C.text, margin: 0 }}>{getGreeting()}, {localStorage.getItem('ds_user_name') || 'Board Member'}</h1>
         <div style={{ font: `400 14px ${FONT}`, color: C.text2, marginTop: 4 }}>Board Member Dashboard</div>
       </div>
 
