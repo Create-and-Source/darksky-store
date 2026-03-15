@@ -176,125 +176,196 @@ function generateTemplatePosts(sourceType, sourceData, selectedPlatforms, fundra
   return posts;
 }
 
-// ── Poster canvas renderer ──
+// ── Poster canvas renderer — professional Instagram-ready output ──
 const POSTER_TEMPLATES = [
-  { id: 'bold', name: 'Bold', desc: 'Dark bg, centered text' },
-  { id: 'minimal', name: 'Minimal', desc: 'Photo bg, overlay text' },
-  { id: 'split', name: 'Split', desc: 'Text left, photo right' },
+  { id: 'bold', name: 'Bold', desc: 'Centered, dramatic' },
+  { id: 'minimal', name: 'Minimal', desc: 'Photo background' },
+  { id: 'split', name: 'Split', desc: 'Text + photo' },
   { id: 'story', name: 'Story', desc: '9:16 vertical' },
 ];
-
 const POSTER_COLORS = [
-  { id: 'dark-gold', name: 'Dark & Gold', bg: '#04040c', accent: '#D4AF37', text: '#F0EDE6' },
-  { id: 'night-sky', name: 'Night Sky', bg: '#0a0a2e', accent: '#8B9DC3', text: '#E8E5DF' },
-  { id: 'desert', name: 'Desert Warm', bg: '#2c1810', accent: '#C5885A', text: '#F0EDE6' },
-  { id: 'clean', name: 'Clean White', bg: '#FAFAF8', accent: '#D4AF37', text: '#1A1A2E' },
+  { id: 'dark-gold', name: 'Dark & Gold', bg: '#04040c', accent: '#D4AF37', text: '#FFFFFF', muted: '#908D9A' },
+  { id: 'night-sky', name: 'Night Sky', bg: '#0a1628', accent: '#7EB8DA', text: '#E8F0FE', muted: '#6B7D94' },
+  { id: 'desert', name: 'Desert Warm', bg: '#1C1410', accent: '#C4956A', text: '#F5EDE3', muted: '#8B7D6B' },
+  { id: 'clean', name: 'Clean White', bg: '#FAFAF8', accent: '#C5A55A', text: '#1A1A2E', muted: '#6B7280' },
 ];
 
-async function renderPoster(template, colors, fields, bgImageUrl) {
-  const isStory = template === 'story';
-  const W = 1080, H = isStory ? 1920 : 1080;
-  const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  // Background
-  ctx.fillStyle = colors.bg;
-  ctx.fillRect(0, 0, W, H);
-
-  // Load bg image if provided
-  if (bgImageUrl && (template === 'minimal' || template === 'split')) {
-    try {
-      const img = new Image(); img.crossOrigin = 'anonymous';
-      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = bgImageUrl; });
-      if (template === 'minimal') {
-        ctx.drawImage(img, 0, 0, W, H);
-        ctx.fillStyle = 'rgba(4,4,12,0.65)'; ctx.fillRect(0, 0, W, H);
-      } else {
-        ctx.drawImage(img, W / 2, 0, W / 2, H);
-      }
-    } catch { /* bg image failed, solid color fallback */ }
-  }
-
-  // Accent line
-  ctx.fillStyle = colors.accent;
-  if (template === 'bold') { ctx.fillRect(W / 2 - 60, 200, 120, 3); }
-  else if (template === 'story') { ctx.fillRect(40, 120, W - 80, 3); }
-
-  // Text
-  ctx.textAlign = template === 'split' ? 'left' : 'center';
-  const tx = template === 'split' ? 80 : W / 2;
-
-  // Title
-  ctx.fillStyle = colors.text;
-  ctx.font = `bold ${isStory ? 72 : 64}px serif`;
-  const titleY = template === 'bold' ? 340 : template === 'story' ? 240 : template === 'minimal' ? H / 2 - 80 : 260;
-  wrapText(ctx, fields.title || '', tx, titleY, template === 'split' ? W / 2 - 120 : W - 160, isStory ? 84 : 76);
-
-  // Date + Time
-  ctx.font = `500 ${isStory ? 36 : 32}px sans-serif`;
-  ctx.fillStyle = colors.accent;
-  const dtY = titleY + (fields.title?.length > 30 ? 180 : 120);
-  ctx.fillText(`${fields.date || ''}${fields.time ? '  \u00B7  ' + fields.time : ''}`, tx, dtY);
-
-  // Location
-  ctx.font = `400 ${isStory ? 30 : 28}px sans-serif`;
-  ctx.fillStyle = colors.text + 'AA';
-  ctx.fillText(fields.location || '', tx, dtY + 50);
-
-  // Price
-  if (fields.price) {
-    ctx.font = `600 ${isStory ? 34 : 30}px sans-serif`;
-    ctx.fillStyle = colors.accent;
-    ctx.fillText(fields.price, tx, dtY + 110);
-  }
-
-  // CTA
-  if (fields.cta) {
-    const ctaY = isStory ? H - 300 : H - 160;
-    ctx.fillStyle = colors.accent;
-    const ctaW = 320, ctaH = 56;
-    const ctaX = template === 'split' ? 80 : (W - ctaW) / 2;
-    roundRect(ctx, ctaX, ctaY, ctaW, ctaH, 28);
-    ctx.fill();
-    ctx.fillStyle = colors.bg;
-    ctx.font = `700 22px sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText(fields.cta, ctaX + ctaW / 2, ctaY + 37);
-    ctx.textAlign = template === 'split' ? 'left' : 'center';
-  }
-
-  // Branding
-  ctx.fillStyle = colors.text + '66';
-  ctx.font = '400 20px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('International Dark Sky Discovery Center', W / 2, H - 60);
-  ctx.font = '400 16px sans-serif';
-  ctx.fillText('Fountain Hills, AZ', W / 2, H - 32);
-
-  return canvas.toDataURL('image/png');
-}
-
-function wrapText(ctx, text, x, y, maxW, lineH) {
-  const words = text.split(' ');
+function wrapCanvasText(ctx, text, x, y, maxW, lineH) {
+  const words = (text || '').split(' ');
   let line = '', ly = y;
-  for (const w of words) {
-    const test = line + w + ' ';
-    if (ctx.measureText(test).width > maxW && line) {
-      ctx.fillText(line.trim(), x, ly); ly += lineH; line = w + ' ';
+  for (let i = 0; i < words.length; i++) {
+    const test = line + words[i] + ' ';
+    if (ctx.measureText(test).width > maxW && i > 0) {
+      ctx.fillText(line.trim(), x, ly);
+      line = words[i] + ' '; ly += lineH;
     } else { line = test; }
   }
   ctx.fillText(line.trim(), x, ly);
+  return ly;
 }
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
   ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
   ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+}
+
+async function loadImg(url) {
+  if (!url) return null;
+  const img = new Image(); img.crossOrigin = 'anonymous';
+  return new Promise(res => { img.onload = () => res(img); img.onerror = () => res(null); img.src = url; });
+}
+
+async function renderPoster(template, clr, fields, bgUrl) {
+  const isStory = template === 'story';
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const titleSize = (fields.title || '').length > 28 ? 56 : 72;
+
+  // ── BOLD ──
+  if (template === 'bold') {
+    ctx.fillStyle = clr.bg; ctx.fillRect(0, 0, W, H);
+    // Subtle gradient glow from bottom
+    const grd = ctx.createLinearGradient(0, H, 0, H * 0.4);
+    grd.addColorStop(0, clr.accent + '14'); grd.addColorStop(1, 'transparent');
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    // Gold line top
+    ctx.fillStyle = clr.accent; ctx.fillRect(W / 2 - 100, 340, 200, 2);
+    // Title
+    ctx.textAlign = 'center'; ctx.fillStyle = clr.text;
+    ctx.font = `bold ${titleSize}px Georgia, "Times New Roman", serif`;
+    wrapCanvasText(ctx, fields.title || '', W / 2, 420, 900, titleSize + 12);
+    // Gold line below title
+    ctx.fillStyle = clr.accent; ctx.fillRect(W / 2 - 50, 480 + (titleSize > 56 ? 40 : 0), 100, 2);
+    // Date + time
+    const dtY = 540 + (titleSize > 56 ? 40 : 0);
+    ctx.font = '500 28px Arial, Helvetica, sans-serif'; ctx.fillStyle = clr.accent;
+    ctx.fillText(`${fields.date || ''}${fields.time ? '  \u00B7  ' + fields.time : ''}`, W / 2, dtY);
+    // Location
+    ctx.font = '400 24px Arial, sans-serif'; ctx.fillStyle = clr.muted;
+    ctx.fillText(fields.location || '', W / 2, dtY + 45);
+    // Price
+    if (fields.price) { ctx.font = 'bold 28px Arial, sans-serif'; ctx.fillStyle = clr.accent; ctx.fillText(fields.price, W / 2, dtY + 100); }
+    // CTA button
+    if (fields.cta) {
+      const ctaY = 750 + (titleSize > 56 ? 40 : 0), ctaW = 280, ctaH = 56;
+      ctx.fillStyle = clr.accent; roundRect(ctx, (W - ctaW) / 2, ctaY, ctaW, ctaH, 28); ctx.fill();
+      ctx.fillStyle = clr.bg; ctx.font = 'bold 20px Arial, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(fields.cta, W / 2, ctaY + 36);
+    }
+    // Branding
+    ctx.fillStyle = clr.muted + '88'; ctx.font = '400 14px Arial, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('INTERNATIONAL DARK SKY DISCOVERY CENTER', W / 2, H - 55);
+    ctx.font = '400 12px Arial, sans-serif';
+    ctx.fillText('Fountain Hills, Arizona', W / 2, H - 32);
+  }
+
+  // ── MINIMAL ──
+  if (template === 'minimal') {
+    const bgImg = await loadImg(bgUrl);
+    if (bgImg) { ctx.drawImage(bgImg, 0, 0, W, H); } else {
+      const grd = ctx.createLinearGradient(0, 0, W, H);
+      grd.addColorStop(0, '#0a0e1a'); grd.addColorStop(1, '#1a1a2e');
+      ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    }
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(0, 0, W, H);
+    // Gold accent bar
+    ctx.fillStyle = clr.accent; ctx.fillRect(80, 290, 4, 60);
+    // Title
+    ctx.textAlign = 'left'; ctx.fillStyle = clr.text;
+    ctx.font = `bold ${titleSize > 56 ? 52 : 64}px Georgia, serif`;
+    const lastY = wrapCanvasText(ctx, fields.title || '', 80, 380, 700, 72);
+    // Date
+    ctx.font = '500 26px Arial, sans-serif'; ctx.fillStyle = clr.accent;
+    ctx.fillText(`${fields.date || ''}${fields.time ? '  \u00B7  ' + fields.time : ''}`, 80, lastY + 60);
+    // Location
+    ctx.font = '400 22px Arial, sans-serif'; ctx.fillStyle = clr.text + 'B3';
+    ctx.fillText(fields.location || '', 80, lastY + 100);
+    // Price bottom-right
+    if (fields.price) { ctx.textAlign = 'right'; ctx.font = 'bold 36px Arial, sans-serif'; ctx.fillStyle = clr.accent; ctx.fillText(fields.price, W - 80, H - 140); }
+    // CTA bottom-left
+    if (fields.cta) { ctx.textAlign = 'left'; ctx.font = '500 22px Arial, sans-serif'; ctx.fillStyle = clr.accent; ctx.fillText(fields.cta + ' \u2192', 80, H - 90); }
+    // Branding
+    ctx.textAlign = 'center'; ctx.fillStyle = clr.text + '55'; ctx.font = '400 14px Arial, sans-serif';
+    ctx.fillText('INTERNATIONAL DARK SKY DISCOVERY CENTER  \u00B7  FOUNTAIN HILLS, AZ', W / 2, H - 30);
+  }
+
+  // ── SPLIT ──
+  if (template === 'split') {
+    ctx.fillStyle = clr.bg; ctx.fillRect(0, 0, 540, H);
+    const bgImg = await loadImg(bgUrl);
+    if (bgImg) { ctx.drawImage(bgImg, 540, 0, 540, H); } else {
+      const grd = ctx.createLinearGradient(540, 0, W, H); grd.addColorStop(0, '#0f1525'); grd.addColorStop(1, '#1a1a2e');
+      ctx.fillStyle = grd; ctx.fillRect(540, 0, 540, H);
+    }
+    ctx.fillStyle = clr.accent; ctx.fillRect(540, 0, 2, H);
+    // Left side text
+    ctx.textAlign = 'left';
+    ctx.fillStyle = clr.accent; ctx.font = '600 14px Arial, sans-serif';
+    ctx.fillText('UPCOMING EVENT', 60, 300);
+    ctx.fillStyle = clr.text; ctx.font = `bold 48px Georgia, serif`;
+    const ty = wrapCanvasText(ctx, fields.title || '', 60, 380, 440, 56);
+    ctx.fillStyle = clr.accent; ctx.fillRect(60, ty + 20, 80, 2);
+    ctx.font = '500 24px Arial, sans-serif'; ctx.fillStyle = clr.accent;
+    ctx.fillText(fields.date || '', 60, ty + 60);
+    ctx.font = '400 22px Arial, sans-serif'; ctx.fillStyle = clr.text + 'B3';
+    if (fields.time) ctx.fillText(fields.time, 60, ty + 95);
+    ctx.fillText(fields.location || '', 60, ty + (fields.time ? 130 : 95));
+    if (fields.price) { ctx.font = 'bold 32px Arial, sans-serif'; ctx.fillStyle = clr.accent; ctx.fillText(fields.price, 60, ty + (fields.time ? 185 : 150)); }
+    if (fields.cta) {
+      const btnY = 800; ctx.fillStyle = clr.accent; roundRect(ctx, 60, btnY, 200, 48, 24); ctx.fill();
+      ctx.fillStyle = clr.bg; ctx.font = 'bold 18px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(fields.cta, 160, btnY + 32); ctx.textAlign = 'left';
+    }
+    ctx.fillStyle = clr.muted + '88'; ctx.font = '400 12px Arial, sans-serif';
+    ctx.fillText('Dark Sky Discovery Center', 60, H - 40);
+    ctx.fillText('Fountain Hills, AZ', 60, H - 20);
+  }
+
+  // ── STORY ──
+  if (template === 'story') {
+    ctx.fillStyle = clr.bg; ctx.fillRect(0, 0, W, H);
+    const grd = ctx.createLinearGradient(0, 0, 0, H);
+    grd.addColorStop(0, clr.bg); grd.addColorStop(0.5, clr.accent + '08'); grd.addColorStop(1, clr.bg);
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    // Top branding
+    ctx.textAlign = 'center'; ctx.fillStyle = clr.accent; ctx.font = '600 16px Arial, sans-serif';
+    ctx.fillText('DARK SKY DISCOVERY CENTER', W / 2, 140);
+    ctx.fillStyle = clr.accent; ctx.fillRect(W / 2 - 75, 170, 150, 2);
+    // BG image in middle
+    const bgImg = await loadImg(bgUrl);
+    if (bgImg) {
+      ctx.save(); ctx.globalAlpha = 0.3; ctx.drawImage(bgImg, 0, 550, W, 550); ctx.restore();
+      const grd2 = ctx.createLinearGradient(0, 550, 0, 1100);
+      grd2.addColorStop(0, clr.bg); grd2.addColorStop(0.15, 'transparent'); grd2.addColorStop(0.85, 'transparent'); grd2.addColorStop(1, clr.bg);
+      ctx.fillStyle = grd2; ctx.fillRect(0, 550, W, 550);
+    }
+    // Title
+    ctx.fillStyle = clr.text; ctx.font = `bold 72px Georgia, serif`;
+    wrapCanvasText(ctx, fields.title || '', W / 2, 450, 900, 84);
+    // Date + time
+    ctx.font = '500 32px Arial, sans-serif'; ctx.fillStyle = clr.accent;
+    ctx.fillText(`${fields.date || ''}${fields.time ? '  \u00B7  ' + fields.time : ''}`, W / 2, 1250);
+    ctx.font = '400 24px Arial, sans-serif'; ctx.fillStyle = clr.text + 'B3';
+    ctx.fillText(fields.location || '', W / 2, 1310);
+    if (fields.price) { ctx.font = 'bold 36px Arial, sans-serif'; ctx.fillStyle = clr.accent; ctx.fillText(fields.price, W / 2, 1380); }
+    // CTA button
+    if (fields.cta) {
+      const ctaW = 320, ctaH = 56, ctaY = 1550;
+      ctx.fillStyle = clr.accent; roundRect(ctx, (W - ctaW) / 2, ctaY, ctaW, ctaH, 28); ctx.fill();
+      ctx.fillStyle = clr.bg; ctx.font = 'bold 20px Arial, sans-serif'; ctx.fillText(fields.cta, W / 2, ctaY + 36);
+    }
+    // Swipe up
+    ctx.fillStyle = clr.text + '55'; ctx.font = '400 18px Arial, sans-serif';
+    ctx.fillText('\u2191 Swipe Up to Reserve', W / 2, 1750);
+    // Branding
+    ctx.fillStyle = clr.muted + '66'; ctx.font = '400 14px Arial, sans-serif';
+    ctx.fillText('Fountain Hills, Arizona', W / 2, 1860);
+  }
+
+  return canvas;
 }
 
 const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: C.shadow };
@@ -688,10 +759,11 @@ export default function SocialMedia() {
                       ))}
                     </div>
 
-                    {/* Generate poster */}
+                    {/* Generate + preview poster */}
                     <button onClick={async () => {
                       try {
-                        const dataUrl = await renderPoster(posterTemplate, posterColors, posterFields, posterBgUrl);
+                        const canvas = await renderPoster(posterTemplate, posterColors, posterFields, posterBgUrl);
+                        const dataUrl = canvas.toDataURL('image/png');
                         setPosterPreview(dataUrl);
                         setMediaUrl(dataUrl); setMediaType('image'); setUploadedFile(null);
                         toast('Poster created!');
@@ -702,9 +774,10 @@ export default function SocialMedia() {
 
                     {posterPreview && (
                       <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 12 }}>
-                        <img src={posterPreview} alt="Poster preview" style={{ width: '100%', maxHeight: 300, objectFit: 'contain', background: '#1a1a2e', display: 'block' }} />
+                        <img src={posterPreview} alt="Poster preview" style={{ width: '100%', maxHeight: posterTemplate === 'story' ? 500 : 400, objectFit: 'contain', background: '#1a1a2e', display: 'block' }} />
                         <div style={{ padding: 8, display: 'flex', gap: 6 }}>
                           <button onClick={() => { const a = document.createElement('a'); a.href = posterPreview; a.download = `darksky-poster-${posterTemplate}.png`; a.click(); }} style={{ ...pillBase, padding: '4px 12px', fontSize: 10, background: C.gold, color: '#fff' }}>Download Poster</button>
+                          <button onClick={() => { setMediaUrl(posterPreview); toast('Set as post image'); }} style={{ ...pillBase, padding: '4px 12px', fontSize: 10, background: 'transparent', color: C.gold, border: `1px solid ${C.gold}` }}>Use as Post Image</button>
                           <button onClick={() => { setPosterPreview(''); clearMedia(); }} style={{ ...pillBase, padding: '4px 12px', fontSize: 10, background: 'transparent', color: C.danger, border: `1px solid ${C.border}` }}>Clear</button>
                         </div>
                       </div>
