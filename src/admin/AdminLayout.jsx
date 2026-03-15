@@ -129,6 +129,7 @@ const navSections = [
     label: 'Communications',
     items: [
       { to: '/admin/emails', icon: Icons.email, label: 'Email' },
+      { to: '/admin/text-blasts', icon: Icons.email, label: 'Text Blasts' },
       { to: '/admin/social-media', icon: Icons.socialMedia, label: 'Social Media' },
     ],
   },

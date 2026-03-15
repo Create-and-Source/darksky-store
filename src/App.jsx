@@ -45,6 +45,7 @@ const POS = lazy(() => import('./admin/pages/POS'));
 const FieldTripsAdmin = lazy(() => import('./admin/pages/FieldTripsAdmin'));
 const Products = lazy(() => import('./admin/pages/Products'));
 const PurchaseOrders = lazy(() => import('./admin/pages/PurchaseOrders'));
+const TextBlasts = lazy(() => import('./admin/pages/TextBlasts'));
 const Content = lazy(() => import('./admin/pages/Content'));
 const Facility = lazy(() => import('./admin/pages/Facility'));
 const Visitors = lazy(() => import('./admin/pages/Visitors'));
@@ -290,6 +291,7 @@ export default function App() {
               <Route path="pos" element={<POS />} />
               <Route path="products" element={<Products />} />
               <Route path="field-trips" element={<FieldTripsAdmin />} />
+              <Route path="text-blasts" element={<TextBlasts />} />
               <Route path="facility" element={<Facility />} />
               <Route path="visitors" element={<Visitors />} />
               <Route path="volunteers" element={<Volunteers />} />
