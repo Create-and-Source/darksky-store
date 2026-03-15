@@ -47,20 +47,20 @@ export default function Footer() {
               to life on Earth through education, preservation, and wonder.
             </p>
             <div className="footer-social">
-              <a href="#" aria-label="Instagram">IG</a>
-              <a href="#" aria-label="Twitter">X</a>
-              <a href="#" aria-label="Facebook">FB</a>
-              <a href="#" aria-label="YouTube">YT</a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">IG</a>
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">X</a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">FB</a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">YT</a>
             </div>
           </div>
           <div>
             <div className="footer-col-title">Visit</div>
             <div className="footer-links">
-              <a>13001 N La Montana Drive</a>
-              <a>Fountain Hills, AZ 85268</a>
-              <a>Wed — Sun, 6pm — 11pm</a>
+              <span>13001 N La Montana Drive</span>
+              <span>Fountain Hills, AZ 85268</span>
+              <span>Wed — Sun, 6pm — 11pm</span>
               <a href="mailto:info@darkskycenter.org">info@darkskycenter.org</a>
-              <a>Get Directions →</a>
+              <a href="https://maps.google.com/?q=13001+N+La+Montana+Drive+Fountain+Hills+AZ+85268" target="_blank" rel="noopener noreferrer">Get Directions →</a>
             </div>
           </div>
           <div>

@@ -637,7 +637,7 @@ export default function FieldTrips() {
         </blockquote>
         <div style={{ marginTop: 32 }}>
           <a href="#inquiry" className="btn-primary" style={{ textDecoration: 'none', marginRight: 16 }}>Book a Field Trip</a>
-          <button className="btn-ghost">Download Info Packet</button>
+          <button className="btn-ghost" onClick={() => window.open('mailto:info@darkskycenter.org?subject=Field%20Trip%20Info%20Packet%20Request&body=Please%20send%20the%20field%20trip%20info%20packet.%20Thank%20you!')}>Request Info Packet</button>
         </div>
       </div>
 
