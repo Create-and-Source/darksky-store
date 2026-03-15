@@ -420,6 +420,15 @@ export default function SocialMedia() {
   const [allPosts, setAllPosts] = useState(loadPosts);
   const fileInputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState(null);
+
+  // Close lightbox on Escape
+  useEffect(() => {
+    if (!lightboxUrl) return;
+    const onKey = (e) => { if (e.key === 'Escape') setLightboxUrl(null); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [lightboxUrl]);
 
   const events = getEvents();
   const products = getProducts();
@@ -455,6 +464,13 @@ export default function SocialMedia() {
       price: ev?.price ? fmt(ev.price) + (ev?.memberFree ? ' / Members FREE' : '') : '',
       cta: sourceType === 'event' ? 'Reserve Your Spot' : sourceType === 'product' ? 'Shop Now' : sourceType === 'donation' ? 'Donate Today' : 'Learn More',
     });
+    // Auto-load product image as default media
+    if (sourceType === 'product' && sourceData?.images?.[0]) {
+      setMediaUrl(sourceData.images[0]);
+      setMediaType('image');
+      setUploadedFile(null);
+      setMediaMode('photo');
+    }
     setStep(2);
   };
   const refreshCopy = () => { if (!platforms.length) { toast('Select a platform', 'error'); return; } setPosts(generateTemplatePosts(sourceType, sourceData, platforms, fundraising)); toast('Copy refreshed'); };
@@ -697,11 +713,16 @@ export default function SocialMedia() {
                     {mediaUrl && (
                       <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 12 }}>
                         {mediaType === 'video' ? <video src={mediaUrl} controls style={{ width: '100%', maxHeight: 200, display: 'block', background: '#000' }} />
-                        : <img src={mediaUrl} alt="Selected" style={{ width: '100%', maxHeight: 220, objectFit: 'contain', background: '#f0ede8', display: 'block' }} />}
+                        : <img src={mediaUrl} alt="Selected" onClick={() => setLightboxUrl(mediaUrl)} style={{ width: '100%', maxHeight: 220, objectFit: 'contain', background: '#f0ede8', display: 'block', cursor: 'zoom-in' }} />}
                         <div style={{ padding: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
                           {uploadedFile && <span style={{ font: `400 10px ${FONT}`, color: C.muted, flex: 1 }}>{uploadedFile.name}</span>}
                           <button onClick={clearMedia} style={{ ...pillBase, padding: '3px 10px', fontSize: 9, background: 'transparent', color: C.danger, border: `1px solid ${C.border}` }}>Remove</button>
                         </div>
+                        {sourceType === 'product' && sourceData?.images?.[0] && mediaUrl === sourceData.images[0] && (
+                          <div style={{ padding: '4px 8px 8px', font: `400 11px ${FONT}`, color: C.muted }}>
+                            Product photo auto-loaded. <button onClick={() => { clearMedia(); setMediaTab('generate'); }} style={{ background: 'none', border: 'none', color: C.gold, font: `400 11px ${FONT}`, cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Generate or upload instead</button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </>)}
@@ -774,7 +795,7 @@ export default function SocialMedia() {
 
                     {posterPreview && (
                       <div style={{ ...cardStyle, overflow: 'hidden', marginBottom: 12 }}>
-                        <img src={posterPreview} alt="Poster preview" style={{ width: '100%', maxHeight: posterTemplate === 'story' ? 500 : 400, objectFit: 'contain', background: '#1a1a2e', display: 'block' }} />
+                        <img src={posterPreview} alt="Poster preview" onClick={() => setLightboxUrl(posterPreview)} style={{ width: '100%', maxHeight: posterTemplate === 'story' ? 500 : 400, objectFit: 'contain', background: '#1a1a2e', display: 'block', cursor: 'zoom-in' }} />
                         <div style={{ padding: 8, display: 'flex', gap: 6 }}>
                           <button onClick={() => { const a = document.createElement('a'); a.href = posterPreview; a.download = `darksky-poster-${posterTemplate}.png`; a.click(); }} style={{ ...pillBase, padding: '4px 12px', fontSize: 10, background: C.gold, color: '#fff' }}>Download Poster</button>
                           <button onClick={() => { setMediaUrl(posterPreview); toast('Set as post image'); }} style={{ ...pillBase, padding: '4px 12px', fontSize: 10, background: 'transparent', color: C.gold, border: `1px solid ${C.gold}` }}>Use as Post Image</button>
@@ -914,6 +935,17 @@ export default function SocialMedia() {
             </div>
           )}
         </div>
+      )}
+
+      {/* ═══ LIGHTBOX ═══ */}
+      {lightboxUrl && (
+        <>
+          <div onClick={() => setLightboxUrl(null)} onKeyDown={e => e.key === 'Escape' && setLightboxUrl(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}>
+            <img src={lightboxUrl} alt="Full size" style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 4 }} onClick={e => e.stopPropagation()} />
+            <button onClick={() => setLightboxUrl(null)} style={{ position: 'absolute', top: 20, right: 20, width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>&#10005;</button>
+          </div>
+        </>
       )}
 
       <style>{`
