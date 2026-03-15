@@ -14,6 +14,7 @@ const ROLES = [
   { emoji: '\u{1F64B}', title: 'Volunteer', dept: 'Volunteer Portal', desc: 'My schedule, log hours, training progress.', role: 'volunteer', redirect: '/volunteer-portal' },
   { emoji: '\u{1F4B5}', title: 'Payroll / HR', dept: 'Human Resources', desc: 'Staff roster, timesheets, payroll export.', role: 'payroll', redirect: '/admin' },
   { emoji: '\u2B50', title: 'Member', dept: 'Member Portal', desc: 'Membership card, benefits, discounts, events.', role: 'member', redirect: '/member-portal' },
+  { emoji: '\u{1F3EB}', title: 'School', dept: 'School Portal', desc: 'Check field trip status, prep info, reviews.', role: 'school', redirect: '/school-portal' },
 ];
 
 const ROLE_MAP = {

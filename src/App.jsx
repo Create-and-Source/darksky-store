@@ -23,6 +23,7 @@ import Donate from './pages/Donate';
 import SignIn from './pages/SignIn';
 import VolunteerPortal from './pages/VolunteerPortal';
 import MemberPortal from './pages/MemberPortal';
+import SchoolPortal from './pages/SchoolPortal';
 
 // Admin (lazy loaded)
 const AdminLayout = lazy(() => import('./admin/AdminLayout'));
@@ -41,6 +42,7 @@ const BoardMeeting = lazy(() => import('./admin/pages/BoardMeeting'));
 const Payroll = lazy(() => import('./admin/pages/Payroll'));
 const QuickBooks = lazy(() => import('./admin/pages/QuickBooks'));
 const POS = lazy(() => import('./admin/pages/POS'));
+const FieldTripsAdmin = lazy(() => import('./admin/pages/FieldTripsAdmin'));
 const Products = lazy(() => import('./admin/pages/Products'));
 
 const CART_KEY = 'ds_store_cart';
@@ -262,6 +264,7 @@ export default function App() {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/volunteer-portal" element={<VolunteerPortal />} />
             <Route path="/member-portal" element={<MemberPortal />} />
+            <Route path="/school-portal" element={<SchoolPortal />} />
             <Route path="/admin/board-meeting" element={<Suspense fallback={<div style={{ padding: '120px 64px', textAlign: 'center' }}>Loading...</div>}><BoardMeeting /></Suspense>} />
             <Route path="/admin" element={<Suspense fallback={<div style={{ padding: '120px 64px', textAlign: 'center' }}>Loading admin...</div>}><AdminLayout /></Suspense>}>
               <Route index element={<Dashboard />} />
@@ -281,6 +284,7 @@ export default function App() {
               <Route path="payroll" element={<Payroll />} />
               <Route path="pos" element={<POS />} />
               <Route path="products" element={<Products />} />
+              <Route path="field-trips" element={<FieldTripsAdmin />} />
               <Route path="facility" element={<Navigate to="/admin" replace />} />
               <Route path="visitors" element={<Navigate to="/admin" replace />} />
               <Route path="volunteers" element={<Navigate to="/admin" replace />} />

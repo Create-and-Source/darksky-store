@@ -34,6 +34,7 @@ const KEYS = {
   volunteerHours: 'ds_volunteer_hours',
   volunteerCheckins: 'ds_volunteer_checkins',
   heldSales: 'ds_held_sales',
+  fieldTrips: 'ds_field_trips',
 };
 
 // ── HELPERS ──
@@ -48,7 +49,7 @@ export const subscribe = (fn) => { listeners.add(fn); return () => listeners.del
 const notify = () => listeners.forEach(fn => fn());
 
 // ── INIT ──
-const DATA_VERSION = '3.1';
+const DATA_VERSION = '3.2';
 
 export function initStore() {
   // Version check — clear all ds_ keys and re-seed if version mismatch
@@ -90,6 +91,7 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.volunteerHours)) set(KEYS.volunteerHours, DEFAULT_VOLUNTEER_HOURS);
   if (!localStorage.getItem(KEYS.volunteerCheckins)) set(KEYS.volunteerCheckins, []);
   if (!localStorage.getItem(KEYS.heldSales)) set(KEYS.heldSales, []);
+  if (!localStorage.getItem(KEYS.fieldTrips)) set(KEYS.fieldTrips, DEFAULT_FIELD_TRIPS);
   // Seed physical products into ds_products
   const prods = get(KEYS.products, []);
   if (!prods.find(p => p.id === 'PHYS-001')) {
@@ -738,4 +740,21 @@ const DEFAULT_VOLUNTEER_HOURS = [
   { id: 'VH-008', volunteerId: 'VOL-002', name: 'Linda Foster', date: '2026-03-06', hours: 4, activity: 'Gift Shop', notes: 'Midweek shift' },
   { id: 'VH-009', volunteerId: 'VOL-001', name: 'Carlos Reyes', date: '2026-03-05', hours: 4, activity: 'Event Support', notes: 'Astrophotography workshop' },
   { id: 'VH-010', volunteerId: 'VOL-004', name: 'Diane Martinez', date: '2026-03-02', hours: 6, activity: 'Gift Shop', notes: 'Weekend shift' },
+];
+
+// ═══════ FIELD TRIPS ═══════
+export const getFieldTrips = () => get(KEYS.fieldTrips, []);
+export function addFieldTrip(trip) { const all = getFieldTrips(); const newT = { id: genId('FT'), ...trip, createdAt: new Date().toISOString(), status: trip.status || 'New' }; all.unshift(newT); set(KEYS.fieldTrips, all); return newT; }
+export function updateFieldTrip(id, changes) { set(KEYS.fieldTrips, getFieldTrips().map(t => t.id === id ? { ...t, ...changes } : t)); }
+export function deleteFieldTrip(id) { set(KEYS.fieldTrips, getFieldTrips().filter(t => t.id !== id)); }
+
+const DEFAULT_FIELD_TRIPS = [
+  { id: 'FT-001', school: 'Four Peaks Elementary', district: 'Fountain Hills USD', contact: 'Mrs. Rodriguez', email: 'rodriguez@fhusd.org', phone: '(480) 555-0201', grade: '4th Grade', students: 45, chaperones: 5, program: 'full-day', preferredDate: '2026-04-08', confirmedDate: '2026-04-08', status: 'Confirmed', notes: 'Need wheelchair access for 2 students. Nut-free lunches.', space: 'planetarium', createdAt: '2026-02-15T10:00:00Z' },
+  { id: 'FT-002', school: 'Fountain Hills Middle School', district: 'Fountain Hills USD', contact: 'Mr. Chen', email: 'chen@fhusd.org', phone: '(480) 555-0202', grade: '7th Grade Science', students: 60, chaperones: 6, program: 'full-day', preferredDate: '2026-04-15', confirmedDate: '2026-04-15', status: 'Confirmed', notes: 'Aligns with astronomy unit. Would like telescope viewing if possible.', space: 'exhibit-hall', createdAt: '2026-02-20T14:00:00Z' },
+  { id: 'FT-003', school: 'Scottsdale Prep Academy', district: 'Scottsdale USD', contact: 'Dr. Patel', email: 'patel@scottsdaleprep.org', phone: '(480) 555-0203', grade: 'K-2nd Mixed', students: 30, chaperones: 8, program: 'half-day', preferredDate: '2026-04-22', confirmedDate: null, status: 'Contacted', notes: 'First visit. Interested in planetarium show for young learners.', space: 'planetarium', createdAt: '2026-03-01T09:00:00Z' },
+  { id: 'FT-004', school: 'McDowell Mountain Elementary', district: 'Fountain Hills USD', contact: 'Ms. Kim', email: 'kim@fhusd.org', phone: '(480) 555-0204', grade: '5th Grade', students: 52, chaperones: 5, program: 'full-day', preferredDate: '2026-05-06', confirmedDate: null, status: 'New', notes: 'Returning school — visited last year. Want the rocket building activity.', space: 'einstein', createdAt: '2026-03-10T11:00:00Z' },
+  { id: 'FT-005', school: 'Chandler STEM Academy', district: 'Chandler USD', contact: 'Mr. Williams', email: 'williams@chandlerusd.org', phone: '(480) 555-0205', grade: '6th-8th STEM', students: 75, chaperones: 8, program: 'full-day', preferredDate: '2026-05-13', confirmedDate: null, status: 'New', notes: 'STEM magnet school. Want data collection activities with real telescope data.', space: 'observatory', createdAt: '2026-03-12T15:00:00Z' },
+  { id: 'FT-006', school: 'Desert Vista High School', district: 'Tempe USD', contact: 'Mrs. Torres', email: 'torres@tempeusd.org', phone: '(480) 555-0206', grade: '9th Grade Earth Science', students: 35, chaperones: 4, program: 'half-day', preferredDate: '2026-05-20', confirmedDate: null, status: 'New', notes: 'First time visiting. Need bus parking info.', space: 'planetarium', createdAt: '2026-03-14T08:00:00Z' },
+  { id: 'FT-007', school: 'Fountain Hills High School', district: 'Fountain Hills USD', contact: 'Dr. Reyes', email: 'reyes@fhusd.org', phone: '(480) 555-0207', grade: '11th AP Physics', students: 28, chaperones: 2, program: 'half-day', preferredDate: '2026-04-29', confirmedDate: '2026-04-29', status: 'Confirmed', notes: 'AP Physics class. Want telescope mechanics + optics demo. Dr. J approved.', space: 'observatory', createdAt: '2026-02-28T16:00:00Z' },
+  { id: 'FT-008', school: 'Hopi Elementary', district: 'Scottsdale USD', contact: 'Troop Leader Kim', email: 'girlscouts412@email.com', phone: '(480) 555-0208', grade: 'Girl Scouts Troop 412 (Mixed)', students: 20, chaperones: 4, program: 'half-day', preferredDate: '2026-04-19', confirmedDate: '2026-04-19', status: 'Completed', notes: 'Troop visit. Earned Space Science badge. Thank-you card sent.', space: 'exhibit-hall', createdAt: '2026-02-10T12:00:00Z' },
 ];

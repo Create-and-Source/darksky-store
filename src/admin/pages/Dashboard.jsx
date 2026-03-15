@@ -10,7 +10,7 @@ import {
   getSmartTransferSuggestions, getPredictiveAlerts, addTransfer, addPurchaseOrder,
   getDonations, getFacilityBookings, getVisitors, getVolunteers, getFundraising,
   getAnnouncement, updateAnnouncement,
-  getStaff, getTimesheets, getInquiries, getVolunteerHours,
+  getStaff, getTimesheets, getInquiries, getVolunteerHours, getFieldTrips,
 } from '../data/store';
 
 // ── Design Tokens ──
@@ -1623,20 +1623,21 @@ function MiniStatCard({ label, value, color = C.gold }) {
 function EducationDashboard() {
   const navigate = useNavigate();
   const events = getEvents();
-  const inquiries = getInquiries();
+  const fieldTrips = getFieldTrips();
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = events.filter(e => e.date >= today && e.status === 'Published').sort((a, b) => a.date.localeCompare(b.date));
-  const fieldTripInquiries = inquiries.filter(i => i.type === 'field-trip');
-  const totalTickets = events.reduce((s, e) => s + (e.ticketsSold || 0), 0);
+  const newTrips = fieldTrips.filter(t => t.status === 'New').length;
+  const confirmedTrips = fieldTrips.filter(t => t.status === 'Confirmed');
+  const totalStudents = fieldTrips.filter(t => t.status === 'Confirmed' || t.status === 'Completed').reduce((s, t) => s + (t.students || 0), 0);
   const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, boxShadow: C.shadow };
   return (
     <div>
       <RoleDashHeader subtitle="Education & Programs Dashboard" />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <MiniStatCard label="New Trip Requests" value={newTrips} color={newTrips > 0 ? C.warning : C.success} />
+        <MiniStatCard label="Confirmed Trips" value={confirmedTrips.length} color={C.success} />
+        <MiniStatCard label="Students Booked" value={totalStudents} />
         <MiniStatCard label="Upcoming Events" value={upcoming.length} />
-        <MiniStatCard label="Tickets Sold" value={totalTickets} />
-        <MiniStatCard label="Field Trip Requests" value={fieldTripInquiries.length} color={fieldTripInquiries.length > 0 ? C.warning : C.gold} />
-        <MiniStatCard label="Published Events" value={events.filter(e => e.status === 'Published').length} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div style={cardStyle}>
@@ -1649,19 +1650,23 @@ function EducationDashboard() {
           ))}
         </div>
         <div style={cardStyle}>
-          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Field Trip Requests</div>
-          {fieldTripInquiries.length === 0 ? <p style={{ font: `400 14px ${FONT}`, color: C.muted }}>No pending requests.</p> :
-            fieldTripInquiries.slice(0, 5).map((inq, i) => (
-              <div key={i} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
-                <div style={{ font: `500 14px ${FONT}`, color: C.text }}>{inq.school || inq.name || 'Inquiry'}</div>
-                <div style={{ font: `400 12px ${MONO}`, color: C.text2 }}>{inq.date} · {inq.students ? inq.students + ' students' : ''}</div>
+          <div style={{ font: `500 11px ${MONO}`, letterSpacing: 1, textTransform: 'uppercase', color: C.text2, marginBottom: 12 }}>Upcoming Field Trips</div>
+          {fieldTrips.filter(t => t.status === 'Confirmed' || t.status === 'New' || t.status === 'Contacted').length === 0 ? <p style={{ font: `400 14px ${FONT}`, color: C.muted }}>No upcoming trips.</p> :
+            fieldTrips.filter(t => t.status !== 'Completed' && t.status !== 'Cancelled').slice(0, 5).map(t => (
+              <div key={t.id} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ font: `500 14px ${FONT}`, color: C.text }}>{t.school}</div>
+                  <span style={{ font: `600 10px ${MONO}`, padding: '2px 8px', borderRadius: 4, background: t.status === 'Confirmed' ? '#E8F5E9' : t.status === 'New' ? '#F5F5F0' : '#E3F2FD', color: t.status === 'Confirmed' ? C.success : t.status === 'New' ? C.text2 : '#1976D2' }}>{t.status}</span>
+                </div>
+                <div style={{ font: `400 12px ${MONO}`, color: C.text2 }}>{t.grade} · {t.students} students · {t.preferredDate}</div>
               </div>
             ))}
         </div>
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => navigate('/admin/events')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Manage Events</button>
-        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>View Reports</button>
+        <button onClick={() => navigate('/admin/field-trips')} style={{ flex: 1, padding: 14, background: C.gold, border: 'none', borderRadius: 8, font: `600 13px ${FONT}`, color: '#fff', cursor: 'pointer' }}>Manage Field Trips</button>
+        <button onClick={() => navigate('/admin/events')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Events</button>
+        <button onClick={() => navigate('/admin/reports')} style={{ flex: 1, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, font: `500 13px ${FONT}`, color: C.text, cursor: 'pointer' }}>Reports</button>
       </div>
     </div>
   );

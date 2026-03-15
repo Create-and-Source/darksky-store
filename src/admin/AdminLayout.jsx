@@ -53,7 +53,7 @@ const ROLE_ALLOWED_ROUTES = {
   shop_manager: ['', '/pos', '/products', '/orders', '/inventory', '/receive', '/transfers'],
   shop_staff: ['', '/pos', '/orders', '/inventory', '/receive'],
   visitor_services: ['', '/pos', '/events', '/reports'],
-  education_director: ['', '/events', '/donations', '/reports'],
+  education_director: ['', '/events', '/field-trips', '/donations', '/reports'],
   social_media: ['', '/design-studio', '/social-media', '/emails'],
   volunteer_coordinator: ['', '/events', '/reports'],
   payroll: ['', '/payroll', '/reports'],
@@ -109,6 +109,7 @@ const navSections = [
     label: 'Programs',
     items: [
       { to: '/admin/events', icon: Icons.events, label: 'Events' },
+      { to: '/admin/field-trips', icon: Icons.visitors, label: 'Field Trips' },
     ],
   },
   {
@@ -151,7 +152,7 @@ const ROLE_NAV = {
   shop_manager: ['Dashboard', 'POS', 'Products', 'Orders', 'Inventory', 'Receive', 'Transfers'],
   shop_staff: ['Dashboard', 'POS', 'Orders', 'Inventory', 'Receive'],
   visitor_services: ['Dashboard', 'POS', 'Events', 'Reports'],
-  education_director: ['Dashboard', 'Events', 'Donations', 'Reports'],
+  education_director: ['Dashboard', 'Events', 'Field Trips', 'Donations', 'Reports'],
   social_media: ['Dashboard', 'Design Studio', 'Social Media', 'Email'],
   volunteer_coordinator: ['Dashboard', 'Events', 'Reports'],
   payroll: ['Dashboard', 'Staff & Time', 'Reports'],
@@ -184,6 +185,7 @@ const breadcrumbMap = {
   '/admin/volunteers': 'Volunteers',
   '/admin/payroll': 'Staff & Time',
   '/admin/pos': 'Point of Sale',
+  '/admin/field-trips': 'Field Trips',
   '/admin/products': 'Products',
   '/admin/board-meeting': 'Board Meeting',
 };
