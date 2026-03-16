@@ -595,6 +595,62 @@ export default function Reports() {
         </div>}
       </div>
 
+      {/* Events Report */}
+      {showEvents && (() => {
+        const today = new Date().toISOString().slice(0, 10);
+        const published = events.filter(e => e.status === 'Published');
+        const upcoming = published.filter(e => e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+        const past = published.filter(e => e.date < today);
+        const totalTickets = published.reduce((s, e) => s + (e.ticketsSold || 0), 0);
+        const totalCapacity = published.reduce((s, e) => s + (e.capacity || 0), 0);
+        const fillRate = totalCapacity > 0 ? Math.round((totalTickets / totalCapacity) * 100) : 0;
+        const eventRevenue = published.reduce((s, e) => s + ((e.ticketsSold || 0) * (e.price || 0)), 0);
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }} className="reports-grid-2">
+            <div style={panelStyle}>
+              <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: '0 0 16px' }}>Event Performance</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                <div style={{ padding: 14, background: '#FAFAF8', border: '1px solid #E2E8F0', borderRadius: 6, textAlign: 'center' }}>
+                  <div style={{ font: `600 24px ${FONT}`, color: '#D4AF37', marginBottom: 2 }}>{published.length}</div>
+                  <div style={{ font: `500 11px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8' }}>Total Events</div>
+                </div>
+                <div style={{ padding: 14, background: '#FAFAF8', border: '1px solid #E2E8F0', borderRadius: 6, textAlign: 'center' }}>
+                  <div style={{ font: `600 24px ${FONT}`, color: '#1E293B', marginBottom: 2 }}>{totalTickets}</div>
+                  <div style={{ font: `500 11px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8' }}>Tickets Sold</div>
+                </div>
+                <div style={{ padding: 14, background: '#FAFAF8', border: '1px solid #E2E8F0', borderRadius: 6, textAlign: 'center' }}>
+                  <div style={{ font: `600 24px ${FONT}`, color: '#1E293B', marginBottom: 2 }}>{fillRate}%</div>
+                  <div style={{ font: `500 11px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8' }}>Fill Rate</div>
+                </div>
+                <div style={{ padding: 14, background: '#FAFAF8', border: '1px solid #E2E8F0', borderRadius: 6, textAlign: 'center' }}>
+                  <div style={{ font: `600 24px ${FONT}`, color: '#D4AF37', marginBottom: 2 }}>{fmt(eventRevenue)}</div>
+                  <div style={{ font: `500 11px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8' }}>Ticket Revenue</div>
+                </div>
+              </div>
+            </div>
+            <div style={panelStyle}>
+              <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: '0 0 16px' }}>Upcoming Events</h3>
+              {upcoming.length === 0 ? (
+                <div style={{ padding: 20, textAlign: 'center', color: '#94A3B8', font: `400 14px ${FONT}` }}>No upcoming events</div>
+              ) : upcoming.slice(0, 6).map(e => {
+                const spotsLeft = (e.capacity || 0) - (e.ticketsSold || 0);
+                return (
+                  <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #F1F5F9' }}>
+                    <div>
+                      <div style={{ font: `500 14px ${FONT}`, color: '#1E293B' }}>{e.title}</div>
+                      <div style={{ font: `400 12px ${FONT}`, color: '#94A3B8' }}>{fmtDate(e.date)} · {e.location}</div>
+                    </div>
+                    <span style={{ font: `600 13px ${FONT}`, color: spotsLeft < 10 ? '#EF4444' : '#D4AF37' }}>
+                      {e.ticketsSold || 0}/{e.capacity}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
       <style>{`
         @media (max-width: 1024px) {
           .reports-stats-6 { grid-template-columns: repeat(3, 1fr) !important; }
