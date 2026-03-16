@@ -373,6 +373,13 @@ export default function About() {
           .about-offer { min-height: 280px; }
           .about-offer-content { padding: 32px 24px; }
         }
+        @media (max-width: 480px) {
+          .about-offerings { grid-template-columns: 1fr; }
+          .about-offer { min-height: 220px; }
+          .about-offer-content { padding: 20px 16px; }
+          .about-offer-title { font-size: 18px !important; }
+          .about-offer-desc { font-size: 13px !important; }
+        }
 
         .vid-divider {
           position: relative;
@@ -443,9 +450,9 @@ export default function About() {
         }
 
         @media (max-width: 480px) {
-          .vid-divider { height: 200px; }
+          .vid-divider { height: 180px; }
           .vid-divider-overlay-top,
-          .vid-divider-overlay-bottom { height: 60px; }
+          .vid-divider-overlay-bottom { height: 50px; }
         }
       `}</style>
     </div>

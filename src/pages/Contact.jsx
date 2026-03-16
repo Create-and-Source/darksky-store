@@ -387,6 +387,12 @@ export default function Contact() {
           .contact-form-side { padding: 32px 24px !important; }
           .contact-info-side { padding: 32px 24px !important; }
         }
+        @media (max-width: 480px) {
+          .contact-hero { padding: 90px 12px 48px !important; }
+          .contact-form-side { padding: 24px 12px !important; }
+          .contact-info-side { padding: 24px 12px !important; }
+          .contact-form-side h2 { font-size: 22px !important; }
+        }
         .contact-form-side input:focus,
         .contact-form-side select:focus,
         .contact-form-side textarea:focus {

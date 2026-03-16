@@ -166,7 +166,7 @@ export default function Home({ onAddToCart }) {
       </section>
 
       {/* ═══ 2 — OPENING ANNOUNCEMENT + COUNTDOWN ═══ */}
-      <section style={{ background: 'var(--bg)', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }} data-section="Countdown">
+      <section className="home-countdown-section" style={{ background: 'var(--bg)', padding: 'clamp(60px, 10vw, 100px) clamp(12px, 3vw, 24px)', textAlign: 'center', position: 'relative', overflow: 'hidden' }} data-section="Countdown">
         <img src="/images/darksky/big-dipper-2.png" alt="" loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none' }} />
         <RevealSection>
           <div className="label" style={{ marginBottom: 16, position: 'relative', zIndex: 1 }}>FOUNTAIN HILLS, ARIZONA</div>
@@ -210,14 +210,14 @@ export default function Home({ onAddToCart }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0 }} className="home-facility-grid">
           {FACILITY.map((f, i) => (
             <RevealSection key={f.title} delay={i * 100}>
-              <div style={{ position: 'relative', minHeight: 320, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-end', transition: 'transform 0.4s var(--ease)', cursor: 'default' }}
+              <div style={{ position: 'relative', minHeight: 'clamp(200px, 40vw, 320px)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-end', transition: 'transform 0.4s var(--ease)', cursor: 'default' }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
                 <img src={f.img} alt={f.title} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(4,4,12,0.15) 0%, rgba(4,4,12,0.85) 100%)' }} />
-                <div style={{ position: 'relative', zIndex: 1, padding: '32px 24px', width: '100%' }}>
-                  <h3 style={{ font: '500 clamp(18px, 2vw, 22px)/1.2 "Playfair Display", serif', color: '#fff', marginBottom: 8 }}>{f.title}</h3>
-                  <p style={{ font: '300 17px/1.7 "Plus Jakarta Sans"', color: 'var(--gold)', margin: 0, opacity: 0.85 }}>{f.desc}</p>
+                <div style={{ position: 'relative', zIndex: 1, padding: 'clamp(16px, 3vw, 32px) clamp(12px, 2vw, 24px)', width: '100%' }}>
+                  <h3 style={{ font: '500 clamp(14px, 2vw, 22px)/1.2 "Playfair Display", serif', color: '#fff', marginBottom: 6 }}>{f.title}</h3>
+                  <p style={{ font: '300 clamp(12px, 1.5vw, 17px)/1.6 "Plus Jakarta Sans"', color: 'var(--gold)', margin: 0, opacity: 0.85 }}>{f.desc}</p>
                 </div>
               </div>
             </RevealSection>
@@ -229,15 +229,15 @@ export default function Home({ onAddToCart }) {
 
       {/* ═══ 4 — FIRST LIGHT PHOTO ═══ */}
       <section style={{ position: 'relative', overflow: 'hidden' }} data-section="FirstLight">
-        <img src="/images/darksky/first-light-nebula.jpg" alt="First Light — the first photo taken by the PlaneWave CDK700 telescope" loading="lazy" style={{ width: '100%', height: 'auto', minHeight: 400, maxHeight: 600, objectFit: 'cover', display: 'block' }} />
+        <img src="/images/darksky/first-light-nebula.jpg" alt="First Light — the first photo taken by the PlaneWave CDK700 telescope" loading="lazy" style={{ width: '100%', height: 'auto', minHeight: 280, maxHeight: 600, objectFit: 'cover', display: 'block' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 40%, rgba(4,4,12,0.8) 100%)' }} />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 64px 48px', zIndex: 1 }}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 'clamp(20px, 5vw, 40px) clamp(12px, 5vw, 64px) clamp(24px, 5vw, 48px)', zIndex: 1 }}>
           <RevealSection>
             <div className="label" style={{ marginBottom: 12 }}>// First Light</div>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, color: '#fff', marginBottom: 8, lineHeight: 1.15 }}>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(22px, 4vw, 44px)', fontWeight: 400, color: '#fff', marginBottom: 8, lineHeight: 1.15 }}>
               The First Photo From Our <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Telescope</em>
             </h2>
-            <p style={{ font: '300 18px/1.7 "Plus Jakarta Sans"', color: 'rgba(255,255,255,0.7)', maxWidth: 520, margin: 0 }}>
+            <p style={{ font: '300 clamp(14px, 3vw, 18px)/1.7 "Plus Jakarta Sans"', color: 'rgba(255,255,255,0.7)', maxWidth: 520, margin: 0 }}>
               Captured by the PlaneWave CDK700 — the largest telescope in the Greater Phoenix area.
             </p>
           </RevealSection>
@@ -301,10 +301,10 @@ export default function Home({ onAddToCart }) {
                       <div style={{ font: '600 10px "JetBrains Mono"', letterSpacing: '0.08em' }}>{ev.month}</div>
                     </div>
                   </div>
-                  <div style={{ padding: '28px 24px' }}>
-                    <div style={{ font: '400 10px "JetBrains Mono"', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--gold)', marginBottom: 12 }}>{ev.cat}</div>
-                    <h3 style={{ font: '500 20px/1.3 "Playfair Display", serif', color: 'var(--text)', margin: '0 0 10px' }}>{ev.title}</h3>
-                    <p style={{ font: '300 17px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', margin: '0 0 16px' }}>{ev.desc}</p>
+                  <div style={{ padding: 'clamp(16px, 3vw, 28px) clamp(14px, 2vw, 24px)' }}>
+                    <div style={{ font: '400 10px "JetBrains Mono"', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--gold)', marginBottom: 10 }}>{ev.cat}</div>
+                    <h3 style={{ font: '500 clamp(16px, 2.5vw, 20px)/1.3 "Playfair Display", serif', color: 'var(--text)', margin: '0 0 8px' }}>{ev.title}</h3>
+                    <p style={{ font: '300 clamp(14px, 2vw, 17px)/1.6 "Plus Jakarta Sans"', color: 'var(--text2)', margin: '0 0 12px' }}>{ev.desc}</p>
                     <div style={{ font: '400 11px "JetBrains Mono"', color: 'var(--muted)', letterSpacing: '0.04em' }}>{ev.meta}</div>
                   </div>
                 </div>
@@ -447,12 +447,36 @@ export default function Home({ onAddToCart }) {
           .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 80px; }
           .vid-divider-clip { inset: 0; }
           .vid-divider-video { height: 100%; }
-          .home-facility-grid { grid-template-columns: 1fr !important; }
+          .home-facility-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .home-facts-grid { grid-template-columns: 1fr !important; }
           .home-facts-grid > div > div { border-right: none !important; border-bottom: 1px solid var(--border); }
           .home-facts-grid > div:last-child > div { border-bottom: none; }
           .home-endorsements-grid { grid-template-columns: 1fr !important; }
           .home-shop-cats { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 480px) {
+          .home-facility-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .home-facility-grid > div > div { min-height: 200px !important; }
+          .home-facility-grid > div > div > div:last-child { padding: 16px 12px !important; }
+          .home-facility-grid > div > div > div:last-child h3 { font-size: 14px !important; }
+          .home-facility-grid > div > div > div:last-child p { font-size: 12px !important; line-height: 1.5 !important; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+          .home-facts-grid > div > div { padding: 24px 12px !important; }
+          .home-facts-grid > div > div > div:first-child { font-size: clamp(28px, 8vw, 40px) !important; }
+          .home-facts-grid > div > div > p { font-size: 14px !important; }
+          .home-endorsements-grid { gap: 10px !important; }
+          .endorsement-card { padding: 20px 16px 16px !important; min-height: auto !important; }
+          .endorsement-quote-mark { font-size: 36px !important; margin: -4px 0 2px -2px !important; }
+          .endorsement-text { font-size: 13px !important; margin-bottom: 14px !important; line-height: 1.65 !important; }
+          .endorsement-divider { margin-bottom: 12px !important; }
+          .endorsement-name { font-size: 13px !important; }
+          .endorsement-title { font-size: 10px !important; }
+          .endorsement-initial { width: 30px !important; height: 30px !important; font-size: 12px !important; }
+          .endorsement-author { gap: 10px !important; }
+          .home-shop-cats > div > button > div:first-child { height: 120px !important; }
+          .home-shop-cats > div > button > div:last-child { padding: 10px 8px 14px !important; }
+          .home-shop-cats > div > button > div:last-child > div:first-child { font-size: 16px !important; }
+          .home-countdown-section { padding: 60px 12px !important; }
+          .home-countdown-section h2 { font-size: clamp(28px, 7vw, 40px) !important; }
         }
 
         /* Endorsement Cards */

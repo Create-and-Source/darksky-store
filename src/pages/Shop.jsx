@@ -1450,23 +1450,44 @@ const SHOP_CSS = `
 }
 
 @media (max-width: 480px) {
-  .sp-hero { height: 35vh; min-height: 260px; }
-  .sp-hero-title { font-size: clamp(32px, 10vw, 48px); }
-  .sp-section { padding: 40px 16px 0; }
-  .sp-results { padding: 12px 16px 0; }
-  .sp-grid-wrap { padding: 12px 16px 48px; }
+  .sp-hero { height: 30vh; min-height: 220px; }
+  .sp-hero-title { font-size: clamp(26px, 8vw, 40px); }
+  .sp-hero-sub { font-size: 13px !important; }
+  .sp-section { padding: 32px 12px 0; }
+  .sp-section-title { font-size: clamp(22px, 6vw, 32px) !important; }
+  .sp-results { padding: 10px 12px 0; }
+  .sp-grid-wrap { padding: 10px 12px 48px; }
+  .sp-bar-inner { padding: 0 8px; }
 
-  .sp-masonry-row { gap: 8px; margin-bottom: 8px; }
-  .sp-grid--uniform { gap: 8px; }
-  .sp-card-img-wrap { margin-bottom: 6px; max-height: 180px; }
+  .sp-cats { gap: 0; padding: 0 4px; }
+  .sp-cat { padding: 14px 12px; font-size: 11px; letter-spacing: 0.04em; }
+
+  .sp-masonry-row { gap: 6px; margin-bottom: 6px; }
+  .sp-grid--uniform { gap: 6px; }
+  .sp-card-img-wrap { margin-bottom: 6px; max-height: 160px; border-radius: 4px; }
+  .sp-masonry-lg .sp-card-img-wrap { max-height: 160px; }
   .sp-card-name { font-size: 12px; line-height: 1.3; }
   .sp-card-price { font-size: 13px; }
-  .sp-card-cat { font-size: 8px; margin-bottom: 4px; }
+  .sp-card-cat { font-size: 8px; margin-bottom: 3px; }
   .sp-card-info { padding: 0; }
-  .sp-trust-grid { gap: 16px; }
-  .sp-trust-label { font-size: 12px; }
-  .sp-trust-sub { font-size: 11px; }
-  .sp-lifestyle { height: 130px; border-radius: 4px; }
-  .sp-cat-cards { gap: 8px; }
+  .sp-qa { height: 32px; font-size: 9px; gap: 4px; padding: 0 8px; }
+  .sp-qa svg { width: 12px; height: 12px; }
+  .sp-trust-section { padding: 32px 12px; }
+  .sp-trust-grid { gap: 12px; }
+  .sp-trust-icon { width: 36px; height: 36px; margin-bottom: 8px; }
+  .sp-trust-label { font-size: 11px; }
+  .sp-trust-sub { font-size: 10px; }
+  .sp-lifestyle { height: 110px; border-radius: 4px; }
+  .sp-lifestyle-title { font-size: 18px !important; }
+  .sp-lifestyle-sub { font-size: 11px !important; }
+  .sp-cat-cards { gap: 6px; }
+  .sp-cat-card-name { font-size: 14px !important; }
+  .sp-cat-card-count { font-size: 9px !important; }
+  .sp-newsletter { padding: 20px 16px; gap: 12px; }
+  .sp-newsletter-title { font-size: 15px !important; }
+  .sp-help { padding: 16px 12px; font-size: 12px; }
+  .sp-load-btn { padding: 14px 28px; font-size: 11px; }
+  .sp-featured { gap: 8px; }
+  .sp-featured .sp-card-img-wrap { max-height: 140px; }
 }
 `;

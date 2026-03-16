@@ -157,7 +157,7 @@ export default function Membership() {
                 <div className="mem-tier-name" data-editable={`mem-tier-name-${i}`}>{tier.name}</div>
                 <div className="mem-tier-price" data-editable={`mem-tier-price-${i}`} style={{ ...goldGradientStyle, fontSize: 36 }}>{tier.price}</div>
                 <div className="mem-tier-period" data-editable={`mem-tier-period-${i}`}>{tier.period}</div>
-                <p data-editable={`mem-tier-desc-${i}`} style={{ font: '300 17px/1.7 "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 24 }}>{tier.desc}</p>
+                <p data-editable={`mem-tier-desc-${i}`} style={{ font: '300 clamp(14px, 2vw, 17px)/1.65 "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 20 }}>{tier.desc}</p>
                 <div className="mem-tier-divider" />
                 {tier.benefits.map(b => (
                   <div key={b} className="mem-benefit">
@@ -220,7 +220,7 @@ export default function Membership() {
       <RevealSection>
         <section className="section" data-section="FAQ" style={{ borderTop: '1px solid var(--border)', maxWidth: 800, margin: '0 auto' }}>
           <div className="label" style={{ marginBottom: 20 }} data-editable="mem-faq-label">// Common Questions</div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 400, marginBottom: 48 }} data-editable="mem-faq-title">
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 5vw, 36px)', fontWeight: 400, marginBottom: 'clamp(28px, 5vw, 48px)' }} data-editable="mem-faq-title">
             Frequently Asked <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Questions</em>
           </h2>
           {[
@@ -230,8 +230,8 @@ export default function Membership() {
             { q: 'Do memberships make great gifts?', a: 'Absolutely. Gift memberships are available and include a beautiful digital certificate — perfect for the stargazer in your life.' },
           ].map(({ q, a }) => (
             <div key={q} style={{
-              padding: '28px 24px',
-              marginBottom: 12,
+              padding: 'clamp(16px, 3vw, 28px) clamp(14px, 2.5vw, 24px)',
+              marginBottom: 10,
               background: 'rgba(255,255,255,0.02)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
@@ -239,8 +239,8 @@ export default function Membership() {
               borderRadius: 'var(--r)',
               transition: 'border-color 0.3s',
             }}>
-              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, marginBottom: 12 }}>{q}</div>
-              <p style={{ font: '300 18px/1.8 "Plus Jakarta Sans"', color: 'var(--text2)' }}>{a}</p>
+              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(15px, 2.5vw, 18px)', marginBottom: 8 }}>{q}</div>
+              <p style={{ font: '300 clamp(14px, 2vw, 18px)/1.7 "Plus Jakarta Sans"', color: 'var(--text2)' }}>{a}</p>
             </div>
           ))}
         </section>
@@ -260,8 +260,8 @@ export default function Membership() {
           <em>We are.</em>"
         </blockquote>
         <div className="mission-attr" data-editable="mem-cta-attr" style={{ marginBottom: 40, position: 'relative', zIndex: 1 }}>// Neil deGrasse Tyson</div>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <button className="btn-primary" onClick={() => { setSelectedTier(TIERS[0]); setSubmitted(false); setForm({ name: '', email: '', phone: '' }); }} style={{ marginRight: 16, animation: 'breatheGlow 3s ease-in-out infinite' }}>Join as Explorer — $49/yr</button>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <button className="btn-primary" onClick={() => { setSelectedTier(TIERS[0]); setSubmitted(false); setForm({ name: '', email: '', phone: '' }); }} style={{ animation: 'breatheGlow 3s ease-in-out infinite' }}>Join as Explorer — $49/yr</button>
           <button className="btn-ghost" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>View All Tiers</button>
         </div>
       </div>
@@ -338,6 +338,11 @@ export default function Membership() {
         .vid-divider-title { font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif; font-style: italic; color: #FFFFFF; margin: 0 0 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.8), 0 8px 40px rgba(0,0,0,0.6), 0 0 80px rgba(0,0,0,0.4); }
         .vid-divider-sub { font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif; color: rgba(255,255,255,0.9); margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7), 0 8px 32px rgba(0,0,0,0.5); }
         @media (max-width: 768px) { .vid-divider { height: 250px; } .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 80px; } .vid-divider-clip { inset: 0; } .vid-divider-video { height: 100%; } }
+        @media (max-width: 480px) {
+          .vid-divider { height: 180px; }
+          .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 50px; }
+          .mem-perks-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
     </div>
   );

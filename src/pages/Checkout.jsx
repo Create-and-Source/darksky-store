@@ -129,9 +129,9 @@ export default function Checkout({ cart, onOrderComplete }) {
   // Redirect if cart is empty
   if (cart.length === 0) {
     return (
-      <div style={{ padding: '120px 64px', textAlign: 'center' }}>
+      <div style={{ padding: 'clamp(80px, 15vw, 120px) clamp(16px, 5vw, 64px)', textAlign: 'center' }}>
         <div className="label" style={{ marginBottom: 20 }}>// Checkout</div>
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 32, fontWeight: 400, marginBottom: 16 }}>
+        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: 400, marginBottom: 16 }}>
           Nothing to check out
         </h2>
         <p style={{ font: '300 15px DM Sans', color: 'var(--muted)', marginBottom: 32 }}>Add some items to your cart first.</p>
@@ -381,6 +381,11 @@ export default function Checkout({ cart, onOrderComplete }) {
         }
         @media (max-width: 560px) {
           .checkout-form-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .checkout-forms { padding: 24px 12px !important; }
+          .checkout-summary { padding: 24px 12px !important; }
+          .checkout-forms h1 { font-size: 28px !important; }
         }
         .checkout-forms input:focus,
         .checkout-forms select:focus {

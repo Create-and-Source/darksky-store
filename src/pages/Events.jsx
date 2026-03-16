@@ -139,6 +139,7 @@ export default function Events() {
           gap: 8,
           flexWrap: 'wrap',
           padding: '0 64px 48px',
+          scrollbarWidth: 'none',
         }}>
           {CATEGORIES.map(cat => (
             <button
@@ -302,6 +303,10 @@ export default function Events() {
         .vid-divider-title { font: 400 clamp(32px, 5vw, 52px)/1.1 'Playfair Display', serif; font-style: italic; color: #FFFFFF; margin: 0 0 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.8), 0 8px 40px rgba(0,0,0,0.6), 0 0 80px rgba(0,0,0,0.4); }
         .vid-divider-sub { font: 300 clamp(14px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif; color: rgba(255,255,255,0.9); margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7), 0 8px 32px rgba(0,0,0,0.5); }
         @media (max-width: 768px) { .vid-divider { height: 250px; } .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 80px; } .vid-divider-clip { inset: 0; } .vid-divider-video { height: 100%; } }
+        @media (max-width: 480px) {
+          .vid-divider { height: 200px; }
+          .events-grid { gap: 14px !important; }
+        }
       `}</style>
 
       {/* Reservation Modal */}

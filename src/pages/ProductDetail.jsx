@@ -25,9 +25,9 @@ export default function ProductDetail({ onAddToCart }) {
 
   if (!product) {
     return (
-      <div style={{ padding: '120px 64px', textAlign: 'center' }}>
+      <div style={{ padding: 'clamp(80px, 15vw, 120px) clamp(16px, 5vw, 64px)', textAlign: 'center' }}>
         <div className="label" style={{ marginBottom: 20 }}>// 404 — Not Found</div>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 48, marginBottom: 24, fontWeight: 400 }}>Lost in Space</h1>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px, 8vw, 48px)', marginBottom: 24, fontWeight: 400 }}>Lost in Space</h1>
         <button className="btn-primary" onClick={() => navigate('/shop')}>Return to Shop</button>
       </div>
     );
