@@ -114,9 +114,30 @@ function ProductCard({ product, onAddToCart, badge, size = 'normal', addedId }) 
 export default function Shop({ onAddToCart }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const PRODUCTS = getProducts();
-  const BESTSELLER_IDS = new Set(PRODUCTS.filter(p => p.images.length > 0).slice(0, 6).map(p => p.id));
-  const NEW_IDS = new Set(PRODUCTS.slice(-6).map(p => p.id));
+  const RAW_PRODUCTS = getProducts();
+
+  // Sort: physical first, then by category priority, then price high-to-low
+  const CAT_PRIORITY = { Gifts: 0, Apparel: 1, Outerwear: 2, Tanks: 3, Kids: 4 };
+  const PRODUCTS = useMemo(() => {
+    return [...RAW_PRODUCTS].sort((a, b) => {
+      // Physical inventory items first
+      const aPhys = a.type === 'physical' ? 0 : 1;
+      const bPhys = b.type === 'physical' ? 0 : 1;
+      if (aPhys !== bPhys) return aPhys - bPhys;
+      // Category priority
+      const aCat = CAT_PRIORITY[a.category] ?? 2;
+      const bCat = CAT_PRIORITY[b.category] ?? 2;
+      if (aCat !== bCat) return aCat - bCat;
+      // Price high to low
+      return (b.price || 0) - (a.price || 0);
+    });
+  }, [RAW_PRODUCTS]);
+
+  // Best sellers: adult products with images only (no infant/baby)
+  const BESTSELLER_IDS = new Set(
+    PRODUCTS.filter(p => p.images.length > 0 && !/(infant|baby|toddler)/i.test(p.title)).slice(0, 6).map(p => p.id)
+  );
+  const NEW_IDS = new Set(PRODUCTS.filter(p => !/(infant|baby|toddler)/i.test(p.title)).slice(-6).map(p => p.id));
   const initialCat = searchParams.get('cat') || 'All';
   const initialSort = searchParams.get('sort') || 'default';
   const [activeCat, setActiveCat] = useState(initialCat);
@@ -408,11 +429,11 @@ export default function Shop({ onAddToCart }) {
             <p>Try adjusting your search or explore a different category.</p>
             <button className="sp-empty-btn" onClick={clearFilters}>Clear All Filters</button>
           </div>
-        ) : isFiltered ? (
-          /* Filtered: clean 4-col grid */
+        ) : (
+          /* Clean uniform grid for all views */
           <>
             <div className="sp-grid sp-grid--uniform">
-              {displayProducts.map(p => {
+              {displayProducts.filter(p => p.images?.[0]).slice(0, visible).map(p => {
                 const badge = BESTSELLER_IDS.has(p.id) ? 'Best Seller' : NEW_IDS.has(p.id) ? 'New' : null;
                 return (
                   <Reveal key={p.id}>
@@ -421,134 +442,18 @@ export default function Shop({ onAddToCart }) {
                 );
               })}
             </div>
-            {visible < filtered.length && (
+            {!isFiltered && visible < filtered.filter(p => p.images?.[0]).length && (
               <div className="sp-load-more">
-                <button className="sp-load-btn" onClick={() => setVisible(v => v + 24)}>
-                  Load More<span className="sp-load-remaining">{filtered.length - visible} remaining</span>
+                <button className="sp-load-btn" onClick={() => setVisible(v => v + 12)}>
+                  View More Products<span className="sp-load-remaining">{filtered.filter(p => p.images?.[0]).length - visible} more</span>
                 </button>
               </div>
             )}
-          </>
-        ) : (
-          /* Unfiltered: masonry magazine layout */
-          <>
-            {buildMasonryRows(displayProducts).map((row, ri) => {
-              if (row.type === 'banner') {
-                return (
-                  <Reveal key={`banner-${ri}`}>
-                    <div className="sp-lifestyle">
-                      <img src={row.data.img} alt={row.data.text} className="sp-lifestyle-bg" loading="lazy" />
-                      <div className="sp-lifestyle-overlay" />
-                      <div className="sp-lifestyle-content">
-                        <h3 className="sp-lifestyle-title">{row.data.text}</h3>
-                        <p className="sp-lifestyle-sub">{row.data.sub}</p>
-                      </div>
-                    </div>
-                  </Reveal>
-                );
-              }
-
-              if (row.type === 'row-lg-md') {
-                return (
-                  <div key={`row-${ri}`} className="sp-masonry-row sp-masonry--lg-md">
-                    <Reveal className="sp-masonry-lg">
-                      <ProductCard product={row.items[0]} onAddToCart={handleAdd} badge={BESTSELLER_IDS.has(row.items[0].id) ? 'Best Seller' : null} size="large" addedId={addedId} />
-                    </Reveal>
-                    <div className="sp-masonry-side">
-                      <Reveal delay={100}>
-                        <ProductCard product={row.items[1]} onAddToCart={handleAdd} badge={NEW_IDS.has(row.items[1].id) ? 'New' : null} addedId={addedId} />
-                      </Reveal>
-                      {row.items[2] && (
-                        <Reveal delay={200}>
-                          <ProductCard product={row.items[2]} onAddToCart={handleAdd} addedId={addedId} />
-                        </Reveal>
-                      )}
-                    </div>
-                  </div>
-                );
-              }
-
-              if (row.type === 'row-3') {
-                return (
-                  <div key={`row-${ri}`} className="sp-masonry-row sp-masonry--3">
-                    {row.items.map((p, pi) => (
-                      <Reveal key={p.id} delay={pi * 80}>
-                        <ProductCard product={p} onAddToCart={handleAdd} badge={NEW_IDS.has(p.id) ? 'New' : null} addedId={addedId} />
-                      </Reveal>
-                    ))}
-                  </div>
-                );
-              }
-
-              if (row.type === 'row-md-lg') {
-                return (
-                  <div key={`row-${ri}`} className="sp-masonry-row sp-masonry--md-lg">
-                    <div className="sp-masonry-side">
-                      <Reveal>
-                        <ProductCard product={row.items[0]} onAddToCart={handleAdd} addedId={addedId} />
-                      </Reveal>
-                      {row.items[2] && (
-                        <Reveal delay={100}>
-                          <ProductCard product={row.items[2]} onAddToCart={handleAdd} addedId={addedId} />
-                        </Reveal>
-                      )}
-                    </div>
-                    <Reveal className="sp-masonry-lg" delay={100}>
-                      <ProductCard product={row.items[1]} onAddToCart={handleAdd} badge={BESTSELLER_IDS.has(row.items[1].id) ? 'Best Seller' : null} size="large" addedId={addedId} />
-                    </Reveal>
-                  </div>
-                );
-              }
-
-              if (row.type === 'row-2-filler') {
-                return (
-                  <div key={`row-${ri}`} className="sp-masonry-row sp-masonry--2-filler">
-                    {row.items.map((p, pi) => (
-                      <Reveal key={p.id} delay={pi * 80}>
-                        <ProductCard product={p} onAddToCart={handleAdd} addedId={addedId} />
-                      </Reveal>
-                    ))}
-                    <Reveal delay={160} className="sp-filler-wrap">
-                      <div className="sp-filler">
-                        <img src={row.filler} alt="Dark Sky scenery" className="sp-filler-img" loading="lazy" />
-                        <div className="sp-filler-overlay" />
-                        <span className="sp-filler-text">Dark Sky<br/>Discovery Center</span>
-                      </div>
-                    </Reveal>
-                  </div>
-                );
-              }
-
-              if (row.type === 'row-2') {
-                return (
-                  <div key={`row-${ri}`} className="sp-masonry-row sp-masonry--2">
-                    {row.items.map((p, pi) => (
-                      <Reveal key={p.id} delay={pi * 80}>
-                        <ProductCard product={p} onAddToCart={handleAdd} addedId={addedId} />
-                      </Reveal>
-                    ))}
-                  </div>
-                );
-              }
-
-              if (row.type === 'row-1') {
-                return (
-                  <div key={`row-${ri}`} className="sp-masonry-row sp-masonry--1">
-                    <Reveal>
-                      <ProductCard product={row.items[0]} onAddToCart={handleAdd} addedId={addedId} />
-                    </Reveal>
-                  </div>
-                );
-              }
-
-              return null;
-            })}
-            {visible < filtered.length && (
+            {isFiltered && visible < filtered.length && (
               <div className="sp-load-more">
                 <button className="sp-load-btn" onClick={() => setVisible(v => v + 24)}>
                   Load More<span className="sp-load-remaining">{filtered.length - visible} remaining</span>
                 </button>
-                <button className="sp-show-all" onClick={() => setVisible(filtered.length)}>Show All</button>
               </div>
             )}
           </>
@@ -932,12 +837,14 @@ const SHOP_CSS = `
   padding: 24px 48px 80px;
 }
 
-/* ── Uniform grid (filtered) ── */
+/* ── Uniform grid ── */
 .sp-grid--uniform {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 20px;
 }
+@media (max-width: 1024px) { .sp-grid--uniform { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .sp-grid--uniform { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
 
 /* ═══ MASONRY ROWS ═══ */
 .sp-masonry-row {
@@ -977,24 +884,30 @@ const SHOP_CSS = `
 .sp-card {
   cursor: pointer;
   position: relative;
-  max-width: 300px;
-  max-height: 400px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px;
+  background: var(--surface, #0a0a1a);
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s;
 }
+.sp-card:hover { transform: translateY(-2px); border-color: rgba(212,175,55,0.3); }
 .sp-card-img-wrap {
   position: relative;
-  max-height: 280px;
+  height: 250px;
   overflow: hidden;
-  border-radius: 6px;
-  background: #eae7e0;
-  margin-bottom: 12px;
+  background: #f5f5f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: box-shadow 0.45s cubic-bezier(.16,1,.3,1);
 }
+@media (max-width: 768px) { .sp-card-img-wrap { height: 200px; } }
 .sp-card:hover .sp-card-img-wrap {
   box-shadow: 0 8px 28px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.3);
 }
 .sp-card-img {
-  width: 100%;
-  height: 100%;
+  max-width: 90%;
+  max-height: 220px;
   object-fit: contain;
   transition: transform 0.55s cubic-bezier(.16,1,.3,1);
   will-change: transform;
@@ -1015,26 +928,26 @@ const SHOP_CSS = `
 }
 
 /* Card info */
-.sp-card-info { padding: 0 2px; }
+.sp-card-info { padding: 16px; }
 .sp-card-cat {
-  font: 600 9px/1 'JetBrains Mono', monospace;
+  font: 600 11px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   opacity: 0.7;
 }
 .sp-card-name {
-  font: 400 14px/1.35 'Plus Jakarta Sans', sans-serif;
-  color: rgba(255,255,255,0.88);
-  margin-bottom: 5px;
+  font: 400 15px/1.4 'Plus Jakarta Sans', sans-serif;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 8px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .sp-card-price {
-  font: 600 15px/1 'Plus Jakarta Sans', sans-serif;
+  font: 700 16px/1 'Plus Jakarta Sans', sans-serif;
   color: var(--gold);
 }
 

@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import { EditModeProvider, EditToggleButton, EditBanner } from './components/EditMode';
 import { initStore } from './admin/data/store';
+import DemoGuide from './components/DemoGuide';
 import Home from './pages/Home';
 import About from './pages/About';
 import Events from './pages/Events';
@@ -172,7 +173,7 @@ function AnnouncementBar() {
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 250,
       background: '#D4AF37', color: '#04040c',
       padding: '6px 40px 6px 16px', textAlign: 'center',
-      font: "500 9px 'JetBrains Mono', monospace",
+      font: "500 12px 'JetBrains Mono', monospace",
       letterSpacing: '1px', textTransform: 'uppercase',
       whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
     }}>
