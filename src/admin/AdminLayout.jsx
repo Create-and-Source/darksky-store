@@ -6,6 +6,7 @@ import NotificationBell from '../components/NotificationBell';
 import OfflineBanner from '../components/OfflineBanner';
 import { executeUndo } from './components/UndoSystem';
 import HelpChatbot from './components/HelpChatbot';
+import DemoScript from './components/DemoScript';
 import { subscribe, initStore } from './data/store';
 
 // Initialize store with seed data on first load
@@ -200,6 +201,7 @@ const ROLE_LABELS = ROLE_NAMES;
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [demoMode, setDemoMode] = useState(() => localStorage.getItem('ds_demo_mode') === 'true');
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState('');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -252,6 +254,16 @@ export default function AdminLayout() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeydown = (e) => {
+      // Ctrl+Shift+D: toggle demo mode
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        setDemoMode(prev => {
+          const next = !prev;
+          localStorage.setItem('ds_demo_mode', String(next));
+          return next;
+        });
+      }
+
       // Cmd+K or Ctrl+K: quick search
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -622,6 +634,9 @@ export default function AdminLayout() {
 
         {/* Help Chatbot */}
         <HelpChatbot />
+
+        {/* Demo Teleprompter */}
+        {demoMode && <DemoScript />}
 
         {/* Quick Search Modal */}
         {quickSearchOpen && (

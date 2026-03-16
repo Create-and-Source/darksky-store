@@ -70,6 +70,74 @@ let cartIdCounter = (() => {
   return saved.reduce((max, i) => Math.max(max, i.cartId || 0), 0);
 })();
 
+/* ── Storefront Sync Toasts ── */
+function SyncToasts() {
+  const [toasts, setToasts] = useState([]);
+  const snapshots = useRef({});
+  const toastId = useRef(0);
+
+  // Take initial snapshots
+  useEffect(() => {
+    const keys = {
+      ds_events: 'New event published',
+      ds_orders: 'New order received',
+      ds_announcement: 'Announcement updated',
+      ds_members: 'New member joined',
+    };
+    // Initialize snapshots
+    Object.keys(keys).forEach(k => {
+      snapshots.current[k] = localStorage.getItem(k) || '';
+    });
+
+    const interval = setInterval(() => {
+      Object.entries(keys).forEach(([key, message]) => {
+        const current = localStorage.getItem(key) || '';
+        if (current !== snapshots.current[key]) {
+          snapshots.current[key] = current;
+          const id = ++toastId.current;
+          setToasts(prev => [...prev, { id, message }]);
+          setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+          }, 3000);
+        }
+      });
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (toasts.length === 0) return null;
+
+  return (
+    <div style={{
+      position: 'fixed', top: 70, right: 20, zIndex: 300,
+      display: 'flex', flexDirection: 'column', gap: 8,
+      pointerEvents: 'none',
+    }}>
+      {toasts.map(t => (
+        <div key={t.id} style={{
+          background: 'rgba(4,4,12,0.9)', backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(212,175,55,0.3)', borderLeft: '3px solid #D4AF37',
+          borderRadius: 6, padding: '10px 16px',
+          font: "500 12px 'JetBrains Mono', monospace",
+          color: '#F0EDE6', letterSpacing: '0.3px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+          animation: 'syncToastIn 0.3s ease',
+        }}>
+          <span style={{ color: '#D4AF37', marginRight: 8 }}>{'\u2726'}</span>
+          {t.message}
+        </div>
+      ))}
+      <style>{`
+        @keyframes syncToastIn {
+          from { opacity: 0; transform: translateX(20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 /* ── Announcement Bar (store-facing) ── */
 function AnnouncementBar() {
   const [dismissed, setDismissed] = useState(false);
@@ -253,6 +321,7 @@ export default function App() {
       {!hideChrome && <EditBanner />}
       <div style={{ position: 'relative', zIndex: 1 }}>
         {!hideChrome && <AnnouncementBar />}
+        {!hideChrome && <SyncToasts />}
         {!hideChrome && <Nav cartCount={cartCount} onCartClick={() => setDrawerOpen(true)} />}
         {!hideChrome && <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} cart={cart} onUpdate={updateQty} onRemove={removeItem} />}
 
