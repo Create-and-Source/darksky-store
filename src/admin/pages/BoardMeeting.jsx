@@ -11,12 +11,12 @@ const MONO = "'JetBrains Mono', 'SF Mono', monospace";
 function MetricCard({ label, value, sub }) {
   return (
     <div style={{
-      background: '#FFFFFF', border: '1px solid #E8E5DF', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-      borderRadius: 8, padding: '32px 28px', flex: 1, minWidth: 200,
+      background: '#FFFFFF', border: '1px solid #E8E5DF', boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+      borderRadius: 14, padding: '40px 32px', flex: 1, minWidth: 220,
     }}>
-      <div style={{ fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: '#D4AF37', marginBottom: 8 }}>{label}</div>
-      <div style={{ fontFamily: FONT, fontSize: 36, fontWeight: 700, color: '#1A1A2E' }}>{value}</div>
-      {sub && <div style={{ fontFamily: BODY, fontSize: 13, color: '#7C7B76', marginTop: 4 }}>{sub}</div>}
+      <div style={{ fontFamily: MONO, fontSize: 13, textTransform: 'uppercase', letterSpacing: 2, color: '#D4AF37', marginBottom: 12 }}>{label}</div>
+      <div style={{ fontFamily: FONT, fontSize: 48, fontWeight: 700, color: '#1A1A2E' }}>{value}</div>
+      {sub && <div style={{ fontFamily: BODY, fontSize: 16, color: '#7C7B76', marginTop: 8 }}>{sub}</div>}
     </div>
   );
 }
@@ -65,30 +65,30 @@ export default function BoardMeeting() {
   return (
     <>
       <style>{`
-        .bm-page { min-height: 100vh; background: #FAFAF8; color: #1A1A2E; }
-        .bm-topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid #E8E5DF; display: flex; align-items: center; justify-content: space-between; padding: 12px 32px; height: 56px; }
-        .bm-logo { font-family: ${FONT}; font-size: 18px; color: #C5A55A; }
-        .bm-center { font-family: ${MONO}; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #C5A55A; }
-        .bm-exit { font-family: ${BODY}; font-size: 13px; color: #7C7B76; background: none; border: 1px solid #E8E5DF; border-radius: 6px; padding: 6px 16px; cursor: pointer; transition: all 0.2s; }
-        .bm-exit:hover { color: #C5A55A; border-color: #C5A55A; }
-        .bm-body { padding: 80px 32px 60px; max-width: 1100px; margin: 0 auto; }
-        .bm-metrics { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
-        .bm-progress-wrap { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 28px; margin-bottom: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-        .bm-progress-label { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #C5A55A; margin-bottom: 16px; }
-        .bm-bar-bg { background: #E8E5DF; border-radius: 6px; height: 20px; overflow: hidden; margin-bottom: 12px; }
-        .bm-bar-fill { height: 100%; background: linear-gradient(90deg, #C5A55A, #D4AF37); border-radius: 6px; transition: width 1s ease; }
-        .bm-bar-labels { display: flex; justify-content: space-between; font-family: ${BODY}; font-size: 14px; color: #1A1A2E; }
-        .bm-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
-        .bm-card { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 10px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-        .bm-card-title { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #C5A55A; margin-bottom: 16px; }
+        .bm-page { min-height: 100vh; background: #F5F4F0; color: #1A1A2E; }
+        .bm-topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #1A1A2E; border-bottom: none; display: flex; align-items: center; justify-content: space-between; padding: 14px 40px; height: 60px; }
+        .bm-logo { font-family: ${FONT}; font-size: 20px; color: #D4AF37; }
+        .bm-center { font-family: ${MONO}; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+        .bm-exit { font-family: ${BODY}; font-size: 14px; color: rgba(255,255,255,0.7); background: none; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 20px; cursor: pointer; transition: all 0.2s; }
+        .bm-exit:hover { color: #D4AF37; border-color: #D4AF37; }
+        .bm-body { padding: 92px 48px 60px; max-width: 1200px; margin: 0 auto; }
+        .bm-metrics { display: flex; gap: 20px; margin-bottom: 36px; flex-wrap: wrap; }
+        .bm-progress-wrap { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 14px; padding: 36px; margin-bottom: 36px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+        .bm-progress-label { font-family: ${MONO}; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin-bottom: 20px; }
+        .bm-bar-bg { background: #E8E5DF; border-radius: 8px; height: 28px; overflow: hidden; margin-bottom: 16px; }
+        .bm-bar-fill { height: 100%; background: linear-gradient(90deg, #C5A55A, #D4AF37, #E5C76B); border-radius: 8px; transition: width 1.2s ease; }
+        .bm-bar-labels { display: flex; justify-content: space-between; font-family: ${BODY}; font-size: 18px; color: #1A1A2E; }
+        .bm-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 36px; }
+        .bm-card { background: #FFFFFF; border: 1px solid #E8E5DF; border-radius: 14px; padding: 36px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+        .bm-card-title { font-family: ${MONO}; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin-bottom: 20px; }
         .bm-table { width: 100%; border-collapse: collapse; }
-        .bm-table th { font-family: ${MONO}; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #7C7B76; text-align: left; padding: 8px 0; border-bottom: 1px solid #E8E5DF; }
-        .bm-table td { font-family: ${BODY}; font-size: 14px; color: #1A1A2E; padding: 10px 0; border-bottom: 1px solid #F0EDE8; }
-        .bm-don-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #F0EDE8; }
-        .bm-don-name { font-family: ${BODY}; font-size: 14px; color: #1A1A2E; }
-        .bm-don-amt { font-family: ${FONT}; font-size: 16px; color: #C5A55A; }
-        .bm-footer { text-align: center; font-family: ${MONO}; font-size: 11px; color: #B5B3AD; padding: 40px 0 24px; }
-        @media (max-width: 768px) { .bm-cols { grid-template-columns: 1fr; } .bm-metrics { flex-direction: column; } }
+        .bm-table th { font-family: ${MONO}; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #1A1A2E; text-align: left; padding: 12px 0; border-bottom: 2px solid #E8E5DF; }
+        .bm-table td { font-family: ${BODY}; font-size: 18px; color: #1A1A2E; padding: 14px 0; border-bottom: 1px solid #F0EDE8; }
+        .bm-don-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #F0EDE8; }
+        .bm-don-name { font-family: ${BODY}; font-size: 18px; color: #1A1A2E; }
+        .bm-don-amt { font-family: ${FONT}; font-size: 22px; font-weight: 600; color: #D4AF37; }
+        .bm-footer { text-align: center; font-family: ${MONO}; font-size: 12px; color: #B5B3AD; padding: 48px 0 24px; }
+        @media (max-width: 768px) { .bm-cols { grid-template-columns: 1fr; } .bm-metrics { flex-direction: column; } .bm-body { padding: 80px 20px 40px; } }
       `}</style>
       <div className="bm-page">
         <div className="bm-topbar">
