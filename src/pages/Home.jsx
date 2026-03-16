@@ -350,40 +350,21 @@ export default function Home({ onAddToCart }) {
 
       <SectionSep />
 
-      {/* ═══ 9 — SHOP CATEGORIES ═══ */}
-      <section className="section" style={{ background: 'var(--bg)' }} data-section="Products">
-        <RevealSection className="section-header">
-          <div className="label section-label">// Gift Shop</div>
-          <h2 className="section-title">Take the Night Sky <em>Home</em></h2>
+      {/* ═══ 9 — SHOP BANNER ═══ */}
+      <section data-section="Products" style={{ position: 'relative', overflow: 'hidden', padding: '100px 24px', textAlign: 'center', background: 'var(--bg)' }}>
+        <img src="/images/darksky/desert-night-sky.png" alt="" loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.12, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(4,4,12,0.5)', pointerEvents: 'none' }} />
+        <RevealSection>
+          <div className="label section-label" style={{ marginBottom: 24, position: 'relative', zIndex: 1 }}>// Gift Shop</div>
+          <h2 className="section-title" style={{ position: 'relative', zIndex: 1, marginBottom: 16 }}>Take the Night Sky <em>Home</em></h2>
+          <p style={{ font: '300 16px/1.8 "Plus Jakarta Sans"', color: 'var(--text2)', maxWidth: 480, margin: '0 auto 36px', position: 'relative', zIndex: 1 }}>
+            Apparel, gifts, and keepsakes inspired by the cosmos. Every purchase supports dark sky preservation.
+          </p>
+          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
+            <button className="btn-primary" style={{ animation: 'breatheGlow 3s ease-in-out infinite' }} onClick={() => navigate('/shop')}>Shop the Collection</button>
+            <button className="btn-ghost" onClick={() => navigate('/shop?cat=Gifts')}>Gift Ideas →</button>
+          </div>
         </RevealSection>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }} className="home-shop-cats">
-          {['Apparel', 'Kids', 'Outerwear', 'Gifts', 'Tanks'].map((cat, i) => {
-            const catItems = PRODUCTS.filter(p => p.category === cat);
-            const heroImg = catItems.find(p => p.images?.[0] && !(p.title || '').toLowerCase().includes('infant'))?.images?.[0] || catItems[0]?.images?.[0];
-            return (
-              <RevealSection key={cat} delay={i * 80}>
-                <button onClick={() => navigate(`/shop?cat=${cat}`)} style={{
-                  width: '100%', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: 'var(--r)', padding: 0,
-                  cursor: 'pointer', overflow: 'hidden', transition: 'all 0.4s var(--ease)', textAlign: 'center',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'none'; }}>
-                  <div style={{ height: 180, background: '#eae7e0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                    {heroImg && <img src={heroImg} alt={cat} loading="lazy" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />}
-                  </div>
-                  <div style={{ padding: '16px 12px 20px' }}>
-                    <div style={{ fontFamily: '"Playfair Display", serif', fontSize: 22, fontWeight: 500, color: 'var(--text)', marginBottom: 4 }}>{cat}</div>
-                    <div style={{ font: '400 12px "JetBrains Mono", monospace', color: 'var(--gold)', letterSpacing: '0.08em' }}>{catItems.length} items</div>
-                  </div>
-                </button>
-              </RevealSection>
-            );
-          })}
-        </div>
-        <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <button className="btn-ghost" onClick={() => navigate('/shop')}>Shop All →</button>
-        </div>
       </section>
 
       <SectionSep />

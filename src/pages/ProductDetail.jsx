@@ -43,6 +43,13 @@ export default function ProductDetail({ onAddToCart }) {
 
   const desc = product.description.replace(/<[^>]*>/g, '').trim();
 
+  // Force dark nav on this page since product images have white backgrounds
+  useEffect(() => {
+    const nav = document.querySelector('.nav');
+    if (nav) nav.classList.add('scrolled');
+    return () => { if (nav) nav.classList.remove('scrolled'); };
+  }, []);
+
   return (
     <div>
       <div className="pd">
