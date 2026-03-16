@@ -128,11 +128,31 @@ export default function Products() {
     toast('Product deleted', 'success');
   };
 
-  const printBarcodes = () => {
-    const physicals = products.filter(p => p.type === 'physical');
+  const [barcodeModal, setBarcodeModal] = useState(false);
+  const [selectedBarcodes, setSelectedBarcodes] = useState(new Set());
+
+  const physicals = products.filter(p => p.type === 'physical');
+
+  const openBarcodeModal = () => {
     if (physicals.length === 0) { toast('No physical products to print', 'warning'); return; }
+    setSelectedBarcodes(new Set(physicals.map(p => p.id)));
+    setBarcodeModal(true);
+  };
+
+  const toggleBarcode = (id) => {
+    setSelectedBarcodes(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const printSelected = () => {
+    const toPrint = physicals.filter(p => selectedBarcodes.has(p.id));
+    if (toPrint.length === 0) { toast('Select at least one product', 'warning'); return; }
+    setBarcodeModal(false);
     const win = window.open('', '_blank');
-    win.document.write(`<!DOCTYPE html><html><head><title>Barcode Labels — Dark Sky Gift Shop</title>
+    win.document.write(`<!DOCTYPE html><html><head><title>Barcode Labels</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -145,20 +165,15 @@ export default function Products() {
   .name { font: 600 11px 'Inter', sans-serif; color: #1A1A2E; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .id { font: 500 9px 'JetBrains Mono', monospace; color: #7C7B76; letter-spacing: 0.5px; }
   .price { font: 600 11px 'Inter', sans-serif; color: #C5A55A; margin-top: 2px; }
-  @media print {
-    body { padding: 0; }
-    h1, .subtitle, .no-print { display: none; }
-    .grid { gap: 0; }
-    .label { border: 1px dotted #ccc; border-radius: 0; padding: 10px 8px; }
-  }
+  @media print { body { padding: 0; } h1, .subtitle, .no-print { display: none; } .grid { gap: 0; } .label { border: 1px dotted #ccc; border-radius: 0; padding: 10px 8px; } }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"><\/script>
 </head><body>
 <h1>Barcode Labels — Dark Sky Gift Shop</h1>
-<p class="subtitle">${physicals.length} labels · ${new Date().toLocaleDateString()}</p>
+<p class="subtitle">${toPrint.length} labels · ${new Date().toLocaleDateString()}</p>
 <button class="no-print" onclick="window.print()" style="margin-bottom:16px;padding:10px 24px;background:#C5A55A;color:#fff;border:none;border-radius:8px;font:600 14px Inter,sans-serif;cursor:pointer;">Print Labels</button>
 <div class="grid">
-${physicals.map(p => `<div class="label"><svg class="bc" data-value="${p.id}"></svg><div class="name">${p.title}</div><div class="id">${p.id}</div><div class="price">$${(p.price / 100).toFixed(2)}</div></div>`).join('')}
+${toPrint.map(p => `<div class="label"><svg class="bc" data-value="${p.id}"></svg><div class="name">${p.title}</div><div class="id">${p.id}</div><div class="price">$${(p.price / 100).toFixed(2)}</div></div>`).join('')}
 </div>
 <script>document.querySelectorAll('.bc').forEach(el => { try { JsBarcode(el, el.dataset.value, { width: 1.5, height: 40, fontSize: 10, margin: 2, displayValue: true, font: 'JetBrains Mono' }); } catch(e) {} });<\/script>
 </body></html>`);
@@ -182,7 +197,7 @@ ${physicals.map(p => `<div class="label"><svg class="bc" data-value="${p.id}"></
         </div>
         {tab === 'list' && (
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={printBarcodes} style={{ ...btnStyle, background: C.card, color: C.text, border: `1px solid ${C.border}`, padding: '10px 16px', fontSize: 13 }}>
+            <button onClick={openBarcodeModal} style={{ ...btnStyle, background: C.card, color: C.text, border: `1px solid ${C.border}`, padding: '10px 16px', fontSize: 13 }}>
               Print Barcodes
             </button>
             <button id="tour-products-add" onClick={startAdd} style={{ ...btnStyle, background: C.gold, color: '#fff', padding: '10px 20px' }}>
@@ -452,6 +467,53 @@ ${physicals.map(p => `<div class="label"><svg class="bc" data-value="${p.id}"></
             </button>
           </div>
         </div>
+      )}
+
+      {/* Barcode Selection Modal */}
+      {barcodeModal && (
+        <>
+          <div onClick={() => setBarcodeModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000 }} />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            background: C.card, borderRadius: 16, padding: 32, width: 500, maxWidth: '90vw', maxHeight: '80vh',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15)', zIndex: 1001, display: 'flex', flexDirection: 'column',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ font: `600 18px ${FONT}`, color: C.text, margin: 0 }}>Print Barcodes</h3>
+              <button onClick={() => setBarcodeModal(false)} style={{ background: 'none', border: 'none', fontSize: 20, color: C.muted, cursor: 'pointer' }}>{'\u2715'}</button>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+              <button onClick={() => setSelectedBarcodes(new Set(physicals.map(p => p.id)))} style={{ font: `500 12px ${FONT}`, color: C.gold, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Select All</button>
+              <span style={{ color: C.border }}>|</span>
+              <button onClick={() => setSelectedBarcodes(new Set())} style={{ font: `500 12px ${FONT}`, color: C.text2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Deselect All</button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', marginBottom: 20 }}>
+              {physicals.map(p => (
+                <label key={p.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
+                  borderBottom: `1px solid ${C.border}`, cursor: 'pointer',
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedBarcodes.has(p.id)}
+                    onChange={() => toggleBarcode(p.id)}
+                    style={{ width: 18, height: 18, accentColor: C.gold, cursor: 'pointer' }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ font: `500 14px ${FONT}`, color: C.text }}>{p.title}</div>
+                    <div style={{ font: `400 12px ${MONO}`, color: C.text2 }}>{p.id} &middot; {formatPrice(p.price)}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <button onClick={printSelected} style={{
+              ...btnStyle, background: C.gold, color: '#fff', padding: '14px 24px', width: '100%',
+              fontSize: 15, borderRadius: 10,
+            }}>
+              Print {selectedBarcodes.size} Label{selectedBarcodes.size !== 1 ? 's' : ''}
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

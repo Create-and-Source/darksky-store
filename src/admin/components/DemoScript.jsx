@@ -112,6 +112,8 @@ export default function DemoScript() {
   const goToStep = useCallback((newStep) => {
     const s = STEPS[newStep];
     if (!s) return;
+    // Stop any current speech
+    window.speechSynthesis.cancel();
     // Run any action (like role switching)
     if (s.action) s.action();
     // Navigate to the route
@@ -119,6 +121,18 @@ export default function DemoScript() {
       navigate(s.route);
     }
     setStep(newStep);
+    // Read aloud
+    setTimeout(() => {
+      const utterance = new SpeechSynthesisUtterance(s.say);
+      utterance.rate = 0.95;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      // Try to use a natural voice
+      const voices = window.speechSynthesis.getVoices();
+      const preferred = voices.find(v => v.name.includes('Samantha') || v.name.includes('Alex') || v.name.includes('Google') || v.lang === 'en-US');
+      if (preferred) utterance.voice = preferred;
+      window.speechSynthesis.speak(utterance);
+    }, 500);
   }, [navigate, location.pathname]);
 
   const next = useCallback(() => goToStep(Math.min(step + 1, total - 1)), [step, total, goToStep]);
