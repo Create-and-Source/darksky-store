@@ -15,12 +15,16 @@ function MemberQR({ memberId }) {
   useEffect(() => {
     if (canvasRef.current && memberId) {
       QRCodeLib.toCanvas(canvasRef.current, memberId, {
-        width: 80, margin: 1,
-        color: { dark: '#F0EDE6', light: '#00000000' },
+        width: 160, margin: 2,
+        color: { dark: '#1A1A2E', light: '#FFFFFF' },
       });
     }
   }, [memberId]);
-  return <canvas ref={canvasRef} style={{ width: 80, height: 80 }} />;
+  return (
+    <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 8, display: 'inline-block' }}>
+      <canvas ref={canvasRef} style={{ width: 120, height: 120, display: 'block' }} />
+    </div>
+  );
 }
 
 const BENEFITS = [
