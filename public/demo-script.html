@@ -69,73 +69,73 @@
 
 <script>
 const STEPS = [
-  { section: "Start", say: "This is MuseumOS — a complete platform for running the International Dark Sky Discovery Center. Every role gets their own dashboard, their own tools, and their own experience.", click: "You're on the Sign In page. Show admin roles on the left, portals on the right." },
-  { section: "Start", say: "Let me sign in as Dr. J, the Executive Director, who sees everything.", click: "Click the Executive Director card." },
+  { section: "Start", say: "This is MuseumOS. It runs the entire Dark Sky Discovery Center from one place. Every person on the team logs in and sees exactly what they need — nothing more, nothing less.", click: "You're on the Sign In page. Point to the admin roles on the left and portals on the right." },
+  { section: "Start", say: "I'm going to sign in as Dr. J — the Executive Director. He sees everything.", click: "Click the Executive Director card." },
 
-  { section: "Dashboard", say: "This is the command center. Revenue, members, events, fundraising — everything at a glance.", click: "You're on the Executive Director dashboard. Point out the KPIs and activity feed." },
-  { section: "Dashboard", say: "The announcement bar controls what visitors see on the public website. Changes show up instantly on the storefront.", click: "Point to the announcement section at the top of the dashboard." },
+  { section: "Dashboard", say: "This is what Dr. J sees every morning. How much money came in, how many members we have, what events are coming up, how fundraising is going. All of it, right here, no digging.", click: "Slowly point to revenue, members, events sections on the dashboard." },
+  { section: "Dashboard", say: "See this bar at the top? That's the announcement banner on the website. If we type something here, it shows up on the public site right now. The two sides talk to each other.", click: "Point to the announcement section." },
 
-  { section: "Messages", say: "No more email chains. Everyone communicates inside the platform. Maria messaged about a field trip, Josi needs to reorder posters.", click: "Click Messages in the sidebar." },
-  { section: "Messages", say: "Teachers can even message us directly from their School Portal. Everything stays in one place.", click: "Click a conversation and type a quick reply." },
+  { section: "Messages", say: "This replaces email for the team. Maria sent a message about a field trip. Josi is asking about reordering posters. No more lost emails, no more 'did you see my text.' It's all here.", click: "Click Messages in the sidebar." },
+  { section: "Messages", say: "And it's not just staff — teachers can message us directly from the School Portal. I'll show you that in a minute.", click: "Click on a conversation. Type a quick reply to show it works." },
 
-  { section: "POS", say: "This is the register. When a customer walks up to the gift shop, Josi searches or scans a barcode, and it adds to the cart.", click: "Click POS in the sidebar. Type a product name in search." },
-  { section: "POS", say: "If they're a member, scan their QR code for an automatic discount. Then hit Charge — it goes through Square.", click: "Show the member lookup section. Click Charge." },
+  { section: "Gift Shop", say: "This is the cash register. When someone walks up to buy something, you search for the product or scan the barcode, and it goes right into the cart.", click: "Click POS in the sidebar. Type 'star map' in the search box." },
+  { section: "Gift Shop", say: "If they're a member, you scan the QR code on their phone and their discount kicks in automatically — no looking up names in a spreadsheet. Then you hit Charge and it goes through Square.", click: "Scroll down to the member section on the right side." },
 
-  { section: "Orders", say: "Every order — online and POS — lands here. When someone checks out on the website, their order appears here instantly.", click: "Click Orders in the sidebar." },
+  { section: "Orders", say: "Every sale — whether it happened at the register or on the website — shows up here. You can see who bought what, when, and how much they paid.", click: "Click Orders in the sidebar." },
 
-  { section: "Inventory", say: "Every product across both locations. Yellow means low stock, red means out. Velocity shows how fast it sells. Days Left tells you when to reorder.", click: "Click Inventory in the sidebar." },
+  { section: "Inventory", say: "This is everything in the gift shop and the warehouse. Yellow means we're running low. Red means we're out. You can see exactly how fast something is selling and how many days until it runs out.", click: "Click Inventory in the sidebar. Point to the color-coded status badges." },
 
-  { section: "Products", say: "The full catalog — 67 print-on-demand products plus 10 physical gift shop items. Physical products get barcodes. Print them, stick them on products, scan at checkout.", click: "Click Products in the sidebar. Show the Print Barcodes button." },
+  { section: "Products", say: "Here's every product we sell — the stuff that ships from Printify and the stuff we keep in the gift shop. The physical products have barcodes that we print on sticker sheets and put on the items.", click: "Click Products in the sidebar." },
 
-  { section: "Purchase Orders", say: "When you need to reorder — create a PO. It tracks from Draft to Ordered to Shipped to Received. Inventory updates automatically.", click: "Click Purchase Orders in the sidebar." },
+  { section: "Reordering", say: "When something is running low, you create a purchase order right here. Pick the vendor, pick the products, say how many you need. It tracks the whole thing — ordered, shipped, received.", click: "Click Purchase Orders in the sidebar." },
 
-  { section: "Receive", say: "When a shipment arrives, log what came in step by step. Pick location, scan products, enter quantities.", click: "Click Receive in the sidebar." },
+  { section: "Receiving", say: "When a box shows up at the door, this is where you log what's inside. You pick the location, scan or search for each item, type how many came in, and the inventory updates right away.", click: "Click Receive in the sidebar." },
 
-  { section: "Transfers", say: "Move stock between the warehouse and gift shop. Create a transfer, mark it shipped, mark it received.", click: "Click Transfers in the sidebar." },
+  { section: "Transfers", say: "This moves products between the warehouse and the gift shop. You create a transfer, mark it shipped, and when Josi gets it at the shop, she marks it received. Both locations stay accurate.", click: "Click Transfers in the sidebar." },
 
-  { section: "Events", say: "Create and manage all events — star parties, planetarium shows, kids programs. Set capacity, pricing, and toggle member-free.", click: "Click Events in the sidebar." },
-  { section: "Events", say: "When someone reserves a spot on the website, it shows up here. Ticket counts update live.", click: "Point to the ticket counts on the event list." },
+  { section: "Events", say: "This is where you create events — star parties, planetarium shows, workshops, anything. You set the date, time, how many people can come, the price, and whether members get in free.", click: "Click Events in the sidebar." },
+  { section: "Events", say: "When someone goes to our website and reserves a spot, it shows up here automatically. You can see exactly how many tickets are left for each event.", click: "Point to the ticket numbers on the event list." },
 
-  { section: "Field Trips", say: "This is critical for Dr. J. Full field trip management — from booking inquiry to completion.", click: "Click Field Trips in the sidebar." },
-  { section: "Field Trips", say: "Click View on any trip to see contact info, status, notes. Schools can check their own status in the School Portal.", click: "Click View on a field trip to open the drawer." },
+  { section: "Field Trips", say: "This is huge for Dr. J. Every school field trip is tracked from the first phone call to the thank you note. You can see which schools are coming, when, how many students, and where they are in the process.", click: "Click Field Trips in the sidebar." },
+  { section: "Field Trips", say: "Click View on any trip and you get the full picture — the teacher's name, phone number, what grade, what they want to do. And the school can check all of this on their own through the School Portal.", click: "Click View on one of the field trips." },
 
-  { section: "CRM", say: "Every contact in one place — members, donors, event attendees, volunteers, schools. Pulled automatically from every part of the system.", click: "Click Contacts in the sidebar under CRM." },
+  { section: "Contacts", say: "This is every person who has ever interacted with the center — members, people who bought something, people who donated, volunteers, school contacts. It pulls them in automatically. No one has to type anything.", click: "Click Contacts in the sidebar under CRM." },
 
-  { section: "Donations", say: "Track every donation. The fundraising thermometer on the board meeting view pulls from this. The public Donate page feeds directly in.", click: "Click Donations in the sidebar." },
+  { section: "Donations", say: "Every donation is tracked here. When someone donates on the website, it shows up instantly. The fundraising total on the board meeting screen updates by itself.", click: "Click Donations in the sidebar." },
 
-  { section: "Email", say: "Compose email campaigns. Pick your audience — members, event attendees, donors. Templates or custom.", click: "Click Email in the sidebar." },
+  { section: "Email", say: "You can send email blasts right from here. Pick who gets it — all members, people who came to an event, donors. There are templates so you don't start from scratch every time.", click: "Click Email in the sidebar." },
 
-  { section: "Text Blasts", say: "Same thing for SMS. Clear Sky Alert tonight? One tap, goes to all members.", click: "Click Text Blasts in the sidebar. Pick the Clear Sky Alert template." },
+  { section: "Texts", say: "Same thing but for text messages. Clear skies tonight? Hit the Clear Sky Alert template, pick 'All Members,' and send. They all get a text in seconds.", click: "Click Text Blasts in the sidebar. Select the Clear Sky Alert template." },
 
-  { section: "Social Media", say: "Schedule posts across Instagram, Facebook, X, and LinkedIn. Draft, schedule, publish — all from one screen.", click: "Click Social Media in the sidebar." },
+  { section: "Social", say: "This is where you manage social media. Write a post, pick which platforms — Instagram, Facebook, X, LinkedIn — and schedule it. All from one place instead of logging into four different apps.", click: "Click Social Media in the sidebar." },
 
-  { section: "Design Studio", say: "AI-powered poster generator. Describe what you want, it creates it. Export for social or print.", click: "Click Design Studio in the sidebar." },
+  { section: "Design", say: "Need a flyer or a social media graphic? Type what you want — like 'poster for tonight's star party' — and it creates one for you using AI. Save it and post it.", click: "Click Design Studio in the sidebar." },
 
-  { section: "Volunteers", say: "Full volunteer management. Roster, weekly schedule, hour tracking, and a certification matrix.", click: "Click Volunteers in the sidebar. Show each tab." },
+  { section: "Volunteers", say: "This manages all the volunteers. You can see who's on the roster, what days they're available, how many hours they've worked, and which certifications they have — like first aid or telescope training.", click: "Click Volunteers in the sidebar. Click through the tabs — Roster, Schedule, Hours, Training." },
 
-  { section: "Staff & Time", say: "Staff roster and time tracking. We track hours — your payroll provider handles taxes. Export to CSV.", click: "Click Staff & Time in the sidebar." },
+  { section: "Staff", say: "This is for paid staff. You see everyone who works here, their hours for the week, and you can export it all to send to your payroll company. We track the time — they handle the taxes.", click: "Click Staff & Time in the sidebar." },
 
-  { section: "Reports", say: "Analytics for everything — revenue, products, inventory, membership. Each role sees only their relevant data.", click: "Click Reports in the sidebar." },
+  { section: "Reports", say: "This shows you how the business is doing. How much money came in, what's selling, what's in stock, how many members you have. And here's the thing — each person only sees the reports that matter to them.", click: "Click Reports in the sidebar." },
 
-  { section: "QuickBooks", say: "Export sales, products, customers, and bills as CSV files ready for QuickBooks. Every export is logged.", click: "Click QuickBooks in the sidebar." },
+  { section: "QuickBooks", say: "This is Nancy's favorite page. She clicks one button and it downloads everything she needs for QuickBooks — sales, products, customers, bills. No more typing receipts by hand.", click: "Click QuickBooks in the sidebar." },
 
-  { section: "Roles", say: "Now watch — every role sees something completely different. Let me switch to Josi, the Gift Shop Manager.", click: "Click the role dropdown in the top right. Switch to Gift Shop Manager." },
-  { section: "Roles", say: "She only sees POS, orders, inventory. No financials, no events. Now switch to Nancy the Treasurer.", click: "Switch to Treasurer in the dropdown." },
-  { section: "Roles", say: "Nancy sees donations, reports, QuickBooks. No inventory, no POS. Now Maria the Education Director.", click: "Switch to Education Director." },
-  { section: "Roles", say: "Maria sees events, field trips, volunteers. Her whole world is programs.", click: "Look at her dashboard — field trip stats and upcoming events." },
+  { section: "Roles", say: "Now here's what makes this special. Watch what happens when I switch to a different person. I'm going to become Josi, the gift shop manager.", click: "Click the name in the top right corner. Switch to Gift Shop Manager." },
+  { section: "Roles", say: "See how the whole thing changed? Josi only sees the gift shop stuff — the register, orders, inventory. She doesn't see financial reports or QuickBooks because that's not her job. Now let me switch to Nancy.", click: "Switch to Treasurer in the dropdown." },
+  { section: "Roles", say: "Nancy sees donations, reports, and QuickBooks. No gift shop, no events. Now Maria, the Education Director.", click: "Switch to Education Director." },
+  { section: "Roles", say: "Maria sees field trips, events, and volunteers. Everything she needs to run programs. Nobody is overwhelmed with stuff they don't use.", click: "Point to her dashboard showing field trip stats." },
 
-  { section: "Board", say: "For board members — a full-screen, projector-ready view. Campaign progress, revenue, membership, events.", click: "Switch to Board Member. Click Open Board Meeting View." },
+  { section: "Board", say: "For board meetings, there's a presentation view. You put this on the projector and it shows the fundraising progress, revenue, membership numbers, and upcoming events. Big and clean.", click: "Switch to Board Member in the dropdown. Click Open Board Meeting View." },
 
-  { section: "Portals", say: "It's not just for staff. Members, volunteers, and schools each have their own portal.", click: "Go to /signin. Show the Portals section on the right." },
-  { section: "Portals", say: "The Member Portal has a scannable QR code, events with Reserve Spot, and donate — all without leaving the portal.", click: "Click Member Portal." },
-  { section: "Portals", say: "Schools log in, see trip status, preparation checklists, and message the education coordinator directly.", click: "Go back to /signin. Click School Portal. Select a school." },
-  { section: "Portals", say: "Volunteers see their schedule, log hours, track certifications, and clock in with GPS verification.", click: "Go back to /signin. Click Volunteer Portal." },
+  { section: "Portals", say: "It's not just for the staff. Members, volunteers, and schools each get their own portal where they can do things themselves without calling us.", click: "Go to the Sign In page. Point to the Portals section on the right." },
+  { section: "Portals", say: "This is what a member sees. Their membership card with a QR code that Josi scans at the register. They can reserve event tickets and donate — all without leaving this page.", click: "Click Member Portal." },
+  { section: "Portals", say: "This is what a school sees. They pick their school name, and they can check their field trip status, see a checklist of what to bring, and send a message to Maria.", click: "Go back to Sign In. Click School Portal. Select a school from the dropdown." },
+  { section: "Portals", say: "And this is the volunteer portal. They can clock in — and it checks their GPS to make sure they're actually at the building. They can log their hours and see their training progress.", click: "Go back to Sign In. Click Volunteer Portal." },
 
-  { section: "Website", say: "And the public website. Everything connects. Events from admin show here. Products are in the shop. Membership count is live.", click: "Switch to the storefront window. Scroll the homepage." },
-  { section: "Website", say: "The shop, event reservations, membership signups, donations, contact forms — everything feeds into MuseumOS.", click: "Show the shop page, then the events page." },
+  { section: "Website", say: "And then there's the public website that visitors see. Everything on this site is connected to the admin system. The events you create show up here. The products in the shop are the same products in inventory.", click: "Switch to the storefront browser window. Scroll slowly through the homepage." },
+  { section: "Website", say: "People can shop online, reserve event tickets, sign up for membership, book field trips, donate, and contact us — and every single one of those things shows up in the admin automatically.", click: "Click through to the Shop page, then the Events page." },
 
-  { section: "Close", say: "That's MuseumOS. One platform. Every department. Every role. Every stakeholder. The only thing left to connect is Square and QuickBooks API — everything else is built and working.", click: null },
-  { section: "Close", say: "No more spreadsheets. No more email chains. No more 'I didn't know we were out of stock.' This is how a modern museum runs.", click: null },
+  { section: "Close", say: "That's MuseumOS. One login for every person. One system for every department. No spreadsheets, no email chains, no paper forms. The only things left to connect are Square for payments and the QuickBooks sync — everything else you just saw is built and working today.", click: null },
+  { section: "Close", say: "This is how the Dark Sky Discovery Center should run from day one.", click: null },
 ];
 
 let current = 0;
