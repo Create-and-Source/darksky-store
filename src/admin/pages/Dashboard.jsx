@@ -642,6 +642,8 @@ function VolunteerDashboard() {
         @media (max-width: 768px) {
           .ds-quick-actions { grid-template-columns: 1fr !important; }
           .ds-stats { grid-template-columns: 1fr !important; }
+          .ds-role-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+          .ds-mission-metrics { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
         }
       `}</style>
     </div>
@@ -1076,7 +1078,7 @@ function ManagerDashboard() {
       <div id="tour-announcement"><AnnouncementBar /></div>
 
       {/* Mission Metrics */}
-      <div id="tour-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }} className="ds-mission-metrics">
+      <div id="tour-metrics" className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }} className="ds-mission-metrics">
         {[
           { label: 'Visitors This Month', value: thisMonthVisitors.toLocaleString(), color: C.gold },
           { label: 'Active Members', value: members.length, sub: Object.entries(tierCounts).map(([t,c]) => `${c} ${t}`).join(', '), color: '#3D8C6F' },
@@ -1558,7 +1560,7 @@ function BoardMemberDashboard() {
       </div>
 
       {/* Summary cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
           { label: 'Total Revenue (YTD)', value: formatPrice(totalRevenue), color: C.gold },
           { label: 'Visitors This Month', value: thisMonthVisitors.toLocaleString(), color: '#3D8C6F' },
@@ -1653,7 +1655,7 @@ function EducationDashboard() {
   return (
     <div>
       <RoleDashHeader subtitle="Education & Programs Dashboard" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         <MiniStatCard label="New Trip Requests" value={newTrips} color={newTrips > 0 ? C.warning : C.success} />
         <MiniStatCard label="Confirmed Trips" value={confirmedTrips.length} color={C.success} />
         <MiniStatCard label="Students Booked" value={totalStudents} />
@@ -1707,7 +1709,7 @@ function SocialMediaDashboard() {
   return (
     <div>
       <RoleDashHeader subtitle="Marketing & Communications Dashboard" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         <MiniStatCard label="Published Posts" value={published} color={C.success} />
         <MiniStatCard label="Drafts" value={drafts} />
         <MiniStatCard label="Scheduled" value={scheduled} color={C.warning} />
@@ -1735,7 +1737,7 @@ function VisitorServicesDashboard() {
   return (
     <div>
       <RoleDashHeader subtitle="Visitor Services Dashboard" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         <MiniStatCard label="Today's Visitors" value={todayVisitors?.total || 0} />
         <MiniStatCard label="This Week" value={weekTotal} />
         <MiniStatCard label="Today's Events" value={todayEvents.length} />
@@ -1765,7 +1767,7 @@ function VolunteerCoordDashboard() {
   return (
     <div>
       <RoleDashHeader subtitle="Volunteer Management Dashboard" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         <MiniStatCard label="Active Volunteers" value={active} color={C.success} />
         <MiniStatCard label="Hours This Month" value={monthHours} />
         <MiniStatCard label="Upcoming Events" value={upcoming} />
@@ -1812,7 +1814,7 @@ function BoardDashboard() {
         </div>
         <div style={{ font: `600 14px ${FONT}`, color: C.gold, marginTop: 8 }}>{pct}% complete</div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         <MiniStatCard label="Active Members" value={members.length} color={C.success} />
         <MiniStatCard label="Upcoming Events" value={upcoming} />
         <MiniStatCard label="Total Donated (YTD)" value={`$${totalDonated.toLocaleString()}`} />
@@ -1834,7 +1836,7 @@ function PayrollDashboard() {
   return (
     <div>
       <RoleDashHeader subtitle="Staff & Time Dashboard" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         <MiniStatCard label="Total Staff" value={staff.length} />
         <MiniStatCard label="Pending Timesheets" value={pending} color={pending > 0 ? C.warning : C.success} />
         <MiniStatCard label="Hours This Week" value={totalHours} />
@@ -1863,7 +1865,7 @@ function ShopManagerDashboard() {
   return (
     <div>
       <RoleDashHeader subtitle="Gift Shop Manager Dashboard" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         <MiniStatCard label="Today's Orders" value={todayOrders.length} />
         <MiniStatCard label="Today's Revenue" value={formatPrice(todayRevenue)} />
         <MiniStatCard label="Low Stock Items" value={lowStock.length} color={lowStock.length > 0 ? C.danger : C.success} />
