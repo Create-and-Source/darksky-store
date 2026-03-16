@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Day at the Dark Sky Discovery Center — Powered by MuseumOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; color: #1A1A2E; background: #FFFFFF; }
+  @media print { .page-break { page-break-before: always; } }
+
+  .cover { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: linear-gradient(180deg, #1A1A2E 0%, #0a0a1a 100%); color: #F0EDE6; padding: 60px 40px; position: relative; }
+  .cover::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(212,175,55,0.08) 0%, transparent 60%); }
+  .cover > * { position: relative; z-index: 1; }
+  .cover h1 { font: 600 48px/1.15 'Playfair Display', serif; margin-bottom: 16px; max-width: 600px; }
+  .cover h1 em { font-style: italic; color: #D4AF37; }
+  .cover-sub { font: 300 18px/1.6 'Inter'; color: rgba(240,237,230,0.5); max-width: 480px; margin-bottom: 60px; }
+  .cover-badge { font: 500 11px 'JetBrains Mono'; letter-spacing: 3px; text-transform: uppercase; color: #D4AF37; margin-bottom: 24px; }
+  .cover-meta { font: 400 12px 'JetBrains Mono'; color: rgba(240,237,230,0.25); letter-spacing: 1px; }
+
+  .content { max-width: 800px; margin: 0 auto; padding: 60px 40px; }
+
+  .time-block { margin-bottom: 64px; }
+  .time-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 600 12px 'JetBrains Mono'; letter-spacing: 2px; text-transform: uppercase;
+    color: #D4AF37; margin-bottom: 12px;
+    background: rgba(212,175,55,0.08); padding: 6px 14px; border-radius: 100px;
+  }
+  .time-title { font: 600 28px/1.2 'Playfair Display', serif; color: #1A1A2E; margin-bottom: 8px; }
+  .time-title em { font-style: italic; color: #D4AF37; }
+  .time-who { font: 500 13px 'Inter'; color: #D4AF37; margin-bottom: 16px; }
+  .time-story { font: 300 16px/1.8 'Inter'; color: #4A4A5A; margin-bottom: 20px; }
+  .time-story strong { font-weight: 600; color: #1A1A2E; }
+
+  .screenshot {
+    width: 100%; border-radius: 12px; overflow: hidden;
+    border: 1px solid #E8E5DF; box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    margin: 20px 0; background: #FAFAF8;
+  }
+  .screenshot img { width: 100%; height: auto; display: block; }
+  .screenshot-placeholder {
+    width: 100%; min-height: 300px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+    background: linear-gradient(135deg, #FAFAF8, #F0EDE6);
+    color: #B5B3AD; padding: 40px 20px; text-align: center;
+  }
+  .screenshot-placeholder .label { font: 600 11px 'JetBrains Mono'; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; }
+  .screenshot-placeholder .hint { font: 400 13px 'Inter'; color: #B5B3AD; max-width: 400px; }
+  .screenshot-caption { font: 400 12px 'JetBrains Mono'; color: #94A3B8; text-align: center; padding: 10px 16px; border-top: 1px solid #E8E5DF; letter-spacing: 0.5px; }
+
+  .without {
+    background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px;
+    padding: 20px 24px; margin: 16px 0; font: 400 14px/1.6 'Inter'; color: #991B1B;
+  }
+  .without strong { font-weight: 600; }
+  .without::before { content: 'Without MuseumOS: '; font-weight: 700; color: #DC2626; }
+
+  .result {
+    background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px;
+    padding: 20px 24px; margin: 16px 0; font: 400 14px/1.6 'Inter'; color: #065F46;
+  }
+  .result strong { font-weight: 600; }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); margin: 48px 0; opacity: 0.3; }
+
+  .summary-box { background: linear-gradient(135deg, #1A1A2E, #0a0a1a); border-radius: 16px; padding: 48px 40px; color: #F0EDE6; text-align: center; margin: 40px 0; }
+  .summary-box h2 { font: 600 32px 'Playfair Display'; color: #D4AF37; margin-bottom: 16px; }
+  .summary-box p { font: 300 16px/1.7 'Inter'; color: rgba(240,237,230,0.7); max-width: 520px; margin: 0 auto; }
+
+  .footer { text-align: center; padding: 40px; font: 400 12px 'JetBrains Mono'; color: #B5B3AD; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-badge">&#10022; A Day in the Life</div>
+  <h1>Running the Discovery Center with <em>MuseumOS</em></h1>
+  <p class="cover-sub">Follow a real day at the IDSDC &mdash; from the first login to the last visitor. See exactly how every department uses one platform to run everything.</p>
+  <div class="cover-meta">International Dark Sky Discovery Center &middot; Fountain Hills, AZ</div>
+</div>
+
+<!-- 7:30 AM -->
+<div class="content page-break">
+  <div class="time-block">
+    <div class="time-badge">&#9788; 7:30 AM</div>
+    <div class="time-title">Dr. J Opens the <em>Dashboard</em></div>
+    <div class="time-who">Executive Director</div>
+    <p class="time-story">Dr. J logs in from home with his morning coffee. <strong>One screen shows him everything</strong> &mdash; last night's revenue, how many members joined this week, upcoming events, and a message from Maria about a new field trip request from Scottsdale Prep. He doesn't need to check email, open a spreadsheet, or call anyone.</p>
+    <div class="without">Dr. J checks email, texts Nancy for the revenue number, calls Maria about the field trip, opens a Google Sheet for the events list. 45 minutes gone before he's even dressed.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Executive Director Dashboard</div>
+        <div class="hint">Sign in as Executive Director &rarr; take a screenshot of the full dashboard with KPIs, revenue chart, and activity feed</div>
+      </div>
+      <div class="screenshot-caption">The Executive Director sees revenue, members, events, and messages &mdash; all in one view</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 8:00 AM -->
+  <div class="time-block">
+    <div class="time-badge">&#128172; 8:00 AM</div>
+    <div class="time-title">Maria Responds to a <em>School</em></div>
+    <div class="time-who">Education Director</div>
+    <p class="time-story">Mrs. Rodriguez from Four Peaks Elementary wants to add a rocket-building activity to their April trip. Maria opens <strong>Messages</strong> and replies in 10 seconds. She then opens <strong>Field Trips</strong>, clicks the trip, and adds a note. The school can see the update in their <strong>School Portal</strong> instantly.</p>
+    <div class="without">Mrs. Rodriguez sent an email three days ago. It's buried under 47 other emails. Maria finds it, replies, then manually updates a Google Doc that Dr. J may or may not check.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Messages + Field Trip Detail</div>
+        <div class="hint">Open Messages &rarr; show a conversation. Then open Field Trips &rarr; click View on a trip to show the detail drawer.</div>
+      </div>
+      <div class="screenshot-caption">Internal messaging replaces email. Field trip details are always current.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 9:00 AM -->
+<div class="content page-break">
+  <div class="time-block">
+    <div class="time-badge">&#127979; 9:00 AM</div>
+    <div class="time-title">The School Checks Their <em>Trip Status</em></div>
+    <div class="time-who">School Portal &mdash; Mrs. Rodriguez</div>
+    <p class="time-story">Mrs. Rodriguez opens the <strong>School Portal</strong> on her phone. She selects her school from a dropdown &mdash; no password needed. She sees her trip is <strong>Confirmed</strong>, with the date, a preparation checklist (bus parking in Lot B, arrive by 8:45), and Maria's message about the rocket activity. She sends a quick reply: "Perfect, thank you!"</p>
+    <div class="without">She emails Maria asking for a status update. Maria is in a meeting. She doesn't hear back until tomorrow. She calls the front desk. Sam doesn't know anything about it.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: School Portal</div>
+        <div class="hint">Sign in as School &rarr; select "Four Peaks Elementary" &rarr; show trip status card with checklist and chat</div>
+      </div>
+      <div class="screenshot-caption">Schools check their own trip status, prep checklists, and message staff directly</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 10:00 AM -->
+  <div class="time-block">
+    <div class="time-badge">&#128717; 10:00 AM</div>
+    <div class="time-title">Josi Opens the <em>Gift Shop</em></div>
+    <div class="time-who">Gift Shop Manager</div>
+    <p class="time-story">Josi signs in and sees <strong>3 low stock alerts</strong> on her dashboard. Star map posters are almost out. She opens <strong>Purchase Orders</strong>, creates a PO to the printer for 50 units, and it's tracked from that moment forward. Then she opens the <strong>POS</strong> &mdash; ready for the first customer.</p>
+    <div class="without">Josi notices empty shelf space around 2 PM. She texts Nancy "did we reorder the posters?" Nancy says "I thought you did." They call the vendor. It's been out of stock for a week. Lost sales.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Gift Shop Manager Dashboard + POS</div>
+        <div class="hint">Sign in as Gift Shop Manager &rarr; screenshot the dashboard. Then open POS &rarr; screenshot the register view.</div>
+      </div>
+      <div class="screenshot-caption">Low stock alerts prevent stockouts. The POS is ready for walk-in customers.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11:00 AM -->
+<div class="content page-break">
+  <div class="time-block">
+    <div class="time-badge">&#11088; 11:00 AM</div>
+    <div class="time-title">A Member Scans Their <em>QR Code</em></div>
+    <div class="time-who">Member Portal + POS</div>
+    <p class="time-story">A member walks in and wants to buy a t-shirt. She opens the <strong>Member Portal</strong> on her phone and shows her QR code. Josi hits <strong>Scan</strong> on the POS &mdash; the camera reads the code and instantly shows: <strong>"Member found: Sarah Chen (Explorer &mdash; 15% discount)"</strong>. The discount applies automatically. Josi hits Charge. Done in 30 seconds.</p>
+    <div class="without">The customer says "I'm a member." Josi asks her name, opens a Google Sheet, scrolls through 200 rows, can't find "Chen" because it was entered as "Sarah C." She gives up and applies the discount manually, hoping it's right. The line grows.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Member Portal QR + POS Scanner</div>
+        <div class="hint">Open Member Portal on phone (show QR code). Open POS on computer &rarr; show the member lookup section after scanning.</div>
+      </div>
+      <div class="screenshot-caption">QR scan &rarr; member found &rarr; discount applied. No spreadsheet lookups.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 1:00 PM -->
+  <div class="time-block">
+    <div class="time-badge">&#128176; 1:00 PM</div>
+    <div class="time-title">Nancy Exports to <em>QuickBooks</em></div>
+    <div class="time-who">Treasurer</div>
+    <p class="time-story">Nancy signs in and sees her <strong>finance dashboard</strong> &mdash; revenue is up 12% from last month. She opens <strong>QuickBooks</strong>, clicks "Export Sales (30 Days)" and a perfectly formatted CSV downloads instantly. She drags it into QuickBooks. Done in 2 minutes.</p>
+    <div class="without">Nancy spends 6 hours at the end of every month manually entering Square receipts into QuickBooks. She types each transaction by hand. She misses three. The books don't balance. She stays late.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Treasurer Dashboard + QuickBooks Export</div>
+        <div class="hint">Sign in as Treasurer &rarr; screenshot dashboard. Then open QuickBooks page &rarr; show export cards.</div>
+      </div>
+      <div class="screenshot-caption">One-click exports replace hours of manual data entry</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3:00 PM -->
+<div class="content page-break">
+  <div class="time-block">
+    <div class="time-badge">&#128587; 3:00 PM</div>
+    <div class="time-title">Carlos Clocks In for His <em>Volunteer Shift</em></div>
+    <div class="time-who">Volunteer Portal</div>
+    <p class="time-story">Carlos arrives at the facility and opens the <strong>Volunteer Portal</strong> on his phone. He taps "Verify My Location" &mdash; GPS confirms he's within half a mile of the building. He clocks in. His hours start logging automatically. After his shift, he clocks out and the hours appear in Jordan's <strong>Volunteer Management</strong> dashboard.</p>
+    <div class="without">Carlos writes his hours on a paper sign-in sheet. Jordan collects the sheets on Friday, types them into a spreadsheet, and realizes Carlos forgot to sign out twice this week. He texts Carlos. Carlos doesn't remember.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Volunteer Portal + Volunteer Management</div>
+        <div class="hint">Open Volunteer Portal &rarr; show time clock. Then sign in as Volunteer Coordinator &rarr; show Volunteers page roster + schedule tabs.</div>
+      </div>
+      <div class="screenshot-caption">GPS-verified clock-in. Automatic hour tracking. No paper forms.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 4:00 PM -->
+  <div class="time-block">
+    <div class="time-badge">&#128241; 4:00 PM</div>
+    <div class="time-title">Alex Posts About Tonight's <em>Star Party</em></div>
+    <div class="time-who">Social Media Manager</div>
+    <p class="time-story">Clear skies tonight. Alex opens <strong>Design Studio</strong> and types "create a poster for tonight's star party at the Dark Sky Discovery Center." AI generates a graphic in seconds. She exports it, opens <strong>Social Media</strong>, and schedules posts to Instagram, Facebook, and X. Then she opens <strong>Text Blasts</strong>, picks the "Clear Sky Alert" template, and sends an SMS to all members: <strong>"Clear skies tonight! Observatory open 6-11pm."</strong></p>
+    <div class="without">Alex asks Maria for the event details. Texts Josi for the Instagram password. Opens Canva, spends 45 minutes on a graphic. Posts to Instagram manually. Forgets Facebook. Nobody texts the members.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Design Studio + Text Blasts</div>
+        <div class="hint">Open Design Studio &rarr; show AI generator. Then open Text Blasts &rarr; show phone preview with Clear Sky Alert template.</div>
+      </div>
+      <div class="screenshot-caption">AI-generated graphics, multi-platform posting, and SMS alerts &mdash; all from one screen</div>
+    </div>
+  </div>
+</div>
+
+<!-- 6:00 PM -->
+<div class="content page-break">
+  <div class="time-block">
+    <div class="time-badge">&#127769; 6:00 PM</div>
+    <div class="time-title">The Star Party Fills Up <em>Online</em></div>
+    <div class="time-who">Public Website &rarr; Admin Events</div>
+    <p class="time-story">Members got the text. Visitors see the event on the <strong>website</strong>. They click "Reserve Spot," enter their name and email, and they're confirmed. Inside the admin, Sam at the front desk sees the <strong>ticket count climbing in real time</strong> &mdash; 28 of 40 spots filled. He knows exactly how many walk-ins he can still accept.</p>
+    <div class="without">People call to ask if there's space. Sam checks a paper sign-up sheet. He says "I think so?" Three families drive 45 minutes and get turned away. One of them posts a bad review.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Public Events Page + Admin Events</div>
+        <div class="hint">Show the public /events page with Reserve Spot button. Then show admin Events page with ticket counts.</div>
+      </div>
+      <div class="screenshot-caption">Online reservations &rarr; real-time capacity tracking. No phone calls, no guessing.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 9:00 PM -->
+  <div class="time-block">
+    <div class="time-badge">&#128301; 9:00 PM</div>
+    <div class="time-title">A Visitor Becomes a <em>Member</em></div>
+    <div class="time-who">Public Website &rarr; CRM</div>
+    <p class="time-story">After the star party, a visitor is hooked. She opens the <strong>Membership</strong> page on her phone, picks the Explorer tier ($49/year), and signs up. Instantly, she appears in the <strong>CRM</strong> as a new contact with tags: <strong>Member, Event Attendee</strong>. She gets her Member Portal with a QR code for her next visit. Next time she's in the gift shop, Josi scans her code and she gets 15% off.</p>
+    <div class="without">The visitor asks about membership. Sam hands her a paper form. She fills it out. Sam puts it in a pile. Nancy enters it into a spreadsheet next week. The visitor comes back before then and doesn't get her discount. She's annoyed.</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Membership Page + CRM Contact</div>
+        <div class="hint">Show public /membership page with tiers. Then show CRM with a member contact profile and timeline.</div>
+      </div>
+      <div class="screenshot-caption">Signup &rarr; instant member portal &rarr; appears in CRM with full history. No paper forms.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10:00 PM -->
+<div class="content page-break">
+  <div class="time-block">
+    <div class="time-badge">&#127763; 10:00 PM</div>
+    <div class="time-title">Someone Donates from <em>Home</em></div>
+    <div class="time-who">Public Website &rarr; Donations</div>
+    <p class="time-story">A supporter who saw Alex's Instagram post donates $100 through the <strong>Donate</strong> page. It appears in the admin <strong>Donations</strong> tracker immediately. The <strong>fundraising thermometer</strong> on the Board Meeting view ticks up. The donor appears in the <strong>CRM</strong> with a "Donor" tag. When the board meets next month, the numbers are already there.</p>
+    <div class="without">The donor sends a check in the mail. It arrives in 5 days. Nancy deposits it. She manually enters it in a spreadsheet. She forgets to add it to the board report. The board asks "how's fundraising going?" Nancy says "let me check."</div>
+    <div class="screenshot">
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot: Donate Page + Board Meeting View</div>
+        <div class="hint">Show public /donate page. Then show the Board Meeting view with fundraising thermometer.</div>
+      </div>
+      <div class="screenshot-caption">Online donations &rarr; instant tracking &rarr; board-ready reports. No checks to deposit.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 11:00 PM -->
+  <div class="time-block">
+    <div class="time-badge">&#10022; 11:00 PM</div>
+    <div class="time-title">The Day is <em>Done</em></div>
+    <div class="time-who">Everyone</div>
+    <p class="time-story">The facility closes. Nobody stayed late entering data. Nobody has homework. Every sale, every reservation, every donation, every volunteer hour, every message &mdash; it's all <strong>already in the system</strong>. Tomorrow morning, Dr. J will open his dashboard and see tonight's numbers waiting for him.</p>
+    <div class="result"><strong>Today's results:</strong> 14 gift shop sales, 28 event tickets, 1 new member, $100 donation, 3 volunteer hours logged, 1 field trip confirmed, 2 social posts published, 1 text blast sent to 30 members. Zero spreadsheets. Zero email chains. Zero paper forms.</div>
+  </div>
+</div>
+
+<!-- CLOSING -->
+<div class="content page-break">
+  <div class="summary-box">
+    <h2>This Is How a Modern Museum <em style="font-style: italic; color: #D4AF37;">Runs</em></h2>
+    <p>Every scenario you just read is live and working in MuseumOS today. This is not a concept. It's not a wireframe. It's the platform your team will use on day one.</p>
+  </div>
+
+  <div style="text-align: center; margin: 40px 0;">
+    <div style="font: 500 11px 'JetBrains Mono'; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; margin-bottom: 12px;">Ready to See It Live?</div>
+    <div style="font: 400 16px/1.7 'Inter'; color: #7C7B76; max-width: 480px; margin: 0 auto;">
+      Watch the full demo video or explore the platform yourself. Every button works. Every role is unique. Every portal is connected.
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  MuseumOS &middot; Built by Create &amp; Source &middot; 2026<br>
+  <span style="color: #D4AF37;">info@createandsource.com</span>
+</div>
+
+</body>
+</html>
