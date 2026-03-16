@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useToast } from '../AdminLayout';
+import { useToast, useRole } from '../AdminLayout';
 import PageTour from '../components/PageTour';
 import {
   getOrders, getInventory, getMembers, getEvents,
@@ -147,6 +147,14 @@ export default function Reports() {
   const [, setTick] = useState(0);
   const [range, setRange] = useState('30d');
   const toast = useToast();
+  const role = useRole();
+
+  // Role-based section visibility
+  const showRevenue = ['executive_director', 'admin', 'treasurer', 'shop_manager'].includes(role);
+  const showProducts = ['executive_director', 'admin', 'shop_manager', 'shop_staff'].includes(role);
+  const showInventory = ['executive_director', 'admin', 'shop_manager', 'shop_staff'].includes(role);
+  const showMembership = ['executive_director', 'admin', 'treasurer', 'volunteer_coordinator'].includes(role);
+  const showEvents = ['executive_director', 'admin', 'education_director', 'visitor_services'].includes(role);
 
   useEffect(() => {
     const unsub = subscribe(() => setTick(t => t + 1));
@@ -345,7 +353,14 @@ export default function Reports() {
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title" style={{ color: '#1E293B' }}>Reports</h1>
-          <p className="admin-page-subtitle" style={{ color: '#64748B' }}>Business overview — calculated from real data</p>
+          <p className="admin-page-subtitle" style={{ color: '#64748B' }}>{
+            role === 'treasurer' ? 'Financial reports and membership analytics' :
+            role === 'shop_manager' || role === 'shop_staff' ? 'Sales, inventory, and product analytics' :
+            role === 'education_director' ? 'Events and program analytics' :
+            role === 'visitor_services' ? 'Visitor and event analytics' :
+            role === 'volunteer_coordinator' ? 'Membership and community analytics' :
+            'Business overview — calculated from real data'
+          }</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div id="tour-reports-period" style={{ display: 'flex', gap: 0, border: '1px solid #E2E8F0', borderRadius: 6, overflow: 'hidden' }}>
@@ -364,13 +379,13 @@ export default function Reports() {
       </div>
 
       {/* Revenue Summary */}
-      <SummaryCard>
+      {showRevenue && <SummaryCard>
         {revenueChangePct !== null && revenueChangePct >= 0 ? '+ ' : ''}
         {revenueSummaryText}
-      </SummaryCard>
+      </SummaryCard>}
 
       {/* TOP STATS */}
-      <div id="tour-reports-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 }} className="reports-stats-6">
+      {showRevenue && <div id="tour-reports-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 }} className="reports-stats-6">
         <div style={panelStyle}>
           <div style={{ font: `500 13px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8', marginBottom: 6 }}>Total Revenue</div>
           <div style={{ font: `600 22px ${FONT}`, color: '#D4AF37' }}>{fmt(totalRevenue)}</div>
@@ -401,10 +416,10 @@ export default function Reports() {
           <div style={{ font: `600 22px ${FONT}`, color: '#D4AF37' }}>{fmt(avgOrderValue)}</div>
           <div style={{ font: `400 14px ${FONT}`, color: '#94A3B8', marginTop: 4 }}>per transaction</div>
         </div>
-      </div>
+      </div>}
 
       {/* TWO COLUMN: Top Products + Channel Breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }} className="reports-grid-2">
+      {showProducts && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }} className="reports-grid-2">
         {/* Top Products */}
         <div style={panelStyle}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -439,11 +454,12 @@ export default function Reports() {
             <DonutChart data={channelData} />
           )}
         </div>
-      </div>
+      </div>}
 
       {/* TWO COLUMN: Inventory Health + Membership */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }} className="reports-grid-2">
+      <div style={{ display: 'grid', gridTemplateColumns: showInventory && showMembership ? '1fr 1fr' : '1fr', gap: 24, marginBottom: 24 }} className="reports-grid-2">
         {/* Inventory Health */}
+        {showInventory &&
         <div style={panelStyle}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -514,10 +530,10 @@ export default function Reports() {
               })}
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Membership Stats */}
-        <div style={panelStyle}>
+        {showMembership && <div style={panelStyle}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: 0 }}>Membership</h3>
@@ -576,7 +592,7 @@ export default function Reports() {
           {tiers.length === 0 && (
             <div style={{ padding: 20, textAlign: 'center', color: '#94A3B8', font: `400 14px ${FONT}` }}>No members yet</div>
           )}
-        </div>
+        </div>}
       </div>
 
       <style>{`
