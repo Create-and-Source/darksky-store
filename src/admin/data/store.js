@@ -50,7 +50,7 @@ export const subscribe = (fn) => { listeners.add(fn); return () => listeners.del
 const notify = () => listeners.forEach(fn => fn());
 
 // ── INIT ──
-const DATA_VERSION = '3.4';
+const DATA_VERSION = '3.5';
 
 export function initStore() {
   // Version check — clear all ds_ keys and re-seed if version mismatch

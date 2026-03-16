@@ -53,9 +53,9 @@ const ROLE_ALLOWED_ROUTES = {
   shop_manager: ['', '/messages', '/pos', '/products', '/orders', '/inventory', '/purchase-orders', '/receive', '/transfers'],
   shop_staff: ['', '/messages', '/pos', '/orders', '/inventory', '/receive'],
   visitor_services: ['', '/messages', '/pos', '/events', '/reports'],
-  education_director: ['', '/messages', '/events', '/field-trips', '/donations', '/reports'],
+  education_director: ['', '/messages', '/events', '/field-trips', '/donations', '/volunteers', '/reports'],
   social_media: ['', '/messages', '/design-studio', '/social-media', '/emails'],
-  volunteer_coordinator: ['', '/messages', '/events', '/reports'],
+  volunteer_coordinator: ['', '/messages', '/events', '/volunteers', '/reports'],
   payroll: ['', '/messages', '/payroll', '/reports'],
   board: ['', '/messages'],
 };
@@ -117,6 +117,7 @@ const navSections = [
     label: 'Community',
     items: [
       { to: '/admin/donations', icon: Icons.donations, label: 'Donations' },
+      { to: '/admin/volunteers', icon: Icons.volunteers, label: 'Volunteers' },
     ],
   },
   {
@@ -155,9 +156,9 @@ const ROLE_NAV = {
   shop_manager: ['Dashboard', 'Messages', 'POS', 'Products', 'Orders', 'Inventory', 'Purchase Orders', 'Receive', 'Transfers'],
   shop_staff: ['Dashboard', 'Messages', 'POS', 'Orders', 'Inventory', 'Receive'],
   visitor_services: ['Dashboard', 'Messages', 'POS', 'Events', 'Reports'],
-  education_director: ['Dashboard', 'Messages', 'Events', 'Field Trips', 'Donations', 'Reports'],
+  education_director: ['Dashboard', 'Messages', 'Events', 'Field Trips', 'Donations', 'Volunteers', 'Reports'],
   social_media: ['Dashboard', 'Messages', 'Design Studio', 'Social Media', 'Email'],
-  volunteer_coordinator: ['Dashboard', 'Messages', 'Events', 'Reports'],
+  volunteer_coordinator: ['Dashboard', 'Messages', 'Events', 'Volunteers', 'Reports'],
   payroll: ['Dashboard', 'Messages', 'Staff & Time', 'Reports'],
   board: ['Dashboard', 'Messages'],
 };
