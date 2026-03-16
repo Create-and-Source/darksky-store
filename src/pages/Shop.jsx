@@ -884,21 +884,20 @@ const SHOP_CSS = `
 .sp-card {
   cursor: pointer;
   position: relative;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 6px;
-  background: var(--surface, #0a0a1a);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  background: #131318;
   overflow: hidden;
-  transition: transform 0.3s ease, border-color 0.3s;
+  transition: all 0.4s cubic-bezier(.16,1,.3,1);
 }
-.sp-card:hover { transform: translateY(-2px); border-color: rgba(212,175,55,0.3); }
+.sp-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.25); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
 .sp-card-img-wrap {
   position: relative;
-  height: 280px;
+  aspect-ratio: 1/1;
   overflow: hidden;
-  background: #f5f5f0;
-  transition: box-shadow 0.45s cubic-bezier(.16,1,.3,1);
+  background: #eae7e0;
 }
-@media (max-width: 768px) { .sp-card-img-wrap { height: 220px; } }
+.sp-card:hover .sp-card-img-wrap img { transform: scale(1.06); }
 .sp-card:hover .sp-card-img-wrap {
   box-shadow: 0 8px 28px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.3);
 }
@@ -906,6 +905,7 @@ const SHOP_CSS = `
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.7s cubic-bezier(.16,1,.3,1);
   transition: transform 0.55s cubic-bezier(.16,1,.3,1);
   will-change: transform;
 }
@@ -925,27 +925,28 @@ const SHOP_CSS = `
 }
 
 /* Card info */
-.sp-card-info { padding: 16px; }
+.sp-card-info { padding: 16px 14px 18px; }
 .sp-card-cat {
-  font: 600 11px/1 'JetBrains Mono', monospace;
-  letter-spacing: 0.14em;
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 6px;
-  opacity: 0.7;
+  margin-bottom: 8px;
+  opacity: 0.6;
 }
 .sp-card-name {
-  font: 400 15px/1.4 'Plus Jakarta Sans', sans-serif;
-  color: rgba(255,255,255,0.9);
-  margin-bottom: 8px;
+  font: 500 15px/1.35 'Playfair Display', serif;
+  color: #F0EDE6;
+  margin-bottom: 10px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .sp-card-price {
-  font: 700 16px/1 'Plus Jakarta Sans', sans-serif;
+  font: 600 14px/1 'JetBrains Mono', monospace;
   color: var(--gold);
+  letter-spacing: 0.02em;
 }
 
 /* ── Badge ── */
