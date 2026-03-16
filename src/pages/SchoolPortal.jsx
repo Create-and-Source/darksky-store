@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { getFieldTrips, updateFieldTrip } from '../admin/data/store';
+import { getFieldTrips, updateFieldTrip, getMessages, addMessage } from '../admin/data/store';
 
 const C = { bg: '#FAFAF8', card: '#FFFFFF', border: '#E8E5DF', gold: '#C5A55A', text: '#1A1A2E', text2: '#7C7B76', muted: '#B5B3AD', success: '#3D8C6F', warning: '#D4943A', danger: '#C45B5B' };
 const FONT = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -353,6 +353,9 @@ export default function SchoolPortal() {
             </div>
           );
         })}
+
+        {/* ── Message Education Director ── */}
+        <SchoolChat schoolName={auth.school} />
       </div>
 
       <style>{`
@@ -360,6 +363,161 @@ export default function SchoolPortal() {
           header > div:nth-child(2) { display: none !important; }
         }
       `}</style>
+    </div>
+  );
+}
+
+/* ── School Chat Component ── */
+function SchoolChat({ schoolName }) {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [expanded, setExpanded] = useState(false);
+  const endRef = useRef(null);
+  const contactName = schoolName || 'School';
+
+  const loadMessages = () => {
+    const all = getMessages();
+    return all.filter(m =>
+      (m.from.name === contactName && m.from.role === 'school') ||
+      (m.to.name === contactName && m.to.role === 'school')
+    ).sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+  };
+
+  useEffect(() => {
+    setMessages(loadMessages());
+    const interval = setInterval(() => setMessages(loadMessages()), 2000);
+    return () => clearInterval(interval);
+  }, [contactName]);
+
+  useEffect(() => {
+    if (expanded) endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages.length, expanded]);
+
+  const send = () => {
+    if (!input.trim()) return;
+    addMessage({
+      from: { name: contactName, role: 'school' },
+      to: { name: 'Maria', role: 'education_director' },
+      text: input.trim(),
+      read: false,
+    });
+    setInput('');
+    setMessages(loadMessages());
+  };
+
+  const handleKey = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  };
+
+  const fmtTime = (ts) => new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+  return (
+    <div style={{
+      background: C.card, border: `1px solid ${C.border}`, borderRadius: 16,
+      overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', marginTop: 24,
+    }}>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          width: '100%', padding: '18px 24px', background: 'none', border: 'none',
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: expanded ? `1px solid ${C.border}` : 'none',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span style={{ font: `600 15px ${FONT}`, color: C.text }}>Message Education Director</span>
+          {messages.filter(m => !m.read && m.from.role !== 'school').length > 0 && (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              minWidth: 18, height: 18, borderRadius: 9, background: '#3B82F6',
+              font: `600 10px ${FONT}`, color: '#fff', padding: '0 5px',
+            }}>
+              {messages.filter(m => !m.read && m.from.role !== 'school').length}
+            </span>
+          )}
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2"
+          style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+          <polyline points="6,9 12,15 18,9"/>
+        </svg>
+      </button>
+
+      {expanded && (
+        <>
+          <div style={{ height: 300, overflowY: 'auto', padding: '16px 20px', background: '#FAFAF8' }}>
+            {messages.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '40px 0', font: `400 14px ${FONT}`, color: C.muted }}>
+                No messages yet. Send a message to Maria, our Education Director.
+              </div>
+            )}
+            {messages.map(msg => {
+              const isSchool = msg.from.role === 'school';
+              return (
+                <div key={msg.id} style={{
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: isSchool ? 'flex-end' : 'flex-start',
+                  marginBottom: 10,
+                }}>
+                  {!isSchool && (
+                    <span style={{ font: `500 11px ${FONT}`, color: C.text2, marginBottom: 3, paddingLeft: 4 }}>
+                      {msg.from.name}
+                    </span>
+                  )}
+                  <div style={{
+                    maxWidth: '80%', padding: '10px 14px', borderRadius: 14,
+                    background: isSchool ? 'linear-gradient(135deg, #C5A55A, #a08520)' : '#FFFFFF',
+                    color: isSchool ? '#fff' : C.text,
+                    border: isSchool ? 'none' : `1px solid ${C.border}`,
+                    font: `400 14px/1.5 ${FONT}`,
+                    borderBottomRightRadius: isSchool ? 4 : 14,
+                    borderBottomLeftRadius: isSchool ? 14 : 4,
+                  }}>
+                    {msg.text}
+                  </div>
+                  <span style={{ font: `400 10px ${MONO}`, color: C.muted, marginTop: 3 }}>
+                    {fmtTime(msg.timestamp)}
+                  </span>
+                </div>
+              );
+            })}
+            <div ref={endRef} />
+          </div>
+
+          <div style={{
+            padding: '12px 16px', borderTop: `1px solid ${C.border}`, background: C.card,
+            display: 'flex', gap: 10,
+          }}>
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKey}
+              placeholder="Type a message to Maria..."
+              style={{
+                flex: 1, padding: '10px 14px', height: 40,
+                border: `1px solid ${C.border}`, borderRadius: 10,
+                font: `400 14px ${FONT}`, color: C.text, background: '#FAFAF8',
+                outline: 'none', boxSizing: 'border-box',
+              }}
+              onFocus={e => e.target.style.borderColor = C.gold}
+              onBlur={e => e.target.style.borderColor = C.border}
+            />
+            <button
+              onClick={send}
+              disabled={!input.trim()}
+              style={{
+                padding: '10px 18px', height: 40, borderRadius: 10, flexShrink: 0,
+                background: input.trim() ? C.gold : C.muted, border: 'none',
+                cursor: input.trim() ? 'pointer' : 'default',
+                font: `600 13px ${FONT}`, color: '#fff',
+                opacity: input.trim() ? 1 : 0.6,
+              }}
+            >Send</button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

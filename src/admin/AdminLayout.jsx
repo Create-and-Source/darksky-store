@@ -49,15 +49,15 @@ const ROLE_BADGE_COLORS = {
 const ROLE_ALLOWED_ROUTES = {
   executive_director: null, // all
   admin: null,
-  treasurer: ['', '/donations', '/reports', '/payroll', '/quickbooks'],
-  shop_manager: ['', '/pos', '/products', '/orders', '/inventory', '/purchase-orders', '/receive', '/transfers'],
-  shop_staff: ['', '/pos', '/orders', '/inventory', '/receive'],
-  visitor_services: ['', '/pos', '/events', '/reports'],
-  education_director: ['', '/events', '/field-trips', '/donations', '/reports'],
-  social_media: ['', '/design-studio', '/social-media', '/emails'],
-  volunteer_coordinator: ['', '/events', '/reports'],
-  payroll: ['', '/payroll', '/reports'],
-  board: [''],
+  treasurer: ['', '/messages', '/donations', '/reports', '/payroll', '/quickbooks'],
+  shop_manager: ['', '/messages', '/pos', '/products', '/orders', '/inventory', '/purchase-orders', '/receive', '/transfers'],
+  shop_staff: ['', '/messages', '/pos', '/orders', '/inventory', '/receive'],
+  visitor_services: ['', '/messages', '/pos', '/events', '/reports'],
+  education_director: ['', '/messages', '/events', '/field-trips', '/donations', '/reports'],
+  social_media: ['', '/messages', '/design-studio', '/social-media', '/emails'],
+  volunteer_coordinator: ['', '/messages', '/events', '/reports'],
+  payroll: ['', '/messages', '/payroll', '/reports'],
+  board: ['', '/messages'],
 };
 
 // ── SVG Icons ──
@@ -128,6 +128,7 @@ const navSections = [
   {
     label: 'Communications',
     items: [
+      { to: '/admin/messages', icon: Icons.email, label: 'Messages' },
       { to: '/admin/emails', icon: Icons.email, label: 'Email' },
       { to: '/admin/text-blasts', icon: Icons.email, label: 'Text Blasts' },
       { to: '/admin/social-media', icon: Icons.socialMedia, label: 'Social Media' },
@@ -150,15 +151,15 @@ const navItems = navSections.flatMap(s => s.items);
 const ROLE_NAV = {
   executive_director: null,
   admin: null,
-  treasurer: ['Dashboard', 'Donations', 'Reports', 'Staff & Time', 'QuickBooks'],
-  shop_manager: ['Dashboard', 'POS', 'Products', 'Orders', 'Inventory', 'Purchase Orders', 'Receive', 'Transfers'],
-  shop_staff: ['Dashboard', 'POS', 'Orders', 'Inventory', 'Receive'],
-  visitor_services: ['Dashboard', 'POS', 'Events', 'Reports'],
-  education_director: ['Dashboard', 'Events', 'Field Trips', 'Donations', 'Reports'],
-  social_media: ['Dashboard', 'Design Studio', 'Social Media', 'Email'],
-  volunteer_coordinator: ['Dashboard', 'Events', 'Reports'],
-  payroll: ['Dashboard', 'Staff & Time', 'Reports'],
-  board: ['Dashboard'],
+  treasurer: ['Dashboard', 'Messages', 'Donations', 'Reports', 'Staff & Time', 'QuickBooks'],
+  shop_manager: ['Dashboard', 'Messages', 'POS', 'Products', 'Orders', 'Inventory', 'Purchase Orders', 'Receive', 'Transfers'],
+  shop_staff: ['Dashboard', 'Messages', 'POS', 'Orders', 'Inventory', 'Receive'],
+  visitor_services: ['Dashboard', 'Messages', 'POS', 'Events', 'Reports'],
+  education_director: ['Dashboard', 'Messages', 'Events', 'Field Trips', 'Donations', 'Reports'],
+  social_media: ['Dashboard', 'Messages', 'Design Studio', 'Social Media', 'Email'],
+  volunteer_coordinator: ['Dashboard', 'Messages', 'Events', 'Reports'],
+  payroll: ['Dashboard', 'Messages', 'Staff & Time', 'Reports'],
+  board: ['Dashboard', 'Messages'],
 };
 const READONLY_LABELS = {
   shop_staff: ['Inventory'],
@@ -175,6 +176,7 @@ const breadcrumbMap = {
   '/admin/purchase-orders': 'Purchase Orders',
   '/admin/orders': 'Orders',
   '/admin/events': 'Events',
+  '/admin/messages': 'Messages',
   '/admin/emails': 'Email',
   '/admin/content': 'Content',
   '/admin/reports': 'Reports',

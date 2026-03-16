@@ -35,6 +35,7 @@ const KEYS = {
   volunteerCheckins: 'ds_volunteer_checkins',
   heldSales: 'ds_held_sales',
   fieldTrips: 'ds_field_trips',
+  messages: 'ds_messages',
 };
 
 // ── HELPERS ──
@@ -49,7 +50,7 @@ export const subscribe = (fn) => { listeners.add(fn); return () => listeners.del
 const notify = () => listeners.forEach(fn => fn());
 
 // ── INIT ──
-const DATA_VERSION = '3.3';
+const DATA_VERSION = '3.4';
 
 export function initStore() {
   // Version check — clear all ds_ keys and re-seed if version mismatch
@@ -92,6 +93,7 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.volunteerCheckins)) set(KEYS.volunteerCheckins, []);
   if (!localStorage.getItem(KEYS.heldSales)) set(KEYS.heldSales, []);
   if (!localStorage.getItem(KEYS.fieldTrips)) set(KEYS.fieldTrips, DEFAULT_FIELD_TRIPS);
+  if (!localStorage.getItem(KEYS.messages)) set(KEYS.messages, DEFAULT_MESSAGES);
   // Seed physical products into ds_products
   const prods = get(KEYS.products, []);
   if (!prods.find(p => p.id === 'PHYS-001')) {
@@ -757,4 +759,28 @@ const DEFAULT_FIELD_TRIPS = [
   { id: 'FT-006', school: 'Desert Vista High School', district: 'Tempe USD', contact: 'Mrs. Torres', email: 'torres@tempeusd.org', phone: '(480) 555-0206', grade: '9th Grade Earth Science', students: 35, chaperones: 4, program: 'half-day', preferredDate: '2026-05-20', confirmedDate: null, status: 'New', notes: 'First time visiting. Need bus parking info.', space: 'planetarium', createdAt: '2026-03-14T08:00:00Z' },
   { id: 'FT-007', school: 'Fountain Hills High School', district: 'Fountain Hills USD', contact: 'Dr. Reyes', email: 'reyes@fhusd.org', phone: '(480) 555-0207', grade: '11th AP Physics', students: 28, chaperones: 2, program: 'half-day', preferredDate: '2026-04-29', confirmedDate: '2026-04-29', status: 'Confirmed', notes: 'AP Physics class. Want telescope mechanics + optics demo. Dr. J approved.', space: 'observatory', createdAt: '2026-02-28T16:00:00Z' },
   { id: 'FT-008', school: 'Hopi Elementary', district: 'Scottsdale USD', contact: 'Troop Leader Kim', email: 'girlscouts412@email.com', phone: '(480) 555-0208', grade: 'Girl Scouts Troop 412 (Mixed)', students: 20, chaperones: 4, program: 'half-day', preferredDate: '2026-04-19', confirmedDate: '2026-04-19', status: 'Completed', notes: 'Troop visit. Earned Space Science badge. Thank-you card sent.', space: 'exhibit-hall', createdAt: '2026-02-10T12:00:00Z' },
+];
+
+// ═══════ MESSAGES ═══════
+export const getMessages = () => get(KEYS.messages, []);
+export function addMessage(msg) {
+  const all = getMessages();
+  const newMsg = { id: genId('MSG'), ...msg, timestamp: msg.timestamp || new Date().toISOString(), read: msg.read ?? false };
+  all.push(newMsg);
+  set(KEYS.messages, all);
+  return newMsg;
+}
+
+const DEFAULT_MESSAGES = [
+  { id: 'MSG-000001', conversationId: 'CONV-maria-drj', from: { name: 'Maria', role: 'education_director' }, to: { name: 'Dr. J', role: 'executive_director' }, text: 'The Scottsdale Prep field trip is confirmed for April 22. They\'re bringing 54 students.', timestamp: '2026-03-14T09:15:00Z', read: true },
+  { id: 'MSG-000002', conversationId: 'CONV-maria-drj', from: { name: 'Dr. J', role: 'executive_director' }, to: { name: 'Maria', role: 'education_director' }, text: 'Perfect. Make sure the planetarium is reserved for their group.', timestamp: '2026-03-14T09:22:00Z', read: true },
+  { id: 'MSG-000003', conversationId: 'CONV-maria-drj', from: { name: 'Maria', role: 'education_director' }, to: { name: 'Dr. J', role: 'executive_director' }, text: 'Already done. Also, Chandler STEM Academy wants to book May.', timestamp: '2026-03-14T09:30:00Z', read: false },
+  { id: 'MSG-000004', conversationId: 'CONV-josi-drj', from: { name: 'Josi', role: 'shop_manager' }, to: { name: 'Dr. J', role: 'executive_director' }, text: 'We\'re running low on star map posters. Should I place a PO with the printer?', timestamp: '2026-03-14T10:05:00Z', read: true },
+  { id: 'MSG-000005', conversationId: 'CONV-josi-drj', from: { name: 'Dr. J', role: 'executive_director' }, to: { name: 'Josi', role: 'shop_manager' }, text: 'Yes, order 50. They sold fast last weekend.', timestamp: '2026-03-14T10:12:00Z', read: true },
+  { id: 'MSG-000006', conversationId: 'CONV-nancy-drj', from: { name: 'Nancy', role: 'treasurer' }, to: { name: 'Dr. J', role: 'executive_director' }, text: 'QuickBooks export is done for March. Revenue is up 12% from February.', timestamp: '2026-03-14T11:00:00Z', read: false },
+  { id: 'MSG-000007', conversationId: 'CONV-jordan-maria', from: { name: 'Jordan', role: 'volunteer_coordinator' }, to: { name: 'Maria', role: 'education_director' }, text: 'I have 3 volunteers available for the field trip on the 22nd.', timestamp: '2026-03-14T13:00:00Z', read: true },
+  { id: 'MSG-000008', conversationId: 'CONV-sam-josi', from: { name: 'Sam', role: 'visitor_services' }, to: { name: 'Josi', role: 'shop_manager' }, text: 'A customer asked if we carry telescope eyepieces. Do we?', timestamp: '2026-03-14T14:20:00Z', read: true },
+  { id: 'MSG-000009', conversationId: 'CONV-sam-josi', from: { name: 'Josi', role: 'shop_manager' }, to: { name: 'Sam', role: 'visitor_services' }, text: 'Not yet but it\'s on the wish list. Send them to our website for now.', timestamp: '2026-03-14T14:28:00Z', read: true },
+  { id: 'MSG-000010', conversationId: 'CONV-rodriguez-maria', from: { name: 'Mrs. Rodriguez', role: 'school' }, to: { name: 'Maria', role: 'education_director' }, text: 'Can we add a rocket building activity to our April trip?', timestamp: '2026-03-15T08:00:00Z', read: false },
+  { id: 'MSG-000011', conversationId: 'CONV-rodriguez-maria', from: { name: 'Maria', role: 'education_director' }, to: { name: 'Mrs. Rodriguez', role: 'school' }, text: 'Absolutely! I\'ll add it to your itinerary. Great idea.', timestamp: '2026-03-15T08:15:00Z', read: true },
 ];
