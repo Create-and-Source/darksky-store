@@ -635,9 +635,6 @@ export default function AdminLayout() {
         {/* Help Chatbot */}
         <HelpChatbot />
 
-        {/* Demo Teleprompter */}
-        {demoMode && <DemoScript />}
-
         {/* Quick Search Modal */}
         {quickSearchOpen && (
           <>

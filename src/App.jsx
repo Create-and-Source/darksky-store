@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import { EditModeProvider, EditToggleButton, EditBanner } from './components/EditMode';
 import { initStore } from './admin/data/store';
+import DemoScript from './admin/components/DemoScript';
 import Home from './pages/Home';
 import About from './pages/About';
 import Events from './pages/Events';
@@ -257,8 +258,25 @@ initStore();
 export default function App() {
   const [cart, setCart] = useState(loadCart);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [demoMode, setDemoMode] = useState(() => localStorage.getItem('ds_demo_mode') === 'true');
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Ctrl+Shift+D toggles demo mode globally
+  useEffect(() => {
+    const handle = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        setDemoMode(prev => {
+          const next = !prev;
+          localStorage.setItem('ds_demo_mode', String(next));
+          return next;
+        });
+      }
+    };
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, []);
 
   // Sync cart to localStorage on every change
   useEffect(() => { saveCart(cart); }, [cart]);
@@ -383,6 +401,7 @@ export default function App() {
 
         {!hideChrome && <Footer />}
       </div>
+      {demoMode && <DemoScript />}
     </EditModeProvider>
   );
 }

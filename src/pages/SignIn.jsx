@@ -112,6 +112,7 @@ export default function SignIn() {
               {ADMIN_ROLES.map((r) => (
                 <div
                   key={r.role}
+                  data-role={r.role}
                   className={`si-card${hovered === r.role ? ' hovered' : ''}`}
                   onClick={() => handleSelect(r)}
                   onMouseEnter={() => setHovered(r.role)}

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 const STEPS = [
   // INTRO
   { section: 'Introduction', say: "This is MuseumOS \u2014 a complete platform for running the International Dark Sky Discovery Center. Every role gets their own dashboard, their own tools, and their own experience.", click: null, target: null, see: "Sign In page with Admin roles on left, Portals on right" },
-  { section: 'Introduction', say: "Let me sign in as Dr. J, the Executive Director, who sees everything.", click: "Executive Director card", target: null, see: "Full executive dashboard loads" },
+  { section: 'Introduction', say: "Let me sign in as Dr. J, the Executive Director, who sees everything.", click: "Executive Director card", target: '[data-role="executive_director"]', see: "Full executive dashboard loads" },
 
   // DASHBOARD
   { section: 'Dashboard', say: "This is the command center. Revenue, members, events, fundraising \u2014 everything at a glance. These numbers are live from the system.", click: null, target: null, see: "KPIs, revenue chart, activity feed, calendar" },
