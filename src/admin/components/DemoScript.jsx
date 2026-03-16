@@ -7,7 +7,7 @@ const STEPS = [
 
   // DASHBOARD
   { section: 'Dashboard', say: "This is the command center. Revenue, members, events, fundraising \u2014 everything at a glance. These numbers are live from the system.", click: null, target: null, see: "KPIs, revenue chart, activity feed, calendar" },
-  { section: 'Dashboard', say: "The announcement bar up top controls what visitors see on the website. Let me update it.", click: "Announcement bar toggle", target: '.ds-announcement-toggle', see: "Announcement updates \u2014 point to storefront window to show it changed" },
+  { section: 'Dashboard', say: "The announcement bar up top controls what visitors see on the website. Let me update it.", click: "Announcement bar text or toggle", target: null, see: "Announcement updates \u2014 point to storefront window to show it changed" },
 
   // MESSAGES
   { section: 'Messages', say: "No more email chains. Everyone communicates inside the platform. Maria messaged about a field trip, Josi needs to reorder posters.", click: "Messages in sidebar", target: 'a[href="/admin/messages"]', see: "Conversation list with unread badges" },
@@ -158,13 +158,19 @@ export default function DemoScript() {
       const el = document.querySelector(current.target);
       if (!el) { setHighlightRect(null); return; }
       const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) { setHighlightRect(null); return; }
       setHighlightRect({ top: r.top, left: r.left, width: r.width, height: r.height });
     };
-    // Small delay to let page render after navigation
-    const timer = setTimeout(findEl, 300);
+    // Try multiple times in case page is still rendering
+    findEl();
+    const t1 = setTimeout(findEl, 200);
+    const t2 = setTimeout(findEl, 600);
+    const t3 = setTimeout(findEl, 1200);
+    // Keep updating position
+    const poll = setInterval(findEl, 1000);
     window.addEventListener('scroll', findEl);
     window.addEventListener('resize', findEl);
-    return () => { clearTimeout(timer); window.removeEventListener('scroll', findEl); window.removeEventListener('resize', findEl); };
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearInterval(poll); window.removeEventListener('scroll', findEl); window.removeEventListener('resize', findEl); };
   }, [step, visible, current]);
 
   if (!visible) {
