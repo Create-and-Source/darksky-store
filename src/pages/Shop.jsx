@@ -893,22 +893,19 @@ const SHOP_CSS = `
 .sp-card:hover { transform: translateY(-2px); border-color: rgba(212,175,55,0.3); }
 .sp-card-img-wrap {
   position: relative;
-  height: 250px;
+  height: 280px;
   overflow: hidden;
   background: #f5f5f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: box-shadow 0.45s cubic-bezier(.16,1,.3,1);
 }
-@media (max-width: 768px) { .sp-card-img-wrap { height: 200px; } }
+@media (max-width: 768px) { .sp-card-img-wrap { height: 220px; } }
 .sp-card:hover .sp-card-img-wrap {
   box-shadow: 0 8px 28px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.3);
 }
 .sp-card-img {
-  max-width: 90%;
-  max-height: 220px;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: transform 0.55s cubic-bezier(.16,1,.3,1);
   will-change: transform;
 }
