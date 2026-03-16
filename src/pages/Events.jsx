@@ -82,7 +82,18 @@ export default function Events() {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('All');
   const [reserveEvent, setReserveEvent] = useState(null);
-  const [resForm, setResForm] = useState({ name: '', email: '', qty: 1 });
+  const [resForm, setResForm] = useState(() => {
+    // Pre-fill from logged-in member/user
+    try {
+      const auth = JSON.parse(localStorage.getItem('ds_auth_user') || '{}');
+      const members = JSON.parse(localStorage.getItem('ds_members') || '[]');
+      const member = members.find(m => m.status === 'Active');
+      if (auth.role === 'member' && member) {
+        return { name: member.name || '', email: member.email || '', qty: 1 };
+      }
+    } catch {}
+    return { name: '', email: '', qty: 1 };
+  });
   const [resSuccess, setResSuccess] = useState(false);
   const [, setTick] = useState(0);
 

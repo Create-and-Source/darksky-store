@@ -13,9 +13,21 @@ const US_STATES = [
 
 export default function Checkout({ cart, onOrderComplete }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    email: '', firstName: '', lastName: '', phone: '',
-    address1: '', address2: '', city: '', state: '', zip: '',
+  const [form, setForm] = useState(() => {
+    // Pre-fill from logged-in member
+    try {
+      const auth = JSON.parse(localStorage.getItem('ds_auth_user') || '{}');
+      const members = JSON.parse(localStorage.getItem('ds_members') || '[]');
+      const member = members.find(m => m.status === 'Active');
+      if (auth.role === 'member' && member) {
+        const names = (member.name || '').split(' ');
+        return {
+          email: member.email || '', firstName: names[0] || '', lastName: names.slice(1).join(' ') || '', phone: '',
+          address1: '', address2: '', city: 'Fountain Hills', state: 'AZ', zip: '',
+        };
+      }
+    } catch {}
+    return { email: '', firstName: '', lastName: '', phone: '', address1: '', address2: '', city: '', state: '', zip: '' };
   });
   const [placing, setPlacing] = useState(false);
   const [errors, setErrors] = useState({});
