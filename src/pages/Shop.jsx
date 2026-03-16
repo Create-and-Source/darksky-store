@@ -1462,32 +1462,60 @@ const SHOP_CSS = `
   .sp-cats { gap: 0; padding: 0 4px; }
   .sp-cat { padding: 14px 12px; font-size: 11px; letter-spacing: 0.04em; }
 
-  .sp-masonry-row { gap: 6px; margin-bottom: 6px; }
-  .sp-grid--uniform { gap: 6px; }
-  .sp-card-img-wrap { margin-bottom: 6px; max-height: 160px; border-radius: 4px; }
-  .sp-masonry-lg .sp-card-img-wrap { max-height: 160px; }
-  .sp-card-name { font-size: 12px; line-height: 1.3; }
-  .sp-card-price { font-size: 13px; }
-  .sp-card-cat { font-size: 8px; margin-bottom: 3px; }
-  .sp-card-info { padding: 0; }
-  .sp-qa { height: 32px; font-size: 9px; gap: 4px; padding: 0 8px; }
-  .sp-qa svg { width: 12px; height: 12px; }
+  /* All masonry rows become clean 2-column grid */
+  .sp-masonry-row,
+  .sp-masonry--lg-md,
+  .sp-masonry--md-lg,
+  .sp-masonry--3,
+  .sp-masonry--2,
+  .sp-masonry--2-filler,
+  .sp-masonry--1 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; margin-bottom: 8px; }
+  .sp-masonry--1 { max-width: none; }
+  .sp-masonry-side { flex-direction: row; gap: 8px; }
+  .sp-grid--uniform { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  .sp-card { max-width: none; max-height: none; }
+  .sp-card-img-wrap { margin-bottom: 8px; max-height: 200px; border-radius: 6px; }
+  .sp-masonry-lg .sp-card-img-wrap { max-height: 200px; }
+  .sp-card-name { font-size: 13px; line-height: 1.35; }
+  .sp-card-price { font-size: 14px; }
+  .sp-card-cat { font-size: 9px; margin-bottom: 3px; }
+  .sp-card-info { padding: 0 2px; }
+  .sp-qa { height: 36px; font-size: 10px; gap: 4px; padding: 0 10px; }
+
+  /* Staff picks: horizontal scroll */
+  .sp-featured {
+    display: flex !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory; gap: 12px !important; padding-bottom: 8px !important;
+    scrollbar-width: none;
+  }
+  .sp-featured::-webkit-scrollbar { display: none; }
+  .sp-featured > div { min-width: 260px; max-width: 280px; flex-shrink: 0; scroll-snap-align: start; }
+  .sp-featured .sp-card { max-width: none; }
+  .sp-featured .sp-card-img-wrap { max-height: 180px; }
+
+  /* Category cards: horizontal scroll */
+  .sp-cat-cards {
+    display: flex !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory; gap: 8px !important; padding-bottom: 8px !important;
+    scrollbar-width: none;
+  }
+  .sp-cat-cards::-webkit-scrollbar { display: none; }
+  .sp-cat-cards > div { min-width: 140px; max-width: 160px; flex-shrink: 0; scroll-snap-align: start; }
+  .sp-cat-card-name { font-size: 14px !important; }
+  .sp-cat-card-count { font-size: 9px !important; }
+
   .sp-trust-section { padding: 32px 12px; }
-  .sp-trust-grid { gap: 12px; }
+  .sp-trust-grid { gap: 12px; grid-template-columns: repeat(2, 1fr) !important; }
   .sp-trust-icon { width: 36px; height: 36px; margin-bottom: 8px; }
   .sp-trust-label { font-size: 11px; }
   .sp-trust-sub { font-size: 10px; }
-  .sp-lifestyle { height: 110px; border-radius: 4px; }
-  .sp-lifestyle-title { font-size: 18px !important; }
-  .sp-lifestyle-sub { font-size: 11px !important; }
-  .sp-cat-cards { gap: 6px; }
-  .sp-cat-card-name { font-size: 14px !important; }
-  .sp-cat-card-count { font-size: 9px !important; }
-  .sp-newsletter { padding: 20px 16px; gap: 12px; }
+  .sp-lifestyle { height: 140px; border-radius: 6px; }
+  .sp-lifestyle-title { font-size: 20px !important; }
+  .sp-lifestyle-sub { font-size: 12px !important; }
+  .sp-newsletter { padding: 24px 16px; gap: 12px; }
   .sp-newsletter-title { font-size: 15px !important; }
   .sp-help { padding: 16px 12px; font-size: 12px; }
-  .sp-load-btn { padding: 14px 28px; font-size: 11px; }
-  .sp-featured { gap: 8px; }
-  .sp-featured .sp-card-img-wrap { max-height: 140px; }
+  .sp-load-btn { padding: 14px 28px; font-size: 12px; }
+  .sp-filler-wrap { display: none !important; }
 }
 `;
