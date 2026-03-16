@@ -335,7 +335,6 @@ export default function Membership() {
         @media (max-width: 480px) {
           .vid-divider { height: 180px; }
           .vid-divider-overlay-top, .vid-divider-overlay-bottom { height: 50px; }
-          .mem-perks-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>
