@@ -245,8 +245,28 @@ export default function POS() {
             <div style={{ font: `700 18px ${FONT}`, color: C.text }}>Checkout</div>
             {member && <span style={{ font: `600 11px ${MONO}`, color: C.success, background: `${C.success}15`, padding: '4px 10px', borderRadius: 4 }}>{member.name} — {member.tier} ({Math.round((MEMBER_DISCOUNTS[member.tier] || 0) * 100)}% off)</span>}
           </div>
-          <button onClick={() => setCheckoutMode(false)} style={{ font: `500 13px ${FONT}`, color: C.text2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 16px', cursor: 'pointer' }}>Full View</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={scanning ? stopScan : startScan} style={{ font: `600 12px ${FONT}`, color: scanning ? '#fff' : C.gold, background: scanning ? '#EF4444' : 'rgba(212,175,55,0.08)', border: `1px solid ${scanning ? '#EF4444' : 'rgba(212,175,55,0.2)'}`, borderRadius: 8, padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+              {scanning ? 'Stop' : 'Scan Member'}
+            </button>
+            <button onClick={() => setCheckoutMode(false)} style={{ font: `500 13px ${FONT}`, color: C.text2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 16px', cursor: 'pointer' }}>Full View</button>
+          </div>
         </div>
+
+        {/* Camera for QR scan */}
+        {scanning && (
+          <div style={{ padding: '0 24px 12px', background: C.card }}>
+            <div style={{ borderRadius: 8, overflow: 'hidden', position: 'relative', background: '#000' }}>
+              <video ref={videoRef} style={{ width: '100%', height: 140, objectFit: 'cover' }} playsInline />
+              <canvas ref={canvasRef} style={{ display: 'none' }} />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '60%', height: 2, background: C.gold, opacity: 0.8, animation: 'posScanLine 2s ease-in-out infinite' }} />
+              </div>
+              <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', padding: '4px 12px', background: 'rgba(0,0,0,0.6)', borderRadius: 4, font: `500 11px ${FONT}`, color: '#fff' }}>Point at member QR code</div>
+            </div>
+          </div>
+        )}
 
         {/* Search bar — big and prominent */}
         <div style={{ padding: '16px 24px', borderBottom: `1px solid ${C.border}`, background: C.card }}>
