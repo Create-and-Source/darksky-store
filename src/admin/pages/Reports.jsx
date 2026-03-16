@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useToast, useRole } from '../AdminLayout';
 import PageTour from '../components/PageTour';
 import {
-  getOrders, getInventory, getMembers, getEvents,
+  getOrders, getInventory, getMembers, getEvents, getVolunteers, getVolunteerHours,
   formatPrice, getStockStatus, subscribe,
 } from '../data/store';
 
@@ -155,6 +155,7 @@ export default function Reports() {
   const showInventory = ['executive_director', 'admin', 'shop_manager', 'shop_staff'].includes(role);
   const showMembership = ['executive_director', 'admin', 'treasurer', 'volunteer_coordinator'].includes(role);
   const showEvents = ['executive_director', 'admin', 'education_director', 'visitor_services'].includes(role);
+  const showVolunteers = ['executive_director', 'admin', 'volunteer_coordinator'].includes(role);
 
   useEffect(() => {
     const unsub = subscribe(() => setTick(t => t + 1));
@@ -594,6 +595,56 @@ export default function Reports() {
           )}
         </div>}
       </div>
+
+      {/* Volunteers Report */}
+      {showVolunteers && (() => {
+        const volunteers = getVolunteers();
+        const vHours = getVolunteerHours();
+        const active = volunteers.filter(v => v.status === 'Active');
+        const thisMonth = new Date().toISOString().slice(0, 7);
+        const monthHours = vHours.filter(h => (h.date || '').startsWith(thisMonth)).reduce((s, h) => s + (h.hours || 0), 0);
+        const totalHours = vHours.reduce((s, h) => s + (h.hours || 0), 0);
+        const certCount = new Set(volunteers.flatMap(v => v.certifications || [])).size;
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }} className="reports-grid-2">
+            <div style={panelStyle}>
+              <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: '0 0 16px' }}>Volunteer Overview</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                <div style={{ padding: 14, background: '#FAFAF8', border: '1px solid #E2E8F0', borderRadius: 6, textAlign: 'center' }}>
+                  <div style={{ font: `600 24px ${FONT}`, color: '#D4AF37', marginBottom: 2 }}>{active.length}</div>
+                  <div style={{ font: `500 11px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8' }}>Active Volunteers</div>
+                </div>
+                <div style={{ padding: 14, background: '#FAFAF8', border: '1px solid #E2E8F0', borderRadius: 6, textAlign: 'center' }}>
+                  <div style={{ font: `600 24px ${FONT}`, color: '#1E293B', marginBottom: 2 }}>{volunteers.length}</div>
+                  <div style={{ font: `500 11px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8' }}>Total Roster</div>
+                </div>
+                <div style={{ padding: 14, background: '#FAFAF8', border: '1px solid #E2E8F0', borderRadius: 6, textAlign: 'center' }}>
+                  <div style={{ font: `600 24px ${FONT}`, color: '#D4AF37', marginBottom: 2 }}>{monthHours}</div>
+                  <div style={{ font: `500 11px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8' }}>Hours This Month</div>
+                </div>
+                <div style={{ padding: 14, background: '#FAFAF8', border: '1px solid #E2E8F0', borderRadius: 6, textAlign: 'center' }}>
+                  <div style={{ font: `600 24px ${FONT}`, color: '#1E293B', marginBottom: 2 }}>{certCount}</div>
+                  <div style={{ font: `500 11px ${FONT}`, letterSpacing: '1px', textTransform: 'uppercase', color: '#94A3B8' }}>Certifications</div>
+                </div>
+              </div>
+            </div>
+            <div style={panelStyle}>
+              <h3 style={{ font: `500 15px ${FONT}`, color: '#1E293B', margin: '0 0 16px' }}>Volunteer Roster</h3>
+              {volunteers.length === 0 ? (
+                <div style={{ padding: 20, textAlign: 'center', color: '#94A3B8', font: `400 14px ${FONT}` }}>No volunteers yet</div>
+              ) : volunteers.map(v => (
+                <div key={v.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #F1F5F9' }}>
+                  <div>
+                    <div style={{ font: `500 14px ${FONT}`, color: '#1E293B' }}>{v.name}</div>
+                    <div style={{ font: `400 12px ${FONT}`, color: '#94A3B8' }}>{v.role} · {(v.availability || []).join(', ')}</div>
+                  </div>
+                  <span style={{ font: `600 11px ${FONT}`, padding: '3px 10px', borderRadius: 4, background: v.status === 'Active' ? '#E8F5E9' : '#FFF3E0', color: v.status === 'Active' ? '#3D8C6F' : '#D4943A' }}>{v.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Events Report */}
       {showEvents && (() => {
