@@ -98,7 +98,7 @@ const HARDCODED_EVENTS = [
 
 const FACILITY = [
   { title: 'Dark Sky Observatory', desc: 'Home to the largest telescope in Greater Phoenix — a 27.5-inch PlaneWave CDK700, fully remotely operable.', img: '/images/darksky/observatory-hero.jpg' },
-  { title: 'Hyperspace Planetarium', desc: 'A 65-seat immersive dome theater with state-of-the-art laser projection on a 39-foot tilted dome.', img: '/images/darksky/nebula.jpg' },
+  { title: 'Hyperspace Planetarium', desc: 'A 65-seat immersive dome theater with state-of-the-art laser projection on a 39-foot tilted dome.', img: '/images/darksky/andromeda.jpg' },
   { title: 'Inspiration Theater', desc: 'A 150-seat multi-use space for lectures, community events, and visiting speakers.', img: '/images/darksky/milky-way.jpg' },
   { title: 'Night Sky Experience', desc: '3,300 square feet of interactive exhibits exploring the connection between dark skies and life on Earth.', img: '/images/darksky/first-light-nebula.jpg' },
 ];
