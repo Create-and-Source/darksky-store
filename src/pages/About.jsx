@@ -164,14 +164,6 @@ export default function About() {
 
       <SectionSep />
 
-      <VideoDivider
-        src="/videos/darksky/saturn-rings.mp4"
-        title="A Window to the Observable Universe"
-        subtitle="From Saturn's rings to distant galaxies — our observatory brings the cosmos within reach."
-      />
-
-      <SectionSep />
-
       {/* ── IMPACT STATS ── */}
       <RevealSection>
         <div className="about-stats">

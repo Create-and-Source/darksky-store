@@ -184,12 +184,6 @@ export default function Membership() {
 
       {/* ── VIDEO DIVIDER ── */}
       <VideoDivider
-        src="/videos/darksky/milkyway.mp4"
-        title="This Is What You're Protecting"
-        subtitle="Your membership preserves one of the last dark skies near a major American city."
-      />
-
-      <VideoDivider
         src="/videos/darksky/jupiter-storm.mp4"
         title="Get Closer Than You Ever Imagined"
         subtitle="Members get exclusive telescope time and private viewing sessions."

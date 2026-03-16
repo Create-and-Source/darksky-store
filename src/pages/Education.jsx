@@ -66,10 +66,10 @@ const goldGradientStyle = {
 };
 
 const PROGRAMS = [
-  { icon: '✦', img: '/images/darksky/observatory-hero.jpg', label: '01 — Field Trips', title: 'School Field Trips', desc: 'Standards-aligned programs for K-12 students. Planetarium shows, telescope viewing, and hands-on labs. We work with teachers to customize each visit to their curriculum. Free bus subsidies available for Title I schools.', cta: 'Book a Field Trip' },
-  { icon: '✦', img: '/images/darksky/nebula.jpg', label: '02 — Workshops', title: 'Public Workshops', desc: 'Weekend and evening workshops for astronomy enthusiasts of all levels. From beginner stargazing to advanced astrophotography, telescope building, and celestial navigation. All materials included.', cta: 'View Schedule' },
-  { icon: '✦', img: '/images/darksky/milky-way.jpg', label: '03 — Professional Development', title: 'Teacher Training', desc: 'Multi-day institutes for educators looking to bring astronomy into their classrooms. Earn continuing education credits while learning to teach with real astronomical data and NASA resources.', cta: 'Apply Now' },
-  { icon: '✦', img: '/images/darksky/gila-monster.png', label: '04 — Community', title: 'Community Outreach', desc: 'Telescope lending library, dark sky advocacy toolkit, and mobile planetarium visits to underserved communities. We believe everyone deserves access to the night sky.', cta: 'Get Involved' },
+  { img: '/images/darksky/meteor-shower.jpg', label: '01 — Field Trips', title: 'School Field Trips', desc: 'Standards-aligned programs for K-12 students. Planetarium shows, telescope viewing, and hands-on labs. We work with teachers to customize each visit to their curriculum. Free bus subsidies available for Title I schools.', cta: 'Book a Field Trip' },
+  { img: '/images/darksky/comet-neowise.jpg', label: '02 — Workshops', title: 'Public Workshops', desc: 'Weekend and evening workshops for astronomy enthusiasts of all levels. From beginner stargazing to advanced astrophotography, telescope building, and celestial navigation. All materials included.', cta: 'View Schedule' },
+  { img: '/images/darksky/andromeda.jpg', label: '03 — Professional Development', title: 'Teacher Training', desc: 'Multi-day institutes for educators looking to bring astronomy into their classrooms. Earn continuing education credits while learning to teach with real astronomical data and NASA resources.', cta: 'Apply Now' },
+  { img: '/images/darksky/desert-night-sky.png', label: '04 — Community', title: 'Community Outreach', desc: 'Telescope lending library, dark sky advocacy toolkit, and mobile planetarium visits to underserved communities. We believe everyone deserves access to the night sky.', cta: 'Get Involved' },
 ];
 
 const STATS = [
@@ -127,9 +127,9 @@ export default function Education() {
                     src={program.img}
                     alt={`${program.title} backdrop`}
                     loading="lazy"
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }}
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }}
                   />
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(4,4,12,0.5)', zIndex: 1 }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(4,4,12,0.4) 0%, rgba(4,4,12,0.6) 100%)', zIndex: 1 }} />
                   <span className="label" style={{ opacity: 0.5, position: 'relative', zIndex: 2, fontSize: 11 }}>{program.label}</span>
                 </div>
                 <div className="edu-program-content" style={i % 2 === 1 ? { direction: 'ltr' } : undefined}>
@@ -204,14 +204,6 @@ export default function Education() {
         subtitle="Education programs for every age and background"
         titleEditable="edu-vid-title"
         subtitleEditable="edu-vid-subtitle"
-      />
-
-      <SectionSep />
-
-      <VideoDivider
-        src="/videos/darksky/tarantula.mp4"
-        title="The Desert Comes Alive"
-        subtitle="After sunset, a hidden world emerges. Our programs bring students face-to-face with it."
       />
 
       <SectionSep />
