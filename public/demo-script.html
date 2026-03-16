@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Demo Script</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #0a0a1a; color: #F0EDE6; overflow: hidden; height: 100vh; touch-action: pan-y; }
+
+  .app { height: 100vh; display: flex; flex-direction: column; }
+
+  .topbar {
+    padding: 12px 20px; background: #1A1A2E; border-bottom: 1px solid rgba(212,175,55,0.2);
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+  .topbar-title { font: 700 14px 'Inter'; color: #D4AF37; }
+  .topbar-step { font: 500 12px 'JetBrains Mono'; color: #64748B; }
+
+  .progress { height: 3px; background: #1A1A2E; flex-shrink: 0; }
+  .progress-bar { height: 100%; background: #D4AF37; transition: width 0.3s; }
+
+  .card-container { flex: 1; overflow: hidden; position: relative; }
+  .card {
+    position: absolute; inset: 0; padding: 32px 24px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 20px;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .card.hidden { opacity: 0; transform: translateX(40px); pointer-events: none; }
+  .card.hidden-left { opacity: 0; transform: translateX(-40px); pointer-events: none; }
+
+  .section-badge {
+    display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+    font: 600 11px 'JetBrains Mono'; letter-spacing: 2px; text-transform: uppercase;
+    color: #D4AF37; background: rgba(212,175,55,0.1); padding: 6px 14px; border-radius: 100px;
+  }
+
+  .say {
+    font: 400 22px/1.5 'Inter'; color: #F0EDE6;
+  }
+
+  .click-box {
+    background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.25);
+    border-radius: 10px; padding: 14px 18px;
+  }
+  .click-label { font: 600 10px 'JetBrains Mono'; letter-spacing: 1.5px; text-transform: uppercase; color: #D4AF37; margin-bottom: 6px; }
+  .click-text { font: 600 16px 'Inter'; color: #D4AF37; }
+
+  .nav-buttons {
+    padding: 16px 20px; background: #1A1A2E; border-top: 1px solid rgba(212,175,55,0.2);
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    gap: 12px;
+  }
+  .nav-btn {
+    font: 600 15px 'Inter'; border: none; border-radius: 10px; padding: 14px 28px;
+    cursor: pointer; transition: all 0.2s; min-height: 48px;
+  }
+  .nav-prev { background: rgba(255,255,255,0.06); color: #94A3B8; flex: 0 0 auto; }
+  .nav-prev:active { background: rgba(255,255,255,0.12); }
+  .nav-prev:disabled { opacity: 0.3; }
+  .nav-next { background: #D4AF37; color: #1A1A2E; flex: 1; max-width: 200px; }
+  .nav-next:active { background: #E5C76B; }
+  .nav-next:disabled { opacity: 0.3; }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+const STEPS = [
+  { section: "Start", say: "This is MuseumOS — a complete platform for running the International Dark Sky Discovery Center. Every role gets their own dashboard, their own tools, and their own experience.", click: "You're on the Sign In page. Show admin roles on the left, portals on the right." },
+  { section: "Start", say: "Let me sign in as Dr. J, the Executive Director, who sees everything.", click: "Click the Executive Director card." },
+
+  { section: "Dashboard", say: "This is the command center. Revenue, members, events, fundraising — everything at a glance.", click: "You're on the Executive Director dashboard. Point out the KPIs and activity feed." },
+  { section: "Dashboard", say: "The announcement bar controls what visitors see on the public website. Changes show up instantly on the storefront.", click: "Point to the announcement section at the top of the dashboard." },
+
+  { section: "Messages", say: "No more email chains. Everyone communicates inside the platform. Maria messaged about a field trip, Josi needs to reorder posters.", click: "Click Messages in the sidebar." },
+  { section: "Messages", say: "Teachers can even message us directly from their School Portal. Everything stays in one place.", click: "Click a conversation and type a quick reply." },
+
+  { section: "POS", say: "This is the register. When a customer walks up to the gift shop, Josi searches or scans a barcode, and it adds to the cart.", click: "Click POS in the sidebar. Type a product name in search." },
+  { section: "POS", say: "If they're a member, scan their QR code for an automatic discount. Then hit Charge — it goes through Square.", click: "Show the member lookup section. Click Charge." },
+
+  { section: "Orders", say: "Every order — online and POS — lands here. When someone checks out on the website, their order appears here instantly.", click: "Click Orders in the sidebar." },
+
+  { section: "Inventory", say: "Every product across both locations. Yellow means low stock, red means out. Velocity shows how fast it sells. Days Left tells you when to reorder.", click: "Click Inventory in the sidebar." },
+
+  { section: "Products", say: "The full catalog — 67 print-on-demand products plus 10 physical gift shop items. Physical products get barcodes. Print them, stick them on products, scan at checkout.", click: "Click Products in the sidebar. Show the Print Barcodes button." },
+
+  { section: "Purchase Orders", say: "When you need to reorder — create a PO. It tracks from Draft to Ordered to Shipped to Received. Inventory updates automatically.", click: "Click Purchase Orders in the sidebar." },
+
+  { section: "Receive", say: "When a shipment arrives, log what came in step by step. Pick location, scan products, enter quantities.", click: "Click Receive in the sidebar." },
+
+  { section: "Transfers", say: "Move stock between the warehouse and gift shop. Create a transfer, mark it shipped, mark it received.", click: "Click Transfers in the sidebar." },
+
+  { section: "Events", say: "Create and manage all events — star parties, planetarium shows, kids programs. Set capacity, pricing, and toggle member-free.", click: "Click Events in the sidebar." },
+  { section: "Events", say: "When someone reserves a spot on the website, it shows up here. Ticket counts update live.", click: "Point to the ticket counts on the event list." },
+
+  { section: "Field Trips", say: "This is critical for Dr. J. Full field trip management — from booking inquiry to completion.", click: "Click Field Trips in the sidebar." },
+  { section: "Field Trips", say: "Click View on any trip to see contact info, status, notes. Schools can check their own status in the School Portal.", click: "Click View on a field trip to open the drawer." },
+
+  { section: "CRM", say: "Every contact in one place — members, donors, event attendees, volunteers, schools. Pulled automatically from every part of the system.", click: "Click Contacts in the sidebar under CRM." },
+
+  { section: "Donations", say: "Track every donation. The fundraising thermometer on the board meeting view pulls from this. The public Donate page feeds directly in.", click: "Click Donations in the sidebar." },
+
+  { section: "Email", say: "Compose email campaigns. Pick your audience — members, event attendees, donors. Templates or custom.", click: "Click Email in the sidebar." },
+
+  { section: "Text Blasts", say: "Same thing for SMS. Clear Sky Alert tonight? One tap, goes to all members.", click: "Click Text Blasts in the sidebar. Pick the Clear Sky Alert template." },
+
+  { section: "Social Media", say: "Schedule posts across Instagram, Facebook, X, and LinkedIn. Draft, schedule, publish — all from one screen.", click: "Click Social Media in the sidebar." },
+
+  { section: "Design Studio", say: "AI-powered poster generator. Describe what you want, it creates it. Export for social or print.", click: "Click Design Studio in the sidebar." },
+
+  { section: "Volunteers", say: "Full volunteer management. Roster, weekly schedule, hour tracking, and a certification matrix.", click: "Click Volunteers in the sidebar. Show each tab." },
+
+  { section: "Staff & Time", say: "Staff roster and time tracking. We track hours — your payroll provider handles taxes. Export to CSV.", click: "Click Staff & Time in the sidebar." },
+
+  { section: "Reports", say: "Analytics for everything — revenue, products, inventory, membership. Each role sees only their relevant data.", click: "Click Reports in the sidebar." },
+
+  { section: "QuickBooks", say: "Export sales, products, customers, and bills as CSV files ready for QuickBooks. Every export is logged.", click: "Click QuickBooks in the sidebar." },
+
+  { section: "Roles", say: "Now watch — every role sees something completely different. Let me switch to Josi, the Gift Shop Manager.", click: "Click the role dropdown in the top right. Switch to Gift Shop Manager." },
+  { section: "Roles", say: "She only sees POS, orders, inventory. No financials, no events. Now switch to Nancy the Treasurer.", click: "Switch to Treasurer in the dropdown." },
+  { section: "Roles", say: "Nancy sees donations, reports, QuickBooks. No inventory, no POS. Now Maria the Education Director.", click: "Switch to Education Director." },
+  { section: "Roles", say: "Maria sees events, field trips, volunteers. Her whole world is programs.", click: "Look at her dashboard — field trip stats and upcoming events." },
+
+  { section: "Board", say: "For board members — a full-screen, projector-ready view. Campaign progress, revenue, membership, events.", click: "Switch to Board Member. Click Open Board Meeting View." },
+
+  { section: "Portals", say: "It's not just for staff. Members, volunteers, and schools each have their own portal.", click: "Go to /signin. Show the Portals section on the right." },
+  { section: "Portals", say: "The Member Portal has a scannable QR code, events with Reserve Spot, and donate — all without leaving the portal.", click: "Click Member Portal." },
+  { section: "Portals", say: "Schools log in, see trip status, preparation checklists, and message the education coordinator directly.", click: "Go back to /signin. Click School Portal. Select a school." },
+  { section: "Portals", say: "Volunteers see their schedule, log hours, track certifications, and clock in with GPS verification.", click: "Go back to /signin. Click Volunteer Portal." },
+
+  { section: "Website", say: "And the public website. Everything connects. Events from admin show here. Products are in the shop. Membership count is live.", click: "Switch to the storefront window. Scroll the homepage." },
+  { section: "Website", say: "The shop, event reservations, membership signups, donations, contact forms — everything feeds into MuseumOS.", click: "Show the shop page, then the events page." },
+
+  { section: "Close", say: "That's MuseumOS. One platform. Every department. Every role. Every stakeholder. The only thing left to connect is Square and QuickBooks API — everything else is built and working.", click: null },
+  { section: "Close", say: "No more spreadsheets. No more email chains. No more 'I didn't know we were out of stock.' This is how a modern museum runs.", click: null },
+];
+
+let current = 0;
+
+function render() {
+  const step = STEPS[current];
+  const total = STEPS.length;
+  const progress = ((current + 1) / total) * 100;
+
+  document.getElementById('app').innerHTML = `
+    <div class="topbar">
+      <div class="topbar-title">Demo Script</div>
+      <div class="topbar-step">${current + 1} / ${total}</div>
+    </div>
+    <div class="progress"><div class="progress-bar" style="width: ${progress}%"></div></div>
+    <div class="card-container">
+      <div class="card">
+        <div class="section-badge">${step.section}</div>
+        <div class="say">${step.say}</div>
+        ${step.click ? `
+          <div class="click-box">
+            <div class="click-label">Do This</div>
+            <div class="click-text">${step.click}</div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="nav-btn nav-prev" onclick="go(-1)" ${current === 0 ? 'disabled' : ''}>Back</button>
+      <button class="nav-btn nav-next" onclick="go(1)" ${current === total - 1 ? 'disabled' : ''}>Next &rarr;</button>
+    </div>
+  `;
+}
+
+function go(dir) {
+  const next = current + dir;
+  if (next < 0 || next >= STEPS.length) return;
+  current = next;
+  render();
+}
+
+// Swipe support
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 60) go(diff > 0 ? 1 : -1);
+});
+
+render();
+</script>
+</body>
+</html>
