@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuseumOS — Proposal for IDSDC</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; color: #1A1A2E; background: #FFFFFF; line-height: 1.6; }
+  @media print { .page-break { page-break-before: always; } .no-print { display: none !important; } }
+
+  .cover { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: linear-gradient(180deg, #1A1A2E 0%, #0a0a1a 100%); color: #F0EDE6; padding: 60px 40px; position: relative; }
+  .cover::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(212,175,55,0.08) 0%, transparent 60%); }
+  .cover > * { position: relative; z-index: 1; }
+  .cover-star { font-size: 48px; color: #D4AF37; margin-bottom: 32px; }
+  .cover h1 { font: 600 52px/1.1 'Playfair Display', serif; margin-bottom: 12px; }
+  .cover h1 em { font-style: italic; color: #D4AF37; }
+  .cover-sub { font: 400 18px/1.6 'Inter'; color: rgba(240,237,230,0.6); margin-bottom: 48px; max-width: 500px; }
+  .cover-for { font: 500 13px 'JetBrains Mono'; letter-spacing: 3px; text-transform: uppercase; color: #D4AF37; margin-bottom: 8px; }
+  .cover-org { font: 400 20px 'Playfair Display'; color: rgba(240,237,230,0.8); margin-bottom: 48px; }
+  .cover-meta { font: 400 12px 'JetBrains Mono'; color: rgba(240,237,230,0.3); letter-spacing: 1px; }
+
+  .content { max-width: 780px; margin: 0 auto; padding: 60px 40px; }
+  h2 { font: 600 28px/1.2 'Playfair Display'; color: #1A1A2E; margin: 0 0 8px; padding-bottom: 16px; border-bottom: 2px solid #D4AF37; }
+  h2 em { font-style: italic; color: #D4AF37; }
+  .section-sub { font: 400 15px/1.6 'Inter'; color: #7C7B76; margin-bottom: 32px; }
+  h3 { font: 600 18px 'Inter'; color: #1A1A2E; margin: 32px 0 16px; }
+
+  .pain { margin-bottom: 40px; }
+  .pain-item { display: flex; gap: 16px; padding: 18px 0; border-bottom: 1px solid #F0EDE8; }
+  .pain-icon { width: 40px; height: 40px; border-radius: 50%; background: #FEF2F2; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .pain-text { flex: 1; }
+  .pain-title { font: 600 15px 'Inter'; color: #1A1A2E; margin-bottom: 4px; }
+  .pain-desc { font: 400 13px/1.5 'Inter'; color: #7C7B76; }
+  .pain-hours { font: 600 12px 'JetBrains Mono'; color: #DC2626; margin-top: 4px; }
+
+  .solve { margin-bottom: 40px; }
+  .solve-item { display: flex; gap: 16px; padding: 18px 0; border-bottom: 1px solid #F0EDE8; }
+  .solve-icon { width: 40px; height: 40px; border-radius: 50%; background: #E6F4EA; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .solve-title { font: 600 15px 'Inter'; color: #1A1A2E; margin-bottom: 4px; }
+  .solve-desc { font: 400 13px/1.5 'Inter'; color: #7C7B76; }
+  .solve-saved { font: 600 12px 'JetBrains Mono'; color: #059669; margin-top: 4px; }
+
+  .compare { width: 100%; border-collapse: collapse; margin: 20px 0 40px; }
+  .compare th { font: 600 11px 'JetBrains Mono'; letter-spacing: 1px; text-transform: uppercase; color: #D4AF37; text-align: left; padding: 12px 16px; border-bottom: 2px solid #E8E5DF; }
+  .compare td { font: 400 14px 'Inter'; color: #1A1A2E; padding: 12px 16px; border-bottom: 1px solid #F0EDE8; }
+  .compare tr:nth-child(even) td { background: #FAFAF8; }
+  .compare .cost { font: 600 14px 'JetBrains Mono'; color: #DC2626; }
+  .compare .free { font: 600 14px 'JetBrains Mono'; color: #059669; }
+  .compare .included { font: 600 11px 'JetBrains Mono'; color: #059669; letter-spacing: 0.5px; }
+
+  .total-row td { font-weight: 700 !important; border-top: 2px solid #1A1A2E; background: #FAFAF8 !important; }
+
+  .plan { border: 2px solid #D4AF37; border-radius: 16px; padding: 40px; margin: 32px 0; text-align: center; background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, transparent 100%); }
+  .plan-label { font: 600 11px 'JetBrains Mono'; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; margin-bottom: 8px; }
+  .plan-price { font: 700 48px 'Playfair Display'; color: #1A1A2E; margin-bottom: 4px; }
+  .plan-period { font: 400 16px 'Inter'; color: #7C7B76; margin-bottom: 24px; }
+  .plan-list { list-style: none; text-align: left; max-width: 400px; margin: 0 auto; }
+  .plan-list li { font: 400 14px/2 'Inter'; color: #1A1A2E; padding-left: 24px; position: relative; }
+  .plan-list li::before { content: '✦'; position: absolute; left: 0; color: #D4AF37; }
+
+  .onetime { background: #FAFAF8; border: 1px solid #E8E5DF; border-radius: 16px; padding: 40px; margin: 32px 0; }
+  .onetime h3 { margin-top: 0; }
+  .onetime-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .onetime-card { border: 1px solid #E8E5DF; border-radius: 10px; padding: 24px; text-align: center; }
+  .onetime-card-title { font: 600 14px 'Inter'; color: #1A1A2E; margin-bottom: 4px; }
+  .onetime-card-desc { font: 400 12px/1.5 'Inter'; color: #7C7B76; margin-bottom: 12px; }
+  .onetime-card-price { font: 700 24px 'Playfair Display'; color: #D4AF37; }
+
+  .hours-box { background: linear-gradient(135deg, #1A1A2E, #0a0a1a); border-radius: 16px; padding: 40px; color: #F0EDE6; margin: 32px 0; }
+  .hours-box h3 { color: #D4AF37; margin-top: 0; text-align: center; }
+  .hours-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+  .hours-card { text-align: center; }
+  .hours-num { font: 700 36px 'Playfair Display'; color: #D4AF37; margin-bottom: 4px; }
+  .hours-label { font: 400 12px 'JetBrains Mono'; color: rgba(240,237,230,0.5); letter-spacing: 1px; text-transform: uppercase; }
+
+  .roi { background: #FEF7E0; border: 1px solid rgba(212,175,55,0.3); border-radius: 16px; padding: 40px; margin: 32px 0; text-align: center; }
+  .roi h3 { margin-top: 0; color: #92700C; }
+  .roi p { font: 400 15px/1.6 'Inter'; color: #92700C; max-width: 500px; margin: 0 auto; }
+
+  .footer-note { text-align: center; padding: 40px; font: 400 12px 'JetBrains Mono'; color: #B5B3AD; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-star">&#10022;</div>
+  <h1>Museum<em>OS</em></h1>
+  <p class="cover-sub">Stop paying for 8 different tools that don't talk to each other. Run everything from one platform.</p>
+  <div class="cover-for">Proposal for</div>
+  <div class="cover-org">International Dark Sky Discovery Center</div>
+  <div class="cover-meta">March 2026 &middot; Create &amp; Source</div>
+</div>
+
+<!-- THE PROBLEM -->
+<div class="content page-break">
+  <h2>Right Now, This Is Your <em>Day</em></h2>
+  <p class="section-sub">Before opening, you're already juggling 8+ tools. Here's what running the IDSDC looks like without a unified system.</p>
+
+  <div class="pain">
+    <div class="pain-item">
+      <div class="pain-icon">&#128203;</div>
+      <div class="pain-text">
+        <div class="pain-title">"What's in stock?" &mdash; Nobody knows</div>
+        <div class="pain-desc">Josi checks the shelf. If it's wrong, she texts Nancy. Nancy checks the spreadsheet. The spreadsheet is from last Tuesday. A customer wants something that's "in stock" but isn't.</div>
+        <div class="pain-hours">~5 hours/week wasted on manual stock checks</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-icon">&#128231;</div>
+      <div class="pain-text">
+        <div class="pain-title">"Did the school email us back?" &mdash; Check your inbox</div>
+        <div class="pain-desc">Mrs. Rodriguez emailed about a field trip. Maria replied. Dr. J was CC'd. The reply went to Maria's personal email. Now nobody can find the confirmation.</div>
+        <div class="pain-hours">~3 hours/week lost in email chains</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-icon">&#128176;</div>
+      <div class="pain-text">
+        <div class="pain-title">"How much did we make this month?" &mdash; Ask Nancy</div>
+        <div class="pain-desc">Nancy manually enters Square receipts into QuickBooks. Gift shop sales, event tickets, membership dues, donations &mdash; all entered separately. Takes a full day every month.</div>
+        <div class="pain-hours">~8 hours/month on manual data entry</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-icon">&#128197;</div>
+      <div class="pain-text">
+        <div class="pain-title">"Who's volunteering Saturday?" &mdash; Check the whiteboard</div>
+        <div class="pain-desc">Jordan writes the schedule on a whiteboard. Volunteers text him to swap shifts. He forgets to update it. Two people show up for the same shift. Nobody shows up for the next one.</div>
+        <div class="pain-hours">~4 hours/week coordinating volunteers</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-icon">&#128241;</div>
+      <div class="pain-text">
+        <div class="pain-title">"Can you post something on Instagram?" &mdash; Who has the password?</div>
+        <div class="pain-desc">Alex needs to post about tonight's star party. The Instagram password is in Nancy's notes app. The photo is on Maria's phone. The event details are in a Google Doc somewhere.</div>
+        <div class="pain-hours">~3 hours/week gathering content</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-icon">&#128100;</div>
+      <div class="pain-text">
+        <div class="pain-title">"Are they a member?" &mdash; Let me check the spreadsheet</div>
+        <div class="pain-desc">A customer says they're a member and wants their discount. Josi asks their name. Opens a Google Sheet. Scrolls. Can't find them. Asks to spell it. The line grows.</div>
+        <div class="pain-hours">~2 hours/week on member lookups</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hours-box">
+    <h3>That's 80+ Hours Every Month</h3>
+    <p style="text-align: center; color: rgba(240,237,230,0.6); font-size: 15px; margin-bottom: 24px;">Spent on tasks that software should handle instantly.</p>
+    <div class="hours-grid">
+      <div class="hours-card"><div class="hours-num">80+</div><div class="hours-label">Hours / Month</div></div>
+      <div class="hours-card"><div class="hours-num">$2,400</div><div class="hours-label">Labor Cost / Month</div></div>
+      <div class="hours-card"><div class="hours-num">$28,800</div><div class="hours-label">Per Year Wasted</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT YOU'RE PAYING FOR NOW -->
+<div class="content page-break">
+  <h2>What You're Paying For <em>Today</em></h2>
+  <p class="section-sub">These are the tools most museums and non-profits cobble together. Each has its own login, its own monthly fee, and none of them share data.</p>
+
+  <table class="compare">
+    <thead>
+      <tr><th>Tool</th><th>What It Does</th><th>Typical Cost</th><th>MuseumOS</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Square POS</td><td>Process payments</td><td class="cost">$60/mo + fees</td><td class="included">&#10003; Integrated</td></tr>
+      <tr><td>Shopify / WooCommerce</td><td>Online store</td><td class="cost">$79/mo</td><td class="included">&#10003; Built in</td></tr>
+      <tr><td>Mailchimp</td><td>Email campaigns</td><td class="cost">$45/mo</td><td class="included">&#10003; Built in</td></tr>
+      <tr><td>Twilio / SimpleTexting</td><td>SMS blasts</td><td class="cost">$30/mo</td><td class="included">&#10003; Built in</td></tr>
+      <tr><td>Argenta / Bloomerang</td><td>Donor CRM</td><td class="cost">$99/mo</td><td class="included">&#10003; Built in</td></tr>
+      <tr><td>QuickBooks Online</td><td>Accounting</td><td class="cost">$55/mo</td><td class="included">&#10003; Export + API</td></tr>
+      <tr><td>Google Sheets</td><td>Inventory, schedules</td><td class="cost">Free (but fragile)</td><td class="included">&#10003; Replaced</td></tr>
+      <tr><td>Canva Pro</td><td>Design / posters</td><td class="cost">$15/mo</td><td class="included">&#10003; AI Studio</td></tr>
+      <tr><td>Eventbrite / SignUpGenius</td><td>Event tickets</td><td class="cost">$0 + fees</td><td class="included">&#10003; Built in</td></tr>
+      <tr><td>Custom website</td><td>Public presence</td><td class="cost">$150/mo hosting</td><td class="included">&#10003; Included</td></tr>
+      <tr class="total-row"><td><strong>Total</strong></td><td></td><td class="cost"><strong>$533+/mo</strong></td><td class="free"><strong>$0 extra</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="roi">
+    <h3>You Save $6,400+/Year in Software Alone</h3>
+    <p>Plus $28,800/year in staff time. That's <strong>$35,200 in annual savings</strong> &mdash; before counting the revenue you gain from a better customer experience, faster operations, and more donations.</p>
+  </div>
+</div>
+
+<!-- WHAT MUSEUMOS REPLACES -->
+<div class="content page-break">
+  <h2>With MuseumOS, It Just <em>Works</em></h2>
+  <p class="section-sub">Every scenario above? Solved. Here's what changes.</p>
+
+  <div class="solve">
+    <div class="solve-item">
+      <div class="solve-icon">&#10003;</div>
+      <div class="solve-text">
+        <div class="solve-title">Inventory is always accurate</div>
+        <div class="solve-desc">When Josi rings up a sale at the POS, inventory updates instantly. When a customer checks out online, same thing. Low stock alerts appear on her dashboard. Reorder suggestions are automatic.</div>
+        <div class="solve-saved">Saves ~5 hours/week</div>
+      </div>
+    </div>
+    <div class="solve-item">
+      <div class="solve-icon">&#10003;</div>
+      <div class="solve-text">
+        <div class="solve-title">Schools message staff inside the platform</div>
+        <div class="solve-desc">Mrs. Rodriguez logs into the School Portal, sees her trip status, and messages Maria directly. Maria sees it in her Messages. No email. No CC. No lost threads.</div>
+        <div class="solve-saved">Saves ~3 hours/week</div>
+      </div>
+    </div>
+    <div class="solve-item">
+      <div class="solve-icon">&#10003;</div>
+      <div class="solve-text">
+        <div class="solve-title">QuickBooks exports in one click</div>
+        <div class="solve-desc">Nancy clicks "Export Sales" and a QuickBooks-ready CSV downloads instantly. Sales, products, customers, bills &mdash; all formatted correctly. Every export is logged.</div>
+        <div class="solve-saved">Saves ~8 hours/month</div>
+      </div>
+    </div>
+    <div class="solve-item">
+      <div class="solve-icon">&#10003;</div>
+      <div class="solve-text">
+        <div class="solve-title">Volunteer schedule is always current</div>
+        <div class="solve-desc">Jordan manages the roster, weekly calendar, and certifications in one place. Volunteers clock in with GPS verification on their phones. Hours log automatically.</div>
+        <div class="solve-saved">Saves ~4 hours/week</div>
+      </div>
+    </div>
+    <div class="solve-item">
+      <div class="solve-icon">&#10003;</div>
+      <div class="solve-text">
+        <div class="solve-title">Social posts, emails, and texts from one screen</div>
+        <div class="solve-desc">Alex drafts a post, generates a graphic with AI, and schedules it across Instagram, Facebook, X, and LinkedIn. Then sends a text blast to members. All from MuseumOS.</div>
+        <div class="solve-saved">Saves ~3 hours/week</div>
+      </div>
+    </div>
+    <div class="solve-item">
+      <div class="solve-icon">&#10003;</div>
+      <div class="solve-text">
+        <div class="solve-title">Members scan a QR code. Discount applied.</div>
+        <div class="solve-desc">The member opens their portal on their phone. Josi scans the QR code at the register. Discount applies automatically based on tier. No spreadsheet. No asking names.</div>
+        <div class="solve-saved">Saves ~2 hours/week</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="content page-break">
+  <h2>Simple <em>Pricing</em></h2>
+  <p class="section-sub">Two options: get the platform running, or get the full experience with a custom website and online shop.</p>
+
+  <div class="plan">
+    <div class="plan-label">MuseumOS Platform</div>
+    <div class="plan-price">$2,500/mo</div>
+    <div class="plan-period">Everything your team needs to operate</div>
+    <ul class="plan-list">
+      <li>All admin dashboards (12 roles)</li>
+      <li>POS with barcode + QR scanning</li>
+      <li>Inventory, orders, purchase orders</li>
+      <li>Event management + online reservations</li>
+      <li>Field trip system + School Portal</li>
+      <li>CRM &mdash; all contacts unified</li>
+      <li>Email campaigns + SMS text blasts</li>
+      <li>Social media scheduler + AI Design Studio</li>
+      <li>Volunteer management + time clock</li>
+      <li>Staff &amp; time tracking</li>
+      <li>Donations + fundraising tracker</li>
+      <li>QuickBooks integration</li>
+      <li>Member Portal with QR code</li>
+      <li>Board meeting presentation view</li>
+      <li>Internal messaging (replaces email)</li>
+      <li>Reports &amp; analytics (role-based)</li>
+      <li>Ongoing support &amp; updates</li>
+    </ul>
+  </div>
+
+  <div class="onetime">
+    <h3>One-Time Setup</h3>
+    <p style="font: 400 14px/1.6 'Inter'; color: #7C7B76; margin-bottom: 20px;">These are built once and included in your platform. You own them.</p>
+    <div class="onetime-grid">
+      <div class="onetime-card">
+        <div class="onetime-card-title">Custom Website</div>
+        <div class="onetime-card-desc">Full public website &mdash; homepage, about, education, events, contact, field trips, membership, donate. Video backgrounds, mobile responsive.</div>
+        <div class="onetime-card-price">$8,000</div>
+      </div>
+      <div class="onetime-card">
+        <div class="onetime-card-title">Online Gift Shop</div>
+        <div class="onetime-card-desc">E-commerce store with 77 products, Printify integration, search, filters, cart, checkout. Connected to admin orders + inventory.</div>
+        <div class="onetime-card-price">$5,000</div>
+      </div>
+      <div class="onetime-card">
+        <div class="onetime-card-title">Backend Connectors</div>
+        <div class="onetime-card-desc">Square payments, QuickBooks API, email delivery (SendGrid), SMS delivery (Twilio), real database, authentication.</div>
+        <div class="onetime-card-price">$7,000</div>
+      </div>
+      <div class="onetime-card">
+        <div class="onetime-card-title">Data Migration</div>
+        <div class="onetime-card-desc">Import existing contacts, members, donors from Argenta. Set up inventory. Train staff on the platform.</div>
+        <div class="onetime-card-price">$2,000</div>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #E8E5DF;">
+      <div style="font: 600 11px 'JetBrains Mono'; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; margin-bottom: 8px;">Total One-Time Setup</div>
+      <div style="font: 700 36px 'Playfair Display'; color: #1A1A2E;">$22,000</div>
+      <div style="font: 400 14px 'Inter'; color: #7C7B76; margin-top: 4px;">Then $2,500/month for the platform</div>
+    </div>
+  </div>
+
+  <div class="roi">
+    <h3>The Math</h3>
+    <p>You're already spending $533/month on disconnected tools + $2,400/month in wasted staff time. That's <strong>$2,933/month going nowhere</strong>. MuseumOS costs $2,500/month and <strong>eliminates both</strong>. You save money from month one.</p>
+  </div>
+</div>
+
+<!-- WHAT'S ALREADY BUILT -->
+<div class="content page-break">
+  <h2>What's Already <em>Built</em></h2>
+  <p class="section-sub">This is not a proposal to build software. The software is built. Here's what's live and working today.</p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px;">
+    <div style="background: #E6F4EA; border-radius: 8px; padding: 16px; text-align: center;"><div style="font: 700 28px 'Playfair Display'; color: #1E8E3E;">22+</div><div style="font: 500 11px 'JetBrains Mono'; color: #1E8E3E; letter-spacing: 1px; text-transform: uppercase;">Modules Built</div></div>
+    <div style="background: #E6F4EA; border-radius: 8px; padding: 16px; text-align: center;"><div style="font: 700 28px 'Playfair Display'; color: #1E8E3E;">12</div><div style="font: 500 11px 'JetBrains Mono'; color: #1E8E3E; letter-spacing: 1px; text-transform: uppercase;">Staff Roles</div></div>
+    <div style="background: #E6F4EA; border-radius: 8px; padding: 16px; text-align: center;"><div style="font: 700 28px 'Playfair Display'; color: #1E8E3E;">3</div><div style="font: 500 11px 'JetBrains Mono'; color: #1E8E3E; letter-spacing: 1px; text-transform: uppercase;">Public Portals</div></div>
+    <div style="background: #E6F4EA; border-radius: 8px; padding: 16px; text-align: center;"><div style="font: 700 28px 'Playfair Display'; color: #1E8E3E;">77</div><div style="font: 500 11px 'JetBrains Mono'; color: #1E8E3E; letter-spacing: 1px; text-transform: uppercase;">Products in Shop</div></div>
+  </div>
+
+  <h3>What's Left (Backend Connectors Only)</h3>
+  <div style="margin-top: 12px;">
+    <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F0EDE8; align-items: center;">
+      <div style="width: 32px; height: 32px; border-radius: 6px; background: #FFF3E0; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">&#128179;</div>
+      <div><div style="font: 500 14px 'Inter'; color: #1A1A2E;">Square Payments</div><div style="font: 400 12px 'Inter'; color: #7C7B76;">Connect POS + checkout to Square for real card processing</div></div>
+    </div>
+    <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F0EDE8; align-items: center;">
+      <div style="width: 32px; height: 32px; border-radius: 6px; background: #FFF3E0; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">&#128218;</div>
+      <div><div style="font: 500 14px 'Inter'; color: #1A1A2E;">QuickBooks API</div><div style="font: 400 12px 'Inter'; color: #7C7B76;">Replace CSV exports with automatic sync</div></div>
+    </div>
+    <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F0EDE8; align-items: center;">
+      <div style="width: 32px; height: 32px; border-radius: 6px; background: #FFF3E0; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">&#128231;</div>
+      <div><div style="font: 500 14px 'Inter'; color: #1A1A2E;">Email + SMS Delivery</div><div style="font: 400 12px 'Inter'; color: #7C7B76;">Connect to SendGrid + Twilio for actual sending</div></div>
+    </div>
+    <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F0EDE8; align-items: center;">
+      <div style="width: 32px; height: 32px; border-radius: 6px; background: #FFF3E0; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">&#128274;</div>
+      <div><div style="font: 500 14px 'Inter'; color: #1A1A2E;">Database + Auth</div><div style="font: 400 12px 'Inter'; color: #7C7B76;">Move from demo mode to real user accounts and persistent data</div></div>
+    </div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #1A1A2E, #0a0a1a); border-radius: 12px; padding: 32px; text-align: center; margin-top: 32px; color: #F0EDE6;">
+    <div style="font: 600 11px 'JetBrains Mono'; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; margin-bottom: 12px;">The Bottom Line</div>
+    <p style="font: 400 16px/1.7 'Inter'; color: rgba(240,237,230,0.8); max-width: 500px; margin: 0 auto;">
+      The platform is not a concept. It's not a wireframe. It's a working application that your staff can use on day one. The backend connectors are standard integrations &mdash; weeks of work, not months.
+    </p>
+  </div>
+</div>
+
+<div class="footer-note">
+  MuseumOS &middot; Built by Create &amp; Source &middot; 2026<br>
+  <span style="color: #D4AF37;">info@createandsource.com</span>
+</div>
+
+</body>
+</html>
