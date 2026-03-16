@@ -1111,6 +1111,7 @@ input:focus, select:focus, textarea:focus {
 
 /* ═══ SMALL PHONE (iPhone SE, iPhone 14, etc.) ═══ */
 @media (max-width: 480px) {
+  body.has-announcement .nav { top: 28px; }
   .section { padding: 48px 12px; }
   .section-sm { padding: 32px 12px; }
   .section-header { margin-bottom: 28px; }

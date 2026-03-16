@@ -130,8 +130,7 @@ export default function Education() {
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }}
                   />
                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(4,4,12,0.5)', zIndex: 1 }} />
-                  <span style={{ fontSize: 64, opacity: 0.6, position: 'relative', zIndex: 2 }}>{program.icon}</span>
-                  <span className="label" style={{ opacity: 0.4, position: 'relative', zIndex: 2 }}>{program.label}</span>
+                  <span className="label" style={{ opacity: 0.5, position: 'relative', zIndex: 2, fontSize: 11 }}>{program.label}</span>
                 </div>
                 <div className="edu-program-content" style={i % 2 === 1 ? { direction: 'ltr' } : undefined}>
                   <span className="label" data-editable={`edu-prog-label-${i}`}>{program.label}</span>

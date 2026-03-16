@@ -102,9 +102,10 @@ function AnnouncementBar() {
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 250,
       background: '#D4AF37', color: '#04040c',
-      padding: '8px 40px 8px 16px', textAlign: 'center',
-      font: "500 11px 'JetBrains Mono', monospace",
+      padding: '6px 40px 6px 16px', textAlign: 'center',
+      font: "500 9px 'JetBrains Mono', monospace",
       letterSpacing: '1px', textTransform: 'uppercase',
+      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
     }}>
       {ann.text}
       <button

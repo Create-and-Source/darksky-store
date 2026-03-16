@@ -619,8 +619,6 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        {/* Tour / Onboarding */}
-        <AdminTour />
 
         {/* Help Chatbot */}
         <HelpChatbot />
