@@ -22,6 +22,7 @@ export default function POS() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [tab, setTab] = useState('current'); // 'current' | 'held'
+  const [checkoutMode, setCheckoutMode] = useState(false);
   const [heldSales, setHeldSales] = useState([]);
   const [memberEmail, setMemberEmail] = useState('');
   const [member, setMember] = useState(null);
@@ -228,6 +229,110 @@ export default function POS() {
     );
   }
 
+  // ── CHECKOUT MODE: clean register view ──
+  if (checkoutMode) {
+    const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const discountAmt = member ? Math.round(subtotal * (MEMBER_DISCOUNTS[member.tier] || 0)) : 0;
+    const afterDiscount = subtotal - discountAmt;
+    const tax = Math.round(afterDiscount * TAX_RATE);
+    const total = afterDiscount + tax;
+
+    return (
+      <div style={{ fontFamily: FONT, height: 'calc(100vh - 56px)', display: 'flex', flexDirection: 'column', background: '#FAFAF8', maxWidth: '100%' }}>
+        {/* Top bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px', borderBottom: `1px solid ${C.border}`, background: C.card }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ font: `700 18px ${FONT}`, color: C.text }}>Checkout</div>
+            {member && <span style={{ font: `600 11px ${MONO}`, color: C.success, background: `${C.success}15`, padding: '4px 10px', borderRadius: 4 }}>{member.name} — {member.tier} ({Math.round((MEMBER_DISCOUNTS[member.tier] || 0) * 100)}% off)</span>}
+          </div>
+          <button onClick={() => setCheckoutMode(false)} style={{ font: `500 13px ${FONT}`, color: C.text2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 16px', cursor: 'pointer' }}>Full View</button>
+        </div>
+
+        {/* Search bar — big and prominent */}
+        <div style={{ padding: '16px 24px', borderBottom: `1px solid ${C.border}`, background: C.card }}>
+          <div style={{ position: 'relative' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="Scan barcode or search product..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && search.trim()) {
+                  const q = search.trim();
+                  const exact = products.find(p => p.id === q || p.id.toLowerCase() === q.toLowerCase());
+                  if (exact) { addToCart(exact); setSearch(''); toast(`Added ${exact.title}`, 'success'); }
+                  else { const f = products.filter(p => p.title.toLowerCase().includes(q.toLowerCase())); if (f.length === 1) { addToCart(f[0]); setSearch(''); toast(`Added ${f[0].title}`, 'success'); } }
+                }
+              }}
+              autoFocus
+              style={{ width: '100%', height: 56, paddingLeft: 48, fontSize: 18, border: `2px solid ${C.border}`, borderRadius: 12, background: '#fff', color: C.text, outline: 'none', fontFamily: FONT, boxSizing: 'border-box' }}
+            />
+          </div>
+          {search.trim() && (
+            <div style={{ marginTop: 8, maxHeight: 200, overflowY: 'auto', border: `1px solid ${C.border}`, borderRadius: 8, background: '#fff' }}>
+              {products.filter(p => { const q = search.toLowerCase(); return p.title.toLowerCase().includes(q) || p.id.toLowerCase() === q; }).slice(0, 8).map(p => (
+                <button key={p.id} onClick={() => { addToCart(p); setSearch(''); toast(`Added ${p.title}`, 'success'); }} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '12px 16px', border: 'none', borderBottom: `1px solid ${C.border}`, background: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: FONT }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 6, background: '#f0ede6', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    {p.images?.[0] ? <img src={p.images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: C.gold }}>&#10022;</span>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ font: `500 14px ${FONT}`, color: C.text }}>{p.title}</div>
+                    <div style={{ font: `500 13px ${MONO}`, color: C.gold }}>{formatPrice(p.price)}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Cart items — scrollable */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
+          {cart.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: C.muted }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>&#128722;</div>
+              <div style={{ font: `500 16px ${FONT}` }}>Scan or search to add items</div>
+            </div>
+          ) : cart.map(item => (
+            <div key={item.cartId} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 0', borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ width: 48, height: 48, borderRadius: 8, background: '#f0ede6', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                {item.images?.[0] ? <img src={item.images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: C.gold, fontSize: 18 }}>&#10022;</span>}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ font: `500 15px ${FONT}`, color: C.text }}>{item.title}</div>
+                <div style={{ font: `400 13px ${MONO}`, color: C.text2 }}>{formatPrice(item.price)} each</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button onClick={() => updateQty(item.id, -1)} style={{ width: 32, height: 32, borderRadius: 6, border: `1px solid ${C.border}`, background: '#fff', cursor: 'pointer', fontSize: 16, color: C.text }}>-</button>
+                <span style={{ font: `600 16px ${FONT}`, color: C.text, minWidth: 24, textAlign: 'center' }}>{item.qty}</span>
+                <button onClick={() => updateQty(item.id, 1)} style={{ width: 32, height: 32, borderRadius: 6, border: `1px solid ${C.border}`, background: '#fff', cursor: 'pointer', fontSize: 16, color: C.text }}>+</button>
+              </div>
+              <div style={{ font: `600 15px ${MONO}`, color: C.gold, minWidth: 70, textAlign: 'right' }}>{formatPrice(item.price * item.qty)}</div>
+              <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 18, padding: 4 }}>&times;</button>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom: totals + charge */}
+        {cart.length > 0 && (
+          <div style={{ borderTop: `2px solid ${C.border}`, padding: '20px 24px', background: C.card }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, font: `400 14px ${FONT}`, color: C.text2 }}>
+              <span>Subtotal ({cart.reduce((s, i) => s + i.qty, 0)} items)</span>
+              <span>{formatPrice(subtotal)}</span>
+            </div>
+            {discountAmt > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, font: `500 14px ${FONT}`, color: C.success }}><span>Member Discount</span><span>-{formatPrice(discountAmt)}</span></div>}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, font: `400 13px ${FONT}`, color: C.text2 }}><span>Tax (8.6%)</span><span>{formatPrice(tax)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, font: `700 22px ${FONT}`, color: C.text }}><span>Total</span><span>{formatPrice(total)}</span></div>
+            <button onClick={handleCharge} style={{ width: '100%', padding: '18px', borderRadius: 12, border: 'none', background: C.gold, color: '#fff', font: `700 18px ${FONT}`, cursor: 'pointer', boxShadow: '0 4px 14px rgba(212,175,55,0.3)' }}>
+              Charge {formatPrice(total)}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <>
     <PageTour storageKey="ds_tour_pos" steps={[
@@ -240,6 +345,7 @@ export default function POS() {
       <div id="tour-pos-products" className="pos-left" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${C.border}`, overflow: 'hidden', background: '#F8F7F4' }}>
         {/* Search + Filters */}
         <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}`, background: C.card, display: 'flex', gap: 12, alignItems: 'center' }}>
+          <button onClick={() => setCheckoutMode(true)} style={{ font: `600 12px ${FONT}`, color: C.gold, background: 'rgba(212,175,55,0.08)', border: `1px solid rgba(212,175,55,0.2)`, borderRadius: 8, padding: '10px 14px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>Checkout Mode</button>
           <div style={{ position: 'relative', flex: 1 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}>
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
