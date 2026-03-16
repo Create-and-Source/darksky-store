@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuseumOS — Everything Your Team Needs</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; color: #1A1A2E; background: #FFFFFF; line-height: 1.7; }
+  @media print { .page-break { page-break-before: always; } }
+
+  .cover { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #1A1A2E; color: #F0EDE6; padding: 60px 40px; }
+  .cover h1 { font: 600 44px/1.2 'Playfair Display', serif; margin-bottom: 16px; max-width: 600px; }
+  .cover h1 em { font-style: italic; color: #D4AF37; }
+  .cover p { font: 300 18px/1.7 'Inter'; color: rgba(240,237,230,0.5); max-width: 500px; }
+
+  .page { max-width: 720px; margin: 0 auto; padding: 60px 40px; }
+
+  h2 { font: 600 26px/1.25 'Playfair Display', serif; color: #1A1A2E; margin: 0 0 24px; }
+  h2 em { font-style: italic; color: #D4AF37; }
+
+  .intro { font: 300 17px/1.8 'Inter'; color: #4A4A5A; margin-bottom: 40px; }
+
+  .person { margin-bottom: 48px; }
+  .person-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px solid #D4AF37; }
+  .person-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #D4AF37, #a08520); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .person-name { font: 700 20px 'Inter'; color: #1A1A2E; }
+  .person-role { font: 400 14px 'Inter'; color: #D4AF37; }
+
+  .gets { list-style: none; padding: 0; }
+  .gets li { padding: 10px 0; border-bottom: 1px solid #F0EDE8; font: 400 15px/1.6 'Inter'; color: #1A1A2E; display: flex; gap: 12px; }
+  .gets li::before { content: '✦'; color: #D4AF37; flex-shrink: 0; margin-top: 2px; }
+
+  .replaces { background: #FEF2F2; border-radius: 10px; padding: 20px 24px; margin-top: 16px; }
+  .replaces-title { font: 700 13px 'Inter'; color: #991B1B; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .replaces-list { list-style: none; padding: 0; }
+  .replaces-list li { font: 400 14px/1.8 'Inter'; color: #991B1B; padding-left: 20px; position: relative; }
+  .replaces-list li::before { content: '✕'; position: absolute; left: 0; font-weight: 700; }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); margin: 48px 0; opacity: 0.3; }
+
+  .public { background: #FAFAF8; border: 1px solid #E8E5DF; border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+  .public-title { font: 600 16px 'Inter'; color: #1A1A2E; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .public-desc { font: 400 14px/1.6 'Inter'; color: #7C7B76; }
+
+  .money { background: #1A1A2E; border-radius: 16px; padding: 40px; color: #F0EDE6; margin: 40px 0; }
+  .money h3 { font: 600 22px 'Playfair Display'; color: #D4AF37; margin-bottom: 20px; }
+  .money-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font: 400 15px 'Inter'; }
+  .money-row:last-child { border-bottom: none; }
+  .money-label { color: rgba(240,237,230,0.7); }
+  .money-val { color: #F0EDE6; font-weight: 600; }
+  .money-val.red { color: #FCA5A5; }
+  .money-val.green { color: #6EE7B7; }
+  .money-val.gold { color: #D4AF37; font: 700 20px 'Playfair Display'; }
+  .money-total { margin-top: 16px; padding-top: 16px; border-top: 2px solid rgba(212,175,55,0.3); }
+
+  .bottom-line { text-align: center; padding: 48px 20px; }
+  .bottom-line h2 { margin-bottom: 16px; }
+  .bottom-line p { font: 300 16px/1.7 'Inter'; color: #7C7B76; max-width: 500px; margin: 0 auto; }
+
+  .footer { text-align: center; padding: 32px; font: 400 12px 'JetBrains Mono'; color: #B5B3AD; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div style="font-size: 40px; color: #D4AF37; margin-bottom: 24px;">&#10022;</div>
+  <h1>Here's What <em>Everyone</em> on Your Team Gets</h1>
+  <p>One system that replaces spreadsheets, email chains, paper forms, and 8 different software subscriptions.</p>
+</div>
+
+<!-- DR. J -->
+<div class="page page-break">
+  <div class="person">
+    <div class="person-header">
+      <div class="person-avatar">&#127963;</div>
+      <div><div class="person-name">Dr. J</div><div class="person-role">Executive Director</div></div>
+    </div>
+    <ul class="gets">
+      <li>Opens one dashboard every morning and sees how much money came in, how many members you have, what events are coming up, and how fundraising is going</li>
+      <li>Gets notified when a school requests a field trip — sees the school name, teacher, dates, and number of students without opening email</li>
+      <li>Messages any staff member inside the system — no more texting, no more "did you see my email?"</li>
+      <li>Switches to a full-screen board meeting view that shows fundraising progress, revenue, membership, and upcoming events — ready for the projector</li>
+      <li>Can see what every other person on the team sees by switching roles — knows exactly what Josi, Nancy, and Maria are working with</li>
+      <li>The public website, gift shop, events, field trips, donations, and membership all feed into one system — nothing falls through the cracks</li>
+    </ul>
+    <div class="replaces">
+      <div class="replaces-title">This replaces</div>
+      <ul class="replaces-list">
+        <li>Checking email, texts, and spreadsheets every morning to piece together what's happening</li>
+        <li>Calling Nancy for revenue numbers, Maria for field trip updates, Josi for gift shop sales</li>
+        <li>Building board reports by hand from 5 different sources</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- JOSI -->
+<div class="page page-break">
+  <div class="person">
+    <div class="person-header">
+      <div class="person-avatar">&#128717;</div>
+      <div><div class="person-name">Josi</div><div class="person-role">Gift Shop Manager</div></div>
+    </div>
+    <ul class="gets">
+      <li>Opens the register and it's ready — search for a product, scan a barcode, add to cart, charge through Square</li>
+      <li>A simpler "Checkout Mode" for the counter — just the scanner, the cart, and the charge button. Nothing else on screen</li>
+      <li>When a member shows their phone, scans their QR code and the discount applies automatically — no looking up names</li>
+      <li>Sees low stock alerts on her dashboard before products run out — not after a customer asks and you don't have it</li>
+      <li>Creates a purchase order to reorder from vendors. Tracks it from ordered → shipped → received. Inventory updates by itself</li>
+      <li>Receives shipments step by step — pick the location, search for what came in, type how many. Stock numbers update right away</li>
+      <li>Moves products between the warehouse and the gift shop with transfers — both locations stay accurate</li>
+      <li>Prints barcode stickers for physical products — pick which ones you need, print a sheet, stick them on items</li>
+    </ul>
+    <div class="replaces">
+      <div class="replaces-title">This replaces</div>
+      <ul class="replaces-list">
+        <li>Manually counting stock and updating a spreadsheet</li>
+        <li>Asking "are you a member?" and scrolling through a Google Sheet to find their name</li>
+        <li>Texting Nancy "did we reorder the posters?" and hoping someone remembers</li>
+        <li>Writing down what came in a shipment on paper</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- NANCY -->
+<div class="page page-break">
+  <div class="person">
+    <div class="person-header">
+      <div class="person-avatar">&#128176;</div>
+      <div><div class="person-name">Nancy</div><div class="person-role">Treasurer</div></div>
+    </div>
+    <ul class="gets">
+      <li>Opens her dashboard and sees revenue, donations, and member count — no asking anyone for numbers</li>
+      <li>Exports everything she needs for QuickBooks with one click — sales, products, customers, bills. Downloads as a file she drags right into QuickBooks</li>
+      <li>Every export is logged — she can see exactly when she last synced and how many records were included</li>
+      <li>Sees every donation that comes in, whether it's from the website, an event, or in person</li>
+      <li>No more typing Square receipts into QuickBooks by hand</li>
+    </ul>
+    <div class="replaces">
+      <div class="replaces-title">This replaces</div>
+      <ul class="replaces-list">
+        <li>Spending a full day every month manually entering receipts into QuickBooks</li>
+        <li>Tracking donations in a separate spreadsheet</li>
+        <li>Building financial reports by pulling numbers from 4 different places</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- MARIA -->
+<div class="page page-break">
+  <div class="person">
+    <div class="person-header">
+      <div class="person-avatar">&#128301;</div>
+      <div><div class="person-name">Maria</div><div class="person-role">Education Director</div></div>
+    </div>
+    <ul class="gets">
+      <li>Sees every field trip request in one place — which school, which teacher, how many students, what grade, what program they want</li>
+      <li>Tracks trips from first contact to completion — New → Contacted → Confirmed → Completed</li>
+      <li>Teachers message her directly through the School Portal — no email chains, no lost replies</li>
+      <li>Schools can check their own trip status anytime — they see the date, a checklist of what to bring, and can leave a review after</li>
+      <li>Creates and manages events — star parties, planetarium shows, workshops. Sets capacity, pricing, and whether members get in free</li>
+      <li>When someone reserves a spot on the website, she sees it instantly with their name and contact info</li>
+      <li>Manages volunteers who help with field trips and events</li>
+    </ul>
+    <div class="replaces">
+      <div class="replaces-title">This replaces</div>
+      <ul class="replaces-list">
+        <li>Email threads with teachers that get buried or lost</li>
+        <li>A Google Doc or spreadsheet tracking field trip requests</li>
+        <li>Teachers calling the front desk asking "is our trip confirmed?" and nobody knowing</li>
+        <li>Manually counting event tickets on a sign-up sheet</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- JORDAN -->
+<div class="page page-break">
+  <div class="person">
+    <div class="person-header">
+      <div class="person-avatar">&#128101;</div>
+      <div><div class="person-name">Jordan</div><div class="person-role">Volunteer Coordinator</div></div>
+    </div>
+    <ul class="gets">
+      <li>Sees every volunteer — their name, phone, email, what days they're available, what certifications they have</li>
+      <li>A weekly calendar that shows who's available each day — spots coverage gaps at a glance</li>
+      <li>Tracks volunteer hours automatically — volunteers clock in on their phone with GPS verification (they have to actually be at the building)</li>
+      <li>A training checklist for each volunteer — First Aid, CPR, Telescope Operations, Gift Shop Training. Click to mark complete</li>
+      <li>Volunteers have their own portal where they can see their schedule, log hours, and check their training progress</li>
+    </ul>
+    <div class="replaces">
+      <div class="replaces-title">This replaces</div>
+      <ul class="replaces-list">
+        <li>A whiteboard schedule that nobody updates</li>
+        <li>Paper sign-in sheets that get lost</li>
+        <li>Texting volunteers to swap shifts and forgetting to update the schedule</li>
+        <li>Not knowing if someone actually showed up for their shift</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ALEX -->
+<div class="page page-break">
+  <div class="person">
+    <div class="person-header">
+      <div class="person-avatar">&#128241;</div>
+      <div><div class="person-name">Alex</div><div class="person-role">Social Media Manager</div></div>
+    </div>
+    <ul class="gets">
+      <li>Writes a post once and publishes it to Instagram, Facebook, X, and LinkedIn at the same time</li>
+      <li>Types a description — like "poster for tonight's star party" — and AI generates a graphic she can download and use</li>
+      <li>Sends email campaigns to all members, event attendees, or donors — with templates so she doesn't start from scratch</li>
+      <li>Sends text message blasts — "Clear skies tonight! Observatory open 6-11pm" — to all members with one tap</li>
+    </ul>
+    <div class="replaces">
+      <div class="replaces-title">This replaces</div>
+      <ul class="replaces-list">
+        <li>Logging into 4 different social media accounts separately</li>
+        <li>Asking someone for the Instagram password</li>
+        <li>Spending 45 minutes in Canva making a flyer</li>
+        <li>Paying for Mailchimp, Canva Pro, and a texting service separately</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SAM -->
+<div class="page">
+  <div class="person">
+    <div class="person-header">
+      <div class="person-avatar">&#127903;</div>
+      <div><div class="person-name">Sam</div><div class="person-role">Visitor Services / Front Desk</div></div>
+    </div>
+    <ul class="gets">
+      <li>Sees today's events and how many tickets are left — knows exactly how many walk-ins to accept</li>
+      <li>Can ring up sales at the register when the gift shop is busy</li>
+      <li>Messages Josi or Maria directly if a visitor has a question he can't answer</li>
+    </ul>
+    <div class="replaces">
+      <div class="replaces-title">This replaces</div>
+      <ul class="replaces-list">
+        <li>Telling visitors "I think there's room" and hoping for the best</li>
+        <li>Calling the gift shop to ask if something is in stock</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h2>What <em>Visitors</em> Get</h2>
+  <p class="intro">The people who visit your website, walk through your door, and support your mission.</p>
+
+  <div class="public">
+    <div class="public-title">&#11088; Members</div>
+    <div class="public-desc">A digital membership card on their phone with a QR code. Josi scans it at the register and their discount applies automatically. They can reserve event tickets and donate — all from their member portal. No paper cards, no forgotten names.</div>
+  </div>
+  <div class="public">
+    <div class="public-title">&#127979; Schools</div>
+    <div class="public-desc">Teachers log in, pick their school name, and see their trip status — confirmed date, what to bring, where to park. They can message Maria directly. No more calling the front desk and getting transferred.</div>
+  </div>
+  <div class="public">
+    <div class="public-title">&#128587; Volunteers</div>
+    <div class="public-desc">Clock in on their phone when they arrive (GPS confirms they're at the building). See their schedule, log hours, and track training. Jordan sees everything in real time.</div>
+  </div>
+  <div class="public">
+    <div class="public-title">&#127760; Everyone Else</div>
+    <div class="public-desc">A beautiful public website where people can buy from the gift shop online, reserve event tickets, sign up for membership, book a field trip, donate, and contact the center. Every single one of those things feeds into the admin system automatically.</div>
+  </div>
+</div>
+
+<!-- CONTACTS / CRM -->
+<div class="page page-break">
+  <h2>Every Person in <em>One Place</em></h2>
+  <p class="intro">Right now, your members are in one spreadsheet, your donors are in Argenta, your event attendees are in another list, and your school contacts are in someone's email. MuseumOS puts them all in one contacts system — automatically.</p>
+
+  <ul class="gets">
+    <li>Every member, donor, event attendee, volunteer, and school contact in one list</li>
+    <li>Nobody types anything — contacts are created automatically when someone buys something, signs up, donates, reserves a ticket, or books a field trip</li>
+    <li>Each contact shows everything they've ever done — purchases, donations, events attended, messages sent</li>
+    <li>Search by name, email, or type (show me all donors, show me all school contacts)</li>
+    <li>Export the whole list as a spreadsheet anytime</li>
+  </ul>
+
+  <div class="replaces">
+    <div class="replaces-title">This replaces</div>
+    <ul class="replaces-list">
+      <li>Argenta (your current donor management system)</li>
+      <li>Google Sheets for tracking members and contacts</li>
+      <li>Mailchimp's contact list (you can import your existing list)</li>
+      <li>The pile of business cards and paper sign-up sheets at the front desk</li>
+    </ul>
+  </div>
+</div>
+
+<!-- MONEY -->
+<div class="page page-break">
+  <h2>The <em>Money</em></h2>
+
+  <div class="money">
+    <h3>What You're Spending Now (or Will Be)</h3>
+    <div class="money-row"><span class="money-label">Square POS</span><span class="money-val red">$60/mo</span></div>
+    <div class="money-row"><span class="money-label">Online store (Shopify or similar)</span><span class="money-val red">$79/mo</span></div>
+    <div class="money-row"><span class="money-label">Email marketing (Mailchimp)</span><span class="money-val red">$45/mo</span></div>
+    <div class="money-row"><span class="money-label">Text messaging service</span><span class="money-val red">$30/mo</span></div>
+    <div class="money-row"><span class="money-label">Donor management (Argenta)</span><span class="money-val red">$99/mo</span></div>
+    <div class="money-row"><span class="money-label">QuickBooks Online</span><span class="money-val red">$55/mo</span></div>
+    <div class="money-row"><span class="money-label">Design tool (Canva Pro)</span><span class="money-val red">$15/mo</span></div>
+    <div class="money-row"><span class="money-label">Website hosting</span><span class="money-val red">$150/mo</span></div>
+    <div class="money-row"><span class="money-label">Event ticketing fees</span><span class="money-val red">$50/mo avg</span></div>
+    <div class="money-row money-total"><span class="money-label" style="font-weight: 700; color: #F0EDE6;">Total software costs</span><span class="money-val red" style="font-size: 18px;">$583+/mo</span></div>
+  </div>
+
+  <div class="money">
+    <h3>Staff Time Lost to Manual Work</h3>
+    <div class="money-row"><span class="money-label">Inventory counting & spreadsheet updates</span><span class="money-val red">20 hrs/mo</span></div>
+    <div class="money-row"><span class="money-label">Email chains & phone tag between departments</span><span class="money-val red">12 hrs/mo</span></div>
+    <div class="money-row"><span class="money-label">Manual QuickBooks data entry</span><span class="money-val red">8 hrs/mo</span></div>
+    <div class="money-row"><span class="money-label">Volunteer scheduling & hour tracking</span><span class="money-val red">16 hrs/mo</span></div>
+    <div class="money-row"><span class="money-label">Social media across 4 platforms</span><span class="money-val red">12 hrs/mo</span></div>
+    <div class="money-row"><span class="money-label">Member lookups & field trip coordination</span><span class="money-val red">12 hrs/mo</span></div>
+    <div class="money-row money-total"><span class="money-label" style="font-weight: 700; color: #F0EDE6;">Total hours wasted</span><span class="money-val red" style="font-size: 18px;">80+ hrs/mo</span></div>
+    <div class="money-row"><span class="money-label">At $30/hr average labor cost</span><span class="money-val red" style="font-size: 18px;">$2,400+/mo</span></div>
+  </div>
+
+  <div class="money" style="background: linear-gradient(135deg, #0a3d0a, #1a4a1a);">
+    <h3 style="color: #6EE7B7;">What MuseumOS Costs</h3>
+    <div class="money-row"><span class="money-label">Platform (everything above, in one system)</span><span class="money-val green">$3,500/mo</span></div>
+    <div class="money-row"><span class="money-label">Software subscriptions eliminated</span><span class="money-val green">-$583/mo saved</span></div>
+    <div class="money-row"><span class="money-label">Staff time recovered</span><span class="money-val green">-$2,400/mo saved</span></div>
+    <div class="money-row money-total"><span class="money-label" style="font-weight: 700; color: #F0EDE6;">Net cost after savings</span><span class="money-val gold">$517/mo</span></div>
+    <div style="text-align: center; margin-top: 16px; font: 400 14px 'Inter'; color: rgba(240,237,230,0.6);">That's $17/day for a system that runs your entire organization.</div>
+  </div>
+
+  <div style="background: #FAFAF8; border: 1px solid #E8E5DF; border-radius: 12px; padding: 28px; margin-top: 24px;">
+    <div style="font: 700 16px 'Inter'; color: #1A1A2E; margin-bottom: 8px;">One-Time Setup: $22,000</div>
+    <div style="font: 400 14px/1.6 'Inter'; color: #7C7B76; margin-bottom: 12px;">This covers building your custom website, online gift shop, connecting Square payments, QuickBooks sync, email and text delivery, real user accounts, and migrating your existing contacts from Argenta.</div>
+    <div style="font: 400 14px/1.6 'Inter'; color: #7C7B76;">After setup, you pay $3,500/month. That's it. No per-seat fees, no surprise charges, no "you need the premium plan for that."</div>
+  </div>
+</div>
+
+<!-- WHAT'S ALREADY DONE -->
+<div class="page page-break">
+  <h2>This Is Not a <em>Proposal</em> to Build Software</h2>
+  <p class="intro">The software is already built. Every feature described in this document is working right now. You can try it yourself. The only things left to connect are:</p>
+
+  <ul class="gets">
+    <li><strong>Square</strong> — so the register actually charges credit cards (right now it's in demo mode)</li>
+    <li><strong>QuickBooks</strong> — so Nancy's exports sync automatically instead of downloading a file</li>
+    <li><strong>Email &amp; text delivery</strong> — so the messages actually send (right now they save but don't leave the system)</li>
+    <li><strong>Real user accounts</strong> — so everyone has their own login with a password instead of picking a role from a list</li>
+    <li><strong>A database</strong> — so the data lives on a server instead of in the browser (right now it resets if you clear your browser data)</li>
+  </ul>
+
+  <p style="font: 400 15px/1.7 'Inter'; color: #7C7B76; margin-top: 24px;">These are standard connections that take weeks, not months. The hard part — designing and building 22 modules for 12 different roles with 3 public portals and a full website — is done.</p>
+
+  <div class="divider"></div>
+
+  <div class="bottom-line">
+    <h2>One System. <em>Everyone.</em> Day One.</h2>
+    <p>No more spreadsheets. No more email chains. No more "I didn't know we were out of stock." No more "did you see my email?" No more whiteboards, paper forms, or password sharing. Just one login for everyone, and it works.</p>
+  </div>
+</div>
+
+<div class="footer">
+  MuseumOS &middot; Built by Create &amp; Source &middot; 2026<br>
+  <span style="color: #D4AF37;">info@createandsource.com</span>
+</div>
+
+</body>
+</html>
