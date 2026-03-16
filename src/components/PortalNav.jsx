@@ -2,23 +2,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const PORTAL_TABS = {
   '/member-portal': [
-    { icon: '\u2726', label: 'Home', path: '/member-portal' },
-    { icon: '\uD83D\uDED2', label: 'Shop', path: '/shop' },
-    { icon: '\uD83C\uDFAB', label: 'Events', path: '/events' },
-    { icon: '\uD83C\uDF81', label: 'Donate', path: '/donate' },
-    { icon: '\uD83D\uDC64', label: 'Sign In', path: '/signin' },
+    { icon: '\u2726', label: 'My Card', path: '/member-portal' },
+    { icon: '\uD83C\uDFAB', label: 'Events', path: '/member-portal#events' },
+    { icon: '\uD83D\uDC9D', label: 'Donate', path: '/member-portal#donate' },
+    { icon: '\uD83D\uDD04', label: 'Switch', path: '/signin' },
   ],
   '/volunteer-portal': [
     { icon: '\u2726', label: 'Home', path: '/volunteer-portal' },
-    { icon: '\uD83C\uDFAB', label: 'Events', path: '/events' },
-    { icon: '\uD83D\uDCDE', label: 'Contact', path: '/contact' },
-    { icon: '\uD83D\uDC64', label: 'Sign In', path: '/signin' },
+    { icon: '\uD83D\uDD04', label: 'Switch', path: '/signin' },
   ],
   '/school-portal': [
     { icon: '\u2726', label: 'Home', path: '/school-portal' },
-    { icon: '\uD83C\uDF93', label: 'Programs', path: '/education' },
-    { icon: '\uD83D\uDCDE', label: 'Contact', path: '/contact' },
-    { icon: '\uD83D\uDC64', label: 'Sign In', path: '/signin' },
+    { icon: '\uD83D\uDD04', label: 'Switch', path: '/signin' },
   ],
 };
 
@@ -32,6 +27,27 @@ export default function PortalNav() {
 
   const tabs = PORTAL_TABS[portalPath];
 
+  const handleClick = (tab) => {
+    if (tab.path.includes('#')) {
+      const hash = tab.path.split('#')[1];
+      const basePath = tab.path.split('#')[0];
+      // If we're already on this page, just scroll
+      if (location.pathname === basePath) {
+        const el = document.getElementById(hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        navigate(basePath);
+        // Wait for page to render, then scroll
+        setTimeout(() => {
+          const el = document.getElementById(hash);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    } else {
+      navigate(tab.path);
+    }
+  };
+
   return (
     <>
       <div style={{
@@ -42,11 +58,11 @@ export default function PortalNav() {
         boxShadow: '0 -2px 12px rgba(0,0,0,0.06)',
       }}>
         {tabs.map(tab => {
-          const active = location.pathname === tab.path;
+          const active = location.pathname === tab.path || (tab.path.includes('#') && location.pathname === tab.path.split('#')[0]);
           return (
             <button
               key={tab.path}
-              onClick={() => navigate(tab.path)}
+              onClick={() => handleClick(tab)}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
