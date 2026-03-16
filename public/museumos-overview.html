@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuseumOS — Platform Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; color: #1A1A2E; background: #FFFFFF; line-height: 1.6; }
+
+  /* Print styles */
+  @media print {
+    body { font-size: 11pt; }
+    .page-break { page-break-before: always; }
+    .no-print { display: none !important; }
+    section { page-break-inside: avoid; }
+    .feature-grid { page-break-inside: avoid; }
+    h2 { page-break-after: avoid; }
+  }
+
+  /* Cover */
+  .cover {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    background: linear-gradient(180deg, #1A1A2E 0%, #0a0a1a 100%);
+    color: #F0EDE6; padding: 60px 40px; position: relative;
+  }
+  .cover::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 50% 30%, rgba(212,175,55,0.08) 0%, transparent 60%);
+  }
+  .cover > * { position: relative; z-index: 1; }
+  .cover-star { font-size: 48px; color: #D4AF37; margin-bottom: 32px; }
+  .cover h1 { font: 600 56px/1.1 'Playfair Display', serif; margin-bottom: 12px; }
+  .cover h1 em { font-style: italic; color: #D4AF37; }
+  .cover-sub { font: 400 18px/1.6 'Inter', sans-serif; color: rgba(240,237,230,0.6); margin-bottom: 48px; max-width: 500px; }
+  .cover-for { font: 500 13px 'JetBrains Mono', monospace; letter-spacing: 3px; text-transform: uppercase; color: #D4AF37; margin-bottom: 8px; }
+  .cover-org { font: 400 20px 'Playfair Display', serif; color: rgba(240,237,230,0.8); margin-bottom: 48px; }
+  .cover-meta { font: 400 12px 'JetBrains Mono', monospace; color: rgba(240,237,230,0.3); letter-spacing: 1px; }
+
+  /* Content pages */
+  .content { max-width: 800px; margin: 0 auto; padding: 60px 40px; }
+
+  h2 {
+    font: 600 28px/1.2 'Playfair Display', serif; color: #1A1A2E;
+    margin: 0 0 8px; padding-bottom: 16px;
+    border-bottom: 2px solid #D4AF37;
+  }
+  h2 em { font-style: italic; color: #D4AF37; }
+  .section-sub { font: 400 15px/1.6 'Inter', sans-serif; color: #7C7B76; margin-bottom: 32px; }
+
+  h3 {
+    font: 600 16px 'Inter', sans-serif; color: #1A1A2E;
+    margin: 28px 0 12px; display: flex; align-items: center; gap: 10px;
+  }
+  h3 .icon { font-size: 20px; }
+
+  .feature-grid { margin-bottom: 32px; }
+  .feature {
+    display: flex; gap: 16px; padding: 14px 0;
+    border-bottom: 1px solid #F0EDE8;
+  }
+  .feature:last-child { border-bottom: none; }
+  .feature-check {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
+    background: linear-gradient(135deg, #D4AF37, #a08520);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #fff; font-weight: 700;
+  }
+  .feature-text { flex: 1; }
+  .feature-name { font: 600 14px 'Inter', sans-serif; color: #1A1A2E; margin-bottom: 2px; }
+  .feature-desc { font: 400 13px/1.5 'Inter', sans-serif; color: #7C7B76; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font: 600 9px 'JetBrains Mono', monospace; letter-spacing: 0.5px; text-transform: uppercase;
+    vertical-align: middle; margin-left: 8px;
+  }
+  .badge-live { background: #E8F5E9; color: #2E7D32; }
+  .badge-ready { background: #FFF3E0; color: #E65100; }
+
+  .replaces {
+    background: #FAFAF8; border: 1px solid #E8E5DF; border-radius: 8px;
+    padding: 20px 24px; margin: 24px 0 32px;
+  }
+  .replaces-title { font: 600 11px 'JetBrains Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase; color: #D4AF37; margin-bottom: 12px; }
+  .replaces-list { list-style: none; padding: 0; }
+  .replaces-list li {
+    font: 400 13px/1.8 'Inter', sans-serif; color: #7C7B76;
+    padding-left: 20px; position: relative;
+  }
+  .replaces-list li::before { content: '\u2715'; position: absolute; left: 0; color: #C45B5B; font-weight: 600; }
+
+  .stat-row { display: flex; gap: 16px; margin: 24px 0 32px; }
+  .stat-box {
+    flex: 1; text-align: center; padding: 20px 16px;
+    background: #FAFAF8; border: 1px solid #E8E5DF; border-radius: 8px;
+  }
+  .stat-num { font: 700 28px 'Playfair Display', serif; color: #D4AF37; margin-bottom: 4px; }
+  .stat-label { font: 500 10px 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase; color: #7C7B76; }
+
+  /* Roles table */
+  .roles-table { width: 100%; border-collapse: collapse; margin: 16px 0 32px; }
+  .roles-table th {
+    font: 600 10px 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase;
+    color: #D4AF37; text-align: left; padding: 10px 12px; border-bottom: 2px solid #E8E5DF;
+  }
+  .roles-table td { font: 400 13px 'Inter', sans-serif; color: #1A1A2E; padding: 10px 12px; border-bottom: 1px solid #F0EDE8; }
+  .roles-table tr:nth-child(even) td { background: #FAFAF8; }
+
+  /* Summary */
+  .summary-box {
+    background: linear-gradient(135deg, #1A1A2E, #0a0a1a); color: #F0EDE6;
+    border-radius: 12px; padding: 40px; margin: 32px 0; text-align: center;
+  }
+  .summary-box h3 { color: #D4AF37; justify-content: center; margin-bottom: 16px; }
+  .summary-box p { font: 300 15px/1.7 'Inter', sans-serif; color: rgba(240,237,230,0.7); max-width: 500px; margin: 0 auto; }
+
+  .footer-note {
+    text-align: center; padding: 40px; font: 400 12px 'JetBrains Mono', monospace;
+    color: #B5B3AD; letter-spacing: 1px;
+  }
+
+  /* What they need section */
+  .need-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0 32px; }
+  .need-card {
+    border: 1px solid #E8E5DF; border-radius: 8px; padding: 20px;
+    background: #FAFAF8;
+  }
+  .need-card-title { font: 600 14px 'Inter', sans-serif; color: #1A1A2E; margin-bottom: 6px; }
+  .need-card-desc { font: 400 12px/1.5 'Inter', sans-serif; color: #7C7B76; }
+  .need-card-cost { font: 600 13px 'JetBrains Mono', monospace; color: #D4AF37; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ COVER ═══════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-star">&#10022;</div>
+  <h1>Museum<em>OS</em></h1>
+  <p class="cover-sub">A complete operations platform for museums, cultural centers, and non-profit facilities.</p>
+  <div class="cover-for">Prepared for</div>
+  <div class="cover-org">International Dark Sky Discovery Center</div>
+  <div class="cover-org" style="font-size: 16px; color: rgba(240,237,230,0.5);">Fountain Hills, Arizona</div>
+  <div class="cover-meta" style="margin-top: 48px;">March 2026 &middot; Create &amp; Source</div>
+</div>
+
+<!-- ═══════════════════════════════════════ WHAT IS IT ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2>What is <em>MuseumOS?</em></h2>
+  <p class="section-sub">MuseumOS replaces the patchwork of spreadsheets, email threads, paper forms, and disconnected software that most cultural institutions use to operate. It's one system that runs your entire organization.</p>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-num">12</div><div class="stat-label">Staff Roles</div></div>
+    <div class="stat-box"><div class="stat-num">3</div><div class="stat-label">Public Portals</div></div>
+    <div class="stat-box"><div class="stat-num">22+</div><div class="stat-label">Modules</div></div>
+    <div class="stat-box"><div class="stat-num">1</div><div class="stat-label">Platform</div></div>
+  </div>
+
+  <div class="replaces">
+    <div class="replaces-title">What it replaces</div>
+    <ul class="replaces-list">
+      <li>Spreadsheets for tracking inventory, orders, and members</li>
+      <li>Email chains between departments for internal communication</li>
+      <li>Paper forms for field trip bookings and volunteer sign-ups</li>
+      <li>Separate software for email marketing, social media, and design</li>
+      <li>Manual QuickBooks data entry from receipts and invoices</li>
+      <li>Printed schedules and whiteboards for volunteer coordination</li>
+      <li>Multiple logins across Square, Mailchimp, Canva, and Google Sheets</li>
+    </ul>
+  </div>
+
+  <div class="summary-box">
+    <h3>The Big Idea</h3>
+    <p>Every person in your organization &mdash; from the Executive Director to a weekend volunteer &mdash; logs into one platform and sees exactly what they need. Nothing more, nothing less.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ GIFT SHOP ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2><span class="icon">&#128717;</span> Gift Shop <em>Operations</em></h2>
+  <p class="section-sub">Everything your gift shop team needs to sell, stock, and reorder &mdash; from the register to the warehouse.</p>
+
+  <h3><span class="icon">&#128179;</span> Point of Sale (POS)</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Touch-screen register <span class="badge badge-live">Live</span></div><div class="feature-desc">Search products, scan barcodes, add to cart. Split-screen layout with product grid and cart.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Barcode scanning <span class="badge badge-live">Live</span></div><div class="feature-desc">Scan printed barcodes with a USB/Bluetooth scanner. Product auto-adds to cart. Generate and print barcode label sheets.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Member QR code scanning <span class="badge badge-live">Live</span></div><div class="feature-desc">Scan a member's QR code at checkout for automatic tier-based discounts (10-20%).</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Square payment processing <span class="badge badge-ready">Backend Ready</span></div><div class="feature-desc">Connects to Square for credit card, Apple Pay, and contactless payments.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Hold & recall sales <span class="badge badge-live">Live</span></div><div class="feature-desc">Put a sale on hold while a customer shops, then recall it when they return.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128230;</span> Inventory Management</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Multi-location tracking <span class="badge badge-live">Live</span></div><div class="feature-desc">Track stock at the warehouse and gift shop separately. See quantities at each location.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Sales velocity &amp; days remaining <span class="badge badge-live">Live</span></div><div class="feature-desc">See how fast each product sells and how many days of stock you have left. No guessing on reorders.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Low stock alerts <span class="badge badge-live">Live</span></div><div class="feature-desc">Yellow = running low. Red = out of stock. Alerts appear on the dashboard.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">CSV export <span class="badge badge-live">Live</span></div><div class="feature-desc">Export full inventory to spreadsheet for audits or reporting.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128666;</span> Purchase Orders &amp; Receiving</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Create POs to vendors <span class="badge badge-live">Live</span></div><div class="feature-desc">Order from Printify, wholesale suppliers, or local artisans. Track status from Draft to Received.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Receive shipments <span class="badge badge-live">Live</span></div><div class="feature-desc">Step-by-step receiving: pick location, scan/search products, enter quantities. Inventory updates automatically.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Warehouse &harr; gift shop transfers <span class="badge badge-live">Live</span></div><div class="feature-desc">Move products between locations. Track shipment and receipt status.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Smart reorder suggestions <span class="badge badge-live">Live</span></div><div class="feature-desc">System recommends what to reorder based on velocity and remaining stock.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128722;</span> Orders</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Unified order management <span class="badge badge-live">Live</span></div><div class="feature-desc">Online orders and POS sales in one place. Status tracking, customer info, line items.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Website &rarr; admin flow <span class="badge badge-live">Live</span></div><div class="feature-desc">Customer checks out on the website, order instantly appears in admin. Inventory adjusts automatically.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#127991;</span> Product Catalog</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">77 products in catalog <span class="badge badge-live">Live</span></div><div class="feature-desc">67 print-on-demand products via Printify + 10 physical gift shop items. Add, edit, and manage from admin.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Barcode generation &amp; printing <span class="badge badge-live">Live</span></div><div class="feature-desc">Auto-generates barcodes for physical products. Print label sheets for sticker application.</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ PROGRAMS ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2><span class="icon">&#128301;</span> Programs &amp; <em>Events</em></h2>
+  <p class="section-sub">Manage events, field trips, and education programs. Connected to the public website so visitors can book online.</p>
+
+  <h3><span class="icon">&#127915;</span> Event Management</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Create &amp; manage events <span class="badge badge-live">Live</span></div><div class="feature-desc">Star parties, planetarium shows, kids programs, workshops. Set date, time, location, capacity, and pricing.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Online ticket reservations <span class="badge badge-live">Live</span></div><div class="feature-desc">Visitors reserve spots on the public website. Ticket counts update in real time. "Almost full" warnings.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Member-free events <span class="badge badge-live">Live</span></div><div class="feature-desc">Toggle any event as free for members. Members see "FREE" on their portal.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Published &harr; Draft status <span class="badge badge-live">Live</span></div><div class="feature-desc">Only published events appear on the public website. Draft events stay internal.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#127979;</span> Field Trip Management</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Full trip lifecycle <span class="badge badge-live">Live</span></div><div class="feature-desc">New &rarr; Contacted &rarr; Confirmed &rarr; Completed. Track every school from inquiry to completion.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">School Portal <span class="badge badge-live">Live</span></div><div class="feature-desc">Schools log in to check trip status, see preparation checklists (bus parking, arrival times, lunch info), and leave reviews.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">School &harr; staff messaging <span class="badge badge-live">Live</span></div><div class="feature-desc">Teachers message the Education Director directly through the portal. No email needed.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Online booking inquiry <span class="badge badge-live">Live</span></div><div class="feature-desc">Schools submit booking requests on the public website. Requests appear in admin immediately.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128176;</span> Donations &amp; Fundraising</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Donation tracking <span class="badge badge-live">Live</span></div><div class="feature-desc">Record and track every donation. Donor name, amount, date, and type.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Capital campaign thermometer <span class="badge badge-live">Live</span></div><div class="feature-desc">Live fundraising progress visible on the board meeting dashboard.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Public donate page <span class="badge badge-live">Live</span></div><div class="feature-desc">Website donation form connected directly to admin. Donors choose amount and see impact.</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ PEOPLE ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2><span class="icon">&#128101;</span> People &amp; <em>Community</em></h2>
+  <p class="section-sub">Manage staff, volunteers, and members. Everyone has their own experience.</p>
+
+  <h3><span class="icon">&#11088;</span> Membership</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">3-tier membership system <span class="badge badge-live">Live</span></div><div class="feature-desc">Explorer ($49/yr), Stargazer ($99/yr), Guardian ($249/yr). Each with unique benefits and discount levels.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Member Portal with QR code <span class="badge badge-live">Live</span></div><div class="feature-desc">Members see their digital membership card with scannable QR code, benefits, upcoming events, and order history.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Online membership signup <span class="badge badge-live">Live</span></div><div class="feature-desc">Join on the website. New members instantly appear in admin and get their portal access.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">POS member discounts <span class="badge badge-live">Live</span></div><div class="feature-desc">Scan member QR at checkout for automatic tier-based gift shop discount.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128587;</span> Volunteer Management</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Volunteer roster &amp; profiles <span class="badge badge-live">Live</span></div><div class="feature-desc">Track contact info, availability, certifications, and total hours for every volunteer.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Weekly shift calendar <span class="badge badge-live">Live</span></div><div class="feature-desc">Visual calendar showing who's available each day. Identify coverage gaps at a glance.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Hour logging &amp; tracking <span class="badge badge-live">Live</span></div><div class="feature-desc">Log hours by activity type (Event Support, Gift Shop, Training, etc.). Monthly and total hour reports.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Certification matrix <span class="badge badge-live">Live</span></div><div class="feature-desc">Track who has First Aid, CPR, Telescope Ops, and other required certifications. See completion % per volunteer.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Geo-fenced time clock <span class="badge badge-live">Live</span></div><div class="feature-desc">Volunteers clock in/out through their portal. Must be within 0.5 miles of the facility (GPS verified).</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Volunteer Portal <span class="badge badge-live">Live</span></div><div class="feature-desc">Volunteers see their schedule, log hours, track training, and clock in &mdash; all from their phone.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128181;</span> Staff &amp; Time</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Staff roster <span class="badge badge-live">Live</span></div><div class="feature-desc">All employees with role, department, pay type, and contact info.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Timesheet tracking <span class="badge badge-live">Live</span></div><div class="feature-desc">Weekly timesheets with daily hours. Approve and export for payroll processing.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Payroll export <span class="badge badge-live">Live</span></div><div class="feature-desc">Export hours as CSV for your payroll provider. We track time &mdash; they handle taxes.</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ COMMUNICATIONS ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2><span class="icon">&#128172;</span> Communications &amp; <em>Marketing</em></h2>
+  <p class="section-sub">Reach your audience through every channel &mdash; email, text, social media, and internal messaging.</p>
+
+  <h3><span class="icon">&#128233;</span> Internal Messaging</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Staff-to-staff chat <span class="badge badge-live">Live</span></div><div class="feature-desc">Every team member can message any other. No email needed. Conversations are private to participants.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">School &harr; staff messaging <span class="badge badge-live">Live</span></div><div class="feature-desc">Teachers message the Education Director directly through the School Portal.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128231;</span> Email Campaigns</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Email composer with templates <span class="badge badge-live">Live</span></div><div class="feature-desc">Newsletter, event announcement, sale promotion, and welcome templates. Customize and send.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Audience targeting <span class="badge badge-live">Live</span></div><div class="feature-desc">Send to all contacts, members only, event attendees, or recent customers.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Email delivery <span class="badge badge-ready">Backend Ready</span></div><div class="feature-desc">Connects to SendGrid, Mailchimp, or Amazon SES for actual delivery.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128241;</span> Text Blasts (SMS)</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">SMS composer with phone preview <span class="badge badge-live">Live</span></div><div class="feature-desc">Write your message, see how it looks on a phone, pick audience, and send. Character counter for SMS limits.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Quick templates <span class="badge badge-live">Live</span></div><div class="feature-desc">Event Reminder, Clear Sky Alert, Gift Shop Promo, Member Exclusive &mdash; one-tap templates.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">SMS delivery via Twilio <span class="badge badge-ready">Backend Ready</span></div><div class="feature-desc">Connects to Twilio for actual SMS sending.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128247;</span> Social Media &amp; Design</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Multi-platform posting <span class="badge badge-live">Live</span></div><div class="feature-desc">Draft, schedule, and publish to Instagram, Facebook, X, and LinkedIn from one screen.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">AI Design Studio <span class="badge badge-live">Live</span></div><div class="feature-desc">Describe what you want and AI generates poster/graphic designs. Export as PNG for social or print.</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ FINANCE ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2><span class="icon">&#128200;</span> Finance &amp; <em>Reporting</em></h2>
+  <p class="section-sub">Real-time analytics, QuickBooks integration, and board-ready reports.</p>
+
+  <h3><span class="icon">&#128202;</span> Analytics &amp; Reports</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Role-based reporting <span class="badge badge-live">Live</span></div><div class="feature-desc">Each role sees only their relevant data. Treasurer sees financials. Shop Manager sees inventory. Education Director sees events.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Revenue analytics <span class="badge badge-live">Live</span></div><div class="feature-desc">Total revenue, online vs. POS breakdown, top products, average order value. 7/30/90 day views.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Inventory health <span class="badge badge-live">Live</span></div><div class="feature-desc">Low stock items, overstock items, total inventory value, active SKU count.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Membership &amp; event analytics <span class="badge badge-live">Live</span></div><div class="feature-desc">Member tier breakdown, event fill rates, ticket revenue, upcoming event performance.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">CSV export on everything <span class="badge badge-live">Live</span></div><div class="feature-desc">Download any report as a spreadsheet. Revenue, inventory, membership, products.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#128218;</span> QuickBooks Integration</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Sales export <span class="badge badge-live">Live</span></div><div class="feature-desc">Export all sales transactions as QuickBooks-ready CSV. Choose date range (7/30/90 days).</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Product, customer &amp; bill exports <span class="badge badge-live">Live</span></div><div class="feature-desc">Export inventory, customer list, and vendor bills in QuickBooks format.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Sync history log <span class="badge badge-live">Live</span></div><div class="feature-desc">Every export is logged with timestamp, type, and record count. Never wonder when data was last synced.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Live QuickBooks API <span class="badge badge-ready">Backend Ready</span></div><div class="feature-desc">Direct API connection for automatic syncing instead of manual CSV exports.</div></div></div>
+  </div>
+
+  <h3><span class="icon">&#127963;</span> Board Meeting View</h3>
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Projector-ready dashboard <span class="badge badge-live">Live</span></div><div class="feature-desc">Full-screen presentation with large fonts. Revenue, membership, fundraising progress, upcoming events, top donations. One click from the board member dashboard.</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ WEBSITE ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2><span class="icon">&#127760;</span> Public <em>Website</em></h2>
+  <p class="section-sub">A complete public-facing website that connects to every admin feature.</p>
+
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Full e-commerce shop <span class="badge badge-live">Live</span></div><div class="feature-desc">Browse, search, filter, sort, add to cart, checkout. Orders flow into admin automatically.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Event listings &amp; reservations <span class="badge badge-live">Live</span></div><div class="feature-desc">Published events display with dates, descriptions, and "Reserve Spot" buttons. Capacity tracked live.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Membership signup <span class="badge badge-live">Live</span></div><div class="feature-desc">Three tiers with benefits, pricing, and instant signup. New members appear in admin.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Donation page <span class="badge badge-live">Live</span></div><div class="feature-desc">Accept donations online. Contributions update the fundraising tracker and appear in admin.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Field trip booking <span class="badge badge-live">Live</span></div><div class="feature-desc">Schools submit booking inquiries online. Requests appear in Education Director's admin immediately.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Contact form <span class="badge badge-live">Live</span></div><div class="feature-desc">General inquiries submitted through the website and tracked in admin.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Newsletter signup <span class="badge badge-live">Live</span></div><div class="feature-desc">Email collection in footer. Subscribers added to contact list for campaigns.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Mobile responsive <span class="badge badge-live">Live</span></div><div class="feature-desc">Fully responsive on phone, tablet, and desktop. Horizontal scroll carousels on mobile.</div></div></div>
+    <div class="feature"><div class="feature-check">&#10003;</div><div class="feature-text"><div class="feature-name">Video backgrounds <span class="badge badge-live">Live</span></div><div class="feature-desc">Real observatory, wildlife, and space footage throughout the site. Lazy-loaded for performance.</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ ROLES ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2><span class="icon">&#128100;</span> Who Uses <em>What</em></h2>
+  <p class="section-sub">Every role sees a different dashboard and different tools. Nobody is overwhelmed with features they don't need.</p>
+
+  <table class="roles-table">
+    <thead>
+      <tr><th>Role</th><th>Dashboard Focus</th><th>Tools They Access</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Executive Director</strong></td><td>Full KPIs, all departments</td><td>Everything</td></tr>
+      <tr><td><strong>Treasurer</strong></td><td>Financial overview, donations</td><td>Donations, Reports, Staff & Time, QuickBooks</td></tr>
+      <tr><td><strong>Board Member</strong></td><td>Fundraising thermometer</td><td>Dashboard, Board Meeting View</td></tr>
+      <tr><td><strong>Gift Shop Manager</strong></td><td>Today's sales, low stock</td><td>POS, Products, Orders, Inventory, POs, Receive, Transfers</td></tr>
+      <tr><td><strong>Gift Shop Staff</strong></td><td>Daily checklist</td><td>POS, Orders, Inventory, Receive</td></tr>
+      <tr><td><strong>Visitor Services</strong></td><td>Today's visitors, events</td><td>POS, Events, Reports</td></tr>
+      <tr><td><strong>Education Director</strong></td><td>Field trips, programs</td><td>Events, Field Trips, Volunteers, Reports</td></tr>
+      <tr><td><strong>Social Media Manager</strong></td><td>Posts, connected accounts</td><td>Design Studio, Social Media, Email</td></tr>
+      <tr><td><strong>Volunteer Coordinator</strong></td><td>Roster, hours, certs</td><td>Volunteers, Events, Reports</td></tr>
+      <tr><td><strong>Payroll / HR</strong></td><td>Staff count, timesheets</td><td>Staff & Time, Reports</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top: 36px;">External Portals</h3>
+  <table class="roles-table">
+    <thead>
+      <tr><th>Portal</th><th>Who Uses It</th><th>What They See</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Member Portal</strong></td><td>Paid members</td><td>QR membership card, benefits, events, order history</td></tr>
+      <tr><td><strong>School Portal</strong></td><td>Teachers &amp; schools</td><td>Trip status, prep checklists, messaging to staff</td></tr>
+      <tr><td><strong>Volunteer Portal</strong></td><td>Volunteers</td><td>Geo-fenced clock-in, schedule, hour log, training progress</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════ BACKEND ═══════════════════════════════════════ -->
+<div class="content page-break">
+  <h2><span class="icon">&#128295;</span> What's Left to <em>Connect</em></h2>
+  <p class="section-sub">The entire front-end is built and functional. These backend connections are the only remaining work.</p>
+
+  <div class="need-grid">
+    <div class="need-card">
+      <div class="need-card-title">&#128179; Square Payments</div>
+      <div class="need-card-desc">Connect the POS and online checkout to Square for real credit card processing. The UI is built &mdash; just needs the API key.</div>
+    </div>
+    <div class="need-card">
+      <div class="need-card-title">&#128218; QuickBooks API</div>
+      <div class="need-card-desc">Replace CSV exports with direct sync. Nancy clicks "Sync" and data flows into QuickBooks automatically.</div>
+    </div>
+    <div class="need-card">
+      <div class="need-card-title">&#128231; Email Delivery</div>
+      <div class="need-card-desc">Connect email composer to SendGrid or Mailchimp. Emails are composed in the platform &mdash; just need delivery.</div>
+    </div>
+    <div class="need-card">
+      <div class="need-card-title">&#128241; SMS Delivery</div>
+      <div class="need-card-desc">Connect text blasts to Twilio. UI is built with templates and audience targeting &mdash; just needs the API.</div>
+    </div>
+    <div class="need-card">
+      <div class="need-card-title">&#128274; Real Authentication</div>
+      <div class="need-card-desc">Replace demo login with real user accounts. Passwords, sessions, and security.</div>
+    </div>
+    <div class="need-card">
+      <div class="need-card-title">&#128451; Database</div>
+      <div class="need-card-desc">Move from browser localStorage to a real database (PostgreSQL or Supabase). Data persists across devices and browsers.</div>
+    </div>
+  </div>
+
+  <div class="summary-box">
+    <h3>What This Means</h3>
+    <p>The platform you see is not a mockup or a prototype. It is a working application with real data flow, real business logic, and real user experiences. The backend connections listed above are standard integrations that take weeks, not months.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ FOOTER ═══════════════════════════════════════ -->
+<div class="content" style="padding-bottom: 20px;">
+  <div class="summary-box">
+    <h3>&#10022; One Platform. Every Department. Every Role.</h3>
+    <p>MuseumOS is how a modern museum operates. Purpose-built for the International Dark Sky Discovery Center.</p>
+  </div>
+</div>
+
+<div class="footer-note">
+  MuseumOS &middot; Built by Create &amp; Source &middot; 2026<br>
+  <span style="color: #D4AF37;">info@darkskycenter.org</span>
+</div>
+
+</body>
+</html>
