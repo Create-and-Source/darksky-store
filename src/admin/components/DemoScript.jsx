@@ -121,18 +121,37 @@ export default function DemoScript() {
       navigate(s.route);
     }
     setStep(newStep);
-    // Read aloud
+    // Read aloud with best available voice
     setTimeout(() => {
-      const utterance = new SpeechSynthesisUtterance(s.say);
-      utterance.rate = 0.95;
-      utterance.pitch = 1;
-      utterance.volume = 1;
-      // Try to use a natural voice
       const voices = window.speechSynthesis.getVoices();
-      const preferred = voices.find(v => v.name.includes('Samantha') || v.name.includes('Alex') || v.name.includes('Google') || v.lang === 'en-US');
-      if (preferred) utterance.voice = preferred;
-      window.speechSynthesis.speak(utterance);
-    }, 500);
+      // Priority: Premium/Enhanced voices > Siri > Google > any en-US
+      const bestVoice = voices.find(v => v.name.includes('Zoe') && v.lang.startsWith('en')) ||
+        voices.find(v => v.name.includes('Samantha') && v.name.includes('Enhanced')) ||
+        voices.find(v => v.name.includes('Ava') && v.name.includes('Premium')) ||
+        voices.find(v => v.name.includes('Allison') && v.name.includes('Premium')) ||
+        voices.find(v => v.name.includes('Samantha')) ||
+        voices.find(v => v.name.includes('Karen') && v.lang.startsWith('en')) ||
+        voices.find(v => v.name.includes('Daniel') && v.lang.startsWith('en')) ||
+        voices.find(v => v.name.includes('Google US English')) ||
+        voices.find(v => v.lang === 'en-US' && v.localService) ||
+        voices.find(v => v.lang.startsWith('en'));
+
+      // Break text into sentences for more natural pacing
+      const sentences = s.say.match(/[^.!?\u2014]+[.!?\u2014]*/g) || [s.say];
+      let delay = 0;
+      sentences.forEach((sentence, i) => {
+        setTimeout(() => {
+          const u = new SpeechSynthesisUtterance(sentence.trim());
+          u.rate = 0.9;
+          u.pitch = 1.05;
+          u.volume = 1;
+          if (bestVoice) u.voice = bestVoice;
+          window.speechSynthesis.speak(u);
+        }, delay);
+        // Estimate duration: ~80ms per character + 400ms pause between sentences
+        delay += sentence.trim().length * 80 + (i < sentences.length - 1 ? 400 : 0);
+      });
+    }, 600);
   }, [navigate, location.pathname]);
 
   const next = useCallback(() => goToStep(Math.min(step + 1, total - 1)), [step, total, goToStep]);
