@@ -72,7 +72,7 @@ export default function Contact() {
 
   const inputStyle = {
     width: '100%', padding: '14px 16px',
-    background: 'rgba(13,13,34,0.7)', border: '1px solid var(--border2, rgba(255,255,255,0.06))',
+    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)',
     outline: 'none', transition: 'border-color 0.2s',
   };
@@ -83,7 +83,7 @@ export default function Contact() {
   const labelStyle = {
     display: 'block', font: '500 10px JetBrains Mono',
     letterSpacing: '0.15em', textTransform: 'uppercase',
-    color: 'var(--muted)', marginBottom: 8,
+    color: 'var(--text)', marginBottom: 8,
   };
   const selectStyle = {
     ...inputStyle, cursor: 'pointer', appearance: 'none',
@@ -112,7 +112,7 @@ export default function Contact() {
             Get in <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Touch</em>
           </h1>
           <p data-editable="contact-hero-subtitle" style={{
-            font: '300 17px/1.8 DM Sans', color: 'var(--muted)',
+            font: '300 17px/1.8 DM Sans', color: '#B5B3AD',
             maxWidth: 480, margin: '0 auto',
           }}>
             Have a question about the Discovery Center, our gift shop, or upcoming events? We'd love to hear from you.
@@ -155,7 +155,7 @@ export default function Contact() {
                 <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 400, marginBottom: 12 }}>
                   Message Sent
                 </h3>
-                <p style={{ font: '300 18px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 380, margin: '0 auto 32px' }}>
+                <p style={{ font: '300 18px/1.7 DM Sans', color: '#B5B3AD', maxWidth: 380, margin: '0 auto 32px' }}>
                   Thank you, {form.name}! We'll get back to you at {form.email} as soon as possible.
                 </p>
                 <button
@@ -318,7 +318,7 @@ export default function Contact() {
               <span style={{ font: '400 15px/1.6 DM Sans', color: 'var(--text)' }}>
                 Fountain Hills, AZ
               </span>
-              <div style={{ font: '300 12px/1.6 DM Sans', color: 'var(--muted)', marginTop: 4 }}>
+              <div style={{ font: '300 12px/1.6 DM Sans', color: 'var(--text2)', marginTop: 4 }}>
                 Town Center area, near Community Center, Library & River of Time Museum
               </div>
             </div>
@@ -360,7 +360,7 @@ export default function Contact() {
               <div style={{ font: '500 11px DM Sans', color: 'var(--text)', marginBottom: 2 }}>
                 Fountain Hills, Arizona
               </div>
-              <div style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a5550' }}>
+              <div style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text2)' }}>
                 33.6°N · 111.7°W
               </div>
             </div>

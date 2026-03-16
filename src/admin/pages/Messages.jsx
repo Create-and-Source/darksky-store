@@ -98,11 +98,16 @@ export default function Messages() {
     return unsub;
   }, []);
 
-  // Build conversations from messages
+  // Build conversations from messages — only include conversations where the current user is a participant
   const conversations = useMemo(() => {
     const convMap = {};
     messages.forEach(msg => {
-      const isFromMe = msg.from.name === currentUser;
+      const isFromMe = msg.from.name === currentUser && msg.from.role === currentRole;
+      const isToMe = msg.to.name === currentUser && msg.to.role === currentRole;
+
+      // Skip messages that don't involve the current user
+      if (!isFromMe && !isToMe) return;
+
       const other = isFromMe ? msg.to : msg.from;
       // Build a stable conversation key using both participants
       const convKey = getConversationId(msg.from.name, msg.from.role, msg.to.name, msg.to.role);
@@ -128,7 +133,7 @@ export default function Messages() {
     });
 
     return Object.values(convMap).sort((a, b) => b.lastTimestamp.localeCompare(a.lastTimestamp));
-  }, [messages, currentUser]);
+  }, [messages, currentUser, currentRole]);
 
   // Filter conversations
   const filteredConversations = useMemo(() => {
@@ -144,9 +149,11 @@ export default function Messages() {
   const selectedConv = conversations.find(c => c.id === selectedConvId);
   const selectedMessages = selectedConv ? selectedConv.messages.sort((a, b) => a.timestamp.localeCompare(b.timestamp)) : [];
 
-  // Auto-select first conversation
+  // Auto-select first conversation, or reset if current selection is no longer visible
   useEffect(() => {
-    if (!selectedConvId && conversations.length > 0) {
+    if (selectedConvId && !conversations.find(c => c.id === selectedConvId)) {
+      setSelectedConvId(conversations.length > 0 ? conversations[0].id : null);
+    } else if (!selectedConvId && conversations.length > 0) {
       setSelectedConvId(conversations[0].id);
     }
   }, [conversations, selectedConvId]);
@@ -162,7 +169,7 @@ export default function Messages() {
     const all = getMessages();
     let changed = false;
     const updated = all.map(m => {
-      if (!m.read && m.from.name !== currentUser) {
+      if (!m.read && !(m.from.name === currentUser && m.from.role === currentRole)) {
         const convKey = getConversationId(m.from.name, m.from.role, m.to.name, m.to.role);
         if (convKey === selectedConvId) {
           changed = true;
@@ -371,7 +378,7 @@ export default function Messages() {
                     fontWeight: conv.unread > 0 ? 500 : 400,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
                   }}>
-                    {conv.lastMessage?.from.name === currentUser ? 'You: ' : ''}
+                    {conv.lastMessage?.from.name === currentUser && conv.lastMessage?.from.role === currentRole ? 'You: ' : ''}
                     {conv.lastMessage?.text || ''}
                   </span>
                   {conv.unread > 0 && (
@@ -452,7 +459,7 @@ export default function Messages() {
                 }
 
                 const msg = item.msg;
-                const isMe = msg.from.name === currentUser;
+                const isMe = msg.from.name === currentUser && msg.from.role === currentRole;
                 return (
                   <div key={msg.id} className="msg-bubble" style={{
                     display: 'flex', flexDirection: 'column',

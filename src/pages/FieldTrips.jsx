@@ -40,7 +40,7 @@ function FAQItem({ q, a }) {
         maxHeight: open ? 300 : 0, overflow: 'hidden',
         transition: 'max-height 0.35s cubic-bezier(.16,1,.3,1)',
       }}>
-        <p style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', paddingBottom: 24 }}>{a}</p>
+        <p style={{ font: '300 18px/1.8 DM Sans', color: '#B5B3AD', paddingBottom: 24 }}>{a}</p>
       </div>
     </div>
   );
@@ -256,7 +256,7 @@ export default function FieldTrips() {
 
   const inputStyle = {
     width: '100%', padding: '14px 16px',
-    background: 'rgba(13,13,34,0.7)', border: '1px solid var(--border2, rgba(255,255,255,0.06))',
+    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)',
     outline: 'none', transition: 'border-color 0.2s',
   };
@@ -267,7 +267,7 @@ export default function FieldTrips() {
   const labelStyle = {
     display: 'block', font: '500 10px JetBrains Mono',
     letterSpacing: '0.15em', textTransform: 'uppercase',
-    color: 'var(--muted)', marginBottom: 8,
+    color: 'var(--text)', marginBottom: 8,
   };
   const selectStyle = {
     ...inputStyle, cursor: 'pointer', appearance: 'none',
@@ -314,7 +314,7 @@ export default function FieldTrips() {
             Inspiring the Next <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Generation</em>
           </h1>
           <p data-editable="ft-hero-subtitle" style={{
-            font: '300 18px/1.8 DM Sans', color: 'var(--muted)',
+            font: '300 18px/1.8 DM Sans', color: '#B5B3AD',
             maxWidth: 580, margin: '0 auto 40px',
           }}>
             STEM-aligned programs for K-12 students under the darkest skies near a major American city.
@@ -328,7 +328,7 @@ export default function FieldTrips() {
             ].map(([num, label]) => (
               <div key={label} style={{ textAlign: 'center' }}>
                 <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, color: 'var(--gold)', fontStyle: 'italic', marginBottom: 4 }}>{num}</div>
-                <div style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</div>
+                <div style={{ font: '400 10px JetBrains Mono', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text2)' }}>{label}</div>
               </div>
             ))}
           </div>
@@ -360,7 +360,7 @@ export default function FieldTrips() {
             >
               <div style={{ marginBottom: 20 }}>{item.icon}</div>
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 19, fontWeight: 400, marginBottom: 12, color: 'var(--text)' }}>{item.title}</h3>
-              <p style={{ font: '300 17px/1.75 DM Sans', color: 'var(--muted)' }}>{item.desc}</p>
+              <p style={{ font: '300 17px/1.75 DM Sans', color: '#B5B3AD' }}>{item.desc}</p>
             </div>
           ))}
         </div>
@@ -378,7 +378,7 @@ export default function FieldTrips() {
           <h2 data-editable="ft-programs-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1 }}>
             Choose Your <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Program</em>
           </h2>
-          <p data-editable="ft-programs-subtitle" style={{ font: '300 18px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '16px auto 0' }}>
+          <p data-editable="ft-programs-subtitle" style={{ font: '300 18px/1.7 DM Sans', color: '#B5B3AD', maxWidth: 480, margin: '16px auto 0' }}>
             Flexible options for every schedule and group size.
           </p>
         </div>
@@ -395,14 +395,14 @@ export default function FieldTrips() {
               }}>{prog.duration}</div>
               <div className="mem-tier-name">{prog.name}</div>
               {prog.comingSoon ? (
-                <div style={{ font: '400 16px/1 DM Sans', color: 'var(--muted)', marginBottom: 4 }}>Coming Soon</div>
+                <div style={{ font: '400 16px/1 DM Sans', color: 'var(--text2)', marginBottom: 4 }}>Coming Soon</div>
               ) : (
                 <>
                   <div className="mem-tier-price">{prog.price}</div>
                   <div className="mem-tier-period">{prog.unit}</div>
                 </>
               )}
-              <div style={{ font: '300 12px/1 DM Sans', color: 'var(--muted)', marginBottom: 24 }}>
+              <div style={{ font: '300 12px/1 DM Sans', color: 'var(--text2)', marginBottom: 24 }}>
                 Groups of {prog.groupSize}
               </div>
               <div className="mem-tier-divider" />
@@ -412,7 +412,7 @@ export default function FieldTrips() {
                   <span>{item}</span>
                 </div>
               ))}
-              <p style={{ font: '300 12px/1.65 DM Sans', color: 'var(--muted)', marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+              <p style={{ font: '300 12px/1.65 DM Sans', color: 'var(--text2)', marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
                 {prog.note}
               </p>
               {prog.comingSoon ? (
@@ -451,7 +451,7 @@ export default function FieldTrips() {
               display: 'flex', flexDirection: 'column',
             }}>
               <div style={{ color: 'var(--gold)', fontSize: 32, fontFamily: 'Playfair Display, serif', marginBottom: 16, lineHeight: 1 }}>"</div>
-              <p style={{ font: '300 18px/1.8 DM Sans', color: 'var(--muted)', flex: 1, marginBottom: 24 }}>
+              <p style={{ font: '300 18px/1.8 DM Sans', color: '#B5B3AD', flex: 1, marginBottom: 24 }}>
                 {t.quote}
               </p>
               <div>
@@ -482,7 +482,7 @@ export default function FieldTrips() {
             <h2 data-editable="ft-booking-title" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, lineHeight: 1.1, marginBottom: 12 }}>
               Booking <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Inquiry</em>
             </h2>
-            <p style={{ font: '300 18px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 480, margin: '0 auto' }}>
+            <p style={{ font: '300 18px/1.7 DM Sans', color: '#B5B3AD', maxWidth: 480, margin: '0 auto' }}>
               Fill out the form below and our education coordinator will respond within 2 business days with available dates and a customized proposal.
             </p>
           </div>
@@ -498,7 +498,7 @@ export default function FieldTrips() {
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 400, marginBottom: 12 }}>
                 Inquiry Submitted
               </h3>
-              <p style={{ font: '300 18px/1.7 DM Sans', color: 'var(--muted)', maxWidth: 420, margin: '0 auto 32px' }}>
+              <p style={{ font: '300 18px/1.7 DM Sans', color: '#B5B3AD', maxWidth: 420, margin: '0 auto 32px' }}>
                 Thank you, {form.contact}! Our education coordinator will review your request and respond to {form.email} within 2 business days.
               </p>
               <button
@@ -607,7 +607,7 @@ export default function FieldTrips() {
                 )}
                 {submitting ? 'Submitting...' : 'Submit Booking Inquiry'}
               </button>
-              <p style={{ font: '300 11px/1.6 DM Sans', color: 'var(--muted)', textAlign: 'center', marginTop: 12 }}>
+              <p style={{ font: '300 11px/1.6 DM Sans', color: 'var(--text2)', textAlign: 'center', marginTop: 12 }}>
                 This is an inquiry, not a confirmed booking. Our coordinator will follow up with availability and next steps.
               </p>
             </form>
