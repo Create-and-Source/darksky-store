@@ -73,8 +73,9 @@ export default function PageTour({ steps = [], storageKey }) {
     );
   }
 
-  // Bubble position — FIXED to viewport so it's always visible
-  let bubbleStyle = { position: 'fixed', zIndex: 10002 };
+  // Bubble position — FIXED, always centered in viewport
+  const bubbleW = 340;
+  let bubbleStyle = { position: 'fixed', zIndex: 10002, width: bubbleW, maxWidth: 'calc(100vw - 32px)' };
   if (rect) {
     const viewRect = {
       top: rect.top - window.scrollY,
@@ -83,18 +84,23 @@ export default function PageTour({ steps = [], storageKey }) {
       height: rect.height,
     };
     const below = viewRect.top + viewRect.height + 16;
-    const centerX = viewRect.left + viewRect.width / 2;
-    // Default: below the element
-    if (below + 220 < window.innerHeight) {
+    // Vertical: below target if room, otherwise above, otherwise center
+    if (below + 240 < window.innerHeight) {
       bubbleStyle.top = below;
-    } else {
-      // Put above if no room below
+    } else if (viewRect.top > 260) {
       bubbleStyle.top = Math.max(16, viewRect.top - 16);
       bubbleStyle.transform = 'translateY(-100%)';
+    } else {
+      bubbleStyle.top = '50%';
+      bubbleStyle.transform = 'translateY(-50%)';
     }
-    bubbleStyle.left = Math.max(16, Math.min(centerX - 180, window.innerWidth - 376));
+    // Horizontal: center in available viewport, never off-screen
+    const availLeft = 16;
+    const availRight = window.innerWidth - 16;
+    const centerX = Math.max(viewRect.left, availLeft + bubbleW / 2);
+    bubbleStyle.left = Math.max(availLeft, Math.min(centerX - bubbleW / 2, availRight - bubbleW));
   } else {
-    bubbleStyle.top = '40%';
+    bubbleStyle.top = '50%';
     bubbleStyle.left = '50%';
     bubbleStyle.transform = 'translate(-50%, -50%)';
   }
@@ -139,7 +145,6 @@ export default function PageTour({ steps = [], storageKey }) {
       {/* Speech bubble */}
       <div ref={bubbleRef} style={{
         ...bubbleStyle,
-        width: 360, maxWidth: 'calc(100vw - 32px)',
         background: '#FFFFFF', borderRadius: 12,
         boxShadow: '0 12px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05)',
         padding: '24px 24px 20px', pointerEvents: 'auto',
