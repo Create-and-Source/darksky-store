@@ -44,7 +44,7 @@ export default function PageTour({ steps = [], storageKey }) {
     }
   }, [active, stepIdx, measureTarget]);
 
-  const start = () => { setStepIdx(0); setActive(true); };
+  const start = () => { /* Tour disabled — button only */ };
   const next = () => {
     if (stepIdx < steps.length - 1) setStepIdx(stepIdx + 1);
     else { setActive(false); localStorage.setItem(key, 'done'); }
