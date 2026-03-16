@@ -29,8 +29,18 @@ function saveNotes(notes) { localStorage.setItem(CRM_NOTES_KEY, JSON.stringify(n
 function getManualContacts() { try { return JSON.parse(localStorage.getItem(CRM_CONTACTS_KEY)) || []; } catch { return []; } }
 function saveManualContacts(c) { localStorage.setItem(CRM_CONTACTS_KEY, JSON.stringify(c)); }
 
-function normalizeEmail(e) { return (e || '').trim().toLowerCase(); }
-function normalizeName(n) { return (n || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+function safeStr(val) {
+  if (!val) return '';
+  if (typeof val === 'string') return val.trim();
+  if (typeof val === 'object') {
+    if (val.name) return String(val.name).trim();
+    if (val.email) return String(val.email).trim();
+    if (val.firstName) return `${val.firstName} ${val.lastName || ''}`.trim();
+  }
+  return String(val).trim();
+}
+function normalizeEmail(e) { return safeStr(e).toLowerCase(); }
+function normalizeName(n) { return safeStr(n).toLowerCase().replace(/\s+/g, ' '); }
 
 function buildContacts() {
   try {
@@ -48,14 +58,16 @@ function buildContacts() {
 
   const map = new Map(); // email -> contact
 
-  const getOrCreate = (email, name) => {
+  const getOrCreate = (rawEmail, rawName) => {
+    const email = safeStr(rawEmail);
+    const name = safeStr(rawName);
     const key = normalizeEmail(email) || `name:${normalizeName(name)}`;
     if (!key || key === 'name:') return null;
     if (!map.has(key)) {
       map.set(key, {
         id: key,
-        name: name || '',
-        email: email || '',
+        name: name,
+        email: email,
         phone: '',
         tags: [],
         memberTier: null,
@@ -99,8 +111,8 @@ function buildContacts() {
 
   // Orders
   orders.forEach(o => {
-    const name = o.customer || '';
-    const email = o.email || '';
+    const name = safeStr(o.customer || o.customer_name || o.customerName || '');
+    const email = safeStr(o.email || o.customer_email || o.customerEmail || '');
     const c = getOrCreate(email, name);
     if (!c) return;
     addTag(c, 'Customer');
@@ -114,7 +126,7 @@ function buildContacts() {
 
   // Donations
   donations.forEach(d => {
-    const c = getOrCreate(d.email, d.donor || d.name);
+    const c = getOrCreate(safeStr(d.email), safeStr(d.donor || d.name));
     if (!c) return;
     addTag(c, 'Donor');
     c.totalDonated += d.amount || 0;
@@ -139,7 +151,7 @@ function buildContacts() {
 
   // Field Trips
   fieldTrips.forEach(ft => {
-    const c = getOrCreate(ft.contactEmail || ft.email, ft.contactName || ft.teacher || ft.name);
+    const c = getOrCreate(safeStr(ft.email || ft.contactEmail), safeStr(ft.contact || ft.contactName || ft.teacher || ft.name));
     if (!c) return;
     addTag(c, 'School');
     if (ft.phone || ft.contactPhone) c.phone = ft.phone || ft.contactPhone;
