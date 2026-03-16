@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const STEPS = [
   // INTRO
@@ -102,6 +102,10 @@ const STEPS = [
 export default function DemoScript() {
   const [visible, setVisible] = useState(true);
   const [step, setStep] = useState(0);
+  const [pos, setPos] = useState({ x: null, y: null }); // null = default position
+  const [dragging, setDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const panelRef = useRef(null);
 
   const current = STEPS[step];
   const total = STEPS.length;
@@ -109,6 +113,29 @@ export default function DemoScript() {
 
   const next = useCallback(() => setStep(s => Math.min(s + 1, total - 1)), [total]);
   const prev = useCallback(() => setStep(s => Math.max(s - 1, 0)), []);
+
+  // Drag handlers
+  const onMouseDown = (e) => {
+    if (e.target.tagName === 'BUTTON') return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const rect = panel.getBoundingClientRect();
+    dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    setDragging(true);
+  };
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e) => {
+      setPos({
+        x: Math.max(0, Math.min(e.clientX - dragOffset.current.x, window.innerWidth - 380)),
+        y: Math.max(0, Math.min(e.clientY - dragOffset.current.y, window.innerHeight - 100)),
+      });
+    };
+    const onUp = () => setDragging(false);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    return () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+  }, [dragging]);
 
   useEffect(() => {
     const handle = (e) => {
@@ -128,7 +155,7 @@ export default function DemoScript() {
       <button
         onClick={() => setVisible(true)}
         style={{
-          position: 'fixed', bottom: 140, right: 20, zIndex: 9999,
+          position: 'fixed', ...(pos.x !== null ? { left: pos.x, top: pos.y } : { bottom: 140, right: 20 }), zIndex: 9999,
           background: 'rgba(212,175,55,0.15)', color: '#D4AF37',
           border: '1px solid rgba(212,175,55,0.3)', borderRadius: 20,
           padding: '6px 14px', cursor: 'pointer',
@@ -162,15 +189,20 @@ export default function DemoScript() {
     );
   };
 
+  const panelPosition = pos.x !== null
+    ? { left: pos.x, top: pos.y }
+    : { bottom: 140, right: 20 };
+
   return (
-    <div style={{
-      position: 'fixed', bottom: 140, right: 20, zIndex: 9999,
+    <div ref={panelRef} onMouseDown={onMouseDown} style={{
+      position: 'fixed', ...panelPosition, zIndex: 9999,
       width: 380, maxHeight: 280,
       background: 'rgba(26,26,46,0.95)', backdropFilter: 'blur(12px)',
-      borderRadius: '10px 10px 10px 10px', borderTop: '2px solid #D4AF37',
+      borderRadius: 10, borderTop: '2px solid #D4AF37',
       boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
       display: 'flex', flexDirection: 'column',
-      overflow: 'hidden',
+      overflow: 'hidden', cursor: dragging ? 'grabbing' : 'grab',
+      userSelect: 'none',
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     }}>
       {/* Progress bar */}
