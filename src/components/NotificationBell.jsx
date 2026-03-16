@@ -1,47 +1,142 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { subscribe, getInventory, getPurchaseOrders } from '../admin/data/store';
+import {
+  subscribe, getInventory, getPurchaseOrders, getOrders, getEvents,
+  getFieldTrips, getMembers, getDonations, getVolunteers, getTimesheets, getMessages,
+} from '../admin/data/store';
 
-// Generate notifications from store state
-function generateNotifications(inventory, pos) {
+// Generate notifications based on role
+function generateNotifications(role) {
   const notifs = [];
   const now = Date.now();
+  const today = new Date().toISOString().slice(0, 10);
+  const userName = localStorage.getItem('ds_user_name') || 'Team';
 
-  // Low stock alerts
-  inventory.forEach(item => {
-    const giftShopQty = item.giftshop ?? item.quantity ?? 0;
-    if (giftShopQty > 0 && giftShopQty <= (item.reorderPoint || 5)) {
-      notifs.push({
-        id: `low-${item.id}`,
-        type: 'warning',
-        title: 'Low Stock',
-        message: `${item.name} has only ${giftShopQty} left in gift shop`,
-        time: now - Math.random() * 3600000,
-        read: false,
-      });
-    }
-  });
+  // ── EXECUTIVE DIRECTOR: sees everything important ──
+  if (!role || role === 'executive_director' || role === 'admin') {
+    const orders = getOrders();
+    const processing = orders.filter(o => o.status === 'Processing');
+    if (processing.length > 0) notifs.push({ id: 'ord-proc', type: 'info', title: 'Orders to Process', message: `${processing.length} order${processing.length > 1 ? 's' : ''} awaiting fulfillment`, time: now - 600000 });
 
-  // PO arrivals
-  pos.forEach(po => {
-    if (po.status === 'Shipped') {
-      notifs.push({
-        id: `po-${po.id}`,
-        type: 'info',
-        title: 'Shipment En Route',
-        message: `${po.id} is shipped — expected ${po.expectedDate || 'soon'}`,
-        time: now - Math.random() * 7200000,
-        read: false,
-      });
-    }
-  });
+    const donations = getDonations();
+    const recentDonations = donations.filter(d => d.date >= today);
+    if (recentDonations.length > 0) notifs.push({ id: 'don-today', type: 'success', title: 'Donations Today', message: `${recentDonations.length} donation${recentDonations.length > 1 ? 's' : ''} received today`, time: now - 1200000 });
 
-  // Sort by time, newest first
+    const members = getMembers();
+    notifs.push({ id: 'members', type: 'info', title: 'Active Members', message: `${members.length} members across all tiers`, time: now - 3600000 });
+
+    const messages = getMessages();
+    const unread = messages.filter(m => !m.read && m.to.name === userName);
+    if (unread.length > 0) notifs.push({ id: 'msg-unread', type: 'warning', title: 'Unread Messages', message: `${unread.length} message${unread.length > 1 ? 's' : ''} waiting for you`, time: now - 300000 });
+  }
+
+  // ── TREASURER: financial notifications ──
+  if (role === 'treasurer') {
+    const orders = getOrders();
+    const revenue30d = orders.filter(o => { const d = new Date(o.date); return (now - d) < 30 * 86400000; }).reduce((s, o) => s + (o.total || 0), 0);
+    notifs.push({ id: 'rev-30', type: 'info', title: 'Revenue (30 days)', message: `$${(revenue30d / 100).toLocaleString()} in sales`, time: now - 1800000 });
+
+    const donations = getDonations();
+    if (donations.length > 0) notifs.push({ id: 'don-latest', type: 'success', title: 'Latest Donation', message: `$${donations[0].amount.toLocaleString()} from ${donations[0].donor}`, time: now - 900000 });
+
+    const messages = getMessages();
+    const unread = messages.filter(m => !m.read && m.to.name === userName);
+    if (unread.length > 0) notifs.push({ id: 'msg-unread', type: 'warning', title: 'Unread Messages', message: `${unread.length} new message${unread.length > 1 ? 's' : ''}`, time: now - 300000 });
+  }
+
+  // ── SHOP MANAGER / SHOP STAFF: inventory & orders ──
+  if (role === 'shop_manager' || role === 'shop_staff') {
+    const inventory = getInventory();
+    const lowStock = inventory.filter(i => { const qty = (i.giftshop ?? i.quantity ?? 0); return qty > 0 && qty <= (i.reorderPoint || 5); });
+    const outOfStock = inventory.filter(i => (i.giftshop ?? i.quantity ?? 0) === 0);
+    if (lowStock.length > 0) notifs.push({ id: 'low-stock', type: 'warning', title: 'Low Stock Alert', message: `${lowStock.length} product${lowStock.length > 1 ? 's' : ''} running low in gift shop`, time: now - 600000 });
+    if (outOfStock.length > 0) notifs.push({ id: 'out-stock', type: 'error', title: 'Out of Stock', message: `${outOfStock.length} product${outOfStock.length > 1 ? 's' : ''} out of stock`, time: now - 300000 });
+
+    const pos = getPurchaseOrders();
+    const shipped = pos.filter(p => p.status === 'Shipped');
+    if (shipped.length > 0) notifs.push({ id: 'po-ship', type: 'info', title: 'Shipments En Route', message: `${shipped.length} PO${shipped.length > 1 ? 's' : ''} shipped — check receiving`, time: now - 1800000 });
+
+    const orders = getOrders();
+    const todayOrders = orders.filter(o => o.date === today);
+    if (todayOrders.length > 0) notifs.push({ id: 'ord-today', type: 'info', title: "Today's Orders", message: `${todayOrders.length} order${todayOrders.length > 1 ? 's' : ''} today`, time: now - 900000 });
+
+    const messages = getMessages();
+    const unread = messages.filter(m => !m.read && m.to.name === userName);
+    if (unread.length > 0) notifs.push({ id: 'msg-unread', type: 'warning', title: 'Unread Messages', message: `${unread.length} new message${unread.length > 1 ? 's' : ''}`, time: now - 200000 });
+  }
+
+  // ── EDUCATION DIRECTOR: field trips & events ──
+  if (role === 'education_director') {
+    const trips = getFieldTrips();
+    const newTrips = trips.filter(t => t.status === 'New');
+    if (newTrips.length > 0) notifs.push({ id: 'ft-new', type: 'warning', title: 'New Trip Requests', message: `${newTrips.length} school${newTrips.length > 1 ? 's' : ''} waiting for response`, time: now - 300000 });
+
+    const confirmed = trips.filter(t => t.status === 'Confirmed');
+    if (confirmed.length > 0) notifs.push({ id: 'ft-conf', type: 'success', title: 'Confirmed Trips', message: `${confirmed.length} trip${confirmed.length > 1 ? 's' : ''} confirmed and scheduled`, time: now - 1800000 });
+
+    const events = getEvents();
+    const upcoming = events.filter(e => e.date >= today && e.status === 'Published');
+    if (upcoming.length > 0) notifs.push({ id: 'evt-up', type: 'info', title: 'Upcoming Events', message: `${upcoming.length} event${upcoming.length > 1 ? 's' : ''} scheduled`, time: now - 3600000 });
+
+    const messages = getMessages();
+    const unread = messages.filter(m => !m.read && m.to.name === userName);
+    if (unread.length > 0) notifs.push({ id: 'msg-unread', type: 'warning', title: 'Unread Messages', message: `${unread.length} new message${unread.length > 1 ? 's' : ''}`, time: now - 200000 });
+  }
+
+  // ── VISITOR SERVICES: today's activity ──
+  if (role === 'visitor_services') {
+    const events = getEvents();
+    const todayEvents = events.filter(e => e.date === today && e.status === 'Published');
+    notifs.push({ id: 'evt-today', type: 'info', title: "Today's Events", message: todayEvents.length > 0 ? `${todayEvents.length} event${todayEvents.length > 1 ? 's' : ''} today` : 'No events scheduled today', time: now - 600000 });
+  }
+
+  // ── VOLUNTEER COORDINATOR: volunteer activity ──
+  if (role === 'volunteer_coordinator') {
+    const volunteers = getVolunteers();
+    const active = volunteers.filter(v => v.status === 'Active');
+    notifs.push({ id: 'vol-active', type: 'info', title: 'Active Volunteers', message: `${active.length} volunteer${active.length > 1 ? 's' : ''} on the roster`, time: now - 1800000 });
+
+    const onLeave = volunteers.filter(v => v.status === 'On Leave');
+    if (onLeave.length > 0) notifs.push({ id: 'vol-leave', type: 'warning', title: 'On Leave', message: `${onLeave.length} volunteer${onLeave.length > 1 ? 's' : ''} currently on leave`, time: now - 3600000 });
+
+    const messages = getMessages();
+    const unread = messages.filter(m => !m.read && m.to.name === userName);
+    if (unread.length > 0) notifs.push({ id: 'msg-unread', type: 'warning', title: 'Unread Messages', message: `${unread.length} new message${unread.length > 1 ? 's' : ''}`, time: now - 200000 });
+  }
+
+  // ── SOCIAL MEDIA: posts & accounts ──
+  if (role === 'social_media') {
+    notifs.push({ id: 'social-tip', type: 'info', title: 'Content Tip', message: 'Clear skies tonight — great time for a stargazing post!', time: now - 1200000 });
+
+    const messages = getMessages();
+    const unread = messages.filter(m => !m.read && m.to.name === userName);
+    if (unread.length > 0) notifs.push({ id: 'msg-unread', type: 'warning', title: 'Unread Messages', message: `${unread.length} new message${unread.length > 1 ? 's' : ''}`, time: now - 200000 });
+  }
+
+  // ── PAYROLL: timesheets ──
+  if (role === 'payroll') {
+    const timesheets = getTimesheets();
+    const pending = timesheets.filter(t => t.status === 'Pending');
+    if (pending.length > 0) notifs.push({ id: 'ts-pending', type: 'warning', title: 'Pending Timesheets', message: `${pending.length} timesheet${pending.length > 1 ? 's' : ''} awaiting approval`, time: now - 600000 });
+
+    const messages = getMessages();
+    const unread = messages.filter(m => !m.read && m.to.name === userName);
+    if (unread.length > 0) notifs.push({ id: 'msg-unread', type: 'warning', title: 'Unread Messages', message: `${unread.length} new message${unread.length > 1 ? 's' : ''}`, time: now - 200000 });
+  }
+
+  // ── BOARD: high-level only ──
+  if (role === 'board') {
+    const members = getMembers();
+    notifs.push({ id: 'bd-members', type: 'info', title: 'Membership', message: `${members.length} active members`, time: now - 3600000 });
+
+    const events = getEvents();
+    const upcoming = events.filter(e => e.date >= today && e.status === 'Published');
+    if (upcoming.length > 0) notifs.push({ id: 'bd-events', type: 'info', title: 'Upcoming Events', message: `${upcoming.length} events scheduled`, time: now - 7200000 });
+  }
+
+  // Sort newest first, merge read state
   notifs.sort((a, b) => b.time - a.time);
-
-  // Merge with stored read state
   const readState = JSON.parse(localStorage.getItem('ds_notif_read') || '{}');
   notifs.forEach(n => { if (readState[n.id]) n.read = true; });
-
   return notifs.slice(0, 10);
 }
 
@@ -94,7 +189,7 @@ const S = {
   }),
   dot: (type) => ({
     width: 8, height: 8, borderRadius: '50%', flexShrink: 0, marginTop: 6,
-    background: type === 'warning' ? '#F59E0B' : type === 'error' ? '#EF4444' : '#3B82F6',
+    background: type === 'warning' ? '#F59E0B' : type === 'error' ? '#EF4444' : type === 'success' ? '#10B981' : '#3B82F6',
   }),
   itemTitle: { font: "500 13px -apple-system, sans-serif", color: '#1E293B', margin: 0 },
   itemMsg: { font: "400 12px -apple-system, sans-serif", color: '#64748B', margin: '2px 0 0' },
@@ -113,18 +208,18 @@ export default function NotificationBell() {
   const ref = useRef(null);
 
   const refresh = useCallback(() => {
-    const inv = getInventory();
-    const pos = getPurchaseOrders();
-    setNotifs(generateNotifications(inv, pos));
+    const role = localStorage.getItem('ds_admin_role') || 'executive_director';
+    setNotifs(generateNotifications(role));
   }, []);
 
   useEffect(() => {
     refresh();
     const unsub = subscribe(refresh);
-    return unsub;
+    // Also refresh when role changes
+    const poll = setInterval(refresh, 2000);
+    return () => { unsub(); clearInterval(poll); };
   }, [refresh]);
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
