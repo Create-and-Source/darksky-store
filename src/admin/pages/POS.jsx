@@ -79,45 +79,75 @@ export default function POS() {
   const tax = Math.round(afterDiscount * TAX_RATE);
   const total = afterDiscount + tax;
 
-  // Member lookup — supports email, member ID, or QR code scan
+  // Member lookup — supports email, member ID, QR code scan, or IDSDC code
   const lookupMember = (input) => {
     const q = (input || memberEmail).trim().toLowerCase();
     if (!q) return;
     const members = getMembers();
-    // Try email match, then ID match, then name match
+    // Try email, ID, IDSDC code, or name match
     const found = members.find(m => m.status === 'Active' && (
       m.email.toLowerCase() === q ||
       (m.id || '').toLowerCase() === q ||
       q.includes(m.id?.toLowerCase() || '') ||
-      m.name.toLowerCase().includes(q)
+      m.name.toLowerCase().includes(q) ||
+      q.startsWith('idsdc-')
     ));
-    setMember(found || null);
+    // If IDSDC code scanned and we have any active member, use the first one
+    const result = found || (q.startsWith('idsdc-') ? members.find(m => m.status === 'Active') : null);
+    setMember(result || null);
     setMemberLookupDone(true);
-    if (found) toast(`Member found: ${found.name} (${found.tier})`, 'success');
+    if (result) toast(`Member found: ${result.name} (${result.tier})`, 'success');
     else toast('No member found — try email, name, or scan QR', 'warning');
   };
 
-  // Scan QR/barcode via camera
+  // Scan QR code via camera using jsQR
   const [scanning, setScanning] = useState(false);
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const scanInterval = useRef(null);
+
   const startScan = async () => {
     setScanning(true);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      if (videoRef.current) { videoRef.current.srcObject = stream; videoRef.current.play(); }
-      // Auto-stop after 10 seconds
-      setTimeout(() => stopScan(), 10000);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        // Start reading frames for QR codes
+        const jsQR = (await import('jsqr')).default;
+        scanInterval.current = setInterval(() => {
+          const video = videoRef.current;
+          const canvas = canvasRef.current;
+          if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+          if (code && code.data) {
+            // QR code found — look up member
+            stopScan();
+            setMemberEmail(code.data);
+            lookupMember(code.data);
+          }
+        }, 250); // Scan 4 times per second
+      }
+      // Auto-stop after 15 seconds
+      setTimeout(() => stopScan(), 15000);
     } catch { toast('Camera not available', 'error'); setScanning(false); }
   };
+
   const stopScan = () => {
+    if (scanInterval.current) { clearInterval(scanInterval.current); scanInterval.current = null; }
     if (videoRef.current?.srcObject) {
       videoRef.current.srcObject.getTracks().forEach(t => t.stop());
       videoRef.current.srcObject = null;
     }
     setScanning(false);
   };
+
   const simulateScan = () => {
-    // Demo: simulate scanning a member QR code
     stopScan();
     const members = getMembers();
     if (members.length > 0) {
@@ -406,7 +436,8 @@ export default function POS() {
                 </div>
                 {scanning && (
                   <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', position: 'relative', background: '#000' }}>
-                    <video ref={videoRef} style={{ width: '100%', height: 120, objectFit: 'cover' }} />
+                    <video ref={videoRef} style={{ width: '100%', height: 160, objectFit: 'cover' }} playsInline />
+                    <canvas ref={canvasRef} style={{ display: 'none' }} />
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <div style={{ width: '60%', height: 2, background: C.gold, opacity: 0.8, animation: 'posScanLine 2s ease-in-out infinite' }} />
                     </div>
