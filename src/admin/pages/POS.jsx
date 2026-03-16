@@ -429,9 +429,9 @@ export default function POS() {
                   <button onClick={() => lookupMember()} style={{ ...btnStyle, background: C.bg, border: `1px solid ${C.border}`, color: C.text, padding: '8px 14px', fontSize: 12 }}>
                     Lookup
                   </button>
-                  <button onClick={scanning ? simulateScan : startScan} style={{ ...btnStyle, background: scanning ? C.success : C.gold, border: 'none', color: '#fff', padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <button onClick={scanning ? stopScan : startScan} style={{ ...btnStyle, background: scanning ? '#EF4444' : C.gold, border: 'none', color: '#fff', padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
-                    {scanning ? 'Tap to Scan' : 'Scan'}
+                    {scanning ? 'Stop' : 'Scan QR'}
                   </button>
                 </div>
                 {scanning && (
@@ -441,7 +441,7 @@ export default function POS() {
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <div style={{ width: '60%', height: 2, background: C.gold, opacity: 0.8, animation: 'posScanLine 2s ease-in-out infinite' }} />
                     </div>
-                    <button onClick={simulateScan} style={{ position: 'absolute', bottom: 8, right: 8, padding: '4px 12px', background: C.gold, color: '#fff', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>Simulate Scan</button>
+                    <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', padding: '4px 12px', background: 'rgba(0,0,0,0.6)', borderRadius: 4, font: "500 11px 'Inter', sans-serif", color: '#fff' }}>Point camera at QR code</div>
                   </div>
                 )}
                 {memberLookupDone && member && (
