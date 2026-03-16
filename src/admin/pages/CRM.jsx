@@ -33,6 +33,7 @@ function normalizeEmail(e) { return (e || '').trim().toLowerCase(); }
 function normalizeName(n) { return (n || '').trim().toLowerCase().replace(/\s+/g, ' '); }
 
 function buildContacts() {
+  try {
   const members = getMembers();
   const orders = getOrders();
   const donations = getDonations();
@@ -196,6 +197,7 @@ function buildContacts() {
   });
 
   return contacts;
+  } catch (e) { console.error('CRM buildContacts error:', e); return []; }
 }
 
 const cardStyle = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: C.shadow };
@@ -392,7 +394,7 @@ export default function CRM() {
 
   return (
     <div style={{ fontFamily: FONT, color: C.text }}>
-      <PageTour steps={TOUR_STEPS} />
+      <PageTour storageKey="ds_tour_crm" steps={TOUR_STEPS} />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
