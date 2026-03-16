@@ -6,12 +6,12 @@ const CATS = ['All', 'Apparel', 'Kids', 'Outerwear', 'Tanks', 'Gifts'];
 
 const SORT_OPTIONS = [
   { value: 'default', label: 'Featured' },
-  { value: 'price-asc', label: 'Price: Low → High' },
-  { value: 'price-desc', label: 'Price: High → Low' },
+  { value: 'price-asc', label: 'Price: Low \u2192 High' },
+  { value: 'price-desc', label: 'Price: High \u2192 Low' },
   { value: 'newest', label: 'Newest' },
 ];
 
-const fmt = (cents) => cents ? `$${(cents / 100).toFixed(2)}` : '$—';
+const fmt = (cents) => cents ? `$${(cents / 100).toFixed(2)}` : '$\u2014';
 
 const TRUST = [
   { icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2', icon2: 'M12 3a4 4 0 100 8 4 4 0 000-8z', label: 'Print on Demand', sub: 'Made just for you' },
@@ -28,18 +28,10 @@ const CATEGORY_CARDS = [
   { name: 'Tanks', img: '/images/darksky/comet-neowise.jpg', alt: 'Comet NEOWISE' },
 ];
 
-const LIFESTYLE_BANNERS = [
-  { img: '/images/darksky/milky-way.jpg', text: 'Made for Stargazers', sub: 'Wearable astronomy from the Sonoran Desert' },
-  { img: '/images/darksky/desert-night-sky.png', text: 'Wearable Astronomy', sub: 'Every purchase supports dark sky preservation' },
-  { img: '/images/darksky/observatory-hero.jpg', text: 'Under the Darkest Skies', sub: 'Curated at the International Dark Sky Discovery Center' },
-];
-
-const FILLER_IMAGES = [
-  '/images/darksky/andromeda.jpg',
-  '/images/darksky/first-light-nebula.jpg',
-  '/images/darksky/meteor-shower.jpg',
-  '/images/darksky/bubble-nebula.jpg',
-  '/images/darksky/crescent-nebula.jpg',
+const MARQUEE_ITEMS = [
+  'ASTRONOMY', 'DARK SKY', 'SONORAN DESERT', 'STARGAZER APPAREL',
+  'OBSERVATORY GEAR', 'NOCTURNAL WILDLIFE', 'DESERT NIGHTS', 'COSMIC GIFTS',
+  'FOUNTAIN HILLS', 'CELESTIAL WEAR', 'NIGHT SKY', 'PRESERVATION'
 ];
 
 /* ── Reveal on scroll ── */
@@ -88,7 +80,7 @@ function ProductCard({ product, onAddToCart, badge, size = 'normal', addedId }) 
         {product.images[0] ? (
           <img className="sp-card-img" src={product.images[0]} alt={product.title} loading="lazy" />
         ) : (
-          <div className="sp-card-placeholder">✦</div>
+          <div className="sp-card-placeholder">{'\u2726'}</div>
         )}
         <button
           className={`sp-qa${justAdded ? ' added' : ''}`}
@@ -115,29 +107,26 @@ export default function Shop({ onAddToCart }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const RAW_PRODUCTS = getProducts();
+  const gridRef = useRef(null);
 
-  // Sort: physical first, then by category priority, then price high-to-low
   const CAT_PRIORITY = { Gifts: 0, Apparel: 1, Outerwear: 2, Tanks: 3, Kids: 4 };
   const PRODUCTS = useMemo(() => {
     return [...RAW_PRODUCTS].sort((a, b) => {
-      // Physical inventory items first
       const aPhys = a.type === 'physical' ? 0 : 1;
       const bPhys = b.type === 'physical' ? 0 : 1;
       if (aPhys !== bPhys) return aPhys - bPhys;
-      // Category priority
       const aCat = CAT_PRIORITY[a.category] ?? 2;
       const bCat = CAT_PRIORITY[b.category] ?? 2;
       if (aCat !== bCat) return aCat - bCat;
-      // Price high to low
       return (b.price || 0) - (a.price || 0);
     });
   }, [RAW_PRODUCTS]);
 
-  // Best sellers: adult products with images only (no infant/baby)
   const BESTSELLER_IDS = new Set(
     PRODUCTS.filter(p => p.images.length > 0 && !/(infant|baby|toddler)/i.test(p.title)).slice(0, 6).map(p => p.id)
   );
   const NEW_IDS = new Set(PRODUCTS.filter(p => !/(infant|baby|toddler)/i.test(p.title)).slice(-6).map(p => p.id));
+
   const initialCat = searchParams.get('cat') || 'All';
   const initialSort = searchParams.get('sort') || 'default';
   const [activeCat, setActiveCat] = useState(initialCat);
@@ -187,6 +176,10 @@ export default function Shop({ onAddToCart }) {
     if (cat !== 'All') params.cat = cat;
     if (sortBy !== 'default') params.sort = sortBy;
     setSearchParams(params);
+    // Scroll to the all-products grid
+    setTimeout(() => {
+      gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleSort = (val) => {
@@ -209,75 +202,24 @@ export default function Shop({ onAddToCart }) {
     setSearchParams({});
   };
 
-  /* Staff Picks — first 3 products with images (best sellers) */
+  /* Derived product sets */
   const staffPicks = PRODUCTS.filter(p => p.images.length > 0 && BESTSELLER_IDS.has(p.id)).slice(0, 3);
-
-  /* Build masonry layout rows */
-  const buildMasonryRows = (products) => {
-    const rows = [];
-    let i = 0;
-    let bannerIdx = 0;
-    const withImages = products.filter(p => p.images[0]);
-
-    while (i < withImages.length) {
-      // Insert lifestyle banner every ~10 products
-      if (i > 0 && i % 10 === 0 && bannerIdx < LIFESTYLE_BANNERS.length) {
-        rows.push({ type: 'banner', data: LIFESTYLE_BANNERS[bannerIdx++] });
-      }
-
-      const remaining = withImages.length - i;
-
-      if (remaining >= 3) {
-        // Pattern: large + medium
-        rows.push({ type: 'row-lg-md', items: [withImages[i], withImages[i + 1], withImages[i + 2]] });
-        i += 3;
-      } else if (remaining === 2) {
-        rows.push({ type: 'row-2', items: [withImages[i], withImages[i + 1]] });
-        i += 2;
-      } else {
-        rows.push({ type: 'row-1', items: [withImages[i]] });
-        i += 1;
-      }
-
-      if (i < withImages.length && remaining >= 6) {
-        // 3 equal
-        const threeItems = withImages.slice(i, i + 3);
-        if (threeItems.length === 3) {
-          rows.push({ type: 'row-3', items: threeItems });
-          i += 3;
-        }
-      }
-
-      if (i < withImages.length && remaining >= 9) {
-        // medium + large
-        const items2 = withImages.slice(i, i + 3);
-        if (items2.length >= 2) {
-          rows.push({ type: 'row-md-lg', items: items2.length >= 3 ? items2 : [...items2] });
-          i += items2.length;
-        }
-      }
-
-      if (i < withImages.length && remaining >= 12) {
-        // 2 products + filler image
-        const pair = withImages.slice(i, i + 2);
-        if (pair.length === 2) {
-          const fillerImg = FILLER_IMAGES[(i / 2) % FILLER_IMAGES.length];
-          rows.push({ type: 'row-2-filler', items: pair, filler: fillerImg });
-          i += 2;
-        }
-      }
-    }
-    return rows;
-  };
+  const newArrivals = PRODUCTS.filter(p => p.images.length > 0 && !/(infant|baby|toddler)/i.test(p.title)).slice(-4).reverse();
+  const featuredCandidates = PRODUCTS.filter(p => p.images.length > 0 && !/(infant|baby|toddler)/i.test(p.title) && !BESTSELLER_IDS.has(p.id));
+  const featuredProduct = featuredCandidates.length > 2 ? featuredCandidates[2] : featuredCandidates[0];
 
   const isFiltered = activeCat !== 'All' || search.trim();
   const displayProducts = filtered.slice(0, visible);
+
+  const scrollToGrid = () => {
+    gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="sp" data-page="shop">
 
       {/* ═══════════════════════════════════════
-          HERO — Full width, cinematic
+          1. HERO — Cinematic full-height
       ═══════════════════════════════════════ */}
       <section className="sp-hero" data-section="Hero">
         <img
@@ -287,22 +229,205 @@ export default function Shop({ onAddToCart }) {
         />
         <div className="sp-hero-overlay" />
         <div className="sp-hero-content">
-          <Reveal>
-            <div className="sp-hero-label" data-editable="shop-hero-label">// The Collection</div>
-            <h1 className="sp-hero-title" data-editable="shop-hero-title">
-              The <em>Collection</em>
-            </h1>
-            <p className="sp-hero-sub" data-editable="shop-hero-subtitle">
-              Every purchase supports dark sky preservation
-            </p>
-          </Reveal>
+          <div className="sp-hero-label sp-hero-stagger" data-editable="shop-hero-label">// The Collection</div>
+          <h1 className="sp-hero-title sp-hero-stagger" data-editable="shop-hero-title">
+            The <em>Collection</em>
+          </h1>
+          <p className="sp-hero-sub sp-hero-stagger" data-editable="shop-hero-subtitle">
+            Every purchase supports dark sky preservation
+          </p>
+          <button className="sp-hero-cta sp-hero-stagger" onClick={scrollToGrid}>
+            Browse Collection
+          </button>
+        </div>
+        <div className="sp-hero-scroll" onClick={scrollToGrid}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M7 10l5 5 5-5"/>
+          </svg>
         </div>
         <div className="sp-hero-fade" />
       </section>
 
       {/* ═══════════════════════════════════════
-          FILTER BAR — Sticky
+          2. MARQUEE — Infinite scroll ticker
       ═══════════════════════════════════════ */}
+      <div className="sp-marquee" data-section="Marquee">
+        <div className="sp-marquee-track">
+          {[0, 1].map(set => (
+            <div className="sp-marquee-set" key={set} aria-hidden={set === 1}>
+              {MARQUEE_ITEMS.map((item, i) => (
+                <span key={i}>
+                  <span className="sp-marquee-text">{item}</span>
+                  <span className="sp-marquee-dot">{'\u25C6'}</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════
+          3. NEW ARRIVALS — 4-column grid
+      ═══════════════════════════════════════ */}
+      <section className="sp-section" data-section="NewArrivals">
+        <Reveal>
+          <div className="sp-section-header">
+            <span className="sp-section-label">// Just In</span>
+            <h2 className="sp-section-title">New <em>Arrivals</em></h2>
+          </div>
+        </Reveal>
+        <div className="sp-arrivals">
+          {newArrivals.map((p, i) => (
+            <Reveal key={p.id} delay={i * 120}>
+              <ProductCard product={p} onAddToCart={handleAdd} badge="New" addedId={addedId} />
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          5. LIFESTYLE BANNER — Full-bleed parallax
+      ═══════════════════════════════════════ */}
+      <section className="sp-lifestyle-full" data-section="Lifestyle">
+        <div className="sp-lifestyle-full-bg" />
+        <div className="sp-lifestyle-full-overlay" />
+        <Reveal className="sp-lifestyle-full-content">
+          <span className="sp-lifestyle-full-label">// Wearable Astronomy</span>
+          <h2 className="sp-lifestyle-full-title">Made for <em>Stargazers</em></h2>
+          <p className="sp-lifestyle-full-sub">Curated at the International Dark Sky Discovery Center in Fountain Hills, Arizona</p>
+        </Reveal>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          6. SHOP BY CATEGORY — Asymmetric grid
+      ═══════════════════════════════════════ */}
+      <section className="sp-section sp-section--cats" data-section="Categories">
+        <Reveal>
+          <div className="sp-section-header">
+            <span className="sp-section-label">// Browse</span>
+            <h2 className="sp-section-title">Shop by <em>Category</em></h2>
+          </div>
+        </Reveal>
+        <div className="sp-cat-grid">
+          {CATEGORY_CARDS.map((cat, i) => (
+            <Reveal key={cat.name} delay={i * 80} className={i === 0 ? 'sp-cat-grid-hero' : ''}>
+              <button
+                className="sp-cat-card"
+                onClick={() => selectCat(cat.name)}
+              >
+                <img src={cat.img} alt={cat.alt} className="sp-cat-card-img" loading="lazy" />
+                <div className="sp-cat-card-overlay" />
+                <div className="sp-cat-card-content">
+                  <span className="sp-cat-card-name">{cat.name}</span>
+                  <span className="sp-cat-card-count">{catCount(cat.name)} items</span>
+                  <span className="sp-cat-card-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </span>
+                </div>
+              </button>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          7. STAFF PICKS / BEST SELLERS
+      ═══════════════════════════════════════ */}
+      <section className="sp-section" data-section="StaffPicks">
+        <Reveal>
+          <div className="sp-section-header">
+            <span className="sp-section-label">// Staff Picks</span>
+            <h2 className="sp-section-title">Best <em>Sellers</em></h2>
+          </div>
+        </Reveal>
+        <div className="sp-featured">
+          {staffPicks.map((p, i) => (
+            <Reveal key={p.id} delay={i * 100}>
+              <ProductCard product={p} onAddToCart={handleAdd} badge="Best Seller" size="featured" addedId={addedId} />
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          FEATURED SPOTLIGHT — Editorial hero product
+      ═══════════════════════════════════════ */}
+      {featuredProduct && (
+        <section className="sp-spotlight" data-section="Featured">
+          <div className="sp-spotlight-inner">
+            <Reveal className="sp-spotlight-img-col">
+              <div className="sp-spotlight-img-wrap" onClick={() => navigate(`/product/${featuredProduct.id}`)}>
+                <img src={featuredProduct.images[0]} alt={featuredProduct.title} className="sp-spotlight-img" loading="lazy" />
+                <div className="sp-spotlight-img-badge">Featured</div>
+              </div>
+            </Reveal>
+            <Reveal className="sp-spotlight-info" delay={200}>
+              <span className="sp-section-label">// Featured</span>
+              <span className="sp-spotlight-cat">{featuredProduct.category}</span>
+              <h2 className="sp-spotlight-name">{featuredProduct.title}</h2>
+              <p className="sp-spotlight-desc">
+                {featuredProduct.description?.replace(/<[^>]*>/g, '').slice(0, 180)}...
+              </p>
+              <div className="sp-spotlight-price">{fmt(featuredProduct.price)}</div>
+              <div className="sp-spotlight-actions">
+                <button className="sp-spotlight-btn" onClick={() => navigate(`/product/${featuredProduct.id}`)}>
+                  Shop Now
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+                <button className="sp-spotlight-add" onClick={(e) => { e.stopPropagation(); handleAdd(featuredProduct); }}>
+                  {addedId === featuredProduct.id ? (
+                    <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>Added</>
+                  ) : (
+                    <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Add to Cart</>
+                  )}
+                </button>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* ═══════════════════════════════════════
+          EDITORIAL MISSION
+      ═══════════════════════════════════════ */}
+      <section className="sp-mission" data-section="Mission">
+        <div className="sp-mission-inner">
+          <Reveal className="sp-mission-img-col">
+            <div className="sp-mission-img-wrap">
+              <img src="/images/darksky/observatory-hero.jpg" alt="Observatory dome under stars" className="sp-mission-img" loading="lazy" />
+              <div className="sp-mission-accent" />
+            </div>
+          </Reveal>
+          <Reveal className="sp-mission-text" delay={200}>
+            <span className="sp-section-label">// Our Mission</span>
+            <h2 className="sp-mission-title">Preserving the <em>Night Sky</em></h2>
+            <p className="sp-mission-p">
+              The International Dark Sky Discovery Center stands at the intersection of science, art, and conservation.
+              Every item in our collection is chosen to inspire curiosity about the cosmos and connect you to the Sonoran Desert's pristine dark skies.
+            </p>
+            <p className="sp-mission-p">
+              When you shop with us, you directly support dark sky preservation, public astronomy education, and the protection
+              of nocturnal ecosystems. From stargazer apparel to cosmic gifts, each purchase helps keep the stars visible for future generations.
+            </p>
+            <div className="sp-mission-sig">{'\u2014'} Dark Sky Discovery Center</div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          9. ALL PRODUCTS — Filterable grid
+      ═══════════════════════════════════════ */}
+      <div ref={gridRef} className="sp-all-products-anchor" />
+
+      <section className="sp-section sp-section--grid" data-section="AllProducts">
+        <Reveal>
+          <div className="sp-section-header">
+            <span className="sp-section-label">// Full Collection</span>
+            <h2 className="sp-section-title">All <em>Products</em></h2>
+          </div>
+        </Reveal>
+      </section>
+
       <div className="sp-bar">
         <div className="sp-bar-inner">
           <div ref={catBarRef} className="sp-cats">
@@ -351,61 +476,6 @@ export default function Shop({ onAddToCart }) {
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════
-          STAFF PICKS — Featured collection (only when unfiltered)
-      ═══════════════════════════════════════ */}
-      {!isFiltered && (
-        <section className="sp-section" data-section="StaffPicks">
-          <Reveal>
-            <div className="sp-section-header">
-              <span className="sp-section-label">// Staff Picks</span>
-              <h2 className="sp-section-title">Best <em>Sellers</em></h2>
-            </div>
-          </Reveal>
-          <div className="sp-featured">
-            {staffPicks.map((p, i) => (
-              <Reveal key={p.id} delay={i * 100}>
-                <ProductCard product={p} onAddToCart={handleAdd} badge="Best Seller" size="featured" addedId={addedId} />
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ═══════════════════════════════════════
-          CATEGORY NAVIGATION (only when unfiltered)
-      ═══════════════════════════════════════ */}
-      {!isFiltered && (
-        <section className="sp-section sp-section--cats">
-          <Reveal>
-            <div className="sp-section-header">
-              <span className="sp-section-label">// Browse</span>
-              <h2 className="sp-section-title">Shop by <em>Category</em></h2>
-            </div>
-          </Reveal>
-          <div className="sp-cat-cards">
-            {CATEGORY_CARDS.map((cat, i) => (
-              <Reveal key={cat.name} delay={i * 80}>
-                <button
-                  className="sp-cat-card"
-                  onClick={() => selectCat(cat.name)}
-                >
-                  <img src={cat.img} alt={cat.alt} className="sp-cat-card-img" loading="lazy" />
-                  <div className="sp-cat-card-overlay" />
-                  <div className="sp-cat-card-content">
-                    <span className="sp-cat-card-name">{cat.name}</span>
-                    <span className="sp-cat-card-count">{catCount(cat.name)} items</span>
-                  </div>
-                </button>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ═══════════════════════════════════════
-          RESULTS INFO
-      ═══════════════════════════════════════ */}
       <div className="sp-results">
         <span>
           {filtered.length === 0
@@ -418,19 +488,15 @@ export default function Shop({ onAddToCart }) {
         )}
       </div>
 
-      {/* ═══════════════════════════════════════
-          MAGAZINE MASONRY GRID (unfiltered)
-      ═══════════════════════════════════════ */}
       <div className="sp-grid-wrap">
         {filtered.length === 0 ? (
           <div className="sp-empty">
-            <div className="sp-empty-star">✦</div>
+            <div className="sp-empty-star">{'\u2726'}</div>
             <h3>No products found</h3>
             <p>Try adjusting your search or explore a different category.</p>
             <button className="sp-empty-btn" onClick={clearFilters}>Clear All Filters</button>
           </div>
         ) : (
-          /* Clean uniform grid for all views */
           <>
             <div className="sp-grid sp-grid--uniform">
               {displayProducts.filter(p => p.images?.[0]).slice(0, visible).map(p => {
@@ -442,17 +508,10 @@ export default function Shop({ onAddToCart }) {
                 );
               })}
             </div>
-            {!isFiltered && visible < filtered.filter(p => p.images?.[0]).length && (
+            {visible < filtered.filter(p => p.images?.[0]).length && (
               <div className="sp-load-more">
                 <button className="sp-load-btn" onClick={() => setVisible(v => v + 12)}>
                   View More Products<span className="sp-load-remaining">{filtered.filter(p => p.images?.[0]).length - visible} more</span>
-                </button>
-              </div>
-            )}
-            {isFiltered && visible < filtered.length && (
-              <div className="sp-load-more">
-                <button className="sp-load-btn" onClick={() => setVisible(v => v + 24)}>
-                  Load More<span className="sp-load-remaining">{filtered.length - visible} remaining</span>
                 </button>
               </div>
             )}
@@ -461,7 +520,7 @@ export default function Shop({ onAddToCart }) {
       </div>
 
       {/* ═══════════════════════════════════════
-          TRUST / HELP / NEWSLETTER
+          10. TRUST / NEWSLETTER / HELP
       ═══════════════════════════════════════ */}
       <div className="sp-trust-section" data-section="Trust">
         <div className="sp-trust-grid">
@@ -495,7 +554,7 @@ export default function Shop({ onAddToCart }) {
 
         <div className="sp-help">
           <span>Need help choosing?</span>
-          <button onClick={() => navigate('/contact')} className="sp-help-link">Get in touch →</button>
+          <button onClick={() => navigate('/contact')} className="sp-help-link">Get in touch {'\u2192'}</button>
         </div>
       </div>
 
@@ -507,25 +566,28 @@ export default function Shop({ onAddToCart }) {
 const SHOP_CSS = `
 /* ═══════════════════════════════════════
    SHOP PAGE — Premium Editorial Layout
+   Dark Sky Discovery Center
    ═══════════════════════════════════════ */
 
 /* ── REVEAL ── */
 .sp-reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s cubic-bezier(.16,1,.3,1), transform 0.7s cubic-bezier(.16,1,.3,1);
+  transform: translateY(28px);
+  transition: opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
 }
 .sp-reveal.sp-vis {
   opacity: 1;
   transform: none;
 }
 
-/* ═══ HERO ═══ */
+/* ═══════════════════════════════════════
+   1. HERO
+   ═══════════════════════════════════════ */
 .sp-hero {
   position: relative;
-  height: 50vh;
-  min-height: 380px;
-  max-height: 600px;
+  height: 75vh;
+  min-height: 500px;
+  max-height: 800px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -538,11 +600,12 @@ const SHOP_CSS = `
   height: 100%;
   object-fit: cover;
   z-index: 0;
+  filter: brightness(0.7);
 }
 .sp-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(4,4,12,0.55) 0%, rgba(4,4,12,0.75) 100%);
+  background: linear-gradient(180deg, rgba(4,4,12,0.3) 0%, rgba(4,4,12,0.6) 50%, rgba(4,4,12,0.9) 100%);
   z-index: 1;
 }
 .sp-hero-content {
@@ -556,23 +619,38 @@ const SHOP_CSS = `
   bottom: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  height: 120px;
   background: linear-gradient(to top, var(--bg, #04040c), transparent);
   z-index: 2;
   pointer-events: none;
 }
+
+/* Staggered hero entrance */
+.sp-hero-stagger {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: spHeroIn 0.9s cubic-bezier(.16,1,.3,1) forwards;
+}
+.sp-hero-stagger:nth-child(1) { animation-delay: 0.2s; }
+.sp-hero-stagger:nth-child(2) { animation-delay: 0.45s; }
+.sp-hero-stagger:nth-child(3) { animation-delay: 0.65s; }
+.sp-hero-stagger:nth-child(4) { animation-delay: 0.85s; }
+@keyframes spHeroIn {
+  to { opacity: 1; transform: none; }
+}
+
 .sp-hero-label {
   font: 500 11px/1 'JetBrains Mono', monospace;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   opacity: 0.8;
 }
 .sp-hero-title {
-  font: 400 clamp(40px, 6vw, 72px)/1.05 'Playfair Display', serif;
+  font: 400 clamp(44px, 7vw, 80px)/1.05 'Playfair Display', serif;
   color: var(--text);
-  margin: 0 0 18px;
+  margin: 0 0 20px;
   letter-spacing: -0.02em;
 }
 .sp-hero-title em {
@@ -580,10 +658,500 @@ const SHOP_CSS = `
   color: var(--gold);
 }
 .sp-hero-sub {
-  font: 300 clamp(15px, 2vw, 18px)/1.6 'Plus Jakarta Sans', sans-serif;
+  font: 300 clamp(15px, 2vw, 19px)/1.6 'Plus Jakarta Sans', sans-serif;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 36px;
+  letter-spacing: 0.04em;
+}
+.sp-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 40px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font: 500 11px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.35s cubic-bezier(.16,1,.3,1);
+}
+.sp-hero-cta:hover {
+  background: var(--gold);
+  color: #04040c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212,175,55,0.25);
+}
+
+/* Scroll indicator */
+.sp-hero-scroll {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  animation: spScrollPulse 2s ease-in-out infinite;
+  transition: color 0.2s;
+}
+.sp-hero-scroll:hover { color: var(--gold); }
+@keyframes spScrollPulse {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
+  50% { transform: translateX(-50%) translateY(8px); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════
+   2. MARQUEE
+   ═══════════════════════════════════════ */
+.sp-marquee {
+  overflow: hidden;
+  border-top: 1px solid rgba(212,175,55,0.12);
+  border-bottom: 1px solid rgba(212,175,55,0.12);
+  padding: 18px 0;
+  background: rgba(212,175,55,0.02);
+}
+.sp-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: spMarquee 40s linear infinite;
+}
+.sp-marquee-set {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.sp-marquee-text {
+  font: 500 11px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  opacity: 0.5;
+  white-space: nowrap;
+}
+.sp-marquee-dot {
+  margin: 0 24px;
+  font-size: 6px;
+  color: var(--gold);
+  opacity: 0.25;
+}
+@keyframes spMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ═══════════════════════════════════════
+   3. FEATURED SPOTLIGHT
+   ═══════════════════════════════════════ */
+.sp-spotlight {
+  padding: 100px 0;
+  background: linear-gradient(180deg, var(--bg, #04040c) 0%, #080814 50%, var(--bg, #04040c) 100%);
+}
+.sp-spotlight-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 48px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.sp-spotlight-img-wrap {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #eae7e0;
+  aspect-ratio: 4/5;
+}
+.sp-spotlight-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(.16,1,.3,1);
+}
+.sp-spotlight-img-wrap:hover .sp-spotlight-img {
+  transform: scale(1.04);
+}
+.sp-spotlight-img-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, #D4AF37, #F5E6A3, #D4AF37);
+  background-size: 200% 200%;
+  animation: goldShimmer 3s ease infinite;
+  color: #04040c;
+  font: 600 9px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+.sp-spotlight-cat {
+  display: block;
+  font: 400 11px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 16px 0 12px;
+}
+.sp-spotlight-name {
+  font: 400 clamp(28px, 3.5vw, 42px)/1.15 'Playfair Display', serif;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+.sp-spotlight-desc {
+  font: 300 15px/1.7 'Plus Jakarta Sans', sans-serif;
+  color: var(--muted);
+  margin: 0 0 28px;
+  max-width: 440px;
+}
+.sp-spotlight-price {
+  font: 600 28px/1 'JetBrains Mono', monospace;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+  margin-bottom: 32px;
+}
+.sp-spotlight-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.sp-spotlight-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 36px;
+  background: var(--gold);
+  color: #04040c;
+  border: none;
+  font: 600 11px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.3s cubic-bezier(.16,1,.3,1);
+}
+.sp-spotlight-btn:hover {
+  background: #E5C76B;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212,175,55,0.3);
+}
+.sp-spotlight-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 28px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid rgba(212,175,55,0.3);
+  font: 500 11px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.3s;
+}
+.sp-spotlight-add:hover {
+  border-color: var(--gold);
+  background: rgba(212,175,55,0.08);
+}
+
+/* ═══════════════════════════════════════
+   4. SECTIONS (shared)
+   ═══════════════════════════════════════ */
+.sp-section {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 100px 48px 0;
+}
+.sp-section--cats {
+  padding-bottom: 20px;
+}
+.sp-section--grid {
+  padding-bottom: 0;
+}
+.sp-section-header {
+  margin-bottom: 48px;
+}
+.sp-section-label {
+  display: block;
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+.sp-section-title {
+  font: 400 clamp(30px, 4vw, 48px)/1.1 'Playfair Display', serif;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.sp-section-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+/* ═══════════════════════════════════════
+   4b. NEW ARRIVALS
+   ═══════════════════════════════════════ */
+.sp-arrivals {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* ═══════════════════════════════════════
+   5. LIFESTYLE BANNER — Full bleed
+   ═══════════════════════════════════════ */
+.sp-lifestyle-full {
+  position: relative;
+  height: 50vh;
+  min-height: 360px;
+  max-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-top: 100px;
+}
+.sp-lifestyle-full-bg {
+  position: absolute;
+  inset: 0;
+  background: url('/images/darksky/milky-way.jpg') center/cover no-repeat;
+  background-attachment: fixed;
+  filter: brightness(0.55);
+}
+.sp-lifestyle-full-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4,4,12,0.4) 0%, rgba(4,4,12,0.6) 100%);
+}
+.sp-lifestyle-full-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 0 24px;
+  max-width: 700px;
+}
+.sp-lifestyle-full-label {
+  display: block;
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+.sp-lifestyle-full-title {
+  font: 400 clamp(36px, 5vw, 60px)/1.1 'Playfair Display', serif;
+  color: #fff;
+  margin: 0 0 20px;
+  letter-spacing: -0.02em;
+  text-shadow: 0 4px 30px rgba(0,0,0,0.4);
+}
+.sp-lifestyle-full-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+.sp-lifestyle-full-sub {
+  font: 300 clamp(14px, 1.8vw, 17px)/1.7 'Plus Jakarta Sans', sans-serif;
   color: rgba(255,255,255,0.6);
   margin: 0;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+}
+
+/* ═══════════════════════════════════════
+   6. CATEGORY GRID — Asymmetric
+   ═══════════════════════════════════════ */
+.sp-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 220px;
+  gap: 16px;
+}
+.sp-cat-grid-hero {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+.sp-cat-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.35);
+  padding: 0;
+  background: none;
+  text-align: left;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+.sp-cat-card:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 8px 24px rgba(212,175,55,0.12);
+}
+.sp-cat-card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(.16,1,.3,1), filter 0.5s;
+  filter: brightness(0.82);
+}
+.sp-cat-card:hover .sp-cat-card-img {
+  transform: scale(1.06);
+  filter: brightness(0.92);
+}
+.sp-cat-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4,4,12,0.0) 0%, rgba(4,4,12,0.5) 100%);
+  transition: background 0.4s;
+}
+.sp-cat-card:hover .sp-cat-card-overlay {
+  background: linear-gradient(180deg, rgba(4,4,12,0.0) 0%, rgba(4,4,12,0.35) 100%);
+}
+.sp-cat-card-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sp-cat-card-name {
+  display: block;
+  font: 500 clamp(18px, 2.5vw, 26px)/1.2 'Playfair Display', serif;
+  color: #fff;
+  font-style: italic;
+}
+.sp-cat-card-count {
+  font: 400 10px 'JetBrains Mono', monospace;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+}
+.sp-cat-card-arrow {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.4s cubic-bezier(.16,1,.3,1);
+}
+.sp-cat-card:hover .sp-cat-card-arrow {
+  opacity: 1;
+  transform: none;
+  background: rgba(212,175,55,0.15);
+  color: var(--gold);
+}
+
+/* ═══════════════════════════════════════
+   7. STAFF PICKS / FEATURED
+   ═══════════════════════════════════════ */
+.sp-featured {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.sp-card--featured .sp-card-img-wrap {
+  aspect-ratio: 1/1;
+}
+
+/* ═══════════════════════════════════════
+   8. EDITORIAL MISSION
+   ═══════════════════════════════════════ */
+.sp-mission {
+  padding: 120px 0;
+  background: linear-gradient(180deg, var(--bg, #04040c) 0%, #07071a 50%, var(--bg, #04040c) 100%);
+  margin-top: 80px;
+}
+.sp-mission-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: center;
+}
+.sp-mission-img-wrap {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  aspect-ratio: 4/5;
+}
+.sp-mission-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(.16,1,.3,1);
+}
+.sp-mission-img-wrap:hover .sp-mission-img {
+  transform: scale(1.03);
+}
+.sp-mission-accent {
+  position: absolute;
+  bottom: -12px;
+  right: -12px;
+  width: 80px;
+  height: 80px;
+  border: 2px solid var(--gold);
+  border-radius: 2px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+.sp-mission-title {
+  font: 400 clamp(28px, 3.5vw, 44px)/1.15 'Playfair Display', serif;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin: 16px 0 28px;
+}
+.sp-mission-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+.sp-mission-p {
+  font: 300 15px/1.8 'Plus Jakarta Sans', sans-serif;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 20px;
+  max-width: 480px;
+}
+.sp-mission-sig {
+  font: 400 16px/1.4 'Playfair Display', serif;
+  font-style: italic;
+  color: var(--gold);
+  margin-top: 32px;
+  opacity: 0.7;
+}
+
+/* ═══════════════════════════════════════
+   9. ALL PRODUCTS GRID
+   ═══════════════════════════════════════ */
+.sp-all-products-anchor {
+  scroll-margin-top: 80px;
 }
 
 /* ═══ FILTER BAR ═══ */
@@ -597,7 +1165,7 @@ const SHOP_CSS = `
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .sp-bar-inner {
-  max-width: 1400px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 0 48px;
   display: flex;
@@ -639,10 +1207,8 @@ const SHOP_CSS = `
 .sp-cat-count { font-size: 10px; opacity: 0.4; margin-left: 5px; }
 .sp-cat.active .sp-cat-count { opacity: 0.7; }
 
-/* Search in bar */
-.sp-search-wrap {
-  position: relative;
-}
+/* Search */
+.sp-search-wrap { position: relative; }
 .sp-search-icon {
   position: absolute;
   left: 12px; top: 50%; transform: translateY(-50%);
@@ -702,114 +1268,9 @@ const SHOP_CSS = `
 .sp-sort:hover { border-color: rgba(255,255,255,0.15); }
 .sp-sort:focus { border-color: rgba(212,175,55,0.3); }
 
-/* ═══ SECTION HEADERS ═══ */
-.sp-section {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 80px 48px 0;
-}
-.sp-section--cats {
-  padding-bottom: 20px;
-}
-.sp-section-header {
-  margin-bottom: 40px;
-}
-.sp-section-label {
-  display: block;
-  font: 500 10px/1 'JetBrains Mono', monospace;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 14px;
-  opacity: 0.7;
-}
-.sp-section-title {
-  font: 400 clamp(28px, 3.5vw, 42px)/1.1 'Playfair Display', serif;
-  color: var(--text);
-  letter-spacing: -0.02em;
-}
-.sp-section-title em {
-  font-style: italic;
-  color: var(--gold);
-}
-
-/* ═══ FEATURED / STAFF PICKS ═══ */
-.sp-featured {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.sp-card--featured {
-  max-width: 300px;
-}
-.sp-card--featured .sp-card-img-wrap {
-  max-height: 280px;
-}
-
-/* ═══ CATEGORY CARDS ═══ */
-.sp-cat-cards {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-}
-.sp-cat-card {
-  position: relative;
-  aspect-ratio: 4/5;
-  overflow: hidden;
-  border-radius: 6px;
-  cursor: pointer;
-  border: none;
-  padding: 0;
-  background: none;
-  text-align: left;
-  display: block;
-  width: 100%;
-}
-.sp-cat-card-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s cubic-bezier(.16,1,.3,1);
-}
-.sp-cat-card:hover .sp-cat-card-img {
-  transform: scale(1.06);
-}
-.sp-cat-card-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(4,4,12,0.15) 0%, rgba(4,4,12,0.75) 100%);
-  transition: background 0.3s;
-}
-.sp-cat-card:hover .sp-cat-card-overlay {
-  background: linear-gradient(180deg, rgba(4,4,12,0.1) 0%, rgba(4,4,12,0.65) 100%);
-}
-.sp-cat-card-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 20px;
-  z-index: 1;
-}
-.sp-cat-card-name {
-  display: block;
-  font: 500 clamp(16px, 2vw, 22px)/1.2 'Playfair Display', serif;
-  color: #fff;
-  font-style: italic;
-  margin-bottom: 4px;
-}
-.sp-cat-card-count {
-  font: 400 11px 'JetBrains Mono', monospace;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.5);
-  text-transform: uppercase;
-}
-
-/* ═══ RESULTS LINE ═══ */
+/* Results */
 .sp-results {
-  max-width: 1400px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 24px 48px 0;
   font: 400 13px 'Plus Jakarta Sans', sans-serif;
@@ -830,87 +1291,52 @@ const SHOP_CSS = `
 }
 .sp-clear-btn:hover { opacity: 1; }
 
-/* ═══ GRID WRAP ═══ */
+/* Grid wrap */
 .sp-grid-wrap {
-  max-width: 1400px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 24px 48px 80px;
+  padding: 24px 48px 100px;
 }
 
-/* ── Uniform grid ── */
+/* Uniform grid */
 .sp-grid--uniform {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
-@media (max-width: 1024px) { .sp-grid--uniform { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 768px) { .sp-grid--uniform { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
 
-/* ═══ MASONRY ROWS ═══ */
-.sp-masonry-row {
-  display: grid;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-.sp-masonry--lg-md {
-  grid-template-columns: 2fr 1fr;
-}
-.sp-masonry--md-lg {
-  grid-template-columns: 1fr 2fr;
-}
-.sp-masonry--3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-.sp-masonry--2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-.sp-masonry--2-filler {
-  grid-template-columns: 1fr 1fr 1fr;
-}
-.sp-masonry--1 {
-  grid-template-columns: 1fr;
-  max-width: 300px;
-}
-.sp-masonry-side {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.sp-masonry-lg .sp-card-img-wrap {
-  max-height: 300px;
-}
-
-/* ═══ PRODUCT CARD ═══ */
+/* ═══════════════════════════════════════
+   PRODUCT CARD
+   ═══════════════════════════════════════ */
 .sp-card {
   cursor: pointer;
   position: relative;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 4px;
-  background: #131318;
+  background: #101018;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(.16,1,.3,1);
+  transition: all 0.45s cubic-bezier(.16,1,.3,1);
 }
-.sp-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.25); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+.sp-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212,175,55,0.2);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,175,55,0.08);
+}
 .sp-card-img-wrap {
   position: relative;
   aspect-ratio: 1/1;
   overflow: hidden;
   background: #eae7e0;
 }
-.sp-card:hover .sp-card-img-wrap img { transform: scale(1.06); }
-.sp-card:hover .sp-card-img-wrap {
-  box-shadow: 0 8px 28px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.3);
-}
 .sp-card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.7s cubic-bezier(.16,1,.3,1);
-  transition: transform 0.55s cubic-bezier(.16,1,.3,1);
+  transition: transform 0.6s cubic-bezier(.16,1,.3,1);
   will-change: transform;
 }
 .sp-card:hover .sp-card-img {
-  transform: scale(1.03);
+  transform: scale(1.05);
 }
 .sp-card-placeholder {
   width: 100%;
@@ -949,7 +1375,7 @@ const SHOP_CSS = `
   letter-spacing: 0.02em;
 }
 
-/* ── Badge ── */
+/* Badge */
 .sp-badge {
   position: absolute;
   top: 12px; left: 12px;
@@ -958,7 +1384,7 @@ const SHOP_CSS = `
   font: 600 9px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 .sp-badge.bestseller {
   background: linear-gradient(135deg, #D4AF37, #F5E6A3, #D4AF37);
@@ -970,7 +1396,7 @@ const SHOP_CSS = `
   color: #1a1a2e;
 }
 
-/* ── Quick Add ── */
+/* Quick Add */
 .sp-qa {
   position: absolute;
   bottom: 0; left: 0; right: 0;
@@ -1007,91 +1433,13 @@ const SHOP_CSS = `
   opacity: 1;
 }
 
-/* ═══ LIFESTYLE BANNER ═══ */
-.sp-lifestyle {
-  position: relative;
-  height: 200px;
-  overflow: hidden;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.sp-lifestyle-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.sp-lifestyle-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(4,4,12,0.6);
-}
-.sp-lifestyle-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: 0 24px;
-}
-.sp-lifestyle-title {
-  font: 400 clamp(24px, 3vw, 36px)/1.15 'Playfair Display', serif;
-  font-style: italic;
-  color: #fff;
-  margin: 0 0 8px;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.4);
-}
-.sp-lifestyle-sub {
-  font: 300 14px/1.5 'Plus Jakarta Sans', sans-serif;
-  color: rgba(255,255,255,0.6);
-  margin: 0;
-  letter-spacing: 0.04em;
-}
-
-/* ═══ FILLER IMAGE ═══ */
-.sp-filler-wrap { height: 100%; }
-.sp-filler {
-  position: relative;
-  height: 100%;
-  min-height: 280px;
-  overflow: hidden;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.sp-filler-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.sp-filler-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(4,4,12,0.45);
-}
-.sp-filler-text {
-  position: relative;
-  z-index: 1;
-  font: 400 18px/1.3 'Playfair Display', serif;
-  font-style: italic;
-  color: rgba(255,255,255,0.5);
-  text-align: center;
-  letter-spacing: 0.04em;
-}
-
-/* ═══ LOAD MORE ═══ */
+/* Load more */
 .sp-load-more {
   text-align: center;
   margin-top: 56px;
   display: flex;
   gap: 16px;
   justify-content: center;
-  flex-wrap: wrap;
 }
 .sp-load-btn {
   display: inline-flex;
@@ -1099,20 +1447,21 @@ const SHOP_CSS = `
   align-items: center;
   gap: 4px;
   padding: 16px 48px;
-  background: linear-gradient(135deg, #D4AF37, #F5E6A3, #D4AF37);
-  background-size: 200% 200%;
-  color: #04040c;
-  border: none;
-  border-radius: 100px;
-  font: 600 12px/1 'Plus Jakarta Sans', sans-serif;
-  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 0;
+  font: 600 11px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(.16,1,.3,1);
 }
 .sp-load-btn:hover {
+  background: var(--gold);
+  color: #04040c;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(212,175,55,0.3);
+  box-shadow: 0 8px 24px rgba(212,175,55,0.25);
 }
 .sp-load-remaining {
   font: 400 10px 'Plus Jakarta Sans', sans-serif;
@@ -1120,21 +1469,8 @@ const SHOP_CSS = `
   letter-spacing: 0;
   opacity: 0.6;
 }
-.sp-show-all {
-  padding: 16px 36px;
-  background: none;
-  color: var(--muted);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 100px;
-  font: 500 12px/1 'Plus Jakarta Sans', sans-serif;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-.sp-show-all:hover { border-color: var(--gold); color: var(--gold); }
 
-/* ═══ EMPTY STATE ═══ */
+/* Empty state */
 .sp-empty {
   text-align: center;
   padding: 80px 24px;
@@ -1160,27 +1496,29 @@ const SHOP_CSS = `
   background: none;
   color: var(--gold);
   border: 1px solid var(--gold);
-  border-radius: 100px;
-  font: 500 12px 'Plus Jakarta Sans', sans-serif;
-  letter-spacing: 0.06em;
+  border-radius: 0;
+  font: 500 11px 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 .sp-empty-btn:hover { background: var(--gold); color: #04040c; }
 
-/* ═══ TRUST / NEWSLETTER / HELP ═══ */
+/* ═══════════════════════════════════════
+   10. TRUST / NEWSLETTER / HELP
+   ═══════════════════════════════════════ */
 .sp-trust-section {
   border-top: 1px solid rgba(255,255,255,0.04);
-  padding: 72px 48px;
-  max-width: 1400px;
+  padding: 80px 48px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 .sp-trust-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;
-  margin-bottom: 56px;
+  margin-bottom: 64px;
 }
 .sp-trust-item { text-align: center; }
 .sp-trust-icon {
@@ -1188,7 +1526,7 @@ const SHOP_CSS = `
   margin: 0 auto 14px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 50%;
-  background: rgba(212,175,55,0.06);
+  background: rgba(212,175,55,0.04);
   border: 1px solid rgba(212,175,55,0.1);
   color: var(--gold);
 }
@@ -1208,10 +1546,10 @@ const SHOP_CSS = `
   align-items: center;
   justify-content: space-between;
   gap: 32px;
-  padding: 36px 40px;
+  padding: 40px 44px;
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 6px;
+  border-radius: 4px;
   margin-bottom: 40px;
 }
 .sp-newsletter-text { flex: 1; }
@@ -1239,7 +1577,7 @@ const SHOP_CSS = `
   background: rgba(10,10,26,0.8);
   border: 1px solid rgba(255,255,255,0.08);
   border-right: none;
-  border-radius: 6px 0 0 6px;
+  border-radius: 0;
   font: 400 14px 'Plus Jakarta Sans', sans-serif;
   color: var(--text);
   outline: none;
@@ -1253,7 +1591,7 @@ const SHOP_CSS = `
   background: var(--gold);
   color: #04040c;
   border: none;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0;
   font: 600 11px 'JetBrains Mono', monospace;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1290,50 +1628,53 @@ const SHOP_CSS = `
 
 @media (max-width: 1200px) {
   .sp-grid--uniform { grid-template-columns: repeat(3, 1fr); }
-  .sp-cat-cards { grid-template-columns: repeat(3, 1fr); }
-  .sp-featured { gap: 16px; }
-  .sp-masonry--3 { grid-template-columns: repeat(3, 1fr); }
+  .sp-arrivals { grid-template-columns: repeat(3, 1fr); }
+  .sp-arrivals > *:nth-child(4) { display: none; }
+  .sp-cat-grid { grid-auto-rows: 190px; }
+}
+
+@media (max-width: 1024px) {
+  .sp-grid--uniform { grid-template-columns: repeat(3, 1fr); }
+  .sp-spotlight-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    max-width: 600px;
+  }
+  .sp-spotlight-img-wrap { aspect-ratio: 3/4; max-height: 500px; }
+  .sp-mission-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .sp-mission-img-wrap { max-height: 400px; }
 }
 
 @media (max-width: 860px) {
-  .sp-hero { height: 40vh; min-height: 300px; }
+  .sp-hero { height: 55vh; min-height: 400px; }
+  .sp-hero-cta { padding: 14px 32px; }
   .sp-bar-inner { padding: 0 16px; }
   .sp-bar-right { display: none; }
-  .sp-section { padding: 56px 20px 0; }
+  .sp-section { padding: 64px 20px 0; }
   .sp-results { padding: 16px 20px 0; }
   .sp-grid-wrap { padding: 16px 20px 64px; }
 
-  .sp-featured { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .sp-arrivals { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .sp-arrivals > *:nth-child(3),
+  .sp-arrivals > *:nth-child(4) { display: none; }
+  .sp-featured { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .sp-featured > *:nth-child(3) { display: none; }
 
-  .sp-cat-cards {
-    grid-template-columns: repeat(5, minmax(140px, 1fr));
-    overflow-x: auto;
-    scrollbar-width: none;
-    gap: 12px;
-    padding-bottom: 4px;
+  .sp-cat-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 160px;
+    gap: 10px;
   }
-  .sp-cat-cards::-webkit-scrollbar { display: none; }
-  .sp-cat-card { aspect-ratio: 3/4; }
+  .sp-cat-grid-hero {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
 
-  .sp-masonry-row {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-  .sp-masonry--1 {
-    grid-template-columns: 1fr !important;
-    max-width: none;
-  }
-  .sp-masonry--2-filler .sp-filler-wrap { display: none; }
-  .sp-masonry-side {
-    display: contents;
-  }
-  .sp-masonry-lg .sp-card-img-wrap { aspect-ratio: 3/4; }
+  .sp-grid--uniform { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 
-  .sp-grid--uniform { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-
-  .sp-card { max-width: none; }
-  .sp-card-img-wrap { border-radius: 6px; margin-bottom: 8px; max-height: 200px; }
-  .sp-masonry-lg .sp-card-img-wrap { max-height: 200px; }
   .sp-qa {
     transform: translateY(0) !important;
     opacity: 1 !important;
@@ -1343,6 +1684,14 @@ const SHOP_CSS = `
   .sp-card-name { font-size: 13px; }
   .sp-card-price { font-size: 14px; }
   .sp-card-cat { font-size: 9px; margin-bottom: 4px; }
+
+  .sp-spotlight { padding: 64px 0; }
+  .sp-spotlight-inner { padding: 0 20px; }
+  .sp-mission { padding: 64px 0; margin-top: 40px; }
+  .sp-mission-inner { padding: 0 20px; gap: 32px; }
+
+  .sp-lifestyle-full { height: 40vh; min-height: 280px; margin-top: 64px; }
+  .sp-lifestyle-full-bg { background-attachment: scroll; }
 
   .sp-trust-section { padding: 48px 20px; }
   .sp-trust-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
@@ -1355,43 +1704,35 @@ const SHOP_CSS = `
   }
   .sp-newsletter-input { width: 100%; }
 
-  .sp-lifestyle { height: 160px; }
-
   .sp-help { flex-direction: column; gap: 4px; }
 }
 
 @media (max-width: 480px) {
-  .sp-hero { height: 30vh; min-height: 220px; }
-  .sp-hero-title { font-size: clamp(26px, 8vw, 40px); }
-  .sp-hero-sub { font-size: 13px !important; }
-  .sp-section { padding: 32px 12px 0; }
-  .sp-section-title { font-size: clamp(22px, 6vw, 32px) !important; }
-  .sp-results { padding: 10px 12px 0; }
-  .sp-grid-wrap { padding: 10px 12px 48px; }
+  .sp-hero { height: 50vh; min-height: 340px; }
+  .sp-hero-title { font-size: clamp(30px, 9vw, 48px); }
+  .sp-hero-sub { font-size: 13px !important; margin-bottom: 24px; }
+  .sp-hero-cta { padding: 13px 28px; font-size: 10px; }
+  .sp-hero-scroll { bottom: 24px; }
+  .sp-section { padding: 40px 14px 0; }
+  .sp-section-title { font-size: clamp(24px, 7vw, 36px) !important; }
+  .sp-section-header { margin-bottom: 28px; }
+  .sp-results { padding: 10px 14px 0; }
+  .sp-grid-wrap { padding: 10px 14px 48px; }
   .sp-bar-inner { padding: 0 8px; }
 
   .sp-cats { gap: 0; padding: 0 4px; }
   .sp-cat { padding: 14px 12px; font-size: 11px; letter-spacing: 0.04em; }
 
-  /* All masonry rows become clean 2-column grid */
-  .sp-masonry-row,
-  .sp-masonry--lg-md,
-  .sp-masonry--md-lg,
-  .sp-masonry--3,
-  .sp-masonry--2,
-  .sp-masonry--2-filler,
-  .sp-masonry--1 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; margin-bottom: 8px; }
-  .sp-masonry--1 { max-width: none; }
-  .sp-masonry-side { flex-direction: row; gap: 8px; }
-  .sp-grid--uniform { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
-  .sp-card { max-width: none; max-height: none; }
-  .sp-card-img-wrap { margin-bottom: 8px; max-height: 200px; border-radius: 6px; }
-  .sp-masonry-lg .sp-card-img-wrap { max-height: 200px; }
-  .sp-card-name { font-size: 13px; line-height: 1.35; }
-  .sp-card-price { font-size: 14px; }
-  .sp-card-cat { font-size: 9px; margin-bottom: 3px; }
-  .sp-card-info { padding: 0 2px; }
-  .sp-qa { height: 36px; font-size: 10px; gap: 4px; padding: 0 10px; }
+  /* Arrivals: horizontal scroll */
+  .sp-arrivals {
+    display: flex !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory; gap: 12px !important; padding-bottom: 8px !important;
+    scrollbar-width: none;
+  }
+  .sp-arrivals::-webkit-scrollbar { display: none; }
+  .sp-arrivals > div { min-width: 220px; max-width: 240px; flex-shrink: 0; scroll-snap-align: start; display: block !important; }
+  .sp-arrivals > *:nth-child(3),
+  .sp-arrivals > *:nth-child(4) { display: block !important; }
 
   /* Staff picks: horizontal scroll */
   .sp-featured {
@@ -1400,33 +1741,54 @@ const SHOP_CSS = `
     scrollbar-width: none;
   }
   .sp-featured::-webkit-scrollbar { display: none; }
-  .sp-featured > div { min-width: 260px; max-width: 280px; flex-shrink: 0; scroll-snap-align: start; }
-  .sp-featured .sp-card { max-width: none; }
-  .sp-featured .sp-card-img-wrap { max-height: 180px; }
+  .sp-featured > div { min-width: 220px; max-width: 240px; flex-shrink: 0; scroll-snap-align: start; display: block !important; }
+  .sp-featured > *:nth-child(3) { display: block !important; }
 
-  /* Category cards: horizontal scroll */
-  .sp-cat-cards {
+  /* Category grid: horizontal scroll */
+  .sp-cat-grid {
     display: flex !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory; gap: 8px !important; padding-bottom: 8px !important;
+    scroll-snap-type: x mandatory; gap: 10px !important; padding-bottom: 8px;
     scrollbar-width: none;
   }
-  .sp-cat-cards::-webkit-scrollbar { display: none; }
-  .sp-cat-cards > div { min-width: 140px; max-width: 160px; flex-shrink: 0; scroll-snap-align: start; }
-  .sp-cat-card-name { font-size: 14px !important; }
-  .sp-cat-card-count { font-size: 9px !important; }
+  .sp-cat-grid::-webkit-scrollbar { display: none; }
+  .sp-cat-grid > div { min-width: 200px; max-width: 240px; flex-shrink: 0; scroll-snap-align: start; }
+  .sp-cat-grid-hero { grid-column: unset; grid-row: unset; }
+  .sp-cat-card { height: 200px; }
 
-  .sp-trust-section { padding: 32px 12px; }
-  .sp-trust-grid { gap: 12px; grid-template-columns: repeat(2, 1fr) !important; }
+  .sp-grid--uniform { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  .sp-card { max-width: none; }
+  .sp-card-img-wrap { border-radius: 4px; }
+  .sp-card-name { font-size: 13px; line-height: 1.3; }
+  .sp-card-price { font-size: 13px; }
+  .sp-card-cat { font-size: 9px; margin-bottom: 3px; }
+  .sp-card-info { padding: 10px 8px 14px; }
+  .sp-qa { height: 36px; font-size: 10px; gap: 4px; }
+
+  .sp-spotlight { padding: 48px 0; }
+  .sp-spotlight-inner { padding: 0 14px; gap: 28px; }
+  .sp-spotlight-name { font-size: clamp(22px, 6vw, 32px); }
+  .sp-spotlight-price { font-size: 22px; margin-bottom: 24px; }
+  .sp-spotlight-actions { flex-direction: column; gap: 10px; }
+  .sp-spotlight-btn, .sp-spotlight-add { width: 100%; justify-content: center; }
+
+  .sp-mission { padding: 48px 0; margin-top: 20px; }
+  .sp-mission-inner { padding: 0 14px; }
+  .sp-mission-accent { width: 50px; height: 50px; bottom: -8px; right: -8px; }
+
+  .sp-lifestyle-full { height: 35vh; min-height: 240px; margin-top: 40px; }
+  .sp-lifestyle-full-title { font-size: clamp(26px, 7vw, 40px); }
+
+  .sp-marquee-text { font-size: 10px; letter-spacing: 0.15em; }
+  .sp-marquee-dot { margin: 0 16px; }
+
+  .sp-trust-section { padding: 32px 14px; }
+  .sp-trust-grid { gap: 12px; }
   .sp-trust-icon { width: 36px; height: 36px; margin-bottom: 8px; }
   .sp-trust-label { font-size: 11px; }
   .sp-trust-sub { font-size: 10px; }
-  .sp-lifestyle { height: 140px; border-radius: 6px; }
-  .sp-lifestyle-title { font-size: 20px !important; }
-  .sp-lifestyle-sub { font-size: 12px !important; }
   .sp-newsletter { padding: 24px 16px; gap: 12px; }
   .sp-newsletter-title { font-size: 15px !important; }
   .sp-help { padding: 16px 12px; font-size: 12px; }
-  .sp-load-btn { padding: 14px 28px; font-size: 12px; }
-  .sp-filler-wrap { display: none !important; }
+  .sp-load-btn { padding: 14px 28px; }
 }
 `;
