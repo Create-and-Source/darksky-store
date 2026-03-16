@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { getFieldTrips, updateFieldTrip, getMessages, addMessage } from '../admin/data/store';
+import PortalNav from '../components/PortalNav';
 
 const C = { bg: '#FAFAF8', card: '#FFFFFF', border: '#E8E5DF', gold: '#C5A55A', text: '#1A1A2E', text2: '#7C7B76', muted: '#B5B3AD', success: '#3D8C6F', warning: '#D4943A', danger: '#C45B5B' };
 const FONT = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -358,6 +359,7 @@ export default function SchoolPortal() {
         <SchoolChat schoolName={auth.school} />
       </div>
 
+      <PortalNav />
       <style>{`
         @media (max-width: 600px) {
           header > div:nth-child(2) { display: none !important; }

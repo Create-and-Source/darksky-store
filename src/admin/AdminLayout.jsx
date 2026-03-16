@@ -200,6 +200,7 @@ const ROLE_LABELS = ROLE_NAMES;
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [demoMode, setDemoMode] = useState(() => localStorage.getItem('ds_demo_mode') === 'true');
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
@@ -403,7 +404,7 @@ export default function AdminLayout() {
         )}
 
         {/* Sidebar */}
-        <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="admin-sidebar-header">
             <div className="admin-sidebar-brand" style={{ justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -480,6 +481,10 @@ export default function AdminLayout() {
           </nav>
 
           <div className="admin-sidebar-footer">
+            <button className="admin-nav-back" onClick={() => setSidebarCollapsed(c => !c)} style={{ marginBottom: 8 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ transform: sidebarCollapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }}><polyline points="15,18 9,12 15,6"/></svg>
+              {sidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+            </button>
             <button className="admin-nav-back" onClick={() => navigate('/')}>
               {Icons.back}
               Back to Store
@@ -488,7 +493,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main content */}
-        <div className={`admin-main ${sidebarOpen ? '' : ''}`}>
+        <div className={`admin-main ${sidebarCollapsed ? 'expanded' : ''}`}>
           <header className="admin-topbar">
             <div className="admin-topbar-left">
               <button className="admin-hamburger" onClick={() => setSidebarOpen(o => !o)}>

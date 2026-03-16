@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PortalNav from '../components/PortalNav';
 import QRCodeLib from 'qrcode';
 import {
   getMembers, getOrders, getDonations, getEvents, formatPrice, subscribe,
@@ -241,6 +242,7 @@ export default function MemberPortal() {
           </div>
         </div>
       </div>
+      <PortalNav />
     </>
   );
 }

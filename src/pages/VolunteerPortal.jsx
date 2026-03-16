@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PortalNav from '../components/PortalNav';
 import {
   getEvents, getVolunteers, getVolunteerHours, getVolunteerCheckins,
   addVolunteerHour, addVolunteerCheckin, subscribe,
@@ -430,6 +431,7 @@ export default function VolunteerPortal() {
           </div>
         </div>
       </div>
+      <PortalNav />
     </>
   );
 }
