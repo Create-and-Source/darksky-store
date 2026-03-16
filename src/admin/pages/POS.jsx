@@ -207,11 +207,11 @@ export default function POS() {
     ]} />
     <div className="pos-layout" style={{ fontFamily: FONT, display: 'flex', height: 'calc(100vh - 56px)', overflow: 'hidden', maxWidth: '100%' }}>
       {/* ── LEFT: Products ── */}
-      <div id="tour-pos-products" className="pos-left" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${C.border}`, overflow: 'hidden' }}>
+      <div id="tour-pos-products" className="pos-left" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${C.border}`, overflow: 'hidden', background: '#F8F7F4' }}>
         {/* Search + Filters */}
-        <div style={{ padding: '16px 20px 12px', borderBottom: `1px solid ${C.border}`, background: C.card }}>
-          <div style={{ position: 'relative', marginBottom: 12 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }}>
+        <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}`, background: C.card, display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}>
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <input
@@ -235,20 +235,21 @@ export default function POS() {
                   }
                 }
               }}
-              style={{ ...inputStyle, paddingLeft: 38, width: '100%', boxSizing: 'border-box' }}
+              style={{ ...inputStyle, paddingLeft: 42, height: 44, width: '100%', boxSizing: 'border-box', borderRadius: 10, fontSize: 15 }}
             />
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
             {CATEGORIES.map(c => (
               <button
                 key={c}
                 onClick={() => setCategory(c)}
                 style={{
-                  padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                  fontSize: 12, fontFamily: MONO, fontWeight: 600, letterSpacing: '0.02em',
-                  background: category === c ? C.gold : `${C.border}80`,
+                  padding: '10px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                  fontSize: 13, fontFamily: FONT, fontWeight: 600,
+                  background: category === c ? C.gold : C.card,
                   color: category === c ? '#fff' : C.text2,
-                  transition: 'all 0.15s',
+                  border: `1px solid ${category === c ? C.gold : C.border}`,
+                  transition: 'all 0.15s', whiteSpace: 'nowrap',
                 }}
               >
                 {c}
@@ -257,42 +258,41 @@ export default function POS() {
           </div>
         </div>
 
-        {/* Product Grid */}
-        <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        {/* Product Grid — 4 columns, compact, tap-friendly */}
+        <div style={{ flex: 1, overflow: 'auto', padding: '16px 16px 16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
             {filtered.map(p => (
               <button
                 key={p.id}
                 onClick={() => addToCart(p)}
+                className="pos-product-btn"
                 style={{
-                  background: C.card, border: `1px solid ${C.border}`, borderRadius: 8,
-                  padding: 0, cursor: 'pointer', textAlign: 'left', overflow: 'hidden',
-                  boxShadow: C.shadow, transition: 'all 0.15s',
-                  display: 'flex', flexDirection: 'column', minHeight: 0,
+                  background: C.card, border: `1px solid ${C.border}`, borderRadius: 10,
+                  padding: 0, cursor: 'pointer', textAlign: 'center', overflow: 'hidden',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.15s',
+                  display: 'flex', flexDirection: 'column',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = C.gold; }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = C.shadow; e.currentTarget.style.borderColor = C.border; }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
               >
                 <div style={{
-                  width: '100%', paddingTop: '75%', position: 'relative', background: '#f5f4f0',
+                  width: '100%', height: 100, position: 'relative', background: '#f0ede6',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   {p.images?.[0] ? (
-                    <img src={p.images[0]} alt="" loading="lazy" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={p.images[0]} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.gold, fontSize: 28 }}>
-                      ✦
-                    </div>
+                    <span style={{ color: C.gold, fontSize: 24 }}>&#10022;</span>
                   )}
                 </div>
-                <div style={{ padding: '10px 12px' }}>
+                <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div style={{
-                    fontSize: 13, fontWeight: 500, color: C.text, lineHeight: 1.3,
+                    fontSize: 12, fontWeight: 500, color: C.text, lineHeight: 1.35,
                     display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                    minHeight: 34,
                   }}>
                     {p.title}
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: C.gold, marginTop: 4, fontFamily: MONO }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: C.gold, marginTop: 4, fontFamily: MONO }}>
                     {formatPrice(p.price)}
                   </div>
                 </div>
@@ -308,7 +308,7 @@ export default function POS() {
       </div>
 
       {/* ── RIGHT: Cart ── */}
-      <div id="tour-pos-cart" className="pos-right" style={{ flex: '0 1 340px', minWidth: 280, display: 'flex', flexDirection: 'column', background: C.card, overflow: 'hidden' }}>
+      <div id="tour-pos-cart" className="pos-right" style={{ flex: '0 1 380px', minWidth: 300, display: 'flex', flexDirection: 'column', background: C.card, overflow: 'hidden' }}>
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}` }}>
           {[['current', 'Current Sale'], ['held', `Held Sales${heldSales.length ? ` (${heldSales.length})` : ''}`]].map(([key, label]) => (
