@@ -25,6 +25,7 @@ import SignIn from './pages/SignIn';
 import VolunteerPortal from './pages/VolunteerPortal';
 import MemberPortal from './pages/MemberPortal';
 import SchoolPortal from './pages/SchoolPortal';
+import Ads from './pages/Ads';
 
 // Admin (lazy loaded)
 const AdminLayout = lazy(() => import('./admin/AdminLayout'));
@@ -302,7 +303,7 @@ export default function App() {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
   const isAdmin = location.pathname.startsWith('/admin');
-  const isPortal = ['/volunteer-portal', '/member-portal', '/school-portal', '/signin'].includes(location.pathname);
+  const isPortal = ['/volunteer-portal', '/member-portal', '/school-portal', '/signin', '/ads'].includes(location.pathname);
   const hideChrome = isAdmin || isPortal;
 
   // Auto-set admin role when visiting /admin directly (if not signed in)
@@ -346,6 +347,7 @@ export default function App() {
             <Route path="/volunteer-portal" element={<VolunteerPortal />} />
             <Route path="/member-portal" element={<MemberPortal />} />
             <Route path="/school-portal" element={<SchoolPortal />} />
+            <Route path="/ads" element={<Ads />} />
             <Route path="/admin/board-meeting" element={<Suspense fallback={<div style={{ padding: '120px 64px', textAlign: 'center' }}>Loading...</div>}><BoardMeeting /></Suspense>} />
             <Route path="/admin" element={<Suspense fallback={<div style={{ padding: '120px 64px', textAlign: 'center' }}>Loading admin...</div>}><AdminLayout /></Suspense>}>
               <Route index element={<Dashboard />} />
