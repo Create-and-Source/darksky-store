@@ -4,3 +4,16 @@ dist/
 *.local
 .env
 .env.*
+
+# Build / deploy artifacts
+.netlify/
+.playwright-mcp/
+backend/cdk.out/
+backend/node_modules/
+
+# Large demo assets (use cloud storage)
+demo-videos/
+
+# Backups
+*.backup.*
+CLAUDE.md.local-backup

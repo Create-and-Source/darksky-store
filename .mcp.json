@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"],
+      "_comment": "Browser automation for testing PWAs and frontends"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "_comment": "Fetches up-to-date docs for libraries (Square SDK, Mux, etc.)"
+    }
+  }
+}

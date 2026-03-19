@@ -273,7 +273,9 @@ export default function App() {
     return () => document.head.removeChild(style);
   }, []);
 
-  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
+  useEffect(() => {
+    if (!location.pathname.startsWith('/admin')) window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Close drawer on navigation
   useEffect(() => { setDrawerOpen(false); }, [location.pathname]);
