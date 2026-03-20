@@ -327,7 +327,8 @@ export default function CRM() {
   const [segmentName, setSegmentName] = useState('');
   const [segmentLogic, setSegmentLogic] = useState('AND');
   const [showTaskForm, setShowTaskForm] = useState(false);
-  const [taskForm, setTaskForm] = useState({ title: '', description: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: '' });
+  const currentUserName = localStorage.getItem('ds_user_name') || 'Admin';
+  const [taskForm, setTaskForm] = useState({ title: '', description: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: currentUserName });
   const [logCallForm, setLogCallForm] = useState({ subject: '', body: '' });
   const [showLogCall, setShowLogCall] = useState(false);
   const [showNewTagInput, setShowNewTagInput] = useState(false);
@@ -911,7 +912,7 @@ export default function CRM() {
                         <button onClick={() => {
                           if (!taskForm.title.trim()) { toast('Title required', 'error'); return; }
                           addTask({ ...taskForm, contactId: selected.id, status: 'open', createdAt: new Date().toISOString(), createdBy: localStorage.getItem('ds_user_name') || 'Admin' });
-                          setTaskForm({ title: '', description: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: '' });
+                          setTaskForm({ title: '', description: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: currentUserName });
                           setShowTaskForm(false); setTick(t => t + 1); toast('Task created');
                         }} style={btnPrimary}>Save Task</button>
                       </div>

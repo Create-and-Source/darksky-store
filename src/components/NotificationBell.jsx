@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   subscribe, getInventory, getPurchaseOrders, getOrders, getEvents,
-  getFieldTrips, getMembers, getDonations, getVolunteers, getTimesheets, getMessages,
+  getFieldTrips, getMembers, getDonations, getVolunteers, getTimesheets, getMessages, getTasks,
 } from '../admin/data/store';
 
 // Generate notifications based on role
@@ -131,6 +131,22 @@ function generateNotifications(role) {
     const events = getEvents();
     const upcoming = events.filter(e => e.date >= today && e.status === 'Published');
     if (upcoming.length > 0) notifs.push({ id: 'bd-events', type: 'info', title: 'Upcoming Events', message: `${upcoming.length} events scheduled`, time: now - 7200000 });
+  }
+
+  // ── TASK NOTIFICATIONS (for roles with task access) ──
+  const taskRoles = ['executive_director', 'admin', 'treasurer', 'shop_manager', 'education_director', 'volunteer_coordinator'];
+  if (taskRoles.includes(role)) {
+    const allTasks = getTasks();
+    const todayDate = new Date().toISOString().slice(0, 10);
+    // For exec/admin show all, for others only their assigned tasks
+    const isExec = !role || role === 'executive_director' || role === 'admin';
+    const myTasks = isExec ? allTasks : allTasks.filter(t => t.assignedTo === userName);
+
+    const overdue = myTasks.filter(t => t.dueDate && t.dueDate < todayDate && t.status !== 'completed' && t.status !== 'cancelled');
+    if (overdue.length > 0) notifs.push({ id: 'tsk-overdue', type: 'error', title: 'Overdue Tasks', message: `${overdue.length} task${overdue.length > 1 ? 's' : ''} past due`, time: now - 180000 });
+
+    const dueToday = myTasks.filter(t => t.dueDate === todayDate && t.status !== 'completed' && t.status !== 'cancelled');
+    if (dueToday.length > 0) notifs.push({ id: 'tsk-today', type: 'warning', title: 'Tasks Due Today', message: `${dueToday.length} task${dueToday.length > 1 ? 's' : ''} due today`, time: now - 240000 });
   }
 
   // Sort newest first, merge read state

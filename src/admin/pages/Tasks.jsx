@@ -54,6 +54,13 @@ function dateColor(dueDate, status) {
   return C.text2;
 }
 
+// Map admin roles to display names used in task assignedTo
+const ROLE_DISPLAY_NAMES = {
+  executive_director: 'Dr. J', admin: 'Dr. J', treasurer: 'Nancy',
+  shop_manager: 'Josi', education_director: 'Maria',
+  volunteer_coordinator: 'Jordan', payroll: 'HR Admin',
+};
+
 export default function Tasks() {
   const [tick, setTick] = useState(0);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -61,13 +68,24 @@ export default function Tasks() {
   const [assignedFilter, setAssignedFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', constituent: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: 'Dr. J' });
   const toast = useToast();
   const navigate = useNavigate();
+  const role = useRole();
+
+  // Current user's display name — tasks are scoped to this person
+  const currentUserName = localStorage.getItem('ds_user_name') || ROLE_DISPLAY_NAMES[role] || 'Dr. J';
+  const isFullAccess = !role || role === 'executive_director' || role === 'admin';
+
+  const [form, setForm] = useState({ title: '', description: '', constituent: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: currentUserName });
 
   useEffect(() => subscribe(() => setTick(t => t + 1)), []);
 
-  const tasks = useMemo(() => getTasks() || [], [tick]);
+  // All tasks (unfiltered by user — for exec/admin) or scoped to current user
+  const tasks = useMemo(() => {
+    const all = getTasks() || [];
+    if (isFullAccess) return all;
+    return all.filter(t => t.assignedTo === currentUserName);
+  }, [tick, currentUserName, isFullAccess]);
 
   const todayStr = today();
 
@@ -116,7 +134,7 @@ export default function Tasks() {
       completedAt: null,
       createdAt: new Date().toISOString(),
     });
-    setForm({ title: '', description: '', constituent: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: 'Dr. J' });
+    setForm({ title: '', description: '', constituent: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: currentUserName });
     setShowModal(false);
     toast('Task created');
   }, [form, toast]);
@@ -238,13 +256,15 @@ export default function Tasks() {
 
         <div style={{ width: 1, height: 24, background: C.border }} />
 
-        {/* Assigned dropdown */}
-        <select value={assignedFilter} onChange={e => setAssignedFilter(e.target.value)} style={{
-          ...inputStyle, width: 'auto', fontSize: 13, padding: '6px 12px', background: C.card,
-        }}>
-          <option value="all">All Assigned</option>
-          {ASSIGNED_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
-        </select>
+        {/* Assigned dropdown — exec/admin can filter by person, others see only their tasks */}
+        {isFullAccess && (
+          <select value={assignedFilter} onChange={e => setAssignedFilter(e.target.value)} style={{
+            ...inputStyle, width: 'auto', fontSize: 13, padding: '6px 12px', background: C.card,
+          }}>
+            <option value="all">All Staff</option>
+            {ASSIGNED_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+        )}
       </div>
 
       {/* Active Tasks */}
