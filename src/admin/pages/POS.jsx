@@ -4,6 +4,7 @@ import PageTour from '../components/PageTour';
 import {
   getProducts, getMembers, addOrder, adjustStock, addMovement,
   getHeldSales, addHeldSale, removeHeldSale, formatPrice, subscribe,
+  getAdmissionProducts, getTicketTypes, getEvents, addTicketOrder, getMembershipTiers,
 } from '../data/store';
 
 // ── Design Tokens ──
@@ -12,8 +13,8 @@ const FONT = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 const MONO = "'JetBrains Mono', 'SF Mono', monospace";
 
 const TAX_RATE = 0.086;
-const CATEGORIES = ['All', 'Apparel', 'Kids', 'Outerwear', 'Tanks', 'Gifts'];
-const MEMBER_DISCOUNTS = { Explorer: 0.10, Stargazer: 0.15, Guardian: 0.20 };
+const CATEGORIES = ['All', 'Apparel', 'Kids', 'Outerwear', 'Tanks', 'Gifts', 'Tickets'];
+const MEMBER_DISCOUNTS = { Explorer: 0.10, Observer: 0.15, Patron: 0.20, Guardian: 0.25 };
 
 export default function POS() {
   const toast = useToast();
@@ -52,6 +53,44 @@ export default function POS() {
     const matchCat = category === 'All' || p.category === category;
     return matchSearch && matchCat;
   });
+
+  // Ticket products for POS
+  const admissionProducts = category === 'Tickets' ? getAdmissionProducts().filter(p => p.active).map(p => ({
+    id: 'ADM:' + p.id,
+    title: p.name,
+    price: p.price,
+    memberPrice: p.memberPrice,
+    images: [],
+    category: 'Tickets',
+    isTicket: true,
+    ticketCategory: 'admission',
+    admissionProductId: p.id,
+  })) : [];
+
+  const eventTicketProducts = category === 'Tickets' ? (() => {
+    const events = getEvents().filter(e => e.status === 'Published' && e.date >= new Date().toISOString().slice(0,10));
+    const items = [];
+    events.forEach(evt => {
+      getTicketTypes(evt.id).filter(t => t.active).forEach(tt => {
+        items.push({
+          id: 'EVT:' + tt.id,
+          title: `${evt.title} — ${tt.name}`,
+          price: tt.price,
+          memberPrice: tt.memberPrice,
+          images: [],
+          category: 'Tickets',
+          isTicket: true,
+          ticketCategory: 'event',
+          eventId: evt.id,
+          eventTitle: evt.title,
+          ticketTypeId: tt.id,
+        });
+      });
+    });
+    return items;
+  })() : [];
+
+  const displayProducts = category === 'Tickets' ? [...admissionProducts, ...eventTicketProducts] : filtered;
 
   // Cart helpers
   const addToCart = (p) => {
@@ -161,18 +200,78 @@ export default function POS() {
   // Charge
   const handleCharge = () => {
     if (cart.length === 0) return;
-    const order = addOrder({
-      items: cart.map(i => ({ name: i.title, sku: i.id, qty: i.qty, price: i.price })),
-      total,
-      tax,
-      subtotal: afterDiscount,
-      discount: discountAmount,
-      channel: 'POS',
-      paymentMethod,
-      customer: member ? member.name : 'Walk-in',
-      email: member ? member.email : '',
-    });
-    setSuccess({ orderId: order.id, total });
+    const productItems = cart.filter(i => !i.id.startsWith('ADM:') && !i.id.startsWith('EVT:'));
+    const ticketItems = cart.filter(i => i.id.startsWith('ADM:') || i.id.startsWith('EVT:'));
+
+    // Handle product items (existing flow)
+    if (productItems.length > 0) {
+      const prodSubtotal = productItems.reduce((s, i) => s + i.price * i.qty, 0);
+      const prodDiscountRate = member ? (MEMBER_DISCOUNTS[member.tier] || 0) : 0;
+      const prodDiscount = Math.round(prodSubtotal * prodDiscountRate);
+      const prodAfterDiscount = prodSubtotal - prodDiscount;
+      const prodTax = Math.round(prodAfterDiscount * TAX_RATE);
+      const prodTotal = prodAfterDiscount + prodTax;
+      addOrder({
+        items: productItems.map(i => ({ name: i.title, sku: i.id, qty: i.qty, price: i.price })),
+        total: prodTotal, tax: prodTax, subtotal: prodAfterDiscount,
+        discount: prodDiscount, channel: 'POS', paymentMethod,
+        customer: member ? member.name : 'Walk-in',
+        email: member ? member.email : '',
+      });
+    }
+
+    // Handle ticket items
+    if (ticketItems.length > 0) {
+      const admItems = ticketItems.filter(i => i.id.startsWith('ADM:'));
+      const evtItems = ticketItems.filter(i => i.id.startsWith('EVT:'));
+
+      if (admItems.length > 0) {
+        const items = admItems.map(i => ({
+          productId: i.admissionProductId || i.id.replace('ADM:', ''),
+          name: i.title, qty: i.qty,
+          unitPrice: member && i.memberPrice != null ? i.memberPrice : i.price,
+          lineTotal: (member && i.memberPrice != null ? i.memberPrice : i.price) * i.qty,
+        }));
+        const admTotal = items.reduce((s, i) => s + i.lineTotal, 0);
+        addTicketOrder({
+          type: 'admission', channel: 'pos',
+          visitDate: new Date().toISOString().slice(0,10),
+          items, subtotal: admTotal, discount: 0, tax: 0, total: admTotal,
+          customer: member ? member.name : 'Walk-in',
+          email: member ? member.email : '',
+          memberId: member?.id || null, memberTier: member?.tier || null,
+          paymentMethod,
+        });
+      }
+
+      // Group event tickets by event
+      const byEvent = {};
+      evtItems.forEach(i => {
+        const eid = i.eventId || 'unknown';
+        if (!byEvent[eid]) byEvent[eid] = { eventId: eid, eventTitle: i.eventTitle, items: [] };
+        byEvent[eid].items.push({
+          productId: i.ticketTypeId || i.id.replace('EVT:', ''),
+          name: i.title, qty: i.qty,
+          unitPrice: member && i.memberPrice != null ? i.memberPrice : i.price,
+          lineTotal: (member && i.memberPrice != null ? i.memberPrice : i.price) * i.qty,
+        });
+      });
+      Object.values(byEvent).forEach(group => {
+        const evtTotal = group.items.reduce((s, i) => s + i.lineTotal, 0);
+        addTicketOrder({
+          type: 'event', channel: 'pos',
+          eventId: group.eventId, eventTitle: group.eventTitle,
+          visitDate: new Date().toISOString().slice(0,10),
+          items: group.items, subtotal: evtTotal, discount: 0, tax: 0, total: evtTotal,
+          customer: member ? member.name : 'Walk-in',
+          email: member ? member.email : '',
+          memberId: member?.id || null, memberTier: member?.tier || null,
+          paymentMethod,
+        });
+      });
+    }
+
+    setSuccess({ orderId: 'POS-' + Date.now().toString().slice(-6), total });
     setCart([]);
     setMember(null);
     setMemberEmail('');
@@ -416,49 +515,97 @@ export default function POS() {
 
         {/* Product Grid — 4 columns, compact, tap-friendly */}
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 16px 16px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
-            {filtered.map(p => (
-              <button
-                key={p.id}
-                onClick={() => addToCart(p)}
-                className="pos-product-btn"
-                style={{
-                  background: C.card, border: `1px solid ${C.border}`, borderRadius: 10,
-                  padding: 0, cursor: 'pointer', textAlign: 'center', overflow: 'hidden',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.15s',
-                  display: 'flex', flexDirection: 'column',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
-              >
-                <div style={{
-                  width: '100%', height: 100, position: 'relative', background: '#f0ede6',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  {p.images?.[0] ? (
-                    <img src={p.images[0]} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <span style={{ color: C.gold, fontSize: 24 }}>&#10022;</span>
-                  )}
-                </div>
-                <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <div style={{
-                    fontSize: 12, fontWeight: 500, color: C.text, lineHeight: 1.35,
-                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                  }}>
-                    {p.title}
+          {category === 'Tickets' ? (
+            <div>
+              {admissionProducts.length > 0 && (
+                <>
+                  <div style={{ font: `600 13px ${FONT}`, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Admission</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10, marginBottom: 20 }}>
+                    {admissionProducts.map(p => (
+                      <button key={p.id} onClick={() => addToCart(p)} className="pos-product-btn" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 0, cursor: 'pointer', textAlign: 'center', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' }} onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}>
+                        <div style={{ width: '100%', height: 100, position: 'relative', background: '#f0ede6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ color: C.gold, fontSize: 24 }}>&#127915;</span>
+                        </div>
+                        <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: C.text, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.title}</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: C.gold, marginTop: 4, fontFamily: MONO }}>{formatPrice(p.price)}</div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: C.gold, marginTop: 4, fontFamily: MONO }}>
-                    {formatPrice(p.price)}
+                </>
+              )}
+              {eventTicketProducts.length > 0 && (
+                <>
+                  <div style={{ font: `600 13px ${FONT}`, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Upcoming Events</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
+                    {eventTicketProducts.map(p => (
+                      <button key={p.id} onClick={() => addToCart(p)} className="pos-product-btn" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 0, cursor: 'pointer', textAlign: 'center', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' }} onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}>
+                        <div style={{ width: '100%', height: 100, position: 'relative', background: '#f0ede6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ color: C.gold, fontSize: 24 }}>&#127775;</span>
+                        </div>
+                        <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: C.text, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.title}</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: C.gold, marginTop: 4, fontFamily: MONO }}>{formatPrice(p.price)}</div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
+                </>
+              )}
+              {displayProducts.length === 0 && (
+                <div style={{ textAlign: 'center', padding: 48, color: C.muted, fontSize: 14 }}>
+                  No tickets available
                 </div>
-              </button>
-            ))}
-          </div>
-          {filtered.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 48, color: C.muted, fontSize: 14 }}>
-              No products found
+              )}
             </div>
+          ) : (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
+                {filtered.map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => addToCart(p)}
+                    className="pos-product-btn"
+                    style={{
+                      background: C.card, border: `1px solid ${C.border}`, borderRadius: 10,
+                      padding: 0, cursor: 'pointer', textAlign: 'center', overflow: 'hidden',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.15s',
+                      display: 'flex', flexDirection: 'column',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
+                  >
+                    <div style={{
+                      width: '100%', height: 100, position: 'relative', background: '#f0ede6',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {p.images?.[0] ? (
+                        <img src={p.images[0]} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <span style={{ color: C.gold, fontSize: 24 }}>&#10022;</span>
+                      )}
+                    </div>
+                    <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div style={{
+                        fontSize: 12, fontWeight: 500, color: C.text, lineHeight: 1.35,
+                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                      }}>
+                        {p.title}
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: C.gold, marginTop: 4, fontFamily: MONO }}>
+                        {formatPrice(p.price)}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {filtered.length === 0 && (
+                <div style={{ textAlign: 'center', padding: 48, color: C.muted, fontSize: 14 }}>
+                  No products found
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

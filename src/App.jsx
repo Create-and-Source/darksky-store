@@ -26,6 +26,7 @@ import VolunteerPortal from './pages/VolunteerPortal';
 import MemberPortal from './pages/MemberPortal';
 import SchoolPortal from './pages/SchoolPortal';
 import Ads from './pages/Ads';
+import Visit from './pages/Visit';
 
 // Admin (lazy loaded)
 const AdminLayout = lazy(() => import('./admin/AdminLayout'));
@@ -338,6 +339,7 @@ export default function App() {
             <Route path="/" element={<Home onAddToCart={addToCart} />} />
             <Route path="/about" element={<About />} />
             <Route path="/events" element={<Events />} />
+            <Route path="/visit" element={<Visit />} />
             <Route path="/education" element={<Education />} />
             <Route path="/shop" element={<Shop onAddToCart={addToCart} />} />
             <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />

@@ -5,6 +5,7 @@ const NAV_LINKS = [
   { path: '/', label: 'Home' },
   { path: '/about', label: 'About' },
   { path: '/events', label: 'Events' },
+  { path: '/visit', label: 'Visit' },
   { path: '/education', label: 'Education', dropdown: [
     { path: '/education', label: 'Programs' },
     { path: '/field-trips', label: 'Field Trips' },
@@ -18,6 +19,7 @@ const MOBILE_LINKS = [
   { path: '/', label: 'Home' },
   { path: '/about', label: 'About' },
   { path: '/events', label: 'Events' },
+  { path: '/visit', label: 'Visit' },
   { path: '/membership', label: 'Membership' },
   { path: '/shop', label: 'Shop' },
   { path: '/education', label: 'Education' },

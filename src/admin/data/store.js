@@ -44,6 +44,8 @@ const KEYS = {
   communicationLog: 'ds_communication_log',
   households: 'ds_households',
   segments: 'ds_segments',
+  admissionProducts: 'ds_admission_products',
+  ticketOrders: 'ds_ticket_orders',
 };
 
 // ── HELPERS ──
@@ -58,7 +60,7 @@ export const subscribe = (fn) => { listeners.add(fn); return () => listeners.del
 const notify = () => listeners.forEach(fn => fn());
 
 // ── INIT ──
-const DATA_VERSION = '4.0';
+const DATA_VERSION = '5.0';
 
 export function initStore() {
   // Version check — clear all ds_ keys and re-seed if version mismatch
@@ -110,6 +112,8 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.communicationLog)) set(KEYS.communicationLog, DEFAULT_COMMUNICATION_LOG);
   if (!localStorage.getItem(KEYS.households)) set(KEYS.households, DEFAULT_HOUSEHOLDS);
   if (!localStorage.getItem(KEYS.segments)) set(KEYS.segments, DEFAULT_SEGMENTS);
+  if (!localStorage.getItem(KEYS.admissionProducts)) set(KEYS.admissionProducts, DEFAULT_ADMISSION_PRODUCTS);
+  if (!localStorage.getItem(KEYS.ticketOrders)) set(KEYS.ticketOrders, DEFAULT_TICKET_ORDERS);
   // Seed physical products into ds_products
   const prods = get(KEYS.products, []);
   if (!prods.find(p => p.id === 'PHYS-001')) {
@@ -426,6 +430,100 @@ export function updateTicketType(id, changes) {
 }
 export function deleteTicketType(id) {
   set(KEYS.ticketTypes, get(KEYS.ticketTypes, []).filter(t => t.id !== id));
+}
+
+// ═══════ ADMISSION PRODUCTS ═══════
+export const getAdmissionProducts = () => get(KEYS.admissionProducts, DEFAULT_ADMISSION_PRODUCTS);
+export function addAdmissionProduct(product) {
+  const all = getAdmissionProducts();
+  const newP = { id: genId('ADM'), sortOrder: all.length, ...product };
+  all.push(newP);
+  set(KEYS.admissionProducts, all);
+  return newP;
+}
+export function updateAdmissionProduct(id, changes) {
+  set(KEYS.admissionProducts, getAdmissionProducts().map(p => p.id === id ? { ...p, ...changes } : p));
+}
+export function deleteAdmissionProduct(id) {
+  set(KEYS.admissionProducts, getAdmissionProducts().filter(p => p.id !== id));
+}
+
+// ═══════ TICKET ORDERS ═══════
+export const getTicketOrders = () => get(KEYS.ticketOrders, []);
+export function addTicketOrder(order) {
+  const all = getTicketOrders();
+  const newO = {
+    id: genId('TORD'),
+    ...order,
+    confirmationCode: generateConfirmationCode(),
+    status: order.status || 'confirmed',
+    checkedIn: false,
+    checkedInAt: null,
+    createdAt: new Date().toISOString(),
+  };
+  all.unshift(newO);
+  set(KEYS.ticketOrders, all);
+  // Auto-increment event ticket counters if event ticket
+  if (order.type === 'event' && order.eventId) {
+    const events = getEvents();
+    const ev = events.find(e => e.id === order.eventId);
+    if (ev) {
+      const totalQty = (order.items || []).reduce((s, i) => s + (i.qty || 0), 0);
+      updateEvent(order.eventId, { ticketsSold: (ev.ticketsSold || 0) + totalQty });
+    }
+    // Update ticket type sold counters
+    (order.items || []).forEach(item => {
+      if (item.productId) {
+        const tt = get(KEYS.ticketTypes, []);
+        const type = tt.find(t => t.id === item.productId);
+        if (type) {
+          updateTicketType(item.productId, { sold: (type.sold || 0) + (item.qty || 0) });
+        }
+      }
+    });
+  }
+  return newO;
+}
+export function updateTicketOrder(id, changes) {
+  set(KEYS.ticketOrders, getTicketOrders().map(o => o.id === id ? { ...o, ...changes } : o));
+}
+export function cancelTicketOrder(id) {
+  const order = getTicketOrders().find(o => o.id === id);
+  if (!order) return;
+  updateTicketOrder(id, { status: 'cancelled' });
+  // Decrement event ticket counters
+  if (order.type === 'event' && order.eventId) {
+    const events = getEvents();
+    const ev = events.find(e => e.id === order.eventId);
+    if (ev) {
+      const totalQty = (order.items || []).reduce((s, i) => s + (i.qty || 0), 0);
+      updateEvent(order.eventId, { ticketsSold: Math.max(0, (ev.ticketsSold || 0) - totalQty) });
+    }
+  }
+}
+
+// ═══════ TICKET HELPERS ═══════
+export function generateConfirmationCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous I/O/0/1
+  let code = '';
+  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return 'DSKY-' + code;
+}
+export function lookupMemberByEmail(email) {
+  if (!email) return null;
+  const members = getMembers();
+  return members.find(m => m.status === 'Active' && m.email.toLowerCase() === email.trim().toLowerCase()) || null;
+}
+export function getMemberTicketPrice(product, member) {
+  if (!member || product.memberPrice === null || product.memberPrice === undefined) return product.price;
+  return product.memberPrice;
+}
+
+// ═══════ RESERVATION UPDATE (for persistent check-in) ═══════
+export function updateReservation(id, changes) {
+  const all = getReservations();
+  const updated = all.map(r => r.id === id ? { ...r, ...changes } : r);
+  set(KEYS.ticketReservations, updated);
 }
 
 // ═══════ INQUIRIES ═══════
@@ -1066,6 +1164,33 @@ const DEFAULT_HOUSEHOLDS = [
   { id: 'HH-003', name: 'Arizona Public Service', type: 'organization', address: '400 N 5th St', city: 'Phoenix', state: 'AZ', zip: '85004', memberIds: [], primaryContactId: null, notes: 'Utility company — potential corporate sponsor' },
   { id: 'HH-004', name: 'Scottsdale Unified School District', type: 'organization', address: '8500 E Jackrabbit Rd', city: 'Scottsdale', state: 'AZ', zip: '85250', memberIds: ['patel@scottsdaleprep.org'], primaryContactId: 'patel@scottsdaleprep.org', notes: 'Multiple schools booking field trips' },
 ];
+
+const DEFAULT_ADMISSION_PRODUCTS = [
+  { id: 'ADM-001', name: 'Adult (13-64)', category: 'standard', price: 2500, memberPrice: 0, ageRange: '13-64', desc: 'General admission for adults', active: true, sortOrder: 0, taxable: false },
+  { id: 'ADM-002', name: 'Child (3-12)', category: 'standard', price: 1200, memberPrice: 0, ageRange: '3-12', desc: 'General admission for children', active: true, sortOrder: 1, taxable: false },
+  { id: 'ADM-003', name: 'Senior (65+)', category: 'standard', price: 2000, memberPrice: 0, ageRange: '65+', desc: 'General admission for seniors', active: true, sortOrder: 2, taxable: false },
+  { id: 'ADM-004', name: 'Under 3', category: 'standard', price: 0, memberPrice: 0, ageRange: '0-2', desc: 'Free admission for toddlers and infants', active: true, sortOrder: 3, taxable: false },
+  { id: 'ADM-005', name: 'Family Pack (2A+2C)', category: 'group', price: 6500, memberPrice: 4000, ageRange: '', desc: '2 adults + 2 children bundle', active: true, sortOrder: 4, taxable: false },
+  { id: 'ADM-006', name: 'Group Rate (10+)', category: 'group', price: 1800, memberPrice: 1200, ageRange: '', desc: 'Per person rate for groups of 10 or more', active: true, sortOrder: 5, taxable: false },
+  { id: 'ADM-007', name: 'Planetarium Add-On', category: 'addon', price: 800, memberPrice: 500, ageRange: '', desc: 'Add a planetarium show to your visit', active: true, sortOrder: 6, taxable: false },
+  { id: 'ADM-008', name: 'Observatory Add-On', category: 'addon', price: 600, memberPrice: 0, ageRange: '', desc: 'Add an observatory viewing session', active: true, sortOrder: 7, taxable: false },
+];
+
+const DEFAULT_TICKET_ORDERS = (() => {
+  const today = new Date().toISOString().slice(0,10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  const twoDaysAgo = new Date(Date.now() - 2*86400000).toISOString().slice(0,10);
+  return [
+    { id: 'TORD-001', type: 'admission', channel: 'online', eventId: null, eventTitle: null, visitDate: today, items: [{ productId: 'ADM-001', name: 'Adult (13-64)', qty: 2, unitPrice: 2500, lineTotal: 5000 }, { productId: 'ADM-002', name: 'Child (3-12)', qty: 1, unitPrice: 1200, lineTotal: 1200 }], subtotal: 6200, discount: 0, tax: 0, total: 6200, customer: 'John Smith', email: 'jsmith@email.com', phone: '', memberId: null, memberTier: null, paymentMethod: 'card', status: 'confirmed', checkedIn: false, checkedInAt: null, confirmationCode: 'DSKY-A7K3', notes: '', createdAt: twoDaysAgo + 'T14:30:00Z' },
+    { id: 'TORD-002', type: 'admission', channel: 'pos', eventId: null, eventTitle: null, visitDate: yesterday, items: [{ productId: 'ADM-005', name: 'Family Pack (2A+2C)', qty: 1, unitPrice: 6500, lineTotal: 6500 }, { productId: 'ADM-007', name: 'Planetarium Add-On', qty: 4, unitPrice: 800, lineTotal: 3200 }], subtotal: 9700, discount: 0, tax: 0, total: 9700, customer: 'Walk-in', email: '', phone: '', memberId: null, memberTier: null, paymentMethod: 'card', status: 'confirmed', checkedIn: true, checkedInAt: yesterday + 'T10:15:00Z', confirmationCode: 'DSKY-B2M9', notes: '', createdAt: yesterday + 'T10:00:00Z' },
+    { id: 'TORD-003', type: 'admission', channel: 'online', eventId: null, eventTitle: null, visitDate: today, items: [{ productId: 'ADM-001', name: 'Adult (13-64)', qty: 1, unitPrice: 0, lineTotal: 0 }, { productId: 'ADM-007', name: 'Planetarium Add-On', qty: 1, unitPrice: 500, lineTotal: 500 }], subtotal: 500, discount: 2500, tax: 0, total: 500, customer: 'Sarah Mitchell', email: 'sarah.m@email.com', phone: '(480) 555-0201', memberId: 'MBR-001', memberTier: 'Explorer', paymentMethod: 'card', status: 'confirmed', checkedIn: false, checkedInAt: null, confirmationCode: 'DSKY-C4P7', notes: 'Member pricing applied', createdAt: yesterday + 'T20:00:00Z' },
+    { id: 'TORD-004', type: 'event', channel: 'online', eventId: 'EVT-001', eventTitle: 'New Moon Star Party', visitDate: '2026-03-29', items: [{ productId: 'TKT-001', name: 'General Admission', qty: 2, unitPrice: 0, lineTotal: 0 }], subtotal: 0, discount: 3000, tax: 0, total: 0, customer: 'James Rodriguez', email: 'jrod@email.com', phone: '(480) 555-0202', memberId: 'MBR-002', memberTier: 'Observer', paymentMethod: 'card', status: 'confirmed', checkedIn: false, checkedInAt: null, confirmationCode: 'DSKY-D8R2', notes: 'Member — free event', createdAt: twoDaysAgo + 'T11:00:00Z' },
+    { id: 'TORD-005', type: 'event', channel: 'pos', eventId: 'EVT-002', eventTitle: 'Planets & Pours — After Dark', visitDate: '2026-04-12', items: [{ productId: 'TKT-002', name: 'General Admission', qty: 2, unitPrice: 3500, lineTotal: 7000 }, { productId: 'TKT-003', name: 'VIP Table', qty: 1, unitPrice: 5500, lineTotal: 5500 }], subtotal: 12500, discount: 0, tax: 0, total: 12500, customer: 'Amanda Lee', email: 'alee@email.com', phone: '', memberId: null, memberTier: null, paymentMethod: 'card', status: 'confirmed', checkedIn: false, checkedInAt: null, confirmationCode: 'DSKY-E5T6', notes: '', createdAt: yesterday + 'T15:30:00Z' },
+    { id: 'TORD-006', type: 'admission', channel: 'pos', eventId: null, eventTitle: null, visitDate: today, items: [{ productId: 'ADM-006', name: 'Group Rate (10+)', qty: 12, unitPrice: 1800, lineTotal: 21600 }], subtotal: 21600, discount: 0, tax: 0, total: 21600, customer: 'Scottsdale Astronomy Club', email: 'treasurer@scottsdaleastro.org', phone: '', memberId: null, memberTier: null, paymentMethod: 'card', status: 'confirmed', checkedIn: false, checkedInAt: null, confirmationCode: 'DSKY-F9W4', notes: 'Group visit', createdAt: today + 'T09:30:00Z' },
+    { id: 'TORD-007', type: 'admission', channel: 'online', eventId: null, eventTitle: null, visitDate: today, items: [{ productId: 'ADM-001', name: 'Adult (13-64)', qty: 1, unitPrice: 0, lineTotal: 0 }, { productId: 'ADM-008', name: 'Observatory Add-On', qty: 1, unitPrice: 0, lineTotal: 0 }], subtotal: 0, discount: 3100, tax: 0, total: 0, customer: 'Emily Chen', email: 'echen@email.com', phone: '(480) 555-0203', memberId: 'MBR-003', memberTier: 'Guardian', paymentMethod: 'card', status: 'confirmed', checkedIn: false, checkedInAt: null, confirmationCode: 'DSKY-G3X8', notes: 'Guardian member — all free', createdAt: today + 'T08:00:00Z' },
+    { id: 'TORD-008', type: 'admission', channel: 'pos', eventId: null, eventTitle: null, visitDate: yesterday, items: [{ productId: 'ADM-001', name: 'Adult (13-64)', qty: 2, unitPrice: 2500, lineTotal: 5000 }], subtotal: 5000, discount: 0, tax: 0, total: 0, customer: 'Comp Guest', email: '', phone: '', memberId: null, memberTier: null, paymentMethod: 'comp', status: 'confirmed', checkedIn: true, checkedInAt: yesterday + 'T14:00:00Z', confirmationCode: 'DSKY-H6Y1', notes: 'Board member guests — comp by Dr. J', createdAt: yesterday + 'T13:45:00Z' },
+  ];
+})();
 
 const DEFAULT_SEGMENTS = [
   { id: 'SEG-001', name: 'Lapsed Members', description: 'Members with no activity in 90+ days', rules: [{ field: 'Tags', operator: 'includes', value: 'Member' }, { field: 'Last Activity', operator: 'older_than_days', value: '90' }], logic: 'AND', createdAt: '2026-01-01', isSystem: true },

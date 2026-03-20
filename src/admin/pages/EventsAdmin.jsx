@@ -5,7 +5,7 @@ import PageTour from '../components/PageTour';
 import { undoable } from '../components/UndoSystem';
 import {
   getEvents, addEvent, updateEvent, deleteEvent,
-  getReservations, subscribe, formatPrice,
+  getReservations, updateReservation, subscribe, formatPrice,
 } from '../data/store';
 
 const EVENT_TYPES = [
@@ -98,7 +98,6 @@ export default function EventsAdmin() {
   const [saving, setSaving] = useState(false);
   const [filterTab, setFilterTab] = useState('Upcoming');
   const [deleteModal, setDeleteModal] = useState(null);
-  const [checkedIn, setCheckedIn] = useState({});
   const toast = useToast();
 
   useEffect(() => {
@@ -217,7 +216,7 @@ export default function EventsAdmin() {
   };
 
   const handleCheckIn = (resId) => {
-    setCheckedIn(prev => ({ ...prev, [resId]: true }));
+    updateReservation(resId, { checkedIn: true, checkedInAt: new Date().toISOString() });
     toast('Guest checked in');
   };
 
@@ -420,7 +419,7 @@ export default function EventsAdmin() {
   if (view === 'tickets' && ticketEvent) {
     const evtReservations = reservations.filter(r => r.eventId === ticketEvent.id);
     const totalQty = evtReservations.reduce((s, r) => s + (r.qty || 1), 0);
-    const checkedInCount = evtReservations.filter(r => r.checkedIn || checkedIn[r.id]).length;
+    const checkedInCount = evtReservations.filter(r => r.checkedIn).length;
 
     return (
       <>
@@ -477,7 +476,7 @@ export default function EventsAdmin() {
               {evtReservations.length === 0 ? (
                 <tr><td colSpan="5" style={{ textAlign: 'center', padding: 40, color: '#94A3B8' }}>No reservations yet for this event</td></tr>
               ) : evtReservations.map(r => {
-                const isChecked = r.checkedIn || checkedIn[r.id];
+                const isChecked = r.checkedIn;
                 return (
                   <tr key={r.id}>
                     <td style={{ fontWeight: 500, color: '#1E293B' }}>{r.name || 'Guest'}</td>
