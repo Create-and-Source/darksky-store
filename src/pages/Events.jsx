@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getEvents, addReservation } from '../admin/data/store';
+import { getEvents, addReservation, getTicketTypes, addTicketOrder, lookupMemberByEmail, getMemberTicketPrice, getMembers } from '../admin/data/store';
 
 function RevealSection({ children, className = '', delay = 0 }) {
   const ref = useRef(null);
@@ -94,25 +94,98 @@ export default function Events() {
     } catch {}
     return { name: '', email: '', qty: 1 };
   });
+  const [resTickets, setResTickets] = useState({}); // { ticketTypeId: qty }
+  const [memberLookup, setMemberLookup] = useState({ email: '', member: null, checked: false, loading: false });
   const [resSuccess, setResSuccess] = useState(false);
+  const [confirmationCode, setConfirmationCode] = useState('');
   const [, setTick] = useState(0);
 
-  const handleReserve = () => {
-    if (!resForm.name.trim() || !resForm.email.trim()) return;
-    addReservation({
-      eventId: reserveEvent.id,
-      eventTitle: reserveEvent.title,
-      name: resForm.name.trim(),
-      email: resForm.email.trim(),
-      qty: resForm.qty,
+  const handleMemberLookup = () => {
+    if (!memberLookup.email.trim()) return;
+    setMemberLookup(prev => ({ ...prev, loading: true }));
+    const found = lookupMemberByEmail(memberLookup.email.trim());
+    setMemberLookup(prev => ({ ...prev, member: found, checked: true, loading: false }));
+    if (found) {
+      setResForm(f => ({ ...f, name: found.name || f.name, email: found.email || f.email }));
+    }
+  };
+
+  const getTicketTotal = (eventId) => {
+    const types = getTicketTypes(eventId).filter(t => t.active);
+    let subtotal = 0;
+    Object.entries(resTickets).forEach(([typeId, qty]) => {
+      if (qty <= 0) return;
+      const tt = types.find(t => t.id === typeId);
+      if (!tt) return;
+      const price = memberLookup.member ? getMemberTicketPrice(tt, memberLookup.member) : tt.price;
+      subtotal += price * qty;
     });
+    return subtotal;
+  };
+
+  const getTotalQty = () => Object.values(resTickets).reduce((s, q) => s + (q || 0), 0);
+
+  const handlePurchase = () => {
+    if (!resForm.name.trim() || !resForm.email.trim()) return;
+    if (!reserveEvent) return;
+    const eventId = reserveEvent.id;
+    const types = getTicketTypes(eventId).filter(t => t.active);
+    const totalQty = getTotalQty();
+    if (totalQty === 0) return;
+
+    const items = [];
+    Object.entries(resTickets).forEach(([typeId, qty]) => {
+      if (qty <= 0) return;
+      const tt = types.find(t => t.id === typeId);
+      if (!tt) return;
+      const price = memberLookup.member ? getMemberTicketPrice(tt, memberLookup.member) : tt.price;
+      items.push({ productId: typeId, name: tt.name, qty, price, total: price * qty });
+    });
+
+    const subtotal = items.reduce((s, i) => s + i.total, 0);
+    const discount = memberLookup.member ? items.reduce((s, i) => {
+      const orig = types.find(t => t.id === i.productId);
+      return s + ((orig ? orig.price : i.price) * i.qty - i.total);
+    }, 0) : 0;
+
+    if (subtotal === 0) {
+      // Free event — use reservation fallback
+      addReservation({
+        eventId,
+        eventTitle: reserveEvent.title,
+        name: resForm.name.trim(),
+        email: resForm.email.trim(),
+        qty: totalQty,
+      });
+      setConfirmationCode('FREE');
+      setResSuccess(true);
+      setTick(t => t + 1);
+      return;
+    }
+
+    // Paid ticket order
+    const adminEvent = adminEvents.find(e => e.id === eventId);
+    const visitDate = adminEvent ? adminEvent.date : '';
+    const result = addTicketOrder({
+      type: 'event',
+      channel: 'online',
+      eventId,
+      eventTitle: reserveEvent.title,
+      visitDate,
+      items,
+      subtotal,
+      discount,
+      tax: 0,
+      total: subtotal,
+      customer: resForm.name.trim(),
+      email: resForm.email.trim(),
+      memberId: memberLookup.member ? memberLookup.member.id : null,
+      memberTier: memberLookup.member ? memberLookup.member.tier : null,
+      paymentMethod: 'card',
+    });
+    setConfirmationCode(result.confirmationCode || '');
     setResSuccess(true);
-    setTick(t => t + 1); // re-render to update spots
-    setTimeout(() => {
-      setReserveEvent(null);
-      setResSuccess(false);
-      setResForm({ name: '', email: '', qty: 1 });
-    }, 2000);
+    setTick(t => t + 1);
   };
 
   const adminEvents = getEvents().filter(e => e.status === 'Published');
@@ -267,10 +340,10 @@ export default function Events() {
                     {event.spots !== null && event.spots > 0 && (
                       <button
                         className="btn-primary"
-                        onClick={(e) => { e.stopPropagation(); setReserveEvent(event); setResForm({ name: '', email: '', qty: 1 }); setResSuccess(false); }}
+                        onClick={(e) => { e.stopPropagation(); setReserveEvent(event); setResForm({ name: '', email: '', qty: 1 }); setResTickets({}); setMemberLookup({ email: '', member: null, checked: false, loading: false }); setResSuccess(false); setConfirmationCode(''); }}
                         style={{ marginTop: 16, width: '100%', padding: '12px 24px', fontSize: 11 }}
                       >
-                        Reserve Spot
+                        Get Tickets
                       </button>
                     )}
                   </div>
@@ -320,79 +393,232 @@ export default function Events() {
         }
       `}</style>
 
-      {/* Reservation Modal */}
-      {reserveEvent && (
-        <>
-          <div onClick={() => { setReserveEvent(null); setResSuccess(false); }} style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000,
-            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
-          }} />
-          <div style={{
-            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            background: 'var(--bg2, #0a0a1a)', border: '1px solid var(--border)',
-            borderRadius: 'var(--r, 3px)', padding: 'clamp(20px, 5vw, 36px)', width: 400, maxWidth: '90vw', zIndex: 1001,
-          }}>
-            {resSuccess ? (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>✦</div>
-                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, marginBottom: 8 }}>
-                  Reserved!
-                </h3>
-                <p style={{ font: '300 14px "Plus Jakarta Sans"', color: 'var(--text2)' }}>
-                  Your spot for {reserveEvent.title} is confirmed.
-                </p>
-              </div>
-            ) : (
-              <>
-                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, marginBottom: 4 }}>
-                  Reserve a Spot
-                </h3>
-                <p style={{ font: '300 13px "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 24 }}>
-                  {reserveEvent.title} &middot; {reserveEvent.month} {reserveEvent.day}
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div>
-                    <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Name</label>
-                    <input
-                      value={resForm.name} onChange={e => setResForm(f => ({ ...f, name: e.target.value }))}
-                      placeholder="Your name"
-                      style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }}
-                    />
+      {/* Ticket Purchase Modal */}
+      {reserveEvent && (() => {
+        const eventId = reserveEvent.id;
+        const ticketTypes = getTicketTypes(eventId).filter(t => t.active && ((t.capacity || 999) - (t.sold || 0)) > 0);
+        const total = getTicketTotal(eventId);
+        const totalQty = getTotalQty();
+
+        return (
+          <>
+            <div onClick={() => { setReserveEvent(null); setResSuccess(false); setConfirmationCode(''); }} style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000,
+              backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+            }} />
+            <div style={{
+              position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+              background: 'var(--bg2, #0a0a1a)', border: '1px solid var(--border)',
+              borderRadius: 'var(--r, 3px)', padding: 'clamp(20px, 5vw, 36px)', width: 460, maxWidth: '90vw', zIndex: 1001,
+              maxHeight: '90vh', overflowY: 'auto',
+            }}>
+              {resSuccess ? (
+                <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>✦</div>
+                  <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, marginBottom: 8 }}>
+                    Tickets Confirmed!
+                  </h3>
+                  {confirmationCode && confirmationCode !== 'FREE' && (
+                    <div style={{
+                      font: '600 24px "JetBrains Mono", monospace',
+                      letterSpacing: '0.15em',
+                      color: 'var(--gold)',
+                      margin: '16px 0',
+                      padding: '16px',
+                      background: 'rgba(212,175,55,0.08)',
+                      border: '1px solid rgba(212,175,55,0.2)',
+                      borderRadius: 'var(--r, 3px)',
+                    }}>
+                      {confirmationCode}
+                    </div>
+                  )}
+                  <p style={{ font: '300 14px "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 4 }}>
+                    {reserveEvent.title}
+                  </p>
+                  <p style={{ font: '300 13px "Plus Jakarta Sans"', color: 'var(--muted)' }}>
+                    {reserveEvent.month} {reserveEvent.day} &middot; {reserveEvent.meta}
+                  </p>
+                  <button
+                    className="btn-ghost"
+                    onClick={() => { setReserveEvent(null); setResSuccess(false); setConfirmationCode(''); }}
+                    style={{ marginTop: 24 }}
+                  >
+                    Close
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Event Header */}
+                  <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 400, marginBottom: 4 }}>
+                    Get Tickets
+                  </h3>
+                  <p style={{ font: '300 13px "Plus Jakarta Sans"', color: 'var(--text2)', marginBottom: 4 }}>
+                    {reserveEvent.title}
+                  </p>
+                  <p style={{ font: '400 11px "JetBrains Mono", monospace', color: 'var(--muted)', letterSpacing: '0.08em', marginBottom: 24 }}>
+                    {reserveEvent.month} {reserveEvent.day} &middot; {reserveEvent.meta}
+                  </p>
+
+                  {/* Ticket Types */}
+                  {ticketTypes.length > 0 ? (
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', font: '500 10px "JetBrains Mono", monospace', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10 }}>Select Tickets</label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {ticketTypes.map(tt => {
+                          const remaining = (tt.capacity || 999) - (tt.sold || 0);
+                          const qty = resTickets[tt.id] || 0;
+                          const displayPrice = memberLookup.member ? getMemberTicketPrice(tt, memberLookup.member) : tt.price;
+                          const originalPrice = tt.price;
+                          const hasMemberDiscount = memberLookup.member && displayPrice < originalPrice;
+                          return (
+                            <div key={tt.id} style={{
+                              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                              padding: '12px 14px',
+                              background: 'var(--bg3, #12122a)',
+                              border: '1px solid var(--border2, rgba(255,255,255,0.06))',
+                              borderRadius: 'var(--r, 3px)',
+                            }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ font: '500 14px "Plus Jakarta Sans", sans-serif', color: 'var(--text)', marginBottom: 2 }}>{tt.name}</div>
+                                <div style={{ font: '400 12px "Plus Jakarta Sans", sans-serif', color: 'var(--muted)' }}>
+                                  {hasMemberDiscount ? (
+                                    <>
+                                      <span style={{ textDecoration: 'line-through', marginRight: 6 }}>${originalPrice.toFixed(2)}</span>
+                                      <span style={{ color: 'var(--gold)', fontWeight: 600 }}>${displayPrice.toFixed(2)}</span>
+                                      <span style={{ font: '400 10px "JetBrains Mono", monospace', color: 'var(--gold)', marginLeft: 6 }}>MEMBER</span>
+                                    </>
+                                  ) : displayPrice === 0 ? (
+                                    <span style={{ color: 'var(--gold)' }}>Free</span>
+                                  ) : (
+                                    <span>${displayPrice.toFixed(2)}</span>
+                                  )}
+                                  {remaining <= 20 && <span style={{ color: '#FF6B6B', marginLeft: 8, font: '400 10px "JetBrains Mono", monospace' }}>{remaining} left</span>}
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <button
+                                  onClick={() => setResTickets(prev => ({ ...prev, [tt.id]: Math.max(0, (prev[tt.id] || 0) - 1) }))}
+                                  disabled={qty === 0}
+                                  style={{
+                                    width: 30, height: 30, borderRadius: '50%', border: '1px solid var(--border2, rgba(255,255,255,0.1))',
+                                    background: 'transparent', color: qty === 0 ? 'var(--muted)' : 'var(--text)', cursor: qty === 0 ? 'default' : 'pointer',
+                                    font: '500 16px "Plus Jakarta Sans"', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  }}
+                                >-</button>
+                                <span style={{ font: '500 14px "JetBrains Mono", monospace', color: 'var(--text)', width: 20, textAlign: 'center' }}>{qty}</span>
+                                <button
+                                  onClick={() => setResTickets(prev => ({ ...prev, [tt.id]: Math.min(remaining, Math.min(10, (prev[tt.id] || 0) + 1)) }))}
+                                  disabled={qty >= remaining || qty >= 10}
+                                  style={{
+                                    width: 30, height: 30, borderRadius: '50%', border: '1px solid var(--border2, rgba(255,255,255,0.1))',
+                                    background: 'transparent', color: (qty >= remaining || qty >= 10) ? 'var(--muted)' : 'var(--text)', cursor: (qty >= remaining || qty >= 10) ? 'default' : 'pointer',
+                                    font: '500 16px "Plus Jakarta Sans"', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  }}
+                                >+</button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <p style={{ font: '300 13px "Plus Jakarta Sans"', color: 'var(--muted)', marginBottom: 20 }}>
+                      No ticket types available for this event.
+                    </p>
+                  )}
+
+                  {/* Member Lookup */}
+                  <div style={{ marginBottom: 20, padding: '14px', background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 'var(--r, 3px)' }}>
+                    <label style={{ display: 'block', font: '500 10px "JetBrains Mono", monospace', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 8 }}>Member?</label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input
+                        value={memberLookup.email}
+                        onChange={e => setMemberLookup(prev => ({ ...prev, email: e.target.value, checked: false, member: null }))}
+                        onKeyDown={e => e.key === 'Enter' && handleMemberLookup()}
+                        placeholder="Enter member email"
+                        type="email"
+                        style={{ flex: 1, padding: '10px 12px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 13px "DM Sans"', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                      <button
+                        onClick={handleMemberLookup}
+                        disabled={!memberLookup.email.trim() || memberLookup.loading}
+                        style={{
+                          padding: '10px 16px', background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)',
+                          borderRadius: 'var(--r, 3px)', font: '500 11px "JetBrains Mono", monospace', color: 'var(--gold)',
+                          cursor: !memberLookup.email.trim() ? 'default' : 'pointer', letterSpacing: '0.05em',
+                          opacity: !memberLookup.email.trim() ? 0.4 : 1,
+                        }}
+                      >
+                        {memberLookup.loading ? '...' : 'Look Up'}
+                      </button>
+                    </div>
+                    {memberLookup.checked && memberLookup.member && (
+                      <div style={{ marginTop: 8, font: '400 12px "Plus Jakarta Sans"', color: 'var(--gold)' }}>
+                        ✦ Member found: {memberLookup.member.name} ({memberLookup.member.tier})
+                      </div>
+                    )}
+                    {memberLookup.checked && !memberLookup.member && (
+                      <div style={{ marginTop: 8, font: '400 12px "Plus Jakarta Sans"', color: 'var(--muted)' }}>
+                        No active membership found for this email.
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Email</label>
-                    <input
-                      value={resForm.email} onChange={e => setResForm(f => ({ ...f, email: e.target.value }))}
-                      placeholder="you@example.com" type="email"
-                      style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }}
-                    />
+
+                  {/* Running Total */}
+                  {totalQty > 0 && (
+                    <div style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '12px 14px', marginBottom: 20,
+                      background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))',
+                      borderRadius: 'var(--r, 3px)',
+                    }}>
+                      <span style={{ font: '500 10px "JetBrains Mono", monospace', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+                        Total ({totalQty} {totalQty === 1 ? 'ticket' : 'tickets'})
+                      </span>
+                      <span style={{ font: '600 18px "Playfair Display", serif', color: total === 0 ? 'var(--gold)' : 'var(--text)' }}>
+                        {total === 0 ? 'Free' : `$${total.toFixed(2)}`}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Customer Info */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
+                    <div>
+                      <label style={{ display: 'block', font: '500 10px "JetBrains Mono", monospace', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Name</label>
+                      <input
+                        value={resForm.name} onChange={e => setResForm(f => ({ ...f, name: e.target.value }))}
+                        placeholder="Your name"
+                        style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', font: '500 10px "JetBrains Mono", monospace', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Email</label>
+                      <input
+                        value={resForm.email} onChange={e => setResForm(f => ({ ...f, email: e.target.value }))}
+                        placeholder="you@example.com" type="email"
+                        style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ display: 'block', font: '500 10px JetBrains Mono', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Tickets</label>
-                    <select
-                      value={resForm.qty} onChange={e => setResForm(f => ({ ...f, qty: Number(e.target.value) }))}
-                      style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3, #12122a)', border: '1px solid var(--border2, rgba(255,255,255,0.06))', borderRadius: 'var(--r, 3px)', font: '400 14px DM Sans', color: 'var(--text)', outline: 'none', cursor: 'pointer', boxSizing: 'border-box' }}
-                    >
-                      {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
-                    </select>
-                  </div>
-                  <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                    <button className="btn-ghost" onClick={() => { setReserveEvent(null); setResSuccess(false); }} style={{ flex: 1 }}>Cancel</button>
+
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button className="btn-ghost" onClick={() => { setReserveEvent(null); setResSuccess(false); setConfirmationCode(''); }} style={{ flex: 1 }}>Cancel</button>
                     <button
                       className="btn-primary"
-                      onClick={handleReserve}
-                      disabled={!resForm.name.trim() || !resForm.email.trim()}
-                      style={{ flex: 1, opacity: (!resForm.name.trim() || !resForm.email.trim()) ? 0.4 : 1 }}
+                      onClick={handlePurchase}
+                      disabled={!resForm.name.trim() || !resForm.email.trim() || totalQty === 0}
+                      style={{ flex: 1, opacity: (!resForm.name.trim() || !resForm.email.trim() || totalQty === 0) ? 0.4 : 1 }}
                     >
-                      Confirm Reservation
+                      {total === 0 && totalQty > 0 ? 'Reserve Free' : totalQty === 0 ? 'Select Tickets' : 'Purchase Tickets'}
                     </button>
                   </div>
-                </div>
-              </>
-            )}
-          </div>
-        </>
-      )}
+                </>
+              )}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }
