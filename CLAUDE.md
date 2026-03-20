@@ -608,3 +608,26 @@ All videos: autoplay, muted, loop, playsInline. Lazy loaded via IntersectionObse
 - Canvas starfield pauses when tab hidden
 - Custom cursor disabled on touch devices
 - Code split: main bundle ~486KB gzipped ~130KB
+
+## Design System
+- Use shadcn/ui components for all UI primitives
+- Use cn() from @/lib/utils for all className merging
+- Use cva() for component variants
+- Tailwind CSS only — no CSS modules, styled-components, or inline styles
+- All images use next/image with explicit width/height
+- All icons from lucide-react unless project specifies otherwise
+- Mobile-first responsive design (sm → md → lg → xl)
+- Support dark mode via class strategy
+
+## Component Conventions
+- Server Components by default; 'use client' only when needed
+- React.forwardRef for all components that render DOM elements
+- Export TypeScript interfaces for all component props
+- No 'any' type — always provide proper types
+
+## Quality Standards
+- All interactive elements must have visible focus styles
+- Color contrast must meet WCAG AA (4.5:1 minimum)
+- Include aria-label on icon-only buttons
+- Use semantic HTML elements (nav, main, section, article)
+- Include loading and error states for async components

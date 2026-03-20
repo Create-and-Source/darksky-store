@@ -23,6 +23,11 @@ output "region" {
   value       = var.region
 }
 
+output "nameservers" {
+  description = "Route 53 nameservers — set these at your domain registrar"
+  value       = aws_route53_zone.main.name_servers
+}
+
 output "frontend_bucket" {
   description = "S3 bucket name for frontend static files"
   value       = aws_s3_bucket.frontend.id

@@ -17,3 +17,4 @@ demo-videos/
 # Backups
 *.backup.*
 CLAUDE.md.local-backup
+.vercel

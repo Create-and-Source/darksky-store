@@ -14,7 +14,7 @@ const doc = DynamoDBDocumentClient.from(client, {
   marshallOptions: { removeUndefinedValues: true },
 });
 
-const PREFIX = 'darksky-';
+const PREFIX = 'darksky-prod-';
 const t = (name) => `${PREFIX}${name}`;
 
 // ── Batch writer (handles 25-item limit) ─────────────────────────

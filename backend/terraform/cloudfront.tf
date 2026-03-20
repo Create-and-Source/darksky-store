@@ -47,6 +47,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   is_ipv6_enabled     = true
   default_root_object = "index.html"
   price_class         = "PriceClass_100" # US, Canada, Europe only — cheapest
+  # aliases = [var.domain_name, "www.${var.domain_name}"] # uncomment when domain is ready
 
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
@@ -117,11 +118,17 @@ resource "aws_cloudfront_distribution" "frontend" {
     }
   }
 
-  # Default CloudFront certificate (*.cloudfront.net)
-  # To use darkskycenter.org: provision ACM cert in us-east-1, then swap this block.
+  # Using default CloudFront cert until domain nameservers are propagated.
+  # When ready: uncomment aliases above, swap this block for the acm_certificate_arn block below.
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+
+  # viewer_certificate {
+  #   acm_certificate_arn      = aws_acm_certificate_validation.frontend.certificate_arn
+  #   ssl_support_method       = "sni-only"
+  #   minimum_protocol_version = "TLSv1.2_2021"
+  # }
 
   tags = {
     Project     = var.project

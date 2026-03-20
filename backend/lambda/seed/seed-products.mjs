@@ -15,7 +15,7 @@ const doc = DynamoDBDocumentClient.from(client, {
   marshallOptions: { removeUndefinedValues: true },
 });
 
-const PREFIX = 'darksky-';
+const PREFIX = 'darksky-prod-';
 
 async function batchPut(tableName, items) {
   const fullName = `${PREFIX}${tableName}`;
@@ -35,7 +35,7 @@ async function batchPut(tableName, items) {
 // The products.js file exports a PRODUCTS array as ES module.
 // We'll dynamically import it.
 async function loadProducts() {
-  const productsPath = resolve(__dirname, '../../src/data/products.js');
+  const productsPath = resolve(__dirname, '../../../src/data/products.js');
   // Use dynamic import for ES module
   const mod = await import(productsPath);
   return mod.PRODUCTS || mod.default || [];
@@ -43,7 +43,7 @@ async function loadProducts() {
 
 // ── Load mockData.js (inventory, orders, POs, transfers) ─────────
 async function loadMockData() {
-  const mockPath = resolve(__dirname, '../../src/admin/data/mockData.js');
+  const mockPath = resolve(__dirname, '../../../src/admin/data/mockData.js');
   const mod = await import(mockPath);
   return {
     inventory: mod.INVENTORY || [],
