@@ -36,6 +36,8 @@ const KEYS = {
   heldSales: 'ds_held_sales',
   fieldTrips: 'ds_field_trips',
   messages: 'ds_messages',
+  membershipTiers: 'ds_membership_tiers',
+  ticketTypes: 'ds_ticket_types',
 };
 
 // ── HELPERS ──
@@ -94,6 +96,8 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.heldSales)) set(KEYS.heldSales, []);
   if (!localStorage.getItem(KEYS.fieldTrips)) set(KEYS.fieldTrips, DEFAULT_FIELD_TRIPS);
   if (!localStorage.getItem(KEYS.messages)) set(KEYS.messages, DEFAULT_MESSAGES);
+  if (!localStorage.getItem(KEYS.membershipTiers)) set(KEYS.membershipTiers, DEFAULT_MEMBERSHIP_TIERS);
+  if (!localStorage.getItem(KEYS.ticketTypes)) set(KEYS.ticketTypes, DEFAULT_TICKET_TYPES);
   // Seed physical products into ds_products
   const prods = get(KEYS.products, []);
   if (!prods.find(p => p.id === 'PHYS-001')) {
@@ -370,6 +374,47 @@ export function addMember(member) {
   return newM;
 }
 export const isMember = (email) => getMembers().some(m => m.email === email && m.status === 'Active');
+export function updateMember(id, changes) {
+  set(KEYS.members, getMembers().map(m => m.id === id ? { ...m, ...changes } : m));
+}
+export function deleteMember(id) {
+  set(KEYS.members, getMembers().filter(m => m.id !== id));
+}
+
+// ═══════ MEMBERSHIP TIERS ═══════
+export const getMembershipTiers = () => get(KEYS.membershipTiers, DEFAULT_MEMBERSHIP_TIERS);
+export function addMembershipTier(tier) {
+  const all = getMembershipTiers();
+  const newT = { id: genId('TIER'), ...tier };
+  all.push(newT);
+  set(KEYS.membershipTiers, all);
+  return newT;
+}
+export function updateMembershipTier(id, changes) {
+  set(KEYS.membershipTiers, getMembershipTiers().map(t => t.id === id ? { ...t, ...changes } : t));
+}
+export function deleteMembershipTier(id) {
+  set(KEYS.membershipTiers, getMembershipTiers().filter(t => t.id !== id));
+}
+
+// ═══════ TICKET TYPES ═══════
+export const getTicketTypes = (eventId) => {
+  const all = get(KEYS.ticketTypes, []);
+  return eventId ? all.filter(t => t.eventId === eventId) : all;
+};
+export function addTicketType(type) {
+  const all = get(KEYS.ticketTypes, []);
+  const newT = { id: genId('TKT'), sold: 0, active: true, ...type };
+  all.push(newT);
+  set(KEYS.ticketTypes, all);
+  return newT;
+}
+export function updateTicketType(id, changes) {
+  set(KEYS.ticketTypes, get(KEYS.ticketTypes, []).map(t => t.id === id ? { ...t, ...changes } : t));
+}
+export function deleteTicketType(id) {
+  set(KEYS.ticketTypes, get(KEYS.ticketTypes, []).filter(t => t.id !== id));
+}
 
 // ═══════ INQUIRIES ═══════
 export const getInquiries = () => get(KEYS.inquiries, []);
@@ -506,11 +551,32 @@ const DEFAULT_EVENTS = [
 ];
 
 const DEFAULT_MEMBERS = [
-  { id: 'MBR-001', name: 'Sarah Mitchell', email: 'sarah.m@email.com', tier: 'Explorer', joinDate: '2026-01-15', status: 'Active' },
-  { id: 'MBR-002', name: 'James Rodriguez', email: 'jrod@email.com', tier: 'Stargazer', joinDate: '2026-02-01', status: 'Active' },
-  { id: 'MBR-003', name: 'Emily Chen', email: 'echen@email.com', tier: 'Guardian', joinDate: '2025-12-10', status: 'Active' },
-  { id: 'MBR-004', name: 'Michael Torres', email: 'mtorres@email.com', tier: 'Explorer', joinDate: '2026-02-20', status: 'Active' },
-  { id: 'MBR-005', name: 'Lisa Park', email: 'lpark@email.com', tier: 'Stargazer', joinDate: '2026-03-01', status: 'Active' },
+  { id: 'MBR-001', name: 'Sarah Mitchell', email: 'sarah.m@email.com', phone: '(480) 555-0201', tier: 'Explorer', joinDate: '2026-01-15', renewalDate: '2027-01-15', status: 'Active', notes: '' },
+  { id: 'MBR-002', name: 'James Rodriguez', email: 'jrod@email.com', phone: '(480) 555-0202', tier: 'Observer', joinDate: '2026-02-01', renewalDate: '2027-02-01', status: 'Active', notes: '' },
+  { id: 'MBR-003', name: 'Emily Chen', email: 'echen@email.com', phone: '(480) 555-0203', tier: 'Guardian', joinDate: '2025-12-10', renewalDate: '2026-12-10', status: 'Active', notes: 'Board member referral' },
+  { id: 'MBR-004', name: 'Michael Torres', email: 'mtorres@email.com', phone: '(480) 555-0204', tier: 'Explorer', joinDate: '2026-02-20', renewalDate: '2027-02-20', status: 'Active', notes: '' },
+  { id: 'MBR-005', name: 'Lisa Park', email: 'lpark@email.com', phone: '(480) 555-0205', tier: 'Observer', joinDate: '2026-03-01', renewalDate: '2027-03-01', status: 'Active', notes: '' },
+  { id: 'MBR-006', name: 'David Nguyen', email: 'dnguyen@email.com', phone: '(480) 555-0206', tier: 'Patron', joinDate: '2025-11-15', renewalDate: '2026-11-15', status: 'Active', notes: 'Annual donor' },
+  { id: 'MBR-007', name: 'Rachel Kim', email: 'rkim@email.com', phone: '(480) 555-0207', tier: 'Explorer', joinDate: '2026-01-08', renewalDate: '2027-01-08', status: 'Expired', notes: '' },
+];
+
+const DEFAULT_MEMBERSHIP_TIERS = [
+  { id: 'TIER-001', name: 'Explorer', price: 4900, period: 'per year', desc: 'For the curious stargazer beginning their journey.', discount: 10, benefits: ['10% discount on all store purchases', 'Monthly dark sky newsletter', 'Digital star map of the Sonoran sky', 'Invitation to 2 public stargazing events', 'Member-only product announcements'], featured: false, badge: '', active: true },
+  { id: 'TIER-002', name: 'Observer', price: 9900, period: 'per year', desc: 'For dedicated astronomers who want more of the night sky.', discount: 15, benefits: ['15% discount on all store purchases', 'Free shipping on all orders', 'Quarterly exclusive merchandise drops', 'Invitation to 6 stargazing events + 1 private', "Name in the Observatory's Star Registry", 'Early access to limited edition releases'], featured: true, badge: 'Most Popular', active: true },
+  { id: 'TIER-003', name: 'Patron', price: 24900, period: 'per year', desc: 'For those who want to give back to the night sky.', discount: 20, benefits: ['20% discount on all store purchases', 'Free expedited shipping on all orders', 'Complimentary annual gift ($75 value)', 'All Observer benefits', 'Invitation to all events + 2 private viewings', 'Recognition on donor wall'], featured: false, badge: 'Best Value', active: true },
+  { id: 'TIER-004', name: 'Guardian', price: 99900, period: 'per year', desc: 'Champion the preservation of the night sky.', discount: 25, benefits: ['25% discount on all store purchases', 'All Patron benefits', 'Named telescope at the observatory', 'Annual private star party for 10 guests', 'Board meeting observer seat', 'Framed night sky photograph'], featured: false, badge: 'Legacy', active: true },
+];
+
+const DEFAULT_TICKET_TYPES = [
+  { id: 'TKT-001', eventId: 'EVT-001', name: 'General Admission', price: 1500, memberPrice: 0, capacity: null, sold: 12, active: true, desc: '' },
+  { id: 'TKT-002', eventId: 'EVT-002', name: 'General Admission', price: 3500, memberPrice: 3500, capacity: 30, sold: 8, active: true, desc: '21+ only, valid ID required' },
+  { id: 'TKT-003', eventId: 'EVT-002', name: 'VIP Table', price: 5500, memberPrice: 4500, capacity: 10, sold: 0, active: true, desc: 'Reserved seating + priority telescope time' },
+  { id: 'TKT-004', eventId: 'EVT-003', name: 'General Admission', price: 1200, memberPrice: 0, capacity: null, sold: 22, active: true, desc: 'Ages 5+' },
+  { id: 'TKT-005', eventId: 'EVT-004', name: 'General Admission', price: 4500, memberPrice: 4500, capacity: 15, sold: 6, active: true, desc: 'Bring your own DSLR or mirrorless camera' },
+  { id: 'TKT-006', eventId: 'EVT-005', name: 'General Admission', price: 1200, memberPrice: 1200, capacity: 50, sold: 15, active: true, desc: 'All ages' },
+  { id: 'TKT-007', eventId: 'EVT-005', name: 'Member Rate', price: 900, memberPrice: 900, capacity: 10, sold: 0, active: true, desc: 'Members only — discounted admission' },
+  { id: 'TKT-008', eventId: 'EVT-006', name: 'General Admission', price: 6500, memberPrice: 6500, capacity: 25, sold: 18, active: true, desc: 'Ages 6–12. Lunch included.' },
+  { id: 'TKT-009', eventId: 'EVT-006', name: 'Early Bird', price: 5500, memberPrice: 5000, capacity: 5, sold: 5, active: false, desc: 'Sold out' },
 ];
 
 const DEFAULT_CONTENT = {

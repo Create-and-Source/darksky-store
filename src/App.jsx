@@ -54,6 +54,8 @@ const Facility = lazy(() => import('./admin/pages/Facility'));
 const Visitors = lazy(() => import('./admin/pages/Visitors'));
 const Volunteers = lazy(() => import('./admin/pages/Volunteers'));
 const CRM = lazy(() => import('./admin/pages/CRM'));
+const Memberships = lazy(() => import('./admin/pages/Memberships'));
+const Tickets = lazy(() => import('./admin/pages/Tickets'));
 
 const CART_KEY = 'ds_store_cart';
 
@@ -376,6 +378,8 @@ export default function App() {
               <Route path="visitors" element={<Visitors />} />
               <Route path="volunteers" element={<Volunteers />} />
               <Route path="crm" element={<CRM />} />
+              <Route path="memberships" element={<Memberships />} />
+              <Route path="tickets" element={<Tickets />} />
             </Route>
             <Route path="*" element={
               <div style={{ padding: '180px 64px 120px', textAlign: 'center', background: 'var(--bg)' }}>
