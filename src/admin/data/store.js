@@ -38,6 +38,12 @@ const KEYS = {
   messages: 'ds_messages',
   membershipTiers: 'ds_membership_tiers',
   ticketTypes: 'ds_ticket_types',
+  constituentProfiles: 'ds_constituent_profiles',
+  customTags: 'ds_custom_tags',
+  crmTasks: 'ds_crm_tasks',
+  communicationLog: 'ds_communication_log',
+  households: 'ds_households',
+  segments: 'ds_segments',
 };
 
 // ── HELPERS ──
@@ -52,7 +58,7 @@ export const subscribe = (fn) => { listeners.add(fn); return () => listeners.del
 const notify = () => listeners.forEach(fn => fn());
 
 // ── INIT ──
-const DATA_VERSION = '3.6';
+const DATA_VERSION = '4.0';
 
 export function initStore() {
   // Version check — clear all ds_ keys and re-seed if version mismatch
@@ -98,6 +104,12 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.messages)) set(KEYS.messages, DEFAULT_MESSAGES);
   if (!localStorage.getItem(KEYS.membershipTiers)) set(KEYS.membershipTiers, DEFAULT_MEMBERSHIP_TIERS);
   if (!localStorage.getItem(KEYS.ticketTypes)) set(KEYS.ticketTypes, DEFAULT_TICKET_TYPES);
+  if (!localStorage.getItem(KEYS.constituentProfiles)) set(KEYS.constituentProfiles, {});
+  if (!localStorage.getItem(KEYS.customTags)) set(KEYS.customTags, DEFAULT_CUSTOM_TAGS);
+  if (!localStorage.getItem(KEYS.crmTasks)) set(KEYS.crmTasks, DEFAULT_CRM_TASKS);
+  if (!localStorage.getItem(KEYS.communicationLog)) set(KEYS.communicationLog, DEFAULT_COMMUNICATION_LOG);
+  if (!localStorage.getItem(KEYS.households)) set(KEYS.households, DEFAULT_HOUSEHOLDS);
+  if (!localStorage.getItem(KEYS.segments)) set(KEYS.segments, DEFAULT_SEGMENTS);
   // Seed physical products into ds_products
   const prods = get(KEYS.products, []);
   if (!prods.find(p => p.id === 'PHYS-001')) {
@@ -540,6 +552,153 @@ export function getDashboardStats() {
   return { totalRevenue, orderCount: orders.length, todayOrders: todayOrders.length, lowStockCount: lowStock.length, memberCount: members.length };
 }
 
+// ═══════ CONSTITUENT PROFILES ═══════
+export const getConstituentProfiles = () => get(KEYS.constituentProfiles, {});
+export const getConstituentProfile = (id) => getConstituentProfiles()[id] || null;
+export function updateConstituentProfile(id, changes) {
+  const all = getConstituentProfiles();
+  all[id] = { ...(all[id] || {}), ...changes };
+  set(KEYS.constituentProfiles, all);
+}
+
+// ═══════ CUSTOM TAGS ═══════
+export const getCustomTags = () => get(KEYS.customTags, []);
+export function addCustomTag(tag) {
+  const all = getCustomTags();
+  const newT = { id: genId('TAG'), ...tag, createdAt: new Date().toISOString().slice(0,10) };
+  all.push(newT);
+  set(KEYS.customTags, all);
+  return newT;
+}
+export function updateCustomTag(id, changes) {
+  set(KEYS.customTags, getCustomTags().map(t => t.id === id ? { ...t, ...changes } : t));
+}
+export function deleteCustomTag(id) {
+  set(KEYS.customTags, getCustomTags().filter(t => t.id !== id));
+}
+
+// ═══════ CRM TASKS ═══════
+export const getTasks = () => get(KEYS.crmTasks, []);
+export function addTask(task) {
+  const all = getTasks();
+  const newT = { id: genId('TSK'), ...task, createdAt: new Date().toISOString().slice(0,10), status: task.status || 'open' };
+  all.unshift(newT);
+  set(KEYS.crmTasks, all);
+  return newT;
+}
+export function updateTask(id, changes) {
+  set(KEYS.crmTasks, getTasks().map(t => t.id === id ? { ...t, ...changes } : t));
+}
+export function deleteTask(id) {
+  set(KEYS.crmTasks, getTasks().filter(t => t.id !== id));
+}
+
+// ═══════ COMMUNICATION LOG ═══════
+export const getCommunicationLog = (contactId) => {
+  const all = get(KEYS.communicationLog, []);
+  return contactId ? all.filter(e => e.contactId === contactId) : all;
+};
+export function addCommunicationLog(entry) {
+  const all = get(KEYS.communicationLog, []);
+  const newE = { id: genId('COM'), ...entry, sentAt: entry.sentAt || new Date().toISOString() };
+  all.unshift(newE);
+  set(KEYS.communicationLog, all);
+  return newE;
+}
+
+// ═══════ HOUSEHOLDS ═══════
+export const getHouseholds = () => get(KEYS.households, []);
+export function addHousehold(h) {
+  const all = getHouseholds();
+  const newH = { id: genId('HH'), ...h };
+  all.push(newH);
+  set(KEYS.households, all);
+  return newH;
+}
+export function updateHousehold(id, changes) {
+  set(KEYS.households, getHouseholds().map(h => h.id === id ? { ...h, ...changes } : h));
+}
+export function deleteHousehold(id) {
+  set(KEYS.households, getHouseholds().filter(h => h.id !== id));
+}
+
+// ═══════ SEGMENTS ═══════
+export const getSegments = () => get(KEYS.segments, []);
+export function addSegment(seg) {
+  const all = getSegments();
+  const newS = { id: genId('SEG'), ...seg, createdAt: new Date().toISOString().slice(0,10) };
+  all.push(newS);
+  set(KEYS.segments, all);
+  return newS;
+}
+export function updateSegment(id, changes) {
+  set(KEYS.segments, getSegments().map(s => s.id === id ? { ...s, ...changes } : s));
+}
+export function deleteSegment(id) {
+  set(KEYS.segments, getSegments().filter(s => s.id !== id));
+}
+export function evaluateSegment(segment, contacts) {
+  if (!segment || !segment.rules || segment.rules.length === 0) return contacts;
+  const logic = segment.logic || 'AND';
+  return contacts.filter(c => {
+    const results = segment.rules.map(rule => {
+      let val;
+      switch (rule.field) {
+        case 'Tags': val = (c.tags || []).join(', '); break;
+        case 'Last Activity': val = c.lastActivity || ''; break;
+        case 'Total Spent': val = (c.totalSpent || 0) / 100; break;
+        case 'Total Donated': val = (c.totalDonated || 0) / 100; break;
+        case 'Events Attended': val = c.eventsAttended || 0; break;
+        case 'Member Status': val = c.memberStatus || ''; break;
+        case 'Zip Code': val = c.zip || ''; break;
+        case 'Engagement Score': val = c.engagementScore || 0; break;
+        case 'Constituent Type': val = c.constituentType || 'Individual'; break;
+        default: val = '';
+      }
+      const rv = rule.value;
+      switch (rule.operator) {
+        case 'is': return String(val).toLowerCase() === String(rv).toLowerCase();
+        case 'is not': return String(val).toLowerCase() !== String(rv).toLowerCase();
+        case 'includes': return String(val).toLowerCase().includes(String(rv).toLowerCase());
+        case 'greater than': return Number(val) > Number(rv);
+        case 'less than': return Number(val) < Number(rv);
+        case 'older_than_days': {
+          if (!val) return true;
+          const d = new Date(val);
+          const diff = (Date.now() - d.getTime()) / 86400000;
+          return diff > Number(rv);
+        }
+        case 'newer_than_days': {
+          if (!val) return false;
+          const d = new Date(val);
+          const diff = (Date.now() - d.getTime()) / 86400000;
+          return diff <= Number(rv);
+        }
+        default: return false;
+      }
+    });
+    return logic === 'AND' ? results.every(Boolean) : results.some(Boolean);
+  });
+}
+
+// ═══════ ENGAGEMENT SCORE ═══════
+export function computeEngagement(contact) {
+  let score = 0;
+  score += (contact.orderCount || 0) * 10;
+  if ((contact.totalDonated || 0) > 0) score += 20;
+  score += (contact.eventsAttended || 0) * 5;
+  if ((contact.tags || []).includes('Volunteer')) score += 15;
+  if ((contact.tags || []).includes('Member')) score += 10;
+  // Recency
+  if (contact.lastActivity) {
+    const days = (Date.now() - new Date(contact.lastActivity).getTime()) / 86400000;
+    if (days < 30) score += 20;
+    else if (days < 90) score += 10;
+    else if (days > 180) score -= 10;
+  }
+  return Math.max(0, Math.min(100, score));
+}
+
 // ═══════ DEFAULT DATA ═══════
 const DEFAULT_EVENTS = [
   { id: 'EVT-001', title: 'New Moon Star Party', category: 'Star Party', date: '2026-03-29', time: '20:00', endTime: '23:00', location: 'Observatory Deck', description: 'Join us for our monthly new moon star party — the darkest skies of the month! Our volunteer astronomers will guide you through the constellations, and you\'ll get to view deep-sky objects through our 16-inch Dobsonian telescope. Bring a blanket and a thermos.', price: 1500, capacity: 45, ticketsSold: 12, status: 'Published', featured: true, memberFree: true },
@@ -849,4 +1008,71 @@ const DEFAULT_MESSAGES = [
   { id: 'MSG-000009', conversationId: 'CONV-sam-josi', from: { name: 'Josi', role: 'shop_manager' }, to: { name: 'Sam', role: 'visitor_services' }, text: 'Not yet but it\'s on the wish list. Send them to our website for now.', timestamp: '2026-03-14T14:28:00Z', read: true },
   { id: 'MSG-000010', conversationId: 'CONV-rodriguez-maria', from: { name: 'Mrs. Rodriguez', role: 'school' }, to: { name: 'Maria', role: 'education_director' }, text: 'Can we add a rocket building activity to our April trip?', timestamp: '2026-03-15T08:00:00Z', read: false },
   { id: 'MSG-000011', conversationId: 'CONV-rodriguez-maria', from: { name: 'Maria', role: 'education_director' }, to: { name: 'Mrs. Rodriguez', role: 'school' }, text: 'Absolutely! I\'ll add it to your itinerary. Great idea.', timestamp: '2026-03-15T08:15:00Z', read: true },
+];
+
+// ═══════ CRM CONSTITUENT SEED DATA ═══════
+
+const DEFAULT_CUSTOM_TAGS = [
+  { id: 'TAG-001', name: 'Board Member', color: '#D4AF37', category: 'Relationship', createdAt: '2026-01-01' },
+  { id: 'TAG-002', name: 'Major Donor', color: '#1E8E3E', category: 'Relationship', createdAt: '2026-01-01' },
+  { id: 'TAG-003', name: 'Corporate Sponsor', color: '#0369A1', category: 'Relationship', createdAt: '2026-01-01' },
+  { id: 'TAG-004', name: 'Snowbird', color: '#D4943A', category: 'Affinity', createdAt: '2026-01-01' },
+  { id: 'TAG-005', name: 'Homeschool Family', color: '#7C3AED', category: 'Affinity', createdAt: '2026-01-01' },
+  { id: 'TAG-006', name: 'VIP Tour', color: '#C45B5B', category: 'Affinity', createdAt: '2026-01-01' },
+  { id: 'TAG-007', name: 'Legacy Society', color: '#8B7320', category: 'Relationship', createdAt: '2026-01-01' },
+  { id: 'TAG-008', name: 'Planned Giving', color: '#3D8C6F', category: 'Source', createdAt: '2026-01-01' },
+  { id: 'TAG-009', name: 'Community Leader', color: '#6366F1', category: 'Relationship', createdAt: '2026-01-01' },
+  { id: 'TAG-010', name: 'Astronomer', color: '#1A73E8', category: 'Affinity', createdAt: '2026-01-01' },
+  { id: 'TAG-011', name: 'Educator', color: '#C2590A', category: 'Affinity', createdAt: '2026-01-01' },
+  { id: 'TAG-012', name: 'Gala Attendee', color: '#BE185D', category: 'Source', createdAt: '2026-01-01' },
+];
+
+const DEFAULT_CRM_TASKS = [
+  { id: 'TSK-001', contactId: 'rthompson@email.com', title: 'Call Robert Thompson about naming ceremony', description: 'Discuss observatory naming rights ceremony date and guest list', dueDate: '2026-03-25', priority: 'high', status: 'open', type: 'call', assignedTo: 'Dr. J', completedAt: null, createdAt: '2026-03-15' },
+  { id: 'TSK-002', contactId: 'echen@email.com', title: 'Send Emily Chen board packet', description: 'Q1 financials and membership growth report for board review', dueDate: '2026-03-22', priority: 'high', status: 'in_progress', type: 'email', assignedTo: 'Dr. J', completedAt: null, createdAt: '2026-03-14' },
+  { id: 'TSK-003', contactId: 'info@azscience.org', title: 'Follow up on ASF grant Year 2', description: 'Submit Year 1 outcomes report and Year 2 proposal', dueDate: '2026-04-01', priority: 'medium', status: 'open', type: 'follow_up', assignedTo: 'Dr. J', completedAt: null, createdAt: '2026-03-10' },
+  { id: 'TSK-004', contactId: 'williams@chandlerusd.org', title: 'Schedule planetarium tour for Chandler STEM', description: 'Coordinate May visit with telescope data collection activities', dueDate: '2026-03-28', priority: 'medium', status: 'open', type: 'call', assignedTo: 'Maria', completedAt: null, createdAt: '2026-03-12' },
+  { id: 'TSK-005', contactId: 'info@desertstarlight.com', title: 'Send Spring Gala sponsorship acknowledgment', description: 'Thank-you letter and tax receipt for $250 corporate sponsorship', dueDate: '2026-03-20', priority: 'high', status: 'open', type: 'email', assignedTo: 'Dr. J', completedAt: null, createdAt: '2026-03-08' },
+  { id: 'TSK-006', contactId: 'phernandez@email.com', title: 'Schedule coffee with Patricia Hernandez', description: 'Discuss board engagement and annual giving plans', dueDate: '2026-04-05', priority: 'low', status: 'open', type: 'meeting', assignedTo: 'Dr. J', completedAt: null, createdAt: '2026-03-13' },
+  { id: 'TSK-007', contactId: 'mpark@email.com', title: 'Thank Michael Park for monthly pledge', description: 'Personal call to acknowledge ongoing $50K monthly pledge', dueDate: '2026-03-30', priority: 'medium', status: 'open', type: 'call', assignedTo: 'Dr. J', completedAt: null, createdAt: '2026-03-11' },
+  { id: 'TSK-008', contactId: 'treasurer@scottsdaleastro.org', title: 'Invite Scottsdale Astronomy Club to star party', description: 'Extend VIP invitation for New Moon Star Party March 29', dueDate: '2026-03-21', priority: 'low', status: 'completed', type: 'email', assignedTo: 'Jordan', completedAt: '2026-03-18', createdAt: '2026-03-09' },
+  { id: 'TSK-009', contactId: 'sarah.m@email.com', title: 'Welcome call for new Explorer member', description: 'Personal welcome and orientation invitation', dueDate: '2026-03-24', priority: 'low', status: 'open', type: 'call', assignedTo: 'Jordan', completedAt: null, createdAt: '2026-03-15' },
+  { id: 'TSK-010', contactId: 'lpark@email.com', title: 'Follow up on Park family membership renewal', description: 'Observer tier renewal due next month, check if upgrading', dueDate: '2026-03-26', priority: 'medium', status: 'open', type: 'follow_up', assignedTo: 'Jordan', completedAt: null, createdAt: '2026-03-14' },
+];
+
+const DEFAULT_COMMUNICATION_LOG = [
+  { id: 'COM-001', contactId: 'rthompson@email.com', type: 'email', subject: 'Observatory Naming Rights — Next Steps', body: 'Dear Robert, thank you for your generous contribution...', direction: 'outbound', sentAt: '2026-03-01T10:00:00Z', channel: 'manual' },
+  { id: 'COM-002', contactId: 'rthompson@email.com', type: 'call', subject: 'Discussed ceremony timeline', body: 'Robert prefers May for the ceremony. Wants to invite 50 guests.', direction: 'outbound', sentAt: '2026-03-05T14:30:00Z', channel: 'phone' },
+  { id: 'COM-003', contactId: 'echen@email.com', type: 'email', subject: 'Board Meeting Agenda — March', body: 'Attached is the March board meeting agenda...', direction: 'outbound', sentAt: '2026-03-10T09:00:00Z', channel: 'manual' },
+  { id: 'COM-004', contactId: 'echen@email.com', type: 'email', subject: 'RE: Board Meeting Agenda — March', body: 'Thanks, looks good. Can we add the fundraising update?', direction: 'inbound', sentAt: '2026-03-10T11:15:00Z', channel: 'manual' },
+  { id: 'COM-005', contactId: 'info@azscience.org', type: 'email', subject: 'Year 1 Progress Report', body: 'Attached: STEM education grant Year 1 outcomes...', direction: 'outbound', sentAt: '2026-02-28T16:00:00Z', channel: 'manual' },
+  { id: 'COM-006', contactId: 'mpark@email.com', type: 'call', subject: 'Monthly pledge thank-you', body: 'Called to thank for February pledge. Michael mentioned interest in naming a gallery.', direction: 'outbound', sentAt: '2026-03-02T15:00:00Z', channel: 'phone' },
+  { id: 'COM-007', contactId: 'info@desertstarlight.com', type: 'email', subject: 'Spring Gala Sponsorship Confirmation', body: 'Thank you for confirming Desert Starlight LLC as a Spring Gala sponsor...', direction: 'outbound', sentAt: '2026-02-15T10:00:00Z', channel: 'manual' },
+  { id: 'COM-008', contactId: 'phernandez@email.com', type: 'meeting', subject: 'Board member check-in lunch', body: 'Met at Fountain Hills restaurant. Discussed annual giving and gala table.', direction: 'outbound', sentAt: '2026-02-20T12:00:00Z', channel: 'manual' },
+  { id: 'COM-009', contactId: 'sarah.m@email.com', type: 'email', subject: 'Welcome to Dark Sky Discovery Center!', body: 'Dear Sarah, welcome to the Explorer membership tier...', direction: 'outbound', sentAt: '2026-01-16T09:00:00Z', channel: 'email_blast' },
+  { id: 'COM-010', contactId: 'jrod@email.com', type: 'email', subject: 'Your Observer Membership Benefits', body: 'Dear James, here are your Observer tier benefits...', direction: 'outbound', sentAt: '2026-02-02T09:00:00Z', channel: 'email_blast' },
+  { id: 'COM-011', contactId: 'sarah.m@email.com', type: 'sms', subject: '', body: 'Hi Sarah! Reminder: New Moon Star Party this Saturday at 8pm. See you there! \u{1F319}', direction: 'outbound', sentAt: '2026-03-27T14:00:00Z', channel: 'text_blast' },
+  { id: 'COM-012', contactId: 'creyes@email.com', type: 'call', subject: 'Volunteer schedule for March', body: 'Carlos confirmed availability for all Friday/Saturday slots in March.', direction: 'inbound', sentAt: '2026-03-01T11:00:00Z', channel: 'phone' },
+  { id: 'COM-013', contactId: 'treasurer@scottsdaleastro.org', type: 'email', subject: 'VIP Invitation — New Moon Star Party', body: 'The Scottsdale Astronomy Club is invited to our New Moon Star Party...', direction: 'outbound', sentAt: '2026-03-18T10:00:00Z', channel: 'manual' },
+  { id: 'COM-014', contactId: 'lpark@email.com', type: 'email', subject: 'Membership Renewal Reminder', body: 'Dear Lisa, your Observer membership renews on April 1...', direction: 'outbound', sentAt: '2026-03-01T09:00:00Z', channel: 'email_blast' },
+  { id: 'COM-015', contactId: 'dnguyen@email.com', type: 'email', subject: 'Annual Donor Recognition', body: 'Dear David, as a Patron member and annual donor, we want to recognize...', direction: 'outbound', sentAt: '2026-03-05T10:00:00Z', channel: 'manual' },
+  { id: 'COM-016', contactId: 'grants@fhcf.org', type: 'email', subject: 'Q1 Grant Report — Fountain Hills Community Foundation', body: 'Attached please find our Q1 progress report...', direction: 'outbound', sentAt: '2026-03-15T14:00:00Z', channel: 'manual' },
+  { id: 'COM-017', contactId: 'rthompson@email.com', type: 'email', subject: 'RE: Ceremony Guest List', body: 'Carol and I would like to add the mayor to the guest list.', direction: 'inbound', sentAt: '2026-03-12T16:30:00Z', channel: 'manual' },
+];
+
+const DEFAULT_HOUSEHOLDS = [
+  { id: 'HH-001', name: 'The Thompson Family', type: 'household', address: '8742 E Cholla St', city: 'Fountain Hills', state: 'AZ', zip: '85268', memberIds: ['rthompson@email.com'], primaryContactId: 'rthompson@email.com', notes: 'Major donors — observatory naming rights' },
+  { id: 'HH-002', name: 'The Park Family', type: 'household', address: '15201 N Scottsdale Rd', city: 'Scottsdale', state: 'AZ', zip: '85254', memberIds: ['mpark@email.com', 'lpark@email.com'], primaryContactId: 'mpark@email.com', notes: 'Monthly pledge family — Michael & Lisa' },
+  { id: 'HH-003', name: 'Arizona Public Service', type: 'organization', address: '400 N 5th St', city: 'Phoenix', state: 'AZ', zip: '85004', memberIds: [], primaryContactId: null, notes: 'Utility company — potential corporate sponsor' },
+  { id: 'HH-004', name: 'Scottsdale Unified School District', type: 'organization', address: '8500 E Jackrabbit Rd', city: 'Scottsdale', state: 'AZ', zip: '85250', memberIds: ['patel@scottsdaleprep.org'], primaryContactId: 'patel@scottsdaleprep.org', notes: 'Multiple schools booking field trips' },
+];
+
+const DEFAULT_SEGMENTS = [
+  { id: 'SEG-001', name: 'Lapsed Members', description: 'Members with no activity in 90+ days', rules: [{ field: 'Tags', operator: 'includes', value: 'Member' }, { field: 'Last Activity', operator: 'older_than_days', value: '90' }], logic: 'AND', createdAt: '2026-01-01', isSystem: true },
+  { id: 'SEG-002', name: 'Major Donors', description: 'Donors who have given $1,000+', rules: [{ field: 'Total Donated', operator: 'greater than', value: '1000' }], logic: 'AND', createdAt: '2026-01-01', isSystem: true },
+  { id: 'SEG-003', name: 'Active Volunteers', description: 'Tagged as Volunteer with recent activity', rules: [{ field: 'Tags', operator: 'includes', value: 'Volunteer' }, { field: 'Last Activity', operator: 'newer_than_days', value: '90' }], logic: 'AND', createdAt: '2026-01-01', isSystem: true },
+  { id: 'SEG-004', name: 'Expiring Memberships', description: 'Members active in last 30 days', rules: [{ field: 'Tags', operator: 'includes', value: 'Member' }, { field: 'Last Activity', operator: 'newer_than_days', value: '30' }], logic: 'AND', createdAt: '2026-01-01', isSystem: true },
+  { id: 'SEG-005', name: 'Unacknowledged Donors', description: 'Donors not yet thanked', rules: [{ field: 'Tags', operator: 'includes', value: 'Donor' }], logic: 'AND', createdAt: '2026-01-01', isSystem: true },
+  { id: 'SEG-006', name: 'Event Regulars', description: 'Attended 3+ events', rules: [{ field: 'Events Attended', operator: 'greater than', value: '2' }], logic: 'AND', createdAt: '2026-01-01', isSystem: true },
+  { id: 'SEG-007', name: 'Recent Visitors', description: 'Active in last 30 days', rules: [{ field: 'Last Activity', operator: 'newer_than_days', value: '30' }], logic: 'AND', createdAt: '2026-01-01', isSystem: true },
 ];

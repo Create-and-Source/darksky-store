@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMembers, getOrders, getDonations, getReservations, getFieldTrips, getVolunteers, getMessages, getContacts, getEvents, subscribe } from '../data/store';
+import { getMembers, getOrders, getDonations, getReservations, getFieldTrips, getVolunteers, getMessages, getContacts, getEvents, subscribe, getConstituentProfiles, updateConstituentProfile, getCustomTags, addCustomTag, getTasks, addTask, updateTask, getCommunicationLog, addCommunicationLog, getHouseholds, addHousehold, getSegments, addSegment, evaluateSegment, computeEngagement } from '../data/store';
 import { useToast, useRole } from '../AdminLayout';
 import PageTour from '../components/PageTour';
 
@@ -18,8 +18,10 @@ const TAG_COLORS = {
   Customer: { bg: '#E0F2FE', text: '#0369A1' },
 };
 
+const CUSTOM_TAG_DEFAULT_COLOR = { bg: '#F0EDE6', text: '#5C5870' };
+
 const FILTERS = ['All', 'Members', 'Donors', 'Attendees', 'Volunteers', 'Schools', 'Newsletter'];
-const SORT_OPTIONS = ['Name', 'Last Activity', 'Total Spent'];
+const SORT_OPTIONS = ['Name', 'Last Activity', 'Total Spent', 'Engagement'];
 
 const CRM_NOTES_KEY = 'ds_crm_notes';
 const CRM_CONTACTS_KEY = 'ds_crm_manual_contacts';
@@ -208,6 +210,43 @@ function buildContacts() {
     c.timeline.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   });
 
+  // Layer on constituent profiles
+  const profiles = getConstituentProfiles();
+  const customTags = getCustomTags();
+  const households = getHouseholds();
+
+  contacts.forEach(c => {
+    // Add profile data
+    const profile = profiles[c.id];
+    if (profile) {
+      if (profile.address) c.address = profile.address;
+      if (profile.city) c.city = profile.city;
+      if (profile.state) c.state = profile.state;
+      if (profile.zip) c.zip = profile.zip;
+      if (profile.birthday) c.birthday = profile.birthday;
+      if (profile.company) c.company = profile.company;
+      if (profile.jobTitle) c.jobTitle = profile.jobTitle;
+      if (profile.preferredContact) c.preferredContact = profile.preferredContact;
+      if (profile.constituentType) c.constituentType = profile.constituentType;
+      if (profile.assignedTo) c.assignedTo = profile.assignedTo;
+      c.emailOptIn = profile.emailOptIn ?? true;
+      c.smsOptIn = profile.smsOptIn ?? false;
+      c.mailOptIn = profile.mailOptIn ?? false;
+      // Merge custom tags
+      (profile.customTags || []).forEach(tagId => {
+        const tag = customTags.find(t => t.id === tagId);
+        if (tag && !c.tags.includes(tag.name)) c.tags.push(tag.name);
+      });
+      if (profile.householdId) {
+        const hh = households.find(h => h.id === profile.householdId);
+        if (hh) c.householdName = hh.name;
+        c.householdId = profile.householdId;
+      }
+    }
+    // Compute engagement
+    c.engagementScore = computeEngagement(c);
+  });
+
   return contacts;
   } catch (e) { console.error('CRM buildContacts error:', e); return []; }
 }
@@ -277,10 +316,22 @@ export default function CRM() {
   const [sortBy, setSortBy] = useState('Name');
   const [selectedId, setSelectedId] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addForm, setAddForm] = useState({ name: '', email: '', phone: '', tags: [] });
+  const [addForm, setAddForm] = useState({ name: '', email: '', phone: '', tags: [], address: '', city: '', state: '', zip: '', birthday: '', company: '', jobTitle: '', constituentType: 'Individual', emailOptIn: true, smsOptIn: false, mailOptIn: false });
   const [noteText, setNoteText] = useState('');
   const [editingTags, setEditingTags] = useState(false);
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
+  const [profileTab, setProfileTab] = useState('overview');
+  const [activeSegment, setActiveSegment] = useState(null);
+  const [showSegmentModal, setShowSegmentModal] = useState(false);
+  const [segmentRules, setSegmentRules] = useState([{ field: 'Tags', operator: 'includes', value: '' }]);
+  const [segmentName, setSegmentName] = useState('');
+  const [segmentLogic, setSegmentLogic] = useState('AND');
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [taskForm, setTaskForm] = useState({ title: '', description: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: '' });
+  const [logCallForm, setLogCallForm] = useState({ subject: '', body: '' });
+  const [showLogCall, setShowLogCall] = useState(false);
+  const [showNewTagInput, setShowNewTagInput] = useState(false);
+  const [newTagName, setNewTagName] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
   const role = useRole();
@@ -290,12 +341,15 @@ export default function CRM() {
 
   // Listen for escape
   useEffect(() => {
-    const handler = () => { setMobileProfileOpen(false); setShowAddModal(false); };
+    const handler = () => { setMobileProfileOpen(false); setShowAddModal(false); setShowSegmentModal(false); setShowLogCall(false); };
     document.addEventListener('admin-escape', handler);
     return () => document.removeEventListener('admin-escape', handler);
   }, []);
 
   const contacts = useMemo(() => buildContacts(), [setTick]);
+  const segments = useMemo(() => getSegments(), [setTick]);
+  const customTags = useMemo(() => getCustomTags(), [setTick]);
+  const allTasks = useMemo(() => getTasks(), [setTick]);
 
   const filtered = useMemo(() => {
     let list = contacts;
@@ -307,6 +361,12 @@ export default function CRM() {
     else if (filter === 'Volunteers') list = list.filter(c => c.tags.includes('Volunteer'));
     else if (filter === 'Schools') list = list.filter(c => c.tags.includes('School'));
     else if (filter === 'Newsletter') list = list.filter(c => c.tags.includes('Newsletter'));
+
+    // Segment filter
+    if (activeSegment) {
+      const seg = segments.find(s => s.id === activeSegment);
+      if (seg) list = evaluateSegment(seg, list);
+    }
 
     // Search
     if (search.trim()) {
@@ -322,9 +382,10 @@ export default function CRM() {
     if (sortBy === 'Name') list = [...list].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     else if (sortBy === 'Last Activity') list = [...list].sort((a, b) => (b.lastActivity || '').localeCompare(a.lastActivity || ''));
     else if (sortBy === 'Total Spent') list = [...list].sort((a, b) => b.totalSpent - a.totalSpent);
+    else if (sortBy === 'Engagement') list = [...list].sort((a, b) => (b.engagementScore || 0) - (a.engagementScore || 0));
 
     return list;
-  }, [contacts, filter, search, sortBy]);
+  }, [contacts, filter, search, sortBy, activeSegment, segments]);
 
   const selected = useMemo(() => {
     if (!selectedId) return filtered[0] || null;
@@ -364,10 +425,20 @@ export default function CRM() {
     const manual = getManualContacts();
     manual.push({ ...addForm, addedAt: new Date().toISOString() });
     saveManualContacts(manual);
-    setAddForm({ name: '', email: '', phone: '', tags: [] });
+    // Save extended profile
+    const key = normalizeEmail(addForm.email) || `name:${normalizeName(addForm.name)}`;
+    if (key && key !== 'name:') {
+      updateConstituentProfile(key, {
+        address: addForm.address, city: addForm.city, state: addForm.state, zip: addForm.zip,
+        birthday: addForm.birthday, company: addForm.company, jobTitle: addForm.jobTitle,
+        constituentType: addForm.constituentType,
+        emailOptIn: addForm.emailOptIn, smsOptIn: addForm.smsOptIn, mailOptIn: addForm.mailOptIn,
+      });
+    }
+    setAddForm({ name: '', email: '', phone: '', tags: [], address: '', city: '', state: '', zip: '', birthday: '', company: '', jobTitle: '', constituentType: 'Individual', emailOptIn: true, smsOptIn: false, mailOptIn: false });
     setShowAddModal(false);
     setTick(t => t + 1);
-    toast('Contact added');
+    toast('Constituent added');
   };
 
   const handleExportCSV = () => {
@@ -398,6 +469,17 @@ export default function CRM() {
     setTick(t => t + 1);
   };
 
+  const handleToggleCustomTag = (customTag) => {
+    if (!selected) return;
+    const profile = getConstituentProfiles()[selected.id] || {};
+    const currentTags = profile.customTags || [];
+    const updated = currentTags.includes(customTag.id)
+      ? currentTags.filter(id => id !== customTag.id)
+      : [...currentTags, customTag.id];
+    updateConstituentProfile(selected.id, { customTags: updated });
+    setTick(t => t + 1);
+  };
+
   const initials = (name) => {
     if (!name) return '?';
     const parts = name.trim().split(/\s+/);
@@ -411,14 +493,14 @@ export default function CRM() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 600, margin: 0, color: C.text }}>Contacts</h1>
-          <p style={{ fontSize: 13, color: C.text2, margin: '4px 0 0' }}>Unified CRM across all data sources</p>
+          <h1 style={{ fontSize: 24, fontWeight: 600, margin: 0, color: C.text }}>Constituents</h1>
+          <p style={{ fontSize: 13, color: C.text2, margin: '4px 0 0' }}>Unified constituent management across all data sources</p>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button onClick={handleExportCSV} style={btnGhost}>
             <span style={{ marginRight: 6 }}>&#8595;</span>Export CSV
           </button>
-          <button onClick={() => setShowAddModal(true)} style={btnPrimary}>+ Add Contact</button>
+          <button onClick={() => setShowAddModal(true)} style={btnPrimary}>+ Add Constituent</button>
         </div>
       </div>
 
@@ -449,16 +531,25 @@ export default function CRM() {
           </div>
 
           {/* Filter Pills */}
-          <div style={{ padding: '0 16px 12px', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div style={{ padding: '0 16px 12px', display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
             {FILTERS.map(f => (
-              <button key={f} onClick={() => setFilter(f)} style={{
+              <button key={f} onClick={() => { setFilter(f); setActiveSegment(null); }} style={{
                 ...btnStyle, padding: '4px 12px', fontSize: 11, fontFamily: MONO,
-                background: filter === f ? C.gold : 'transparent',
-                color: filter === f ? '#fff' : C.text2,
-                border: `1px solid ${filter === f ? C.gold : C.border}`,
+                background: filter === f && !activeSegment ? C.gold : 'transparent',
+                color: filter === f && !activeSegment ? '#fff' : C.text2,
+                border: `1px solid ${filter === f && !activeSegment ? C.gold : C.border}`,
                 borderRadius: 16,
               }}>{f}</button>
             ))}
+            <select
+              value={activeSegment || ''}
+              onChange={e => { const v = e.target.value; if (v === '__new__') { setShowSegmentModal(true); } else if (v) { setActiveSegment(v); setFilter('All'); } else { setActiveSegment(null); } }}
+              style={{ fontSize: 11, fontFamily: MONO, padding: '4px 8px', borderRadius: 16, border: `1px solid ${C.border}`, background: activeSegment ? C.gold : 'transparent', color: activeSegment ? '#fff' : C.text2, cursor: 'pointer', outline: 'none' }}
+            >
+              <option value="">Segments</option>
+              {segments.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              <option value="__new__">+ New Segment</option>
+            </select>
           </div>
 
           {/* Sort + Count */}
@@ -541,7 +632,7 @@ export default function CRM() {
                       </button>
                     </div>
                     {editingTags && (
-                      <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                         {Object.keys(TAG_COLORS).map(tag => (
                           <button
                             key={tag}
@@ -554,6 +645,23 @@ export default function CRM() {
                             }}
                           >{tag}</button>
                         ))}
+                        {customTags.map(ct => (
+                          <button key={ct.id} onClick={() => handleToggleCustomTag(ct)} style={{
+                            ...btnStyle, padding: '3px 10px', fontSize: 11, borderRadius: 12,
+                            background: selected.tags.includes(ct.name) ? `${ct.color || CUSTOM_TAG_DEFAULT_COLOR.text}20` : '#F8F7F4',
+                            color: selected.tags.includes(ct.name) ? (ct.color || CUSTOM_TAG_DEFAULT_COLOR.text) : C.muted,
+                            border: `1px solid ${selected.tags.includes(ct.name) ? (ct.color || CUSTOM_TAG_DEFAULT_COLOR.text) + '40' : C.border}`,
+                          }}>{ct.name}</button>
+                        ))}
+                        {!showNewTagInput ? (
+                          <button onClick={() => setShowNewTagInput(true)} style={{ ...btnStyle, padding: '3px 10px', fontSize: 11, borderRadius: 12, background: 'transparent', color: C.text2, border: `1px dashed ${C.border}` }}>+ New Tag</button>
+                        ) : (
+                          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                            <input value={newTagName} onChange={e => setNewTagName(e.target.value)} placeholder="Tag name" style={{ ...inputStyle, width: 100, padding: '3px 8px', fontSize: 11 }} onKeyDown={e => { if (e.key === 'Enter' && newTagName.trim()) { addCustomTag({ name: newTagName.trim(), color: CUSTOM_TAG_DEFAULT_COLOR.text }); setNewTagName(''); setShowNewTagInput(false); setTick(t => t + 1); } }} />
+                            <button onClick={() => { if (newTagName.trim()) { addCustomTag({ name: newTagName.trim(), color: CUSTOM_TAG_DEFAULT_COLOR.text }); setNewTagName(''); setShowNewTagInput(false); setTick(t => t + 1); } }} style={{ ...btnStyle, padding: '3px 8px', fontSize: 11, background: C.gold, color: '#fff', borderRadius: 8 }}>Add</button>
+                            <button onClick={() => { setShowNewTagInput(false); setNewTagName(''); }} style={{ ...btnStyle, padding: '3px 6px', fontSize: 11, background: 'transparent', color: C.text2 }}>&times;</button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -573,96 +681,291 @@ export default function CRM() {
                     </div>
                   ))}
                 </div>
+
+                {/* Engagement Score */}
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <span style={{ ...labelStyle, fontSize: 10 }}>Engagement Score</span>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: (selected.engagementScore || 0) > 60 ? C.success : (selected.engagementScore || 0) > 30 ? C.gold : C.muted }}>{selected.engagementScore || 0}</span>
+                  </div>
+                  <div style={{ height: 6, background: '#F0EDE6', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${Math.min(selected.engagementScore || 0, 100)}%`, borderRadius: 3, background: (selected.engagementScore || 0) > 60 ? C.success : (selected.engagementScore || 0) > 30 ? C.gold : C.muted, transition: 'width 0.3s' }} />
+                  </div>
+                </div>
+
+                {/* Tabs */}
+                <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${C.border}`, marginTop: 20 }}>
+                  {['overview', 'timeline', 'tasks', 'notes'].map(tab => (
+                    <button key={tab} onClick={() => setProfileTab(tab)} style={{
+                      ...btnStyle, padding: '10px 20px', fontSize: 12, fontFamily: MONO,
+                      textTransform: 'uppercase', letterSpacing: 1, borderRadius: 0,
+                      background: 'transparent', color: profileTab === tab ? C.gold : C.text2,
+                      borderBottom: profileTab === tab ? `2px solid ${C.gold}` : '2px solid transparent',
+                    }}>{tab}</button>
+                  ))}
+                </div>
               </div>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                {/* Timeline */}
-                <div style={{ flex: 1, minWidth: 280, padding: 28, borderRight: `1px solid ${C.border}` }}>
-                  <h3 style={{ ...labelStyle, marginBottom: 16 }}>Activity Timeline</h3>
-                  {selected.timeline.length === 0 && (
-                    <div style={{ padding: 24, textAlign: 'center', color: C.muted, fontSize: 13 }}>No activity recorded</div>
-                  )}
-                  <div style={{ position: 'relative' }}>
-                    {selected.timeline.length > 0 && (
-                      <div style={{ position: 'absolute', left: 15, top: 8, bottom: 8, width: 2, background: `linear-gradient(to bottom, ${C.gold}, ${C.border})`, borderRadius: 1 }} />
-                    )}
-                    {selected.timeline.map((item, i) => (
-                      <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 16, position: 'relative' }}>
-                        <div style={{
-                          width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                          background: C.card, border: `2px solid ${C.gold}`,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: C.gold, zIndex: 1,
-                        }}>
-                          {TIMELINE_ICONS[item.icon] || TIMELINE_ICONS.star}
+              {/* Tab Content */}
+              <div style={{ padding: 28, maxHeight: 'calc(100vh - 520px)', overflowY: 'auto' }}>
+
+                {/* OVERVIEW TAB */}
+                {profileTab === 'overview' && (
+                  <div>
+                    {/* Demographic Info */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+                      {selected.company && (
+                        <div>
+                          <div style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Company</div>
+                          <div style={{ fontSize: 13, color: C.text }}>{selected.company}{selected.jobTitle ? ` - ${selected.jobTitle}` : ''}</div>
                         </div>
-                        <div style={{ flex: 1, paddingTop: 4 }}>
-                          <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{item.desc}</div>
-                          <div style={{ fontSize: 11, fontFamily: MONO, color: C.muted, marginTop: 2 }}>{item.date || 'Unknown date'}</div>
+                      )}
+                      {(selected.address || selected.city) && (
+                        <div>
+                          <div style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Address</div>
+                          <div style={{ fontSize: 13, color: C.text }}>
+                            {selected.address && <div>{selected.address}</div>}
+                            {selected.city && <div>{selected.city}{selected.state ? `, ${selected.state}` : ''} {selected.zip || ''}</div>}
+                          </div>
+                        </div>
+                      )}
+                      {selected.birthday && (
+                        <div>
+                          <div style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Birthday</div>
+                          <div style={{ fontSize: 13, color: C.text }}>{selected.birthday}</div>
+                        </div>
+                      )}
+                      {selected.constituentType && (
+                        <div>
+                          <div style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Type</div>
+                          <div style={{ fontSize: 13, color: C.text }}>{selected.constituentType}</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Household */}
+                    {selected.householdName && (
+                      <div style={{ padding: 12, background: '#F8F7F4', borderRadius: 8, marginBottom: 16 }}>
+                        <div style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Household</div>
+                        <div style={{ fontSize: 13, color: C.text, fontWeight: 500 }}>{selected.householdName}</div>
+                      </div>
+                    )}
+
+                    {/* Communication Preferences */}
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ ...labelStyle, fontSize: 10, marginBottom: 8 }}>Communication Preferences</div>
+                      <div style={{ display: 'flex', gap: 12, fontSize: 13 }}>
+                        <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 11, background: selected.emailOptIn ? '#E6F4EA' : '#F8F7F4', color: selected.emailOptIn ? '#1E8E3E' : C.muted }}>Email {selected.emailOptIn ? 'ON' : 'OFF'}</span>
+                        <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 11, background: selected.smsOptIn ? '#E6F4EA' : '#F8F7F4', color: selected.smsOptIn ? '#1E8E3E' : C.muted }}>SMS {selected.smsOptIn ? 'ON' : 'OFF'}</span>
+                        <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 11, background: selected.mailOptIn ? '#E6F4EA' : '#F8F7F4', color: selected.mailOptIn ? '#1E8E3E' : C.muted }}>Mail {selected.mailOptIn ? 'ON' : 'OFF'}</span>
+                      </div>
+                    </div>
+
+                    {/* Assigned To */}
+                    {selected.assignedTo && (
+                      <div style={{ marginBottom: 20 }}>
+                        <div style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Assigned To</div>
+                        <div style={{ fontSize: 13, color: C.text }}>{selected.assignedTo}</div>
+                      </div>
+                    )}
+
+                    {/* Meta */}
+                    <div style={{ padding: 16, background: '#F8F7F4', borderRadius: 8, marginBottom: 20 }}>
+                      <div style={{ fontSize: 11, fontFamily: MONO, color: C.muted, marginBottom: 6 }}>SOURCE</div>
+                      <div style={{ fontSize: 13, color: C.text }}>{selected.source || 'Unknown'}</div>
+                      {selected.lastActivity && (
+                        <>
+                          <div style={{ fontSize: 11, fontFamily: MONO, color: C.muted, marginTop: 12, marginBottom: 6 }}>LAST ACTIVITY</div>
+                          <div style={{ fontSize: 13, color: C.text }}>{selected.lastActivity}</div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div>
+                      <h3 style={{ ...labelStyle, marginBottom: 12 }}>Quick Actions</h3>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button onClick={() => navigate('/admin/messages')} style={{ ...btnGhost, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                          Send Message
+                        </button>
+                        <button onClick={() => navigate('/admin/emails')} style={{ ...btnGhost, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                          Send Email
+                        </button>
+                        <button onClick={() => navigate('/admin/orders')} style={{ ...btnGhost, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                          View Orders
+                        </button>
+                        <button onClick={() => setShowLogCall(true)} style={{ ...btnGhost, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                          Log Call
+                        </button>
+                        <button onClick={() => { setProfileTab('tasks'); setShowTaskForm(true); }} style={{ ...btnGhost, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                          Create Task
+                        </button>
+                        <button onClick={() => navigate('/admin/donations')} style={{ ...btnGhost, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                          Donation History
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Log Call Inline */}
+                    {showLogCall && (
+                      <div style={{ marginTop: 16, padding: 16, background: '#F8F7F4', borderRadius: 8 }}>
+                        <h4 style={{ ...labelStyle, marginBottom: 8 }}>Log a Call</h4>
+                        <input value={logCallForm.subject} onChange={e => setLogCallForm(f => ({ ...f, subject: e.target.value }))} placeholder="Subject" style={{ ...inputStyle, marginBottom: 8 }} />
+                        <textarea value={logCallForm.body} onChange={e => setLogCallForm(f => ({ ...f, body: e.target.value }))} placeholder="Notes from the call..." rows={3} style={{ ...inputStyle, resize: 'vertical', fontSize: 13 }} />
+                        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                          <button onClick={() => {
+                            if (!logCallForm.subject.trim()) { toast('Subject required', 'error'); return; }
+                            addCommunicationLog({ contactId: selected.id, type: 'call', direction: 'outbound', subject: logCallForm.subject, body: logCallForm.body, date: new Date().toISOString(), author: localStorage.getItem('ds_user_name') || 'Admin' });
+                            setLogCallForm({ subject: '', body: '' }); setShowLogCall(false); setTick(t => t + 1); toast('Call logged');
+                          }} style={btnPrimary}>Save</button>
+                          <button onClick={() => setShowLogCall(false)} style={btnGhost}>Cancel</button>
                         </div>
                       </div>
-                    ))}
+                    )}
                   </div>
+                )}
 
-                  {/* Notes */}
-                  {selected.notes && selected.notes.length > 0 && (
-                    <div style={{ marginTop: 24 }}>
-                      <h3 style={{ ...labelStyle, marginBottom: 12 }}>Notes</h3>
-                      {selected.notes.map((n, i) => (
+                {/* TIMELINE TAB */}
+                {profileTab === 'timeline' && (
+                  <div>
+                    <h3 style={{ ...labelStyle, marginBottom: 16 }}>Activity Timeline</h3>
+                    {(() => {
+                      const commLog = getCommunicationLog(selected.id);
+                      const commEntries = commLog.map(entry => ({
+                        type: 'comm',
+                        desc: `${entry.direction === 'inbound' ? '\u2190' : '\u2192'} ${entry.type === 'call' ? 'Call' : entry.type === 'email' ? 'Email' : 'Note'}: ${entry.subject || ''}`,
+                        date: entry.date ? entry.date.slice(0, 10) : '',
+                        icon: entry.type === 'call' ? 'hand' : 'mail',
+                      }));
+                      const merged = [...selected.timeline, ...commEntries].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                      if (merged.length === 0) return <div style={{ padding: 24, textAlign: 'center', color: C.muted, fontSize: 13 }}>No activity recorded</div>;
+                      return (
+                        <div style={{ position: 'relative' }}>
+                          <div style={{ position: 'absolute', left: 15, top: 8, bottom: 8, width: 2, background: `linear-gradient(to bottom, ${C.gold}, ${C.border})`, borderRadius: 1 }} />
+                          {merged.map((item, i) => (
+                            <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 16, position: 'relative' }}>
+                              <div style={{
+                                width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                                background: C.card, border: `2px solid ${item.type === 'comm' ? C.success : C.gold}`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: item.type === 'comm' ? C.success : C.gold, zIndex: 1,
+                              }}>
+                                {TIMELINE_ICONS[item.icon] || TIMELINE_ICONS.star}
+                              </div>
+                              <div style={{ flex: 1, paddingTop: 4 }}>
+                                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{item.desc}</div>
+                                <div style={{ fontSize: 11, fontFamily: MONO, color: C.muted, marginTop: 2 }}>{item.date || 'Unknown date'}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* TASKS TAB */}
+                {profileTab === 'tasks' && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <h3 style={{ ...labelStyle, margin: 0 }}>Tasks</h3>
+                      <button onClick={() => setShowTaskForm(!showTaskForm)} style={{ ...btnStyle, padding: '4px 12px', fontSize: 11, background: C.gold, color: '#fff', borderRadius: 8 }}>
+                        {showTaskForm ? 'Cancel' : '+ Add Task'}
+                      </button>
+                    </div>
+
+                    {showTaskForm && (
+                      <div style={{ padding: 16, background: '#F8F7F4', borderRadius: 8, marginBottom: 16 }}>
+                        <input value={taskForm.title} onChange={e => setTaskForm(f => ({ ...f, title: e.target.value }))} placeholder="Task title" style={{ ...inputStyle, marginBottom: 8 }} />
+                        <textarea value={taskForm.description} onChange={e => setTaskForm(f => ({ ...f, description: e.target.value }))} placeholder="Description (optional)" rows={2} style={{ ...inputStyle, resize: 'vertical', fontSize: 13, marginBottom: 8 }} />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+                          <div>
+                            <label style={{ ...labelStyle, display: 'block', marginBottom: 4, fontSize: 10 }}>Due Date</label>
+                            <input type="date" value={taskForm.dueDate} onChange={e => setTaskForm(f => ({ ...f, dueDate: e.target.value }))} style={inputStyle} />
+                          </div>
+                          <div>
+                            <label style={{ ...labelStyle, display: 'block', marginBottom: 4, fontSize: 10 }}>Priority</label>
+                            <select value={taskForm.priority} onChange={e => setTaskForm(f => ({ ...f, priority: e.target.value }))} style={inputStyle}>
+                              <option value="low">Low</option>
+                              <option value="medium">Medium</option>
+                              <option value="high">High</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ ...labelStyle, display: 'block', marginBottom: 4, fontSize: 10 }}>Type</label>
+                            <select value={taskForm.type} onChange={e => setTaskForm(f => ({ ...f, type: e.target.value }))} style={inputStyle}>
+                              <option value="follow_up">Follow Up</option>
+                              <option value="call">Call</option>
+                              <option value="email">Email</option>
+                              <option value="meeting">Meeting</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+                        </div>
+                        <button onClick={() => {
+                          if (!taskForm.title.trim()) { toast('Title required', 'error'); return; }
+                          addTask({ ...taskForm, contactId: selected.id, status: 'open', createdAt: new Date().toISOString(), createdBy: localStorage.getItem('ds_user_name') || 'Admin' });
+                          setTaskForm({ title: '', description: '', dueDate: '', priority: 'medium', type: 'follow_up', assignedTo: '' });
+                          setShowTaskForm(false); setTick(t => t + 1); toast('Task created');
+                        }} style={btnPrimary}>Save Task</button>
+                      </div>
+                    )}
+
+                    {(() => {
+                      const contactTasks = allTasks.filter(t => t.contactId === selected.id);
+                      if (contactTasks.length === 0 && !showTaskForm) return <div style={{ padding: 24, textAlign: 'center', color: C.muted, fontSize: 13 }}>No tasks yet</div>;
+                      return contactTasks.map(task => (
+                        <div key={task.id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: 12, background: task.status === 'done' ? '#F8F7F4' : C.card, border: `1px solid ${C.border}`, borderRadius: 8, marginBottom: 8, opacity: task.status === 'done' ? 0.6 : 1 }}>
+                          <input type="checkbox" checked={task.status === 'done'} onChange={() => { updateTask(task.id, { status: task.status === 'done' ? 'open' : 'done' }); setTick(t => t + 1); }} style={{ marginTop: 2, cursor: 'pointer', accentColor: C.gold }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 13, color: C.text, fontWeight: 500, textDecoration: task.status === 'done' ? 'line-through' : 'none' }}>{task.title}</div>
+                            {task.description && <div style={{ fontSize: 12, color: C.text2, marginTop: 2 }}>{task.description}</div>}
+                            <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
+                              {task.dueDate && <span style={{ fontSize: 10, fontFamily: MONO, color: C.muted }}>{task.dueDate}</span>}
+                              <span style={{ fontSize: 10, fontFamily: MONO, padding: '1px 6px', borderRadius: 8, background: task.priority === 'high' ? '#FEE2E2' : task.priority === 'medium' ? '#FEF3C7' : '#E6F4EA', color: task.priority === 'high' ? C.danger : task.priority === 'medium' ? '#92400E' : C.success }}>{task.priority}</span>
+                              <span style={{ fontSize: 10, fontFamily: MONO, padding: '1px 6px', borderRadius: 8, background: '#E8F0FE', color: '#1A73E8' }}>{task.type}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                )}
+
+                {/* NOTES TAB */}
+                {profileTab === 'notes' && (
+                  <div>
+                    <h3 style={{ ...labelStyle, marginBottom: 12 }}>Notes</h3>
+                    <div style={{ marginBottom: 16 }}>
+                      <textarea
+                        value={noteText}
+                        onChange={e => setNoteText(e.target.value)}
+                        placeholder="Type a note..."
+                        rows={3}
+                        style={{ ...inputStyle, resize: 'vertical', fontSize: 13 }}
+                      />
+                      <button onClick={handleAddNote} disabled={!noteText.trim()} style={{ ...btnPrimary, marginTop: 8, width: '100%', opacity: noteText.trim() ? 1 : 0.5 }}>
+                        Save Note
+                      </button>
+                    </div>
+                    {selected.notes && selected.notes.length > 0 ? (
+                      selected.notes.map((n, i) => (
                         <div key={i} style={{ padding: 12, background: '#FEFDF8', border: `1px solid ${C.border}`, borderRadius: 8, marginBottom: 8 }}>
                           <div style={{ fontSize: 13, color: C.text }}>{n.text}</div>
                           <div style={{ fontSize: 11, fontFamily: MONO, color: C.muted, marginTop: 6 }}>{n.author} &middot; {n.date}</div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Quick Actions */}
-                <div style={{ width: 240, padding: 28, flexShrink: 0 }}>
-                  <h3 style={{ ...labelStyle, marginBottom: 16 }}>Quick Actions</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <button onClick={() => navigate('/admin/messages')} style={{ ...btnGhost, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                      Send Message
-                    </button>
-                    <button onClick={() => navigate('/admin/emails')} style={{ ...btnGhost, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                      Send Email
-                    </button>
-                    <button onClick={() => navigate('/admin/orders')} style={{ ...btnGhost, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-                      View Orders
-                    </button>
-                  </div>
-
-                  {/* Add Note */}
-                  <div style={{ marginTop: 24 }}>
-                    <h3 style={{ ...labelStyle, marginBottom: 8 }}>Add Note</h3>
-                    <textarea
-                      value={noteText}
-                      onChange={e => setNoteText(e.target.value)}
-                      placeholder="Type a note..."
-                      rows={3}
-                      style={{ ...inputStyle, resize: 'vertical', fontSize: 13 }}
-                    />
-                    <button onClick={handleAddNote} disabled={!noteText.trim()} style={{ ...btnPrimary, marginTop: 8, width: '100%', opacity: noteText.trim() ? 1 : 0.5 }}>
-                      Save Note
-                    </button>
-                  </div>
-
-                  {/* Meta */}
-                  <div style={{ marginTop: 24, padding: 16, background: '#F8F7F4', borderRadius: 8 }}>
-                    <div style={{ fontSize: 11, fontFamily: MONO, color: C.muted, marginBottom: 6 }}>SOURCE</div>
-                    <div style={{ fontSize: 13, color: C.text }}>{selected.source || 'Unknown'}</div>
-                    {selected.lastActivity && (
-                      <>
-                        <div style={{ fontSize: 11, fontFamily: MONO, color: C.muted, marginTop: 12, marginBottom: 6 }}>LAST ACTIVITY</div>
-                        <div style={{ fontSize: 13, color: C.text }}>{selected.lastActivity}</div>
-                      </>
+                      ))
+                    ) : (
+                      <div style={{ padding: 24, textAlign: 'center', color: C.muted, fontSize: 13 }}>No notes yet</div>
                     )}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -722,12 +1025,12 @@ export default function CRM() {
           <div onClick={() => setShowAddModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 10000, backdropFilter: 'blur(2px)' }} />
           <div style={{
             position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            width: 440, maxWidth: 'calc(100vw - 32px)', background: C.card,
+            width: 560, maxWidth: 'calc(100vw - 32px)', background: C.card,
             borderRadius: 14, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', zIndex: 10001,
             overflow: 'hidden',
           }}>
             <div style={{ padding: '20px 24px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Add Contact</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Add Constituent</h3>
               <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: C.text2 }}>&times;</button>
             </div>
             <form onSubmit={handleAddContact} style={{ padding: 24 }}>
@@ -742,6 +1045,61 @@ export default function CRM() {
               <div style={{ marginBottom: 16 }}>
                 <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Phone</label>
                 <input value={addForm.phone} onChange={e => setAddForm(f => ({ ...f, phone: e.target.value }))} style={inputStyle} placeholder="(555) 123-4567" />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                <div>
+                  <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Company</label>
+                  <input value={addForm.company} onChange={e => setAddForm(f => ({ ...f, company: e.target.value }))} style={inputStyle} placeholder="Company name" />
+                </div>
+                <div>
+                  <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Job Title</label>
+                  <input value={addForm.jobTitle} onChange={e => setAddForm(f => ({ ...f, jobTitle: e.target.value }))} style={inputStyle} placeholder="Job title" />
+                </div>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Address</label>
+                <input value={addForm.address} onChange={e => setAddForm(f => ({ ...f, address: e.target.value }))} style={inputStyle} placeholder="Street address" />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
+                <div>
+                  <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>City</label>
+                  <input value={addForm.city} onChange={e => setAddForm(f => ({ ...f, city: e.target.value }))} style={inputStyle} placeholder="City" />
+                </div>
+                <div>
+                  <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>State</label>
+                  <input value={addForm.state} onChange={e => setAddForm(f => ({ ...f, state: e.target.value }))} style={inputStyle} placeholder="AZ" />
+                </div>
+                <div>
+                  <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>ZIP</label>
+                  <input value={addForm.zip} onChange={e => setAddForm(f => ({ ...f, zip: e.target.value }))} style={inputStyle} placeholder="85268" />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                <div>
+                  <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Birthday</label>
+                  <input type="date" value={addForm.birthday} onChange={e => setAddForm(f => ({ ...f, birthday: e.target.value }))} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Type</label>
+                  <select value={addForm.constituentType} onChange={e => setAddForm(f => ({ ...f, constituentType: e.target.value }))} style={inputStyle}>
+                    <option>Individual</option>
+                    <option>Organization</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Communication Preferences</label>
+                <div style={{ display: 'flex', gap: 16, fontSize: 13 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={addForm.emailOptIn} onChange={e => setAddForm(f => ({ ...f, emailOptIn: e.target.checked }))} /> Email
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={addForm.smsOptIn} onChange={e => setAddForm(f => ({ ...f, smsOptIn: e.target.checked }))} /> SMS
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={addForm.mailOptIn} onChange={e => setAddForm(f => ({ ...f, mailOptIn: e.target.checked }))} /> Mail
+                  </label>
+                </div>
               </div>
               <div style={{ marginBottom: 20 }}>
                 <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Tags</label>
@@ -765,9 +1123,58 @@ export default function CRM() {
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 <button type="button" onClick={() => setShowAddModal(false)} style={btnGhost}>Cancel</button>
-                <button type="submit" style={btnPrimary}>Add Contact</button>
+                <button type="submit" style={btnPrimary}>Add Constituent</button>
               </div>
             </form>
+          </div>
+        </>
+      )}
+
+      {/* Segment Builder Modal */}
+      {showSegmentModal && (
+        <>
+          <div onClick={() => setShowSegmentModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 10000, backdropFilter: 'blur(2px)' }} />
+          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 560, maxWidth: 'calc(100vw - 32px)', background: C.card, borderRadius: 14, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', zIndex: 10001, overflow: 'hidden' }}>
+            <div style={{ padding: '20px 24px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Build Segment</h3>
+              <button onClick={() => setShowSegmentModal(false)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: C.text2 }}>&times;</button>
+            </div>
+            <div style={{ padding: 24 }}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ ...labelStyle, display: 'block', marginBottom: 6 }}>Segment Name</label>
+                <input value={segmentName} onChange={e => setSegmentName(e.target.value)} style={inputStyle} placeholder="e.g., High-Value Donors" />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span style={{ ...labelStyle }}>Match</span>
+                <button onClick={() => setSegmentLogic(segmentLogic === 'AND' ? 'OR' : 'AND')} style={{ ...btnStyle, padding: '3px 12px', fontSize: 11, background: C.gold, color: '#fff', borderRadius: 12 }}>{segmentLogic}</button>
+                <span style={{ ...labelStyle }}>of these rules</span>
+              </div>
+              {segmentRules.map((rule, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                  <select value={rule.field} onChange={e => { const r = [...segmentRules]; r[i] = { ...r[i], field: e.target.value }; setSegmentRules(r); }} style={{ ...inputStyle, width: 'auto', flex: 1 }}>
+                    {['Tags', 'Last Activity', 'Total Spent', 'Total Donated', 'Events Attended', 'Member Status', 'Zip Code', 'Engagement Score', 'Constituent Type'].map(f => <option key={f}>{f}</option>)}
+                  </select>
+                  <select value={rule.operator} onChange={e => { const r = [...segmentRules]; r[i] = { ...r[i], operator: e.target.value }; setSegmentRules(r); }} style={{ ...inputStyle, width: 'auto', flex: 1 }}>
+                    {['is', 'is not', 'includes', 'greater than', 'less than', 'older_than_days', 'newer_than_days'].map(o => <option key={o}>{o}</option>)}
+                  </select>
+                  <input value={rule.value} onChange={e => { const r = [...segmentRules]; r[i] = { ...r[i], value: e.target.value }; setSegmentRules(r); }} style={{ ...inputStyle, flex: 1 }} placeholder="Value" />
+                  {segmentRules.length > 1 && <button onClick={() => setSegmentRules(segmentRules.filter((_, j) => j !== i))} style={{ ...btnStyle, padding: '4px 8px', color: C.danger, background: 'transparent' }}>&times;</button>}
+                </div>
+              ))}
+              <button onClick={() => setSegmentRules([...segmentRules, { field: 'Tags', operator: 'includes', value: '' }])} style={{ ...btnGhost, fontSize: 12, marginBottom: 16 }}>+ Add Rule</button>
+              <div style={{ padding: 12, background: '#F8F7F4', borderRadius: 8, marginBottom: 16, fontSize: 13, color: C.text2 }}>
+                {(() => { const count = evaluateSegment({ rules: segmentRules, logic: segmentLogic }, contacts).length; return `${count} constituent${count !== 1 ? 's' : ''} match`; })()}
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button onClick={() => setShowSegmentModal(false)} style={btnGhost}>Cancel</button>
+                <button onClick={() => {
+                  if (!segmentName.trim()) { toast('Name required', 'error'); return; }
+                  addSegment({ name: segmentName, description: '', rules: segmentRules, logic: segmentLogic, isSystem: false });
+                  setShowSegmentModal(false); setSegmentName(''); setSegmentRules([{ field: 'Tags', operator: 'includes', value: '' }]);
+                  toast('Segment saved');
+                }} style={btnPrimary}>Save Segment</button>
+              </div>
+            </div>
           </div>
         </>
       )}

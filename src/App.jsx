@@ -54,6 +54,7 @@ const Facility = lazy(() => import('./admin/pages/Facility'));
 const Visitors = lazy(() => import('./admin/pages/Visitors'));
 const Volunteers = lazy(() => import('./admin/pages/Volunteers'));
 const CRM = lazy(() => import('./admin/pages/CRM'));
+const Tasks = lazy(() => import('./admin/pages/Tasks'));
 const Memberships = lazy(() => import('./admin/pages/Memberships'));
 const Tickets = lazy(() => import('./admin/pages/Tickets'));
 
@@ -378,6 +379,7 @@ export default function App() {
               <Route path="visitors" element={<Visitors />} />
               <Route path="volunteers" element={<Volunteers />} />
               <Route path="crm" element={<CRM />} />
+              <Route path="tasks" element={<Tasks />} />
               <Route path="memberships" element={<Memberships />} />
               <Route path="tickets" element={<Tickets />} />
             </Route>

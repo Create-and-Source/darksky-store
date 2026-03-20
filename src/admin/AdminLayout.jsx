@@ -50,13 +50,13 @@ const ROLE_BADGE_COLORS = {
 const ROLE_ALLOWED_ROUTES = {
   executive_director: null, // all
   admin: null,
-  treasurer: ['', '/messages', '/crm', '/donations', '/reports', '/payroll', '/quickbooks'],
-  shop_manager: ['', '/messages', '/crm', '/memberships', '/pos', '/products', '/orders', '/inventory', '/purchase-orders', '/receive', '/transfers'],
+  treasurer: ['', '/messages', '/crm', '/tasks', '/donations', '/reports', '/payroll', '/quickbooks'],
+  shop_manager: ['', '/messages', '/crm', '/tasks', '/memberships', '/pos', '/products', '/orders', '/inventory', '/purchase-orders', '/receive', '/transfers'],
   shop_staff: ['', '/messages', '/pos', '/orders', '/inventory', '/receive'],
   visitor_services: ['', '/messages', '/pos', '/events', '/tickets', '/reports'],
-  education_director: ['', '/messages', '/crm', '/memberships', '/events', '/tickets', '/field-trips', '/donations', '/volunteers', '/reports'],
+  education_director: ['', '/messages', '/crm', '/tasks', '/memberships', '/events', '/tickets', '/field-trips', '/donations', '/volunteers', '/reports'],
   social_media: ['', '/messages', '/design-studio', '/social-media', '/emails'],
-  volunteer_coordinator: ['', '/messages', '/crm', '/events', '/volunteers', '/reports'],
+  volunteer_coordinator: ['', '/messages', '/crm', '/tasks', '/events', '/volunteers', '/reports'],
   payroll: ['', '/messages', '/payroll', '/reports'],
   board: ['', '/messages'],
 };
@@ -118,7 +118,8 @@ const navSections = [
   {
     label: 'CRM',
     items: [
-      { to: '/admin/crm', icon: Icons.visitors, label: 'Contacts' },
+      { to: '/admin/crm', icon: Icons.visitors, label: 'Constituents' },
+      { to: '/admin/tasks', icon: Icons.purchase, label: 'Tasks' },
       { to: '/admin/memberships', icon: Icons.volunteers, label: 'Memberships' },
     ],
   },
@@ -161,13 +162,13 @@ const navItems = navSections.flatMap(s => s.items);
 const ROLE_NAV = {
   executive_director: null,
   admin: null,
-  treasurer: ['Dashboard', 'Messages', 'Contacts', 'Donations', 'Reports', 'Staff & Time', 'QuickBooks'],
-  shop_manager: ['Dashboard', 'Messages', 'Contacts', 'Memberships', 'POS', 'Products', 'Orders', 'Inventory', 'Purchase Orders', 'Receive', 'Transfers'],
+  treasurer: ['Dashboard', 'Messages', 'Constituents', 'Tasks', 'Donations', 'Reports', 'Staff & Time', 'QuickBooks'],
+  shop_manager: ['Dashboard', 'Messages', 'Constituents', 'Tasks', 'Memberships', 'POS', 'Products', 'Orders', 'Inventory', 'Purchase Orders', 'Receive', 'Transfers'],
   shop_staff: ['Dashboard', 'Messages', 'POS', 'Orders', 'Inventory', 'Receive'],
   visitor_services: ['Dashboard', 'Messages', 'POS', 'Events', 'Tickets', 'Reports'],
-  education_director: ['Dashboard', 'Messages', 'Contacts', 'Memberships', 'Events', 'Tickets', 'Field Trips', 'Donations', 'Volunteers', 'Reports'],
+  education_director: ['Dashboard', 'Messages', 'Constituents', 'Tasks', 'Memberships', 'Events', 'Tickets', 'Field Trips', 'Donations', 'Volunteers', 'Reports'],
   social_media: ['Dashboard', 'Messages', 'Design Studio', 'Social Media', 'Email'],
-  volunteer_coordinator: ['Dashboard', 'Messages', 'Contacts', 'Events', 'Volunteers', 'Reports'],
+  volunteer_coordinator: ['Dashboard', 'Messages', 'Constituents', 'Tasks', 'Events', 'Volunteers', 'Reports'],
   payroll: ['Dashboard', 'Messages', 'Staff & Time', 'Reports'],
   board: ['Dashboard', 'Messages'],
 };
@@ -197,7 +198,8 @@ const breadcrumbMap = {
   '/admin/facility': 'Facility',
   '/admin/visitors': 'Visitors',
   '/admin/volunteers': 'Volunteers',
-  '/admin/crm': 'Contacts',
+  '/admin/crm': 'Constituents',
+  '/admin/tasks': 'Tasks',
   '/admin/memberships': 'Memberships',
   '/admin/tickets': 'Tickets',
   '/admin/payroll': 'Staff & Time',
