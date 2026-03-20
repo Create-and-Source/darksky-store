@@ -399,11 +399,11 @@ export function deleteMembershipTier(id) {
 
 // ═══════ TICKET TYPES ═══════
 export const getTicketTypes = (eventId) => {
-  const all = get(KEYS.ticketTypes, []);
+  const all = get(KEYS.ticketTypes, DEFAULT_TICKET_TYPES);
   return eventId ? all.filter(t => t.eventId === eventId) : all;
 };
 export function addTicketType(type) {
-  const all = get(KEYS.ticketTypes, []);
+  const all = get(KEYS.ticketTypes, DEFAULT_TICKET_TYPES);
   const newT = { id: genId('TKT'), sold: 0, active: true, ...type };
   all.push(newT);
   set(KEYS.ticketTypes, all);

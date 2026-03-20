@@ -1078,7 +1078,7 @@ function ManagerDashboard() {
       <div id="tour-announcement"><AnnouncementBar /></div>
 
       {/* Mission Metrics */}
-      <div id="tour-metrics" className="ds-role-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }} className="ds-mission-metrics">
+      <div id="tour-metrics" className="ds-mission-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
           { label: 'Visitors This Month', value: thisMonthVisitors.toLocaleString(), color: C.gold },
           { label: 'Active Members', value: members.length, sub: Object.entries(tierCounts).map(([t,c]) => `${c} ${t}`).join(', '), color: '#3D8C6F' },
